@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { geocodeCity, fetchOpenMeteo, fetchOWM, fetchWeatherAPI } from '@/lib/weather'
+import { geocodeCity, fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchOpenMeteoForecast } from '@/lib/weather'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -17,46 +17,47 @@ export async function GET(request) {
 
   // 2. Alle APIs parallel abfragen
   const [openMeteo, owm, weatherApi] = await Promise.allSettled([
-  fetchOpenMeteo(geo.lat, geo.lon),
-  fetchOWM(geo.lat, geo.lon),
-  fetchWeatherAPI(geo.lat, geo.lon),
-])
+    fetchOpenMeteo(geo.lat, geo.lon),
+    fetchOWM(geo.lat, geo.lon),
+    fetchWeatherAPI(geo.lat, geo.lon),
+  ])
 
-const results = [openMeteo, owm, weatherApi]
-  .filter(r => r.status === 'fulfilled' && r.value !== null)
-  .map(r => r.value)
+  const { days: forecast7, sunrise, sunset } = await fetchOpenMeteoForecast(geo.lat, geo.lon)
+
+  const results = [openMeteo, owm, weatherApi]
+    .filter(r => r.status === 'fulfilled' && r.value !== null)
+    .map(r => r.value)
 
   if (results.length === 0) {
     return Response.json({ error: 'Keine API-Daten verfügbar' }, { status: 500 })
   }
 
   // 3. Gewichtungen aus Supabase laden
-  const { data: weights, error: wError } = await supabase
-  .from('api_weights')
-  .select('id, weight, name')
-
-console.log('weights:', weights)
-console.log('error:', wError)
+  const { data: weights } = await supabase
+    .from('api_weights')
+    .select('id, weight, name')
 
   const weightMap = {}
   weights?.forEach(w => weightMap[w.id] = w.weight)
 
   // 4. Gewichteten Durchschnitt berechnen
   let totalWeight = 0
-  let wTemp = 0, wRain = 0, wWind = 0
+  let wTemp = 0, wFeelsLike = 0, wRain = 0, wWind = 0
 
   results.forEach(r => {
     const w = weightMap[r.apiId] ?? 0.25
-    wTemp  += r.temp    * w
-    wRain  += r.rainPct * w
-    wWind  += r.windKmh * w
+    wTemp      += r.temp      * w
+    wFeelsLike += (r.feelsLike ?? r.temp) * w
+    wRain      += r.rainPct   * w
+    wWind      += r.windKmh   * w
     totalWeight += w
   })
 
   const consensus = {
-    temp:    Math.round((wTemp  / totalWeight) * 10) / 10,
-    rainPct: Math.round( wRain  / totalWeight),
-    windKmh: Math.round( wWind  / totalWeight),
+    temp:      Math.round((wTemp      / totalWeight) * 10) / 10,
+    feelsLike: Math.round((wFeelsLike / totalWeight) * 10) / 10,
+    rainPct:   Math.round( wRain      / totalWeight),
+    windKmh:   Math.round( wWind      / totalWeight),
   }
 
   // Standardabweichung → Konsens-Score
@@ -68,15 +69,15 @@ console.log('error:', wError)
   const today = new Date().toISOString().split('T')[0]
   await supabase.from('forecasts').insert(
     results.map(r => ({
-      city:       geo.name,
-      lat:        geo.lat,
-      lon:        geo.lon,
-      api_id:     r.apiId,
-      valid_for:  today,
-      temp:       r.temp,
-      rain_pct:   r.rainPct,
-      wind_kmh:   r.windKmh,
-      condition:  r.condition,
+      city:      geo.name,
+      lat:       geo.lat,
+      lon:       geo.lon,
+      api_id:    r.apiId,
+      valid_for: today,
+      temp:      r.temp,
+      rain_pct:  r.rainPct,
+      wind_kmh:  r.windKmh,
+      condition: r.condition,
     }))
   )
 
@@ -86,6 +87,8 @@ console.log('error:', wError)
     consensus,
     sources:   results,
     weights:   weightMap,
+    forecast7,
+    sunrise,
+    sunset,
   })
-
 }

@@ -1,11 +1,36 @@
 import { supabase } from '@/lib/supabase'
 
+// In-memory rate limit: 1 feedback per IP per city per hour.
+// Resets on server cold-start; sufficient for single-process deployments.
+const ipCache = new Map()
+const ONE_HOUR = 60 * 60 * 1000
+
+function checkRateLimit(ip, city) {
+  const key = `${ip}:${city.toLowerCase()}`
+  const last = ipCache.get(key)
+  if (last && Date.now() - last < ONE_HOUR) return true
+  ipCache.set(key, Date.now())
+  return false
+}
+
 export async function POST(request) {
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+    request.headers.get('x-real-ip') ??
+    '127.0.0.1'
+
   const body = await request.json()
   const { city, actualTemp, actualCond, reportDate } = body
 
   if (!city || actualTemp === undefined || !actualCond) {
     return Response.json({ error: 'Fehlende Felder' }, { status: 400 })
+  }
+
+  if (checkRateLimit(ip, city)) {
+    return Response.json(
+      { error: 'Du hast bereits Feedback für diese Stadt in der letzten Stunde eingereicht.' },
+      { status: 429 }
+    )
   }
 
   // 1. Feedback speichern
@@ -19,6 +44,11 @@ export async function POST(request) {
 
   // 2. Prognosen von heute laden
   const today = new Date().toISOString().split('T')[0]
+  const { data: forecasts } = await supabase
+    .from('forecasts')
+    .select('api_id, temp, rain_pct, condition')
+    .eq('city', city)
+    .eq('valid_for', today)
 
   if (!forecasts || forecasts.length === 0) {
     return Response.json({ message: 'Feedback gespeichert, keine Prognosen zum Vergleichen' })
