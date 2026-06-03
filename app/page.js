@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { t, LANGUAGES, getWeatherOptions, detectLang } from '@/lib/i18n'
+import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
 import RainRadar from './components/RainRadar'
 
 // ── Offline forecast cache (localStorage, per city) ───────────────────────────
@@ -59,9 +59,7 @@ const GREEN = '#34d399', YELLOW = '#fbbf24', RED = '#f87171'
 function uvColor(v)     { return v == null ? '#71717a' : v < 3 ? GREEN : v < 6 ? YELLOW : RED }
 function aqiColor(v)    { return v == null ? '#71717a' : v <= 40 ? GREEN : v <= 80 ? YELLOW : RED }
 function pollenColor(v) { return v == null ? '#71717a' : v < 20 ? GREEN : v < 50 ? YELLOW : RED }
-function uvText(v)      { return v == null ? '–' : v < 3 ? 'Low' : v < 6 ? 'Moderate' : v < 8 ? 'High' : 'Very high' }
-function aqiText(v)     { return v == null ? '–' : v <= 40 ? 'Good' : v <= 80 ? 'Fair' : 'Poor' }
-function pollenText(v)  { return v == null ? '–' : v < 20 ? 'Low' : v < 50 ? 'Moderate' : 'High' }
+// uvText / aqiText / pollenText now come from lib/i18n (translated, lang-aware)
 
 function MetricCard({ label, value, sub, color }) {
   return (
@@ -587,6 +585,16 @@ export default function Home() {
               {showEmbed && (
                 <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 mb-5">
                   <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">{t(lang, 'embedTitle')}</div>
+                  <div className="flex justify-center mb-3">
+                    <iframe
+                      src={`/widget/${encodeURIComponent(data.city)}`}
+                      width="300"
+                      height="200"
+                      title="MetaBlend widget preview"
+                      className="rounded-lg border border-zinc-800"
+                      style={{ border: 0 }}
+                    />
+                  </div>
                   <code className="block text-xs text-emerald-300 break-all mb-2">
                     {`<iframe src="https://metablend-beta.vercel.app/widget/${encodeURIComponent(data.city)}" width="300" height="200" frameborder="0"></iframe>`}
                   </code>
@@ -649,19 +657,19 @@ export default function Home() {
                   <MetricCard
                     label={`☀️ ${t(lang, 'uvLabel')}`}
                     value={data.extras.uvIndex ?? '–'}
-                    sub={uvText(data.extras.uvIndex)}
+                    sub={uvText(lang, data.extras.uvIndex)}
                     color={uvColor(data.extras.uvIndex)}
                   />
                   <MetricCard
                     label={`🌬 ${t(lang, 'aqiLabel')}`}
                     value={data.extras.aqi ?? '–'}
-                    sub={aqiText(data.extras.aqi)}
+                    sub={aqiText(lang, data.extras.aqi)}
                     color={aqiColor(data.extras.aqi)}
                   />
                   <MetricCard
                     label={`🌸 ${t(lang, 'pollenLabel')}`}
                     value={data.extras.pollen ?? '–'}
-                    sub={pollenText(data.extras.pollen)}
+                    sub={pollenText(lang, data.extras.pollen)}
                     color={pollenColor(data.extras.pollen)}
                   />
                 </div>
@@ -855,9 +863,9 @@ export default function Home() {
                       <div key={src.apiId} className="bg-zinc-900 border border-red-500/30 rounded-xl p-5 opacity-80">
                         <div className="flex justify-between items-start mb-3">
                           <div className="font-bold">{src.displayName ?? src.apiId}</div>
-                          <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/40 rounded px-2 py-0.5">● down</span>
+                          <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/40 rounded px-2 py-0.5">● {t(lang, 'sourceDown')}</span>
                         </div>
-                        <div className="text-zinc-600 text-sm">No response{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
+                        <div className="text-zinc-600 text-sm">{t(lang, 'noResponse')}{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
                       </div>
                     )
                   }
@@ -881,7 +889,7 @@ export default function Home() {
                       {src.feelsLike !== undefined && (
                         <div className="text-zinc-600 text-xs mb-1">{t(lang, 'feelsLike')} {showT(src.feelsLike)}°{unit}</div>
                       )}
-                      <div className="text-zinc-500 text-sm mb-4">{src.condition} · {src.rainPct}%</div>
+                      <div className="text-zinc-500 text-sm mb-4">{translateCondition(lang, src.condition)} · {src.rainPct}%</div>
                       <div className="flex items-center gap-2">
                         <div className="text-zinc-600 text-xs">{t(lang, 'weightLabel')}</div>
                         <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">

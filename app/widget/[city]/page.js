@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { translateCondition, detectLang } from '@/lib/i18n'
 
 // Minimal consensus card built for a 300x200 iframe embed.
 export default function Widget() {
@@ -9,6 +10,11 @@ export default function Widget() {
   const city = decodeURIComponent(params.city ?? '')
   const [data, setData] = useState(null)
   const [error, setError] = useState(false)
+  const [lang, setLang] = useState('en')
+
+  useEffect(() => {
+    setLang(detectLang(navigator.language))
+  }, [])
 
   useEffect(() => {
     if (!city) return
@@ -18,9 +24,10 @@ export default function Widget() {
       .catch(() => setError(true))
   }, [city])
 
-  const condition =
+  const rawCondition =
     data?.sources?.find(s => s.apiId === 'open-meteo')?.condition ??
     data?.sources?.[0]?.condition ?? ''
+  const condition = translateCondition(lang, rawCondition)
 
   const conf = data?.consensus?.confidencePct ?? 0
   const confColor = conf >= 70 ? '#34d399' : conf >= 45 ? '#fbbf24' : '#f87171'
@@ -40,15 +47,15 @@ export default function Widget() {
           <div style={{ fontSize: 11, color: '#71717a', textTransform: 'uppercase', letterSpacing: 1 }}>
             {data.city}{data.country ? `, ${data.country}` : ''}
           </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-            <div style={{ fontSize: 54, fontWeight: 700, lineHeight: 1 }}>{data.consensus.temp}°</div>
-            <div style={{ fontSize: 13, color: '#a1a1aa' }}>{condition}</div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+              <div style={{ fontSize: 54, fontWeight: 700, lineHeight: 1 }}>{data.consensus.temp}°</div>
+              <div style={{ fontSize: 13, color: '#a1a1aa' }}>{condition}</div>
+            </div>
+            <div style={{ fontSize: 12, color: confColor, marginTop: 4 }}>{conf}% consensus</div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12 }}>
-            <span style={{ color: confColor }}>{conf}% consensus</span>
-            <span style={{ color: '#71717a' }}>
-              Meta<span style={{ color: '#34d399' }}>Blend</span>
-            </span>
+          <div style={{ textAlign: 'center', fontSize: 12, color: '#71717a' }}>
+            Meta<span style={{ color: '#34d399' }}>Blend</span>
           </div>
         </>
       )}
