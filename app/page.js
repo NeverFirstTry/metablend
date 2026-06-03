@@ -73,6 +73,28 @@ function MetricCard({ label, value, sub, color }) {
   )
 }
 
+// Tiny SVG line chart for the intraday consensus temperature.
+function Sparkline({ points, transform = v => v, unit = '' }) {
+  if (!points || points.length < 2) return null
+  const w = 600, h = 80, pad = 8
+  const vals = points.map(p => transform(p.temp))
+  const min = Math.min(...vals), max = Math.max(...vals)
+  const range = max - min || 1
+  const x = i => pad + (i / (points.length - 1)) * (w - 2 * pad)
+  const y = v => h - pad - ((v - min) / range) * (h - 2 * pad)
+  const path = vals.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20" preserveAspectRatio="none">
+      <path d={path} fill="none" stroke="#34d399" strokeWidth="2" />
+      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r="3" fill="#34d399" />
+      <text x={x(0)} y={y(vals[0]) - 4} fill="#71717a" fontSize="11">{Math.round(vals[0])}°{unit}</text>
+      <text x={x(vals.length - 1)} y={y(vals[vals.length - 1]) - 4} fill="#34d399" fontSize="11" textAnchor="end">
+        {Math.round(vals[vals.length - 1])}°{unit}
+      </text>
+    </svg>
+  )
+}
+
 // ── Skeleton ─────────────────────────────────────────────────────────────────
 function Sk({ className }) {
   return <div className={`bg-zinc-800 animate-pulse rounded-lg ${className}`} />
@@ -587,6 +609,16 @@ export default function Home() {
                       {t(lang, 'feelsLike')} {showT(data.consensus.feelsLike)}°{unit}
                     </div>
                   )}
+                  {data.yesterdayTemp != null && (() => {
+                    const d = Math.round((data.consensus.temp - data.yesterdayTemp) * 10) / 10
+                    if (Math.abs(d) < 0.5) return <div className="text-sm mt-1 text-zinc-500">= {t(lang, 'vsYesterdaySame')}</div>
+                    const warmer = d > 0
+                    return (
+                      <div className="text-sm mt-1" style={{ color: warmer ? '#34d399' : '#60a5fa' }}>
+                        {warmer ? '↑' : '↓'} {Math.abs(showDelta(d)).toFixed(1)}°{unit} {warmer ? t(lang, 'vsYesterdayWarmer') : t(lang, 'vsYesterdayColder')}
+                      </div>
+                    )
+                  })()}
                 </div>
                 <div className="pt-1 sm:pt-2">
                   <div className="flex gap-4 sm:gap-6 flex-wrap">
@@ -642,6 +674,16 @@ export default function Home() {
               )}
             </div>
 
+            {/* Intraday consensus trend */}
+            {data.historyToday && data.historyToday.length >= 2 && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
+                <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
+                  📈 {t(lang, 'consensusTrendTitle')}
+                </div>
+                <Sparkline points={data.historyToday} transform={v => unit === 'F' ? cToF(v) : v} unit={unit} />
+              </div>
+            )}
+
             {/* Details */}
             {data.details && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
@@ -671,8 +713,20 @@ export default function Home() {
             {/* 7-Day Forecast */}
             {data.forecast7 && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
-                <div className="text-emerald-400 text-xs tracking-widest uppercase mb-6">
-                  {t(lang, 'forecastTitle')}
+                <div className="flex items-center justify-between gap-3 mb-6">
+                  <div className="text-emerald-400 text-xs tracking-widest uppercase">
+                    {t(lang, 'forecastTitle')}
+                  </div>
+                  {data.forecast7.length >= 4 && (() => {
+                    const today = data.forecast7[0].tempMax
+                    const next3 = data.forecast7.slice(1, 4)
+                    const avg = next3.reduce((s, d) => s + d.tempMax, 0) / next3.length
+                    const d = avg - today
+                    const [label, color] = d > 1.5 ? [t(lang, 'trendWarmer'), '#fb923c']
+                      : d < -1.5 ? [t(lang, 'trendColder'), '#60a5fa']
+                      : [t(lang, 'trendStable'), '#a1a1aa']
+                    return <span className="text-xs" style={{ color }}>{label}</span>
+                  })()}
                 </div>
                 <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                   <div className="grid grid-cols-7 gap-1 min-w-[360px]">
@@ -717,6 +771,47 @@ export default function Home() {
               )
             })()}
 
+            {/* Weather Records (last 10 years, this month) */}
+            {data.records && (data.records.hottest || data.records.coldest || data.records.wettest) && (() => {
+              const r = data.records
+              const near = (r.hottest && Math.abs(data.consensus.temp - r.hottest.temp) <= 2) ||
+                           (r.coldest && Math.abs(data.consensus.temp - r.coldest.temp) <= 2)
+              const fmtDate = d => d ? new Date(d).toLocaleDateString(lang, { day: '2-digit', month: 'short', year: '2-digit' }) : ''
+              return (
+                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
+                  <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
+                    {t(lang, 'recordsTitle')}
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {r.hottest && (
+                      <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-orange-400 text-xs uppercase tracking-wider mb-1">🔥 {t(lang, 'recordHottest')}</div>
+                        <div className="text-2xl font-bold">{showT(r.hottest.temp)}°{unit}</div>
+                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.hottest.date)}</div>
+                      </div>
+                    )}
+                    {r.coldest && (
+                      <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-blue-400 text-xs uppercase tracking-wider mb-1">❄️ {t(lang, 'recordColdest')}</div>
+                        <div className="text-2xl font-bold">{showT(r.coldest.temp)}°{unit}</div>
+                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.coldest.date)}</div>
+                      </div>
+                    )}
+                    {r.wettest && (
+                      <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
+                        <div className="text-cyan-400 text-xs uppercase tracking-wider mb-1">🌧 {t(lang, 'recordWettest')}</div>
+                        <div className="text-2xl font-bold">{r.wettest.mm} mm</div>
+                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.wettest.date)}</div>
+                      </div>
+                    )}
+                  </div>
+                  {near && (
+                    <div className="mt-4 text-sm text-orange-300">⚠ {t(lang, 'recordNear')}</div>
+                  )}
+                </div>
+              )
+            })()}
+
             {/* Best time of day */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
               <div className="text-emerald-400 text-xs tracking-widest uppercase mb-2">
@@ -753,12 +848,31 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {data.sources.map(src => {
                   const weight = data.weights[src.apiId] ?? 0.25
+
+                  // Down source — failed / timed out
+                  if (src.down) {
+                    return (
+                      <div key={src.apiId} className="bg-zinc-900 border border-red-500/30 rounded-xl p-5 opacity-80">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="font-bold">{src.displayName ?? src.apiId}</div>
+                          <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/40 rounded px-2 py-0.5">● down</span>
+                        </div>
+                        <div className="text-zinc-600 text-sm">No response{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
+                      </div>
+                    )
+                  }
+
                   const diff = Math.abs(src.temp - data.consensus.temp)
                   const diffColor = diff <= 1 ? 'text-emerald-400' : diff <= 2.5 ? 'text-yellow-400' : 'text-red-400'
                   return (
                     <div key={src.apiId} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
                       <div className="flex justify-between items-start mb-3">
-                        <div className="font-bold">{src.displayName ?? src.apiId}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{src.displayName ?? src.apiId}</span>
+                          {src.responseMs != null && (
+                            <span className="text-[10px] bg-zinc-800 text-zinc-400 rounded px-1.5 py-0.5">{src.responseMs}ms</span>
+                          )}
+                        </div>
                         <div className={`text-xs ${diffColor}`}>
                           {diff <= 1 ? t(lang, 'equalsConsensus') : `±${showDelta(diff).toFixed(1)}°${unit}`}
                         </div>

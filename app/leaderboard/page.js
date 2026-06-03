@@ -137,6 +137,23 @@ export default function Leaderboard() {
                           <div className="text-zinc-500 text-xs uppercase tracking-wider">Ø Score</div>
                         </div>
                       </div>
+
+                      {(api.uptime != null || api.avgMs != null) && (
+                        <div className="grid grid-cols-2 gap-3 text-center mt-3 pt-3 border-t border-zinc-800">
+                          <div>
+                            <div className="text-sm font-bold" style={{
+                              color: api.uptime == null ? '#a1a1aa' : api.uptime >= 99 ? '#34d399' : api.uptime >= 90 ? '#fbbf24' : '#f87171',
+                            }}>
+                              {api.uptime != null ? `${api.uptime}%` : '–'}
+                            </div>
+                            <div className="text-zinc-500 text-xs uppercase tracking-wider">Uptime</div>
+                          </div>
+                          <div>
+                            <div className="text-sm font-bold">{api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–'}</div>
+                            <div className="text-zinc-500 text-xs uppercase tracking-wider">Avg response</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )
                 })}

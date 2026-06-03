@@ -10,11 +10,24 @@ export async function GET() {
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
-  // bucket by region, best-weighted first
+  // response time + uptime per API (optional table)
+  const stats = {}
+  const { data: statRows } = await supabase
+    .from('api_stats')
+    .select('api_id, avg_response_ms, success_count, fail_count')
+  ;(statRows ?? []).forEach(s => {
+    const total = (s.success_count ?? 0) + (s.fail_count ?? 0)
+    stats[s.api_id] = {
+      avgMs: s.avg_response_ms,
+      uptime: total ? Math.round((s.success_count / total) * 1000) / 10 : null,
+    }
+  })
+
+  // bucket by region, best-weighted first, attach stats
   const byRegion = {}
   for (const row of data ?? []) {
     const region = row.region ?? 'global'
-    ;(byRegion[region] ??= []).push(row)
+    ;(byRegion[region] ??= []).push({ ...row, ...stats[row.id] })
   }
   for (const region of Object.keys(byRegion)) {
     byRegion[region].sort((a, b) => b.weight - a.weight)

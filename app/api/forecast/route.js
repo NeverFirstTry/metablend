@@ -4,8 +4,26 @@ import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
   fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
-  fetchOpenMeteoDetails, fetchMonthHistory,
+  fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
 } from '@/lib/weather'
+
+const DISPLAY_NAMES = {
+  'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
+  tomorrow: 'Tomorrow.io', 'met-norway': 'MET Norway', 'visual-crossing': 'Visual Crossing',
+  'world-weather-online': 'World Weather Online', weatherstack: 'Weatherstack', 'nasa-power': 'NASA POWER',
+}
+
+// Run a source fetcher with timing. `down` means it threw/timed out (vs. just
+// being unavailable, e.g. no API key, which returns null without throwing).
+async function timedFetch(id, fn) {
+  const start = Date.now()
+  try {
+    const value = await fn()
+    return { id, value, ms: Date.now() - start, down: false }
+  } catch {
+    return { id, value: null, ms: Date.now() - start, down: true }
+  }
+}
 
 // 15-min in-memory cache, keyed by city+lang. Lives as long as the warm
 // instance does; cold starts just re-fetch.
@@ -39,28 +57,26 @@ export async function GET(request) {
 
   const region = getRegion(geo.lat, geo.lon)
 
-  // 2. Alle APIs parallel abfragen
-  const [
-    openMeteo, owm, weatherApi, tomorrow, metNorway,
-    visualCrossing, worldWeather, weatherStack, nasaPower,
-  ] = await Promise.allSettled([
-    fetchOpenMeteo(geo.lat, geo.lon),
-    fetchOWM(geo.lat, geo.lon),
-    fetchWeatherAPI(geo.lat, geo.lon),
-    fetchTomorrow(geo.lat, geo.lon),
-    fetchMETNorway(geo.lat, geo.lon),
-    fetchVisualCrossing(geo.lat, geo.lon),
-    fetchWorldWeatherOnline(geo.lat, geo.lon),
-    fetchWeatherStack(geo.lat, geo.lon),
-    fetchNASAPOWER(geo.lat, geo.lon),
+  // 2. All source APIs in parallel, each timed
+  const timed = await Promise.all([
+    timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
+    timedFetch('owm',                  () => fetchOWM(geo.lat, geo.lon)),
+    timedFetch('weatherapi',           () => fetchWeatherAPI(geo.lat, geo.lon)),
+    timedFetch('tomorrow',             () => fetchTomorrow(geo.lat, geo.lon)),
+    timedFetch('met-norway',           () => fetchMETNorway(geo.lat, geo.lon)),
+    timedFetch('visual-crossing',      () => fetchVisualCrossing(geo.lat, geo.lon)),
+    timedFetch('world-weather-online', () => fetchWorldWeatherOnline(geo.lat, geo.lon)),
+    timedFetch('weatherstack',         () => fetchWeatherStack(geo.lat, geo.lon)),
+    timedFetch('nasa-power',           () => fetchNASAPOWER(geo.lat, geo.lon)),
   ])
 
-  const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history] = await Promise.all([
+  const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
     fetchOpenMeteoForecast(geo.lat, geo.lon),
     fetchOpenMeteoExtras(geo.lat, geo.lon),
     fetchOpenMeteoHourly(geo.lat, geo.lon),
     fetchOpenMeteoDetails(geo.lat, geo.lon),
     fetchMonthHistory(geo.lat, geo.lon),
+    fetchYesterdayTemp(geo.lat, geo.lon),
   ])
 
   // climate normals for the current month (today-vs-average is computed client-side)
@@ -68,9 +84,15 @@ export async function GET(request) {
     ? { month: history.month, years: history.years, avgTemp: history.avgTemp, avgRainyDays: history.avgRainyDays }
     : null
 
-  const results = [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing, worldWeather, weatherStack, nasaPower]
-    .filter(r => r.status === 'fulfilled' && r.value !== null)
-    .map(r => r.value)
+  // successful sources, tagged with their response time
+  const results = timed
+    .filter(t => t.value !== null)
+    .map(t => ({ ...t.value, responseMs: t.ms }))
+
+  // sources that actively failed (threw / timed out) — shown as "down"
+  const downSources = timed
+    .filter(t => t.down)
+    .map(t => ({ apiId: t.id, displayName: DISPLAY_NAMES[t.id] ?? t.id, down: true, responseMs: t.ms }))
 
   if (results.length === 0) {
     return Response.json({ error: 'No API data available' }, { status: 500 })
@@ -148,18 +170,56 @@ export async function GET(request) {
 
   // snapshot the consensus for the RSS feed + intraday history chart
   const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
-  await supabase.from('consensus_history').insert({
-    city: geo.name,
-    country: geo.country,
-    region,
-    temp: consensus.temp,
-    feels_like: consensus.feelsLike,
-    rain_pct: consensus.rainPct,
-    wind_kmh: consensus.windKmh,
-    confidence_pct: consensus.confidencePct,
-    condition: mainCondition,
-    source_count: results.length,
-  }).then(() => {}, () => {}) // table may not exist yet — don't block the response
+  let historyToday = []
+  try {
+    await supabase.from('consensus_history').insert({
+      city: geo.name,
+      country: geo.country,
+      region,
+      temp: consensus.temp,
+      feels_like: consensus.feelsLike,
+      rain_pct: consensus.rainPct,
+      wind_kmh: consensus.windKmh,
+      confidence_pct: consensus.confidencePct,
+      condition: mainCondition,
+      source_count: results.length,
+    })
+    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0)
+    const { data: hist } = await supabase
+      .from('consensus_history')
+      .select('temp, created_at')
+      .ilike('city', geo.name)
+      .gte('created_at', startOfDay.toISOString())
+      .order('created_at', { ascending: true })
+    historyToday = (hist ?? []).map(h => ({ temp: h.temp, t: h.created_at }))
+  } catch { /* table may not exist yet */ }
+
+  // Response-time + uptime stats (EMA on the response time, running up/down counts)
+  try {
+    const attempts = timed.filter(t => t.value !== null || t.down)
+    if (attempts.length) {
+      const { data: existing } = await supabase
+        .from('api_stats')
+        .select('api_id, avg_response_ms, success_count, fail_count')
+      const cur = {}
+      ;(existing ?? []).forEach(r => { cur[r.api_id] = r })
+      const rows = attempts.map(t => {
+        const prev = cur[t.id]
+        const up = t.value !== null
+        const avg = prev?.avg_response_ms != null
+          ? Math.round(prev.avg_response_ms * 0.7 + t.ms * 0.3)
+          : t.ms
+        return {
+          api_id: t.id,
+          avg_response_ms: avg,
+          success_count: (prev?.success_count ?? 0) + (up ? 1 : 0),
+          fail_count: (prev?.fail_count ?? 0) + (up ? 0 : 1),
+          last_checked: new Date().toISOString(),
+        }
+      })
+      await supabase.from('api_stats').upsert(rows, { onConflict: 'api_id' })
+    }
+  } catch { /* api_stats table may not exist yet */ }
 
   // Cleanup in background
   const origin = new URL(request.url).origin
@@ -177,7 +237,7 @@ export async function GET(request) {
     lon:      geo.lon,
     region,
     consensus,
-    sources:  results,
+    sources:  [...results, ...downSources],
     weights:  weightMap,
     forecast7,
     sunrise,
@@ -185,6 +245,9 @@ export async function GET(request) {
     extras,
     details,
     climate,
+    records:  history?.records ?? null,
+    yesterdayTemp: yesterdayTemp ?? null,
+    historyToday,
     warning,
     willRain,
     bestTime,
