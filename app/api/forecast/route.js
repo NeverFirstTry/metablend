@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { geocodeCity, fetchOpenMeteo, fetchOWM } from '@/lib/weather'
+import { geocodeCity, fetchOpenMeteo, fetchOWM, fetchWeatherAPI } from '@/lib/weather'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -16,14 +16,15 @@ export async function GET(request) {
   }
 
   // 2. Alle APIs parallel abfragen
-  const [openMeteo, owm] = await Promise.allSettled([
-    fetchOpenMeteo(geo.lat, geo.lon),
-    fetchOWM(geo.lat, geo.lon),
-  ])
+  const [openMeteo, owm, weatherApi] = await Promise.allSettled([
+  fetchOpenMeteo(geo.lat, geo.lon),
+  fetchOWM(geo.lat, geo.lon),
+  fetchWeatherAPI(geo.lat, geo.lon),
+])
 
-  const results = [openMeteo, owm]
-    .filter(r => r.status === 'fulfilled' && r.value !== null)
-    .map(r => r.value)
+const results = [openMeteo, owm, weatherApi]
+  .filter(r => r.status === 'fulfilled' && r.value !== null)
+  .map(r => r.value)
 
   if (results.length === 0) {
     return Response.json({ error: 'Keine API-Daten verfügbar' }, { status: 500 })
