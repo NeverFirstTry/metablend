@@ -3,8 +3,18 @@ import {
   geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
-  fetchOpenMeteoForecast,
+  fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
 } from '@/lib/weather'
+
+// ── In-memory response cache (15 min) ─────────────────────────────────────────
+// Keyed by normalised city + language. Survives between requests on a warm
+// serverless instance; cold starts simply re-fetch, which is fine.
+const CACHE = new Map()
+const CACHE_TTL = 15 * 60 * 1000
+
+function cacheKey(city, lang) {
+  return `${city.trim().toLowerCase()}|${lang}`
+}
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -13,6 +23,13 @@ export async function GET(request) {
 
   if (!city) {
     return Response.json({ error: 'No city specified' }, { status: 400 })
+  }
+
+  // 0. Serve from cache if fresh
+  const key = cacheKey(city, lang)
+  const cached = CACHE.get(key)
+  if (cached && Date.now() - cached.ts < CACHE_TTL) {
+    return Response.json({ ...cached.payload, cached: true })
   }
 
   // 1. Stadt → Koordinaten
@@ -41,7 +58,11 @@ export async function GET(request) {
     fetchNASAPOWER(geo.lat, geo.lon),
   ])
 
-  const { days: forecast7, sunrise, sunset } = await fetchOpenMeteoForecast(geo.lat, geo.lon)
+  const [{ days: forecast7, sunrise, sunset }, extras, hourly] = await Promise.all([
+    fetchOpenMeteoForecast(geo.lat, geo.lon),
+    fetchOpenMeteoExtras(geo.lat, geo.lon),
+    fetchOpenMeteoHourly(geo.lat, geo.lon),
+  ])
 
   const results = [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing, worldWeather, weatherStack, nasaPower]
     .filter(r => r.status === 'fulfilled' && r.value !== null)
@@ -93,6 +114,22 @@ export async function GET(request) {
   const std = Math.sqrt(temps.reduce((s, t) => s + (t - consensus.temp) ** 2, 0) / temps.length)
   consensus.confidencePct = Math.max(0, Math.min(100, Math.round(100 - std * 12)))
 
+  // 4b. Severe-weather warning: all sources agree on heavy rain / thunderstorm
+  const STORM = /thunder|storm|gewitter|orage|tormenta|temporale/i
+  const allHeavyRain = results.length >= 2 && results.every(r => r.rainPct > 80)
+  const allStorm = results.length >= 2 && results.every(r => STORM.test(r.condition ?? ''))
+  const warning = (allHeavyRain || allStorm)
+    ? { active: true, type: allStorm ? 'thunderstorm' : 'heavy_rain' }
+    : { active: false }
+
+  // 4c. Simple rain answer (consensus threshold 40 %)
+  const willRain = consensus.rainPct >= 40
+
+  // 4d. Best time of day for outdoor activities
+  const bestTime = hourly?.best
+    ? { hour: hourly.best.hour, time: hourly.best.time, temp: hourly.best.temp, rainPct: hourly.best.rainPct, windKmh: hourly.best.windKmh, icon: hourly.best.icon }
+    : null
+
   // 5. Prognosen speichern
   const today = new Date().toISOString().split('T')[0]
   await supabase.from('forecasts').insert(
@@ -113,9 +150,11 @@ export async function GET(request) {
   // Cleanup in background
   fetch(`${new URL(request.url).origin}/api/cleanup`).catch(() => {})
 
-  return Response.json({
+  const payload = {
     city:     geo.name,
     country:  geo.country,
+    lat:      geo.lat,
+    lon:      geo.lon,
     region,
     consensus,
     sources:  results,
@@ -123,5 +162,14 @@ export async function GET(request) {
     forecast7,
     sunrise,
     sunset,
-  })
+    extras,
+    warning,
+    willRain,
+    bestTime,
+  }
+
+  // Store in the 15-minute cache
+  CACHE.set(key, { ts: Date.now(), payload })
+
+  return Response.json(payload)
 }

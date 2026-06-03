@@ -31,7 +31,7 @@ export async function POST(request) {
     '127.0.0.1'
 
   const body = await request.json()
-  const { city, actualTemp, actualCond, reportDate, region = 'global' } = body
+  const { city, actualTemp, actualCond, reportDate, region = 'global', lat = null, lon = null } = body
 
   // ── Basic field validation ────────────────────────────────────────────────
   if (!city || actualTemp === undefined || !actualCond) {
@@ -72,6 +72,9 @@ export async function POST(request) {
     .eq('city', city)
     .eq('valid_for', today)
 
+  // Accuracy of the API consensus vs. reality (0 = way off, 1 = spot on).
+  // Used by the global feedback heatmap. Null when no forecasts to compare.
+  let accuracy = null
   if (forecasts?.length) {
     const latestPerApi = {}
     forecasts.forEach(f => { latestPerApi[f.api_id] = f })
@@ -84,16 +87,26 @@ export async function POST(request) {
         { status: 422 }
       )
     }
+
+    accuracy = Math.max(0, Math.min(1, 1 - Math.abs(actualTemp - consensusTemp) / 10))
   }
 
   // ── Save feedback ─────────────────────────────────────────────────────────
-  await supabase.from('feedback').insert({
+  // lat/lon/accuracy columns are optional; if the migration hasn't run yet we
+  // retry without them so feedback submission never hard-fails.
+  const baseRow = {
     city,
     actual_temp: actualTemp,
     actual_cond: actualCond,
     report_date: reportDate ?? today,
     processed: false,
-  })
+  }
+  const { error: insErr } = await supabase
+    .from('feedback')
+    .insert({ ...baseRow, lat, lon, accuracy })
+  if (insErr) {
+    await supabase.from('feedback').insert(baseRow)
+  }
 
   // ── Minimum report threshold ──────────────────────────────────────────────
   const { count: reportCount } = await supabase

@@ -1,24 +1,38 @@
 {
-  "name": "MetaBlend",
+  "name": "MetaBlend – Weather truth through consensus",
   "short_name": "MetaBlend",
-  "description": "Wetterwahrheit durch Konsensus",
+  "description": "Multiple weather APIs blended into one weighted consensus.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#0e0e12",
-  "theme_color": "#34d399",
-  "lang": "de",
+  "theme_color": "#0e0e12",
+  "lang": "en",
   "icons": [
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
