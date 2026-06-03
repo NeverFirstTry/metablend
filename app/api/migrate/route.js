@@ -2,11 +2,12 @@ import { supabase } from '@/lib/supabase'
 
 const REGIONS = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
 const APIS = [
-  { id: 'open-meteo', name: 'Open-Meteo' },
-  { id: 'owm',        name: 'OpenWeatherMap' },
-  { id: 'weatherapi', name: 'WeatherAPI' },
-  { id: 'tomorrow',   name: 'Tomorrow.io' },
-  { id: 'met-norway', name: 'MET Norway' },
+  { id: 'open-meteo',      name: 'Open-Meteo' },
+  { id: 'owm',             name: 'OpenWeatherMap' },
+  { id: 'weatherapi',      name: 'WeatherAPI' },
+  { id: 'tomorrow',        name: 'Tomorrow.io' },
+  { id: 'met-norway',      name: 'MET Norway' },
+  { id: 'visual-crossing', name: 'Visual Crossing' },
 ]
 
 // One-time data setup endpoint.

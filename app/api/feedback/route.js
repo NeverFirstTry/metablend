@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
+// ── Rate limit ────────────────────────────────────────────────────────────────
 const ipCache = new Map()
 const ONE_HOUR = 60 * 60 * 1000
 
@@ -11,6 +12,18 @@ function checkRateLimit(ip, city) {
   return false
 }
 
+// ── Median helper ─────────────────────────────────────────────────────────────
+function median(arr) {
+  if (!arr.length) return 0
+  const s = [...arr].sort((a, b) => a - b)
+  const m = Math.floor(s.length / 2)
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
+}
+
+// Sunny-family condition values (both new i18n keys and legacy German values)
+const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig', 'clear', 'Klar'])
+const MIN_REPORTS_TO_UPDATE = 5
+
 export async function POST(request) {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
@@ -20,10 +33,30 @@ export async function POST(request) {
   const body = await request.json()
   const { city, actualTemp, actualCond, reportDate, region = 'global' } = body
 
+  // ── Basic field validation ────────────────────────────────────────────────
   if (!city || actualTemp === undefined || !actualCond) {
     return Response.json({ error: 'Missing fields' }, { status: 400 })
   }
 
+  // ── Temperature sanity range ──────────────────────────────────────────────
+  if (actualTemp < -50 || actualTemp > 60) {
+    return Response.json(
+      { error: `Temperature ${actualTemp}°C is outside the valid range (−50 to +60°C).` },
+      { status: 422 }
+    )
+  }
+
+  // ── Sunny condition at night (21:00–06:00 UTC) ────────────────────────────
+  const utcHour = new Date().getUTCHours()
+  const isNight = utcHour >= 21 || utcHour < 6
+  if (isNight && SUNNY_CONDITIONS.has(actualCond)) {
+    return Response.json(
+      { error: 'Sunny conditions cannot be reported between 9 PM and 6 AM.' },
+      { status: 422 }
+    )
+  }
+
+  // ── Rate limit ────────────────────────────────────────────────────────────
   if (checkRateLimit(ip, city)) {
     return Response.json(
       { error: 'You have already submitted feedback for this city in the last hour.' },
@@ -31,16 +64,7 @@ export async function POST(request) {
     )
   }
 
-  // 1. Feedback speichern
-  await supabase.from('feedback').insert({
-    city,
-    actual_temp: actualTemp,
-    actual_cond: actualCond,
-    report_date: reportDate ?? new Date().toISOString().split('T')[0],
-    processed: false,
-  })
-
-  // 2. Prognosen von heute laden
+  // ── Load today's forecasts to validate consensus deviation ────────────────
   const today = new Date().toISOString().split('T')[0]
   const { data: forecasts } = await supabase
     .from('forecasts')
@@ -48,7 +72,44 @@ export async function POST(request) {
     .eq('city', city)
     .eq('valid_for', today)
 
-  if (!forecasts || forecasts.length === 0) {
+  if (forecasts?.length) {
+    const latestPerApi = {}
+    forecasts.forEach(f => { latestPerApi[f.api_id] = f })
+    const unique = Object.values(latestPerApi)
+    const consensusTemp = unique.reduce((s, f) => s + f.temp, 0) / unique.length
+
+    if (Math.abs(actualTemp - consensusTemp) > 20) {
+      return Response.json(
+        { error: `Temperature deviates more than 20°C from the current forecast consensus (${consensusTemp.toFixed(1)}°C).` },
+        { status: 422 }
+      )
+    }
+  }
+
+  // ── Save feedback ─────────────────────────────────────────────────────────
+  await supabase.from('feedback').insert({
+    city,
+    actual_temp: actualTemp,
+    actual_cond: actualCond,
+    report_date: reportDate ?? today,
+    processed: false,
+  })
+
+  // ── Minimum report threshold ──────────────────────────────────────────────
+  const { count: reportCount } = await supabase
+    .from('feedback')
+    .select('id', { count: 'exact', head: true })
+    .eq('city', city)
+    .neq('actual_cond', '__meteostat__')  // exclude validation sentinels
+
+  if ((reportCount ?? 0) < MIN_REPORTS_TO_UPDATE) {
+    const remaining = MIN_REPORTS_TO_UPDATE - (reportCount ?? 0)
+    return Response.json({
+      message: `Feedback saved. Weights will update once ${remaining} more report${remaining === 1 ? '' : 's'} are collected for ${city}.`,
+    })
+  }
+
+  if (!forecasts?.length) {
     return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })
   }
 
@@ -56,19 +117,26 @@ export async function POST(request) {
   forecasts.forEach(f => { latestPerApi[f.api_id] = f })
   const unique = Object.values(latestPerApi)
 
-  // 3. Region-specific weights, falling back to global
-  const { data: regionWeights, error: rwErr } = await supabase
-    .from('api_weights')
-    .select('id, score, reports, weight')
-    .eq('region', region)
+  // ── Load weights (with delta_history if the column exists) ────────────────
+  const tryWithHistory = async (regionFilter) => {
+    const q = supabase.from('api_weights').select('id, score, reports, weight, delta_history')
+    return regionFilter ? q.eq('region', regionFilter) : q
+  }
 
-  let allWeights = (!rwErr && regionWeights?.length) ? regionWeights : null
+  let { data: allWeights, error: wErr } = await tryWithHistory(region)
+  const hasHistory = !wErr
 
-  if (!allWeights) {
-    const { data: globalWeights } = await supabase
-      .from('api_weights')
-      .select('id, score, reports, weight')
-    allWeights = globalWeights
+  if (!allWeights?.length) {
+    // Try global or without region filter
+    const { data: fallback } = hasHistory
+      ? await tryWithHistory(null)
+      : await supabase.from('api_weights').select('id, score, reports, weight').eq('region', region)
+    allWeights = fallback
+
+    if (!allWeights?.length) {
+      const { data: global } = await supabase.from('api_weights').select('id, score, reports, weight')
+      allWeights = global
+    }
   }
 
   if (!allWeights) return Response.json({ error: 'No API weights found' }, { status: 500 })
@@ -76,48 +144,60 @@ export async function POST(request) {
   const weightMap = {}
   allWeights.forEach(w => { weightMap[w.id] = w })
 
-  // 4. Score berechnen
+  // ── Compute score deltas using median of history ───────────────────────────
   const updates = []
   for (const forecast of unique) {
-    const current = weightMap[forecast.api_id]
-    if (!current) continue
+    const cur = weightMap[forecast.api_id]
+    if (!cur) continue
 
     const tempDiff = Math.abs(forecast.temp - actualTemp)
-    let delta = 0
-    if (tempDiff <= 1)      delta = +2
-    else if (tempDiff <= 2) delta = +1
-    else if (tempDiff <= 4) delta =  0
-    else if (tempDiff <= 6) delta = -1
-    else                    delta = -2
+    const delta = tempDiff <= 1 ? +2 : tempDiff <= 2 ? +1 : tempDiff <= 4 ? 0 : tempDiff <= 6 ? -1 : -2
 
-    const newScore   = current.score + delta
-    const newReports = current.reports + 1
-    const rawFactor  = Math.max(0.05, 1 + (newScore / newReports) * 0.3)
-    updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor, delta })
+    const newScore   = cur.score + delta
+    const newReports = cur.reports + 1
+
+    // Median-based rawFactor when history is available; fall back to mean
+    let rawFactor
+    if (hasHistory && Array.isArray(cur.delta_history)) {
+      const history = [...cur.delta_history, delta].slice(-50)
+      rawFactor = Math.max(0.05, 1 + median(history) * 0.3)
+      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor, delta, history })
+    } else {
+      rawFactor = Math.max(0.05, 1 + (newScore / newReports) * 0.3)
+      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor, delta, history: null })
+    }
   }
 
-  // 5. Gewichte normalisieren
+  // Include untouched APIs so normalization stays correct
   const updatedIds = new Set(updates.map(u => u.id))
   allWeights.forEach(w => {
     if (!updatedIds.has(w.id)) {
-      const avg = w.reports > 0 ? w.score / w.reports : 0
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: Math.max(0.05, 1 + avg * 0.3), delta: null })
+      let rawFactor
+      if (hasHistory && Array.isArray(w.delta_history) && w.delta_history.length) {
+        rawFactor = Math.max(0.05, 1 + median(w.delta_history) * 0.3)
+      } else {
+        const avg = w.reports > 0 ? w.score / w.reports : 0
+        rawFactor = Math.max(0.05, 1 + avg * 0.3)
+      }
+      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor, delta: null, history: null })
     }
   })
 
   const totalFactor = updates.reduce((s, u) => s + u.rawFactor, 0)
 
-  // 6. Gewichte updaten (region-specific row if available, else global)
+  // ── Persist updated weights ───────────────────────────────────────────────
   for (const u of updates) {
     const newWeight = u.rawFactor / totalFactor
-    const q = supabase
-      .from('api_weights')
-      .update({ score: u.score, reports: u.reports, weight: newWeight, updated_at: new Date().toISOString() })
-      .eq('id', u.id)
+    const payload = {
+      score: u.score,
+      reports: u.reports,
+      weight: newWeight,
+      updated_at: new Date().toISOString(),
+      ...(hasHistory && u.history !== null ? { delta_history: u.history } : {}),
+    }
 
-    // Try region-specific row first; fall back to plain id filter
-    const { error } = await q.eq('region', region)
-    if (error) await supabase.from('api_weights').update({ score: u.score, reports: u.reports, weight: newWeight, updated_at: new Date().toISOString() }).eq('id', u.id)
+    const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
+    if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
   }
 
   return Response.json({
