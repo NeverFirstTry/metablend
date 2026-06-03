@@ -7,7 +7,10 @@ const APIS = [
   { id: 'weatherapi',      name: 'WeatherAPI' },
   { id: 'tomorrow',        name: 'Tomorrow.io' },
   { id: 'met-norway',      name: 'MET Norway' },
-  { id: 'visual-crossing', name: 'Visual Crossing' },
+  { id: 'visual-crossing',      name: 'Visual Crossing' },
+  { id: 'world-weather-online', name: 'World Weather Online' },
+  { id: 'weatherstack',         name: 'Weatherstack' },
+  { id: 'nasa-power',           name: 'NASA POWER' },
 ]
 
 // One-time data setup endpoint.

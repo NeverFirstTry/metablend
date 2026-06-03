@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import {
   geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
+  fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
   fetchOpenMeteoForecast,
 } from '@/lib/weather'
 
@@ -25,18 +26,24 @@ export async function GET(request) {
   const region = getRegion(geo.lat, geo.lon)
 
   // 2. Alle APIs parallel abfragen
-  const [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing] = await Promise.allSettled([
+  const [
+    openMeteo, owm, weatherApi, tomorrow, metNorway,
+    visualCrossing, worldWeather, weatherStack, nasaPower,
+  ] = await Promise.allSettled([
     fetchOpenMeteo(geo.lat, geo.lon),
     fetchOWM(geo.lat, geo.lon),
     fetchWeatherAPI(geo.lat, geo.lon),
     fetchTomorrow(geo.lat, geo.lon),
     fetchMETNorway(geo.lat, geo.lon),
     fetchVisualCrossing(geo.lat, geo.lon),
+    fetchWorldWeatherOnline(geo.lat, geo.lon),
+    fetchWeatherStack(geo.lat, geo.lon),
+    fetchNASAPOWER(geo.lat, geo.lon),
   ])
 
   const { days: forecast7, sunrise, sunset } = await fetchOpenMeteoForecast(geo.lat, geo.lon)
 
-  const results = [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing]
+  const results = [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing, worldWeather, weatherStack, nasaPower]
     .filter(r => r.status === 'fulfilled' && r.value !== null)
     .map(r => r.value)
 
