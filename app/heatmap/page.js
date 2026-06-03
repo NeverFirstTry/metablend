@@ -4,12 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { loadLeaflet } from '@/lib/leaflet'
 
-// accuracy 1 → green, 0 → red
 function accuracyColor(a) {
-  if (a == null) return '#71717a' // zinc — unknown
-  if (a >= 0.7) return '#34d399'  // emerald
-  if (a >= 0.4) return '#fbbf24'  // amber
-  return '#f87171'                // red
+  if (a == null) return '#71717a' // unknown
+  if (a >= 0.7) return '#34d399'  // good
+  if (a >= 0.4) return '#fbbf24'  // meh
+  return '#f87171'                // off
 }
 
 export default function Heatmap() {

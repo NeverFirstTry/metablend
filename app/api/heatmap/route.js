@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-// Returns geolocated feedback points for the global accuracy heatmap.
-// Each point carries the consensus accuracy (0 = APIs were wrong, 1 = accurate).
+// Feedback points with coords, each tagged with how accurate the consensus was.
 export async function GET() {
   const { data, error } = await supabase
     .from('feedback')
@@ -13,7 +12,7 @@ export async function GET() {
     .limit(1000)
 
   if (error) {
-    // Column likely missing (migration4 not run) → return empty set gracefully
+    // probably the lat/lon columns aren't there yet — just hand back nothing
     return Response.json({ points: [], note: error.message })
   }
 

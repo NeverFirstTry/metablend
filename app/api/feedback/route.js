@@ -20,8 +20,9 @@ function median(arr) {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
 
-// Sunny-family condition values (both new i18n keys and legacy German values)
-const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig', 'clear', 'Klar'])
+// Only daytime-sun values (new i18n key + legacy German). "Clear"/"Klar" is a
+// nighttime answer, so it's allowed around the clock.
+const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
 const MIN_REPORTS_TO_UPDATE = 5
 
 export async function POST(request) {
@@ -72,8 +73,7 @@ export async function POST(request) {
     .eq('city', city)
     .eq('valid_for', today)
 
-  // Accuracy of the API consensus vs. reality (0 = way off, 1 = spot on).
-  // Used by the global feedback heatmap. Null when no forecasts to compare.
+  // how close the consensus got (1 = spot on, 0 = way off). feeds the heatmap.
   let accuracy = null
   if (forecasts?.length) {
     const latestPerApi = {}
@@ -92,8 +92,8 @@ export async function POST(request) {
   }
 
   // ── Save feedback ─────────────────────────────────────────────────────────
-  // lat/lon/accuracy columns are optional; if the migration hasn't run yet we
-  // retry without them so feedback submission never hard-fails.
+  // lat/lon/accuracy may not exist yet (migration4) — retry without them so a
+  // missing column never blocks a submission.
   const baseRow = {
     city,
     actual_temp: actualTemp,
@@ -104,9 +104,7 @@ export async function POST(request) {
   const { error: insErr } = await supabase
     .from('feedback')
     .insert({ ...baseRow, lat, lon, accuracy })
-  if (insErr) {
-    await supabase.from('feedback').insert(baseRow)
-  }
+  if (insErr) await supabase.from('feedback').insert(baseRow)
 
   // ── Minimum report threshold ──────────────────────────────────────────────
   const { count: reportCount } = await supabase

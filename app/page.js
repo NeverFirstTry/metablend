@@ -35,6 +35,25 @@ function setCookie(name, value, days = 365) {
   document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`
 }
 
+// ── Recent cities (cookie, last 5, deduped) ───────────────────────────────────
+function getRecent() {
+  try { return JSON.parse(getCookie('metablend_recent') ?? '[]') } catch { return [] }
+}
+function pushRecent(city) {
+  if (!city) return getRecent()
+  const list = [city, ...getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())].slice(0, 5)
+  setCookie('metablend_recent', JSON.stringify(list))
+  return list
+}
+
+// ── Temperature units ─────────────────────────────────────────────────────────
+const cToF = c => c * 9 / 5 + 32
+const fToC = f => (f - 32) * 5 / 9
+
+// detail-row color coding
+function cloudColor(v) { return v == null ? '#71717a' : v < 30 ? '#34d399' : v < 70 ? '#fbbf24' : '#f87171' }
+function visColor(v)   { return v == null ? '#71717a' : v >= 10 ? '#34d399' : v >= 4 ? '#fbbf24' : '#f87171' }
+
 // ── Extra-metric color coding (green / yellow / red) ──────────────────────────
 const GREEN = '#34d399', YELLOW = '#fbbf24', RED = '#f87171'
 function uvColor(v)     { return v == null ? '#71717a' : v < 3 ? GREEN : v < 6 ? YELLOW : RED }
@@ -103,22 +122,29 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lang, setLang] = useState('en')
+  const [unit, setUnit] = useState('C')
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
+  const [recent, setRecent] = useState([])
+  const [toast, setToast] = useState(null)
+  const [showEmbed, setShowEmbed] = useState(false)
+  const [compareMode, setCompareMode] = useState(false)
+  const [compareCity, setCompareCity] = useState('')
+  const [compareData, setCompareData] = useState(null)
 
-  // Language + consent detection + service worker + offline listeners on mount
+  // mount: language, unit, consent, recent cities, service worker, online/offline
   useEffect(() => {
     const savedLang = getCookie('metablend_lang')
     const detectedLang = savedLang ?? detectLang(navigator.language)
     setLang(detectedLang)
+    setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
     setConsentGiven(!!getCookie('metablend_consent'))
+    setRecent(getRecent())
 
-    // Register service worker for PWA / offline support
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {})
     }
 
-    // Track connectivity
     setOffline(!navigator.onLine)
     const goOnline = () => setOffline(false)
     const goOffline = () => setOffline(true)
@@ -134,6 +160,16 @@ export default function Home() {
     setLang(code)
     setCookie('metablend_lang', code)
   }
+
+  function changeUnit(u) {
+    setUnit(u)
+    setCookie('metablend_unit', u)
+  }
+
+  // celsius value → number shown in the active unit
+  const showT = c => c == null ? '–' : unit === 'F' ? Math.round(cToF(c)) : Math.round(c * 10) / 10
+  // a temperature gap, e.g. ±2.5° — scale only, no +32 offset
+  const showDelta = d => unit === 'F' ? d * 9 / 5 : d
 
   function giveConsent() {
     setCookie('metablend_consent', '1')
@@ -162,8 +198,9 @@ export default function Home() {
       setData(json)
       setOffline(false)
       cacheForecast(json.city ?? q, json)
+      setRecent(pushRecent(json.city ?? q))
     } catch (e) {
-      // Network failure → fall back to last cached forecast for this city
+      // offline? show the last forecast we stashed for this city
       const cached = readCachedForecast(q)
       if (cached) {
         setData(cached)
@@ -205,13 +242,16 @@ export default function Home() {
     if (!feedback.temp || !feedback.cond || !data) return
     setFbLoading(true)
     setFbStatus(null)
+    // APIs all speak Celsius, so convert before sending if the user typed °F
+    const entered = parseFloat(feedback.temp)
+    const tempC = unit === 'F' ? Math.round(fToC(entered) * 10) / 10 : entered
     try {
       const res = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           city: data.city,
-          actualTemp: parseFloat(feedback.temp),
+          actualTemp: tempC,
           actualCond: feedback.cond,
           region: data.region ?? 'global',
           lat: data.lat ?? null,
@@ -232,6 +272,65 @@ export default function Home() {
     }
   }
 
+  function flashToast(msg) {
+    setToast(msg)
+    setTimeout(() => setToast(null), 2000)
+  }
+
+  // Native share on mobile, clipboard copy on desktop
+  async function shareForecast() {
+    if (!data) return
+    const condition = data.sources?.find(s => s.apiId === 'open-meteo')?.condition ?? data.sources?.[0]?.condition ?? ''
+    const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend-beta.vercel.app`
+    if (navigator.share) {
+      try { await navigator.share({ title: 'MetaBlend', text }); return } catch { /* cancelled → fall through */ }
+    }
+    try {
+      await navigator.clipboard.writeText(text)
+      flashToast(t(lang, 'copied'))
+    } catch {
+      flashToast(t(lang, 'copyFailed'))
+    }
+  }
+
+  async function copyEmbed() {
+    if (!data) return
+    const src = `https://metablend-beta.vercel.app/widget/${encodeURIComponent(data.city)}`
+    const code = `<iframe src="${src}" width="300" height="200" frameborder="0" title="MetaBlend ${data.city}"></iframe>`
+    try {
+      await navigator.clipboard.writeText(code)
+      flashToast(t(lang, 'copied'))
+    } catch {
+      flashToast(t(lang, 'copyFailed'))
+    }
+  }
+
+  async function loadCompare(targetCity) {
+    const q = targetCity ?? compareCity
+    if (!q.trim()) return
+    try {
+      const res = await fetch(`/api/forecast?city=${encodeURIComponent(q)}&lang=${lang}`)
+      const json = await res.json()
+      if (json.error) throw new Error(json.error)
+      setCompareData(json)
+    } catch (e) {
+      setError(e.message)
+    }
+  }
+
+  // Escape clears the search and closes suggestions
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') {
+        setShowSuggestions(false)
+        setCity('')
+        setSuggestions([])
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
@@ -242,6 +341,20 @@ export default function Home() {
             Meta<span className="text-emerald-400">Blend</span>
           </h1>
           <div className="flex items-center gap-3">
+            {/* Unit toggle */}
+            <div className="flex rounded-lg overflow-hidden border border-zinc-800">
+              {['C', 'F'].map(u => (
+                <button
+                  key={u}
+                  onClick={() => changeUnit(u)}
+                  className={`px-2 py-1 text-xs transition-colors ${
+                    unit === u ? 'bg-emerald-400 text-black font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-emerald-400'
+                  }`}
+                >
+                  °{u}
+                </button>
+              ))}
+            </div>
             {/* Language switcher */}
             <select
               value={lang}
@@ -257,6 +370,9 @@ export default function Home() {
             </Link>
             <Link href="/heatmap" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase">
               {t(lang, 'heatmap')}
+            </Link>
+            <Link href="/planner" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase">
+              {t(lang, 'planner')}
             </Link>
           </div>
         </div>
@@ -305,7 +421,68 @@ export default function Home() {
           >
             {loading ? '↻' : '▶'}
           </button>
+          <button
+            onClick={() => { setCompareMode(m => !m); setCompareData(null) }}
+            title="Compare two cities"
+            className={`px-3 rounded-lg text-xs shrink-0 border transition-colors ${
+              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
+            }`}
+          >
+            ⇄ {t(lang, 'compareBtn')}
+          </button>
         </div>
+
+        {/* Recent city chips */}
+        {recent.length > 0 && !compareMode && (
+          <div className="flex gap-2 flex-wrap -mt-6 mb-10">
+            <span className="text-zinc-600 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
+            {recent.map(c => (
+              <button
+                key={c}
+                onClick={() => { setCity(c); loadForecast(c) }}
+                className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Compare second city */}
+        {compareMode && (
+          <div className="flex gap-2 mb-10 -mt-6">
+            <input
+              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
+              placeholder={t(lang, 'comparePlaceholder')}
+              value={compareCity}
+              onChange={e => setCompareCity(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter') loadCompare() }}
+            />
+            <button
+              onClick={() => loadCompare()}
+              className="bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 transition-colors shrink-0"
+            >
+              ▶
+            </button>
+          </div>
+        )}
+
+        {/* Side-by-side comparison */}
+        {compareMode && data && compareData && (
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            {[data, compareData].map((d, i) => (
+              <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5">
+                <div className="text-emerald-400 text-xs uppercase tracking-wider mb-2 truncate">{d.city}</div>
+                <div className="text-4xl font-bold mb-3">{showT(d.consensus.temp)}°{unit}</div>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct}%</span></div>
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'windLabel')}</span><span>{d.consensus.windKmh} km/h</span></div>
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'consensusLabel')}</span><span>{d.consensus.confidencePct}%</span></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Error */}
         {error && (
@@ -364,17 +541,50 @@ export default function Home() {
 
             {/* Consensus Hero */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
-              <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
-                ⊕ {t(lang, 'consensusTitle')} · {data.city}, {data.country}
+              <div className="flex items-start justify-between gap-3 mb-4">
+                <div className="text-emerald-400 text-xs tracking-widest uppercase">
+                  ⊕ {t(lang, 'consensusTitle')} · {data.city}, {data.country}
+                </div>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={shareForecast}
+                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
+                  >
+                    ↗ {t(lang, 'shareBtn')}
+                  </button>
+                  <button
+                    onClick={() => setShowEmbed(s => !s)}
+                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
+                  >
+                    {'</>'} {t(lang, 'embedBtn')}
+                  </button>
+                </div>
               </div>
+
+              {/* Embed code box */}
+              {showEmbed && (
+                <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 mb-5">
+                  <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">{t(lang, 'embedTitle')}</div>
+                  <code className="block text-xs text-emerald-300 break-all mb-2">
+                    {`<iframe src="https://metablend-beta.vercel.app/widget/${encodeURIComponent(data.city)}" width="300" height="200" frameborder="0"></iframe>`}
+                  </code>
+                  <button
+                    onClick={copyEmbed}
+                    className="bg-emerald-400 text-black text-xs font-bold px-3 py-1 rounded hover:bg-emerald-300 transition-colors"
+                  >
+                    📋 {t(lang, 'copied').replace('!', '')}
+                  </button>
+                </div>
+              )}
+
               <div className="flex flex-wrap items-start gap-6 mb-5">
                 <div>
                   <div className="text-5xl sm:text-8xl font-bold leading-none">
-                    {data.consensus.temp}°
+                    {showT(data.consensus.temp)}°{unit}
                   </div>
                   {data.consensus.feelsLike !== undefined && (
                     <div className="text-zinc-500 text-sm mt-1">
-                      {t(lang, 'feelsLike')} {data.consensus.feelsLike}°
+                      {t(lang, 'feelsLike')} {showT(data.consensus.feelsLike)}°{unit}
                     </div>
                   )}
                 </div>
@@ -432,6 +642,32 @@ export default function Home() {
               )}
             </div>
 
+            {/* Details */}
+            {data.details && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
+                <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
+                  {t(lang, 'detailsTitle')}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <MetricCard label={`🌫 ${t(lang, 'cloudLabel')}`}
+                    value={data.details.cloudCover != null ? `${data.details.cloudCover}%` : '–'}
+                    sub="" color={cloudColor(data.details.cloudCover)} />
+                  <MetricCard label={`👁 ${t(lang, 'visibilityLabel')}`}
+                    value={data.details.visibilityKm != null ? `${data.details.visibilityKm} km` : '–'}
+                    sub="" color={visColor(data.details.visibilityKm)} />
+                  <MetricCard label={`💧 ${t(lang, 'precipLabel')}`}
+                    value={data.details.precipMm != null ? `${data.details.precipMm} mm` : '–'}
+                    sub="" color={data.details.precipMm > 0 ? '#60a5fa' : '#34d399'} />
+                  <MetricCard label={`🌨 ${t(lang, 'snowfallLabel')}`}
+                    value={data.details.snowfallMm != null ? `${data.details.snowfallMm} mm` : '–'}
+                    sub="" color={data.details.snowfallMm > 0 ? '#93c5fd' : '#71717a'} />
+                  <MetricCard label={`🌡 ${t(lang, 'groundTempLabel')}`}
+                    value={data.details.groundTemp != null ? `${showT(data.details.groundTemp)}°${unit}` : '–'}
+                    sub="" color="#a1a1aa" />
+                </div>
+              </div>
+            )}
+
             {/* 7-Day Forecast */}
             {data.forecast7 && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
@@ -448,8 +684,8 @@ export default function Home() {
                         <div key={day.date} className={`flex flex-col items-center gap-2 p-2 rounded-xl ${i === 0 ? 'bg-zinc-800 border border-emerald-400/30' : 'hover:bg-zinc-800 transition-colors'}`}>
                           <div className={`text-xs uppercase tracking-wider ${i === 0 ? 'text-emerald-400' : 'text-zinc-500'}`}>{label}</div>
                           <div className="text-xl">{day.icon}</div>
-                          <div className="text-sm font-bold">{day.tempMax}°</div>
-                          <div className="text-xs text-zinc-500">{day.tempMin}°</div>
+                          <div className="text-sm font-bold">{showT(day.tempMax)}°{unit}</div>
+                          <div className="text-xs text-zinc-500">{showT(day.tempMin)}°{unit}</div>
                           <div className="text-xs text-blue-400">{day.rainPct}%</div>
                         </div>
                       )
@@ -458,6 +694,28 @@ export default function Home() {
                 </div>
               </div>
             )}
+
+            {/* Climate Context */}
+            {data.climate && data.climate.avgTemp != null && (() => {
+              const diff = Math.round((data.consensus.temp - data.climate.avgTemp) * 10) / 10
+              const warmer = diff > 0.5, colder = diff < -0.5
+              const word = warmer ? t(lang, 'warmerThanAvg') : colder ? t(lang, 'colderThanAvg') : t(lang, 'likeAvg')
+              const color = warmer ? '#fb923c' : colder ? '#60a5fa' : '#a1a1aa'
+              return (
+                <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
+                  <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
+                    {t(lang, 'climateTitle')}
+                  </div>
+                  <div className="flex flex-wrap gap-3 mb-4">
+                    <MetricCard label={`🌡 ${t(lang, 'climateAvgLabel')}`} value={`${showT(data.climate.avgTemp)}°${unit}`} sub="" color="#a1a1aa" />
+                    <MetricCard label={`🌧 ${t(lang, 'climateRainyLabel')}`} value={data.climate.avgRainyDays ?? '–'} sub="" color="#60a5fa" />
+                  </div>
+                  <p className="text-sm" style={{ color }}>
+                    {(warmer || colder) && `${diff > 0 ? '↑' : '↓'} ${Math.abs(showDelta(diff)).toFixed(1)}°${unit} `}{word}
+                  </p>
+                </div>
+              )
+            })()}
 
             {/* Best time of day */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
@@ -473,7 +731,7 @@ export default function Home() {
                       {String(data.bestTime.hour).padStart(2, '0')}:00
                     </div>
                     <div className="text-zinc-400 text-sm mt-1">
-                      {data.bestTime.temp}° · 🌧 {data.bestTime.rainPct}% · 💨 {data.bestTime.windKmh} km/h
+                      {showT(data.bestTime.temp)}°{unit} · 🌧 {data.bestTime.rainPct}% · 💨 {data.bestTime.windKmh} km/h
                     </div>
                   </div>
                 </div>
@@ -502,12 +760,12 @@ export default function Home() {
                       <div className="flex justify-between items-start mb-3">
                         <div className="font-bold">{src.displayName ?? src.apiId}</div>
                         <div className={`text-xs ${diffColor}`}>
-                          {diff <= 1 ? t(lang, 'equalsConsensus') : `±${diff.toFixed(1)}°`}
+                          {diff <= 1 ? t(lang, 'equalsConsensus') : `±${showDelta(diff).toFixed(1)}°${unit}`}
                         </div>
                       </div>
-                      <div className="text-4xl font-bold mb-1">{src.temp}°</div>
+                      <div className="text-4xl font-bold mb-1">{showT(src.temp)}°{unit}</div>
                       {src.feelsLike !== undefined && (
-                        <div className="text-zinc-600 text-xs mb-1">{t(lang, 'feelsLike')} {src.feelsLike}°</div>
+                        <div className="text-zinc-600 text-xs mb-1">{t(lang, 'feelsLike')} {showT(src.feelsLike)}°{unit}</div>
                       )}
                       <div className="text-zinc-500 text-sm mb-4">{src.condition} · {src.rainPct}%</div>
                       <div className="flex items-center gap-2">
@@ -532,11 +790,11 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="text-zinc-500 text-xs uppercase tracking-wider block mb-2">
-                    {t(lang, 'tempInputLabel')}
+                    {t(lang, 'tempInputLabel')} (°{unit})
                   </label>
                   <input
                     type="number"
-                    placeholder="e.g. 14"
+                    placeholder={unit === 'F' ? 'e.g. 57' : 'e.g. 14'}
                     value={feedback.temp}
                     onChange={e => setFeedback(f => ({ ...f, temp: e.target.value }))}
                     className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
@@ -577,6 +835,13 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* Toast */}
+      {toast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-bold px-4 py-2 rounded-lg shadow-lg z-[60]">
+          {toast}
+        </div>
+      )}
 
       {/* Cookie consent banner */}
       {!consentGiven && (

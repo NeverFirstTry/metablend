@@ -10,7 +10,7 @@ export async function GET() {
 
   if (error) return Response.json({ error: error.message }, { status: 500 })
 
-  // Group rows by region so the page can show a per-region leaderboard.
+  // bucket by region, best-weighted first
   const byRegion = {}
   for (const row of data ?? []) {
     const region = row.region ?? 'global'
@@ -26,7 +26,7 @@ export async function GET() {
     leader: byRegion[region][0] ?? null,
   }))
 
-  // Backward-compatible flat list (global region) for older clients.
+  // flat global list, kept around for older clients
   const apis = byRegion.global ?? data ?? []
 
   return Response.json({ regions, apis })

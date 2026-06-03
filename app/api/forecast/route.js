@@ -4,17 +4,14 @@ import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
   fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
+  fetchOpenMeteoDetails, fetchMonthHistory,
 } from '@/lib/weather'
 
-// ── In-memory response cache (15 min) ─────────────────────────────────────────
-// Keyed by normalised city + language. Survives between requests on a warm
-// serverless instance; cold starts simply re-fetch, which is fine.
+// 15-min in-memory cache, keyed by city+lang. Lives as long as the warm
+// instance does; cold starts just re-fetch.
 const CACHE = new Map()
 const CACHE_TTL = 15 * 60 * 1000
-
-function cacheKey(city, lang) {
-  return `${city.trim().toLowerCase()}|${lang}`
-}
+const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -25,7 +22,7 @@ export async function GET(request) {
     return Response.json({ error: 'No city specified' }, { status: 400 })
   }
 
-  // 0. Serve from cache if fresh
+  // serve a fresh cached copy if we have one
   const key = cacheKey(city, lang)
   const cached = CACHE.get(key)
   if (cached && Date.now() - cached.ts < CACHE_TTL) {
@@ -58,11 +55,18 @@ export async function GET(request) {
     fetchNASAPOWER(geo.lat, geo.lon),
   ])
 
-  const [{ days: forecast7, sunrise, sunset }, extras, hourly] = await Promise.all([
+  const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history] = await Promise.all([
     fetchOpenMeteoForecast(geo.lat, geo.lon),
     fetchOpenMeteoExtras(geo.lat, geo.lon),
     fetchOpenMeteoHourly(geo.lat, geo.lon),
+    fetchOpenMeteoDetails(geo.lat, geo.lon),
+    fetchMonthHistory(geo.lat, geo.lon),
   ])
+
+  // climate normals for the current month (today-vs-average is computed client-side)
+  const climate = history
+    ? { month: history.month, years: history.years, avgTemp: history.avgTemp, avgRainyDays: history.avgRainyDays }
+    : null
 
   const results = [openMeteo, owm, weatherApi, tomorrow, metNorway, visualCrossing, worldWeather, weatherStack, nasaPower]
     .filter(r => r.status === 'fulfilled' && r.value !== null)
@@ -114,7 +118,7 @@ export async function GET(request) {
   const std = Math.sqrt(temps.reduce((s, t) => s + (t - consensus.temp) ** 2, 0) / temps.length)
   consensus.confidencePct = Math.max(0, Math.min(100, Math.round(100 - std * 12)))
 
-  // 4b. Severe-weather warning: all sources agree on heavy rain / thunderstorm
+  // warn only when everyone agrees it's nasty
   const STORM = /thunder|storm|gewitter|orage|tormenta|temporale/i
   const allHeavyRain = results.length >= 2 && results.every(r => r.rainPct > 80)
   const allStorm = results.length >= 2 && results.every(r => STORM.test(r.condition ?? ''))
@@ -122,13 +126,8 @@ export async function GET(request) {
     ? { active: true, type: allStorm ? 'thunderstorm' : 'heavy_rain' }
     : { active: false }
 
-  // 4c. Simple rain answer (consensus threshold 40 %)
   const willRain = consensus.rainPct >= 40
-
-  // 4d. Best time of day for outdoor activities
-  const bestTime = hourly?.best
-    ? { hour: hourly.best.hour, time: hourly.best.time, temp: hourly.best.temp, rainPct: hourly.best.rainPct, windKmh: hourly.best.windKmh, icon: hourly.best.icon }
-    : null
+  const bestTime = hourly?.best ?? null
 
   // 5. Prognosen speichern
   const today = new Date().toISOString().split('T')[0]
@@ -147,8 +146,29 @@ export async function GET(request) {
     }))
   )
 
+  // snapshot the consensus for the RSS feed + intraday history chart
+  const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
+  await supabase.from('consensus_history').insert({
+    city: geo.name,
+    country: geo.country,
+    region,
+    temp: consensus.temp,
+    feels_like: consensus.feelsLike,
+    rain_pct: consensus.rainPct,
+    wind_kmh: consensus.windKmh,
+    confidence_pct: consensus.confidencePct,
+    condition: mainCondition,
+    source_count: results.length,
+  }).then(() => {}, () => {}) // table may not exist yet — don't block the response
+
   // Cleanup in background
-  fetch(`${new URL(request.url).origin}/api/cleanup`).catch(() => {})
+  const origin = new URL(request.url).origin
+  fetch(`${origin}/api/cleanup`).catch(() => {})
+
+  // Low-confidence consensus → fire the webhook check in the background
+  if (consensus.confidencePct < 40) {
+    fetch(`${origin}/api/webhook`).catch(() => {})
+  }
 
   const payload = {
     city:     geo.name,
@@ -163,13 +183,13 @@ export async function GET(request) {
     sunrise,
     sunset,
     extras,
+    details,
+    climate,
     warning,
     willRain,
     bestTime,
   }
 
-  // Store in the 15-minute cache
   CACHE.set(key, { ts: Date.now(), payload })
-
   return Response.json(payload)
 }

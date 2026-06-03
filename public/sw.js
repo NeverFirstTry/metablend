@@ -1,5 +1,5 @@
-// MetaBlend service worker — offline app shell + asset caching.
-// Forecast data itself is cached per city in localStorage by the app.
+// Caches the app shell so it loads offline. The forecasts themselves live in
+// localStorage (see page.js) — this is just the static stuff.
 const CACHE = 'metablend-v1'
 const SHELL = ['/', '/leaderboard', '/heatmap', '/manifest.json', '/icon-192.png', '/icon-512.png']
 
@@ -24,11 +24,11 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return
 
   const url = new URL(request.url)
-  // Only handle same-origin; let the app handle API offline via localStorage.
+  // same-origin only; the app deals with offline API calls itself
   if (url.origin !== self.location.origin) return
   if (url.pathname.startsWith('/api/')) return
 
-  // Navigations: network-first, fall back to cached shell.
+  // pages: try the network, fall back to whatever we cached
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -42,7 +42,7 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // Static assets: stale-while-revalidate.
+  // assets: serve cached, refresh in the background
   event.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request)

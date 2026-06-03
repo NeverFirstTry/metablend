@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { loadLeaflet } from '@/lib/leaflet'
 
-// Live precipitation radar via the free RainViewer API over an OpenStreetMap base.
+// RainViewer radar laid over an OpenStreetMap base.
 export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
@@ -16,7 +16,7 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
     loadLeaflet().then(async (L) => {
       if (cancelled || !L || !containerRef.current) return
 
-      // Init map once
+      // build the map the first time, just recenter after that
       if (!mapRef.current) {
         mapRef.current = L.map(containerRef.current, {
           center: [lat, lon],
@@ -32,7 +32,7 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
         mapRef.current.setView([lat, lon], 7)
       }
 
-      // Fetch latest radar frame and overlay it
+      // grab the most recent radar frame and drop it on top
       try {
         const res = await fetch('https://api.rainviewer.com/public/weather-maps.json')
         const data = await res.json()
@@ -45,16 +45,14 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
           radarLayerRef.current = L.tileLayer(tileUrl, { opacity: 0.6, zIndex: 10 })
           radarLayerRef.current.addTo(mapRef.current)
         }
-      } catch { /* radar overlay optional */ }
+      } catch {} // no radar is fine, the map still shows
 
-      // Leaflet needs a size recalc once it's visible
       setTimeout(() => mapRef.current?.invalidateSize(), 100)
     }).catch(() => {})
 
     return () => { cancelled = true }
   }, [lat, lon])
 
-  // Tear down on unmount
   useEffect(() => () => {
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
   }, [])

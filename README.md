@@ -1,36 +1,167 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# MetaBlend 🌤
 
-## Getting Started
+**Weather truth through consensus.**
 
-First, run the development server:
+Every weather app gives you one number and asks you to trust it. MetaBlend asks a
+dozen forecasts the same question, weighs each one by how accurate it's actually
+been, and gives you the blended answer — plus how confident the sources are that
+they agree.
+
+🔗 Live: https://metablend-beta.vercel.app
+
+---
+
+## How it works
+
+1. **Geocode** the city you typed into coordinates.
+2. **Fan out** to every configured weather API in parallel and grab the current
+   conditions (temperature, rain probability, wind, feels-like).
+3. **Blend** them into a weighted average. Each source carries a weight between
+   0 and 1; better sources count for more.
+4. **Score the confidence** from how tightly the sources agree — when they all
+   land on the same temperature, confidence is high; when they scatter, it drops.
+5. **Learn over time.** When you report the actual weather (or the nightly
+   Meteostat job checks yesterday's forecasts against reality), each API's score
+   moves up or down and the weights re-normalise. Weights are tracked *per region*,
+   so an API that nails European weather but struggles in Asia is rewarded where
+   it earns it.
+
+The weighting is deliberately simple: an API's recent accuracy (the median of its
+last scoring deltas) nudges a raw factor up or down, and all the factors are
+normalised so they sum to 1. No black boxes — just "be right more often, count
+for more."
+
+---
+
+## Features
+
+- **Weighted consensus** across many weather APIs with a confidence score
+- **Will it rain today?** — one big, honest yes/no card
+- **Severe-weather warnings** when every source agrees on thunderstorms or heavy rain
+- **Best time to be outside** today, scored on rain, comfort and wind
+- **UV index, air quality and pollen**, colour-coded at a glance
+- **Live rain radar** (RainViewer over OpenStreetMap)
+- **7-day forecast**
+- **Community feedback** that retrains the weights, with abuse/sanity guards
+- **Per-region API leaderboard** — see who wins in Europe, Asia, etc.
+- **Global feedback heatmap** showing where the consensus was right vs. wrong
+- **15-minute response caching** to keep the upstream APIs happy
+- **Offline mode** (PWA + service worker) showing your last known forecast
+- **Installable PWA** on iOS and Android
+- **Multi-language UI** (EN, DE, FR, ES, IT)
+
+---
+
+## Tech stack
+
+- **[Next.js](https://nextjs.org)** (App Router) — UI + API routes
+- **[Supabase](https://supabase.com)** (Postgres) — forecasts, feedback, API weights
+- **[Vercel](https://vercel.com)** — hosting
+- **[Leaflet](https://leafletjs.com)** + **[OpenStreetMap](https://www.openstreetmap.org)** — maps
+- **[RainViewer](https://www.rainviewer.com)** — rain radar tiles
+- **[Tailwind CSS](https://tailwindcss.com)** — styling
+- **[Plausible](https://plausible.io)** — privacy-friendly analytics
+
+---
+
+## Weather data sources
+
+| Source | Key needed | Notes |
+| --- | --- | --- |
+| [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen |
+| [MET Norway](https://api.met.no) | no | Yr.no's public API |
+| [NASA POWER](https://power.larc.nasa.gov) | no | Satellite-derived hourly data |
+| [OpenWeatherMap](https://openweathermap.org/api) | yes | |
+| [WeatherAPI](https://www.weatherapi.com) | yes | |
+| [Tomorrow.io](https://www.tomorrow.io) | yes | |
+| [Visual Crossing](https://www.visualcrossing.com) | yes | |
+| [World Weather Online](https://www.worldweatheronline.com) | yes | |
+| [Weatherstack](https://weatherstack.com) | yes | |
+| [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
+
+Sources without a configured key are simply skipped — the app still works with
+just the keyless ones.
+
+---
+
+## Run it locally
+
+```bash
+git clone https://github.com/NeverFirstTry/metablend.git
+cd metablend
+npm install
+```
+
+Create a `.env.local` in the root. Only the two Supabase vars are required; every
+weather key is optional (missing ones get skipped):
+
+```bash
+# Required
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+
+# Optional weather APIs
+OPENWEATHERMAP_API_KEY=
+WEATHERAPI_KEY=
+TOMORROW_KEY=
+VISUAL_CROSSING_KEY=
+WORLD_WEATHER_KEY=
+WEATHERSTACK_KEY=
+RAPIDAPI_KEY=          # Meteostat, for nightly validation
+```
+
+Set up the database by running the SQL files in `supabase/` (in order:
+`migration.sql` → `migration2.sql` → `migration3.sql` → `migration4.sql`) in the
+Supabase SQL editor, then hit `/api/migrate` once to seed the weight rows.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contributing
 
-## Learn More
+PRs welcome.
 
-To learn more about Next.js, take a look at the following resources:
+1. Fork and branch off `main` (`git checkout -b my-feature`).
+2. Keep the style that's already there — terse comments, no ceremony.
+3. `npm run build` should pass before you push.
+4. Open a PR describing what changed and why.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Adding a weather source is the easiest first contribution: write a
+`fetchYourApi(lat, lon)` in `lib/weather.js` that returns the standard shape
+(`apiId`, `displayName`, `temp`, `feelsLike`, `rainPct`, `windKmh`, `condition`),
+wire it into `app/api/forecast/route.js`, and add its weight rows to a migration.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## License
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+MIT — see below.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+MIT License
+
+Copyright (c) 2026 MetaBlend
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
