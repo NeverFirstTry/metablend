@@ -568,15 +568,15 @@ export default function Home() {
                 <div className="flex gap-2 shrink-0">
                   <button
                     onClick={shareForecast}
-                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
+                    className="inline-flex items-center gap-1 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
                   >
-                    ↗ {t(lang, 'shareBtn')}
+                    <span aria-hidden>↗</span> {t(lang, 'shareBtn')}
                   </button>
                   <button
                     onClick={() => setShowEmbed(s => !s)}
-                    className="bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
+                    className="inline-flex items-center gap-1 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors"
                   >
-                    {'</>'} {t(lang, 'embedBtn')}
+                    <span aria-hidden className="font-mono">{'</>'}</span> {t(lang, 'embedBtn')}
                   </button>
                 </div>
               </div>
