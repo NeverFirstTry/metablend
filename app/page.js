@@ -3,6 +3,53 @@
 import { useState } from 'react'
 import Link from 'next/link'
 
+function Sk({ className }) {
+  return <div className={`bg-zinc-800 animate-pulse rounded-lg ${className}`} />
+}
+
+function ForecastSkeleton() {
+  return (
+    <div className="space-y-6">
+      {/* Hero skeleton */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
+        <Sk className="h-3 w-52 mb-6" />
+        <Sk className="h-16 w-36 mb-2" />
+        <Sk className="h-3 w-24 mb-6" />
+        <div className="flex gap-6">
+          <Sk className="h-8 w-14" />
+          <Sk className="h-8 w-20" />
+          <Sk className="h-8 w-12" />
+        </div>
+      </div>
+      {/* 7-day skeleton */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
+        <Sk className="h-3 w-36 mb-6" />
+        <div className="grid grid-cols-7 gap-1">
+          {Array.from({ length: 7 }).map((_, i) => (
+            <div key={i} className="flex flex-col items-center gap-2 p-2">
+              <Sk className="h-3 w-8" />
+              <Sk className="h-7 w-7 rounded-full" />
+              <Sk className="h-4 w-8" />
+              <Sk className="h-3 w-6" />
+            </div>
+          ))}
+        </div>
+      </div>
+      {/* Source cards skeleton */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {[0, 1, 2].map(i => (
+          <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+            <Sk className="h-4 w-28 mb-4" />
+            <Sk className="h-10 w-20 mb-2" />
+            <Sk className="h-3 w-40 mb-5" />
+            <Sk className="h-1.5 w-full" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Home() {
   const [city, setCity] = useState('')
   const [data, setData] = useState(null)
@@ -195,6 +242,9 @@ export default function Home() {
             ⚠ {error}
           </div>
         )}
+
+        {/* Skeleton – first load only */}
+        {loading && !data && <ForecastSkeleton />}
 
         {/* Results */}
         {data && (

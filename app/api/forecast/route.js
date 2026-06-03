@@ -12,7 +12,9 @@ export async function GET(request) {
   // 1. Stadt → Koordinaten
   const geo = await geocodeCity(city)
   if (!geo) {
-    return Response.json({ error: 'Stadt nicht gefunden' }, { status: 404 })
+    return Response.json({
+      error: `„${city}" wurde nicht gefunden. Bitte überprüfe die Schreibweise oder wähle eine Stadt aus den Vorschlägen.`,
+    }, { status: 404 })
   }
 
   // 2. Alle APIs parallel abfragen
@@ -80,6 +82,9 @@ export async function GET(request) {
       condition: r.condition,
     }))
   )
+
+  // Cleanup old data in background – fire-and-forget, don't block the response
+  fetch(`${new URL(request.url).origin}/api/cleanup`).catch(() => {})
 
   return Response.json({
     city:      geo.name,
