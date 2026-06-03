@@ -1,46 +1,65 @@
 import { supabase } from '@/lib/supabase'
-import { geocodeCity, fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchOpenMeteoForecast } from '@/lib/weather'
+import {
+  geocodeCity, getRegion,
+  fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
+  fetchOpenMeteoForecast,
+} from '@/lib/weather'
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city')
+  const lang = searchParams.get('lang') ?? 'en'
 
   if (!city) {
-    return Response.json({ error: 'Keine Stadt angegeben' }, { status: 400 })
+    return Response.json({ error: 'No city specified' }, { status: 400 })
   }
 
   // 1. Stadt → Koordinaten
-  const geo = await geocodeCity(city)
+  const geo = await geocodeCity(city, lang)
   if (!geo) {
     return Response.json({
-      error: `„${city}" wurde nicht gefunden. Bitte überprüfe die Schreibweise oder wähle eine Stadt aus den Vorschlägen.`,
+      error: `"${city}" was not found. Check the spelling or pick a city from the suggestions.`,
     }, { status: 404 })
   }
 
+  const region = getRegion(geo.lat, geo.lon)
+
   // 2. Alle APIs parallel abfragen
-  const [openMeteo, owm, weatherApi] = await Promise.allSettled([
+  const [openMeteo, owm, weatherApi, tomorrow, metNorway] = await Promise.allSettled([
     fetchOpenMeteo(geo.lat, geo.lon),
     fetchOWM(geo.lat, geo.lon),
     fetchWeatherAPI(geo.lat, geo.lon),
+    fetchTomorrow(geo.lat, geo.lon),
+    fetchMETNorway(geo.lat, geo.lon),
   ])
 
   const { days: forecast7, sunrise, sunset } = await fetchOpenMeteoForecast(geo.lat, geo.lon)
 
-  const results = [openMeteo, owm, weatherApi]
+  const results = [openMeteo, owm, weatherApi, tomorrow, metNorway]
     .filter(r => r.status === 'fulfilled' && r.value !== null)
     .map(r => r.value)
 
   if (results.length === 0) {
-    return Response.json({ error: 'Keine API-Daten verfügbar' }, { status: 500 })
+    return Response.json({ error: 'No API data available' }, { status: 500 })
   }
 
-  // 3. Gewichtungen aus Supabase laden
-  const { data: weights } = await supabase
+  // 3. Region-specific weights, falling back to global
+  const { data: regionWeights, error: rwErr } = await supabase
     .from('api_weights')
-    .select('id, weight, name')
+    .select('id, weight')
+    .eq('region', region)
+
+  let weightRows = (!rwErr && regionWeights?.length) ? regionWeights : null
+
+  if (!weightRows) {
+    const { data: globalWeights } = await supabase
+      .from('api_weights')
+      .select('id, weight')
+    weightRows = globalWeights ?? []
+  }
 
   const weightMap = {}
-  weights?.forEach(w => weightMap[w.id] = w.weight)
+  weightRows.forEach(w => { weightMap[w.id] = w.weight })
 
   // 4. Gewichteten Durchschnitt berechnen
   let totalWeight = 0
@@ -48,10 +67,10 @@ export async function GET(request) {
 
   results.forEach(r => {
     const w = weightMap[r.apiId] ?? 0.25
-    wTemp      += r.temp      * w
-    wFeelsLike += (r.feelsLike ?? r.temp) * w
-    wRain      += r.rainPct   * w
-    wWind      += r.windKmh   * w
+    wTemp      += r.temp                   * w
+    wFeelsLike += (r.feelsLike ?? r.temp)  * w
+    wRain      += r.rainPct                * w
+    wWind      += r.windKmh                * w
     totalWeight += w
   })
 
@@ -62,12 +81,11 @@ export async function GET(request) {
     windKmh:   Math.round( wWind      / totalWeight),
   }
 
-  // Standardabweichung → Konsens-Score
   const temps = results.map(r => r.temp)
   const std = Math.sqrt(temps.reduce((s, t) => s + (t - consensus.temp) ** 2, 0) / temps.length)
   consensus.confidencePct = Math.max(0, Math.min(100, Math.round(100 - std * 12)))
 
-  // 5. Prognosen in Supabase speichern (für späteres Feedback)
+  // 5. Prognosen speichern
   const today = new Date().toISOString().split('T')[0]
   await supabase.from('forecasts').insert(
     results.map(r => ({
@@ -80,18 +98,20 @@ export async function GET(request) {
       rain_pct:  r.rainPct,
       wind_kmh:  r.windKmh,
       condition: r.condition,
+      region,
     }))
   )
 
-  // Cleanup old data in background – fire-and-forget, don't block the response
+  // Cleanup in background
   fetch(`${new URL(request.url).origin}/api/cleanup`).catch(() => {})
 
   return Response.json({
-    city:      geo.name,
-    country:   geo.country,
+    city:     geo.name,
+    country:  geo.country,
+    region,
     consensus,
-    sources:   results,
-    weights:   weightMap,
+    sources:  results,
+    weights:  weightMap,
     forecast7,
     sunrise,
     sunset,
