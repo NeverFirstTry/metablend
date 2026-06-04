@@ -126,4 +126,15 @@ create index if not exists feedback_latlon_idx        on feedback (lat, lon);
 create index if not exists consensus_history_city_time on consensus_history (city, created_at desc);
 create index if not exists forecasts_valid_for_idx     on forecasts (valid_for);
 
+-- ── RLS: this beta talks to Supabase with the public anon key, so every app
+--    table must be anon-accessible. `feedback` shipped with RLS ENABLED, which
+--    silently rejected every insert (no policy) — breaking user feedback and the
+--    heatmap. Disable it on all app tables so they behave consistently.
+--    (If you later move the server to the service-role key, flip these back on.)
+alter table api_weights       disable row level security;
+alter table forecasts         disable row level security;
+alter table feedback          disable row level security;
+alter table consensus_history disable row level security;
+alter table api_stats         disable row level security;
+
 commit;

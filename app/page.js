@@ -363,8 +363,11 @@ export default function Home() {
 
         {/* Header */}
         <div className="flex items-baseline justify-between mb-1">
-          <h1 className="text-4xl font-bold">
+          <h1 className="text-4xl font-bold flex items-center gap-2">
             Meta<span className="text-emerald-400">Blend</span>
+            <span className="text-[10px] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
+              Beta
+            </span>
           </h1>
           <div className="flex items-center gap-3">
             {/* Unit toggle */}
@@ -402,9 +405,15 @@ export default function Home() {
             </Link>
           </div>
         </div>
-        <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
+        <p className="text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>
+
+        {/* In-development disclaimer */}
+        <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3 text-amber-300/90 text-xs mb-8 flex items-start gap-2">
+          <span className="shrink-0">🚧</span>
+          <span>{t(lang, 'betaDisclaimer')}</span>
+        </div>
 
         {/* Search */}
         <div className="relative flex gap-2 mb-10">

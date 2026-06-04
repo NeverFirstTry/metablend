@@ -23,7 +23,9 @@ function median(arr) {
 // Only daytime-sun values (new i18n key + legacy German). "Clear"/"Klar" is a
 // nighttime answer, so it's allowed around the clock.
 const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
-const MIN_REPORTS_TO_UPDATE = 5
+// Beta: re-weight on every single report (1) instead of waiting for a batch, so
+// each data point a user submits immediately nudges the weights.
+const MIN_REPORTS_TO_UPDATE = 1
 
 export async function POST(request) {
   const ip =
