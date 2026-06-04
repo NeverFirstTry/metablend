@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
 const ipCache = new Map()
@@ -150,6 +150,9 @@ export async function POST(request) {
   const weightMap = {}
   allWeights.forEach(w => { weightMap[w.id] = w })
 
+  // Median forecast temp across all APIs — used to flag outliers (see below).
+  const medianTemp = median(unique.map(f => f.temp))
+
   // ── Compute score deltas using median of history ───────────────────────────
   const updates = []
   for (const forecast of unique) {
@@ -157,7 +160,11 @@ export async function POST(request) {
     if (!cur) continue
 
     const tempDiff = Math.abs(forecast.temp - actualTemp)
-    const delta = deltaFromDiff(tempDiff, 'instant')
+    // Outlier penalty: an API more than 5°C off the cross-API median gets a hard
+    // −2 regardless of how the user feedback scored it.
+    const delta = Math.abs(forecast.temp - medianTemp) > 5
+      ? -2
+      : deltaFromDiff(tempDiff, 'instant')
 
     const newScore   = cur.score + delta
     const newReports = cur.reports + 1
@@ -196,6 +203,9 @@ export async function POST(request) {
     const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
     if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
   }
+
+  // Mark this city's pending feedback as consumed now that weights are updated.
+  await supabase.from('feedback').update({ processed: true }).eq('city', city).eq('processed', false)
 
   return Response.json({
     message: 'Thank you! Weights updated.',

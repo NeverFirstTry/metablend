@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import { deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
@@ -78,12 +78,19 @@ export async function GET() {
     const wMap = {}
     allWeights.forEach(w => { wMap[w.id] = w })
 
+    // Median forecast temp across all APIs — used to flag outliers (see below).
+    const medianTemp = median(unique.map(f => f.temp))
+
     const updates = []
     for (const f of unique) {
       const cur = wMap[f.api_id]
       if (!cur) continue
       const tempDiff = Math.abs(f.temp - actualTemp)
-      const delta = deltaFromDiff(tempDiff, 'instant')
+      // Outlier penalty: an API more than 5°C off the cross-API median gets a
+      // hard −2 regardless of how it scored against the actual temp.
+      const delta = Math.abs(f.temp - medianTemp) > 5
+        ? -2
+        : deltaFromDiff(tempDiff, 'instant')
       const newScore = cur.score + delta
       const newReports = cur.reports + 1
 
@@ -116,6 +123,9 @@ export async function GET() {
       const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
       if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
     }
+
+    // Mark this city's pending feedback as consumed now that weights are updated.
+    await supabase.from('feedback').update({ processed: true }).eq('city', city).eq('processed', false)
 
     results.push({
       city,
