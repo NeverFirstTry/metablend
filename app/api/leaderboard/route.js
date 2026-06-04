@@ -3,12 +3,20 @@ import { supabase } from '@/lib/supabase'
 const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
 
 export async function GET() {
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('api_weights')
     .select('id, name, weight, score, reports, updated_at, region')
     .order('weight', { ascending: false })
 
-  if (error) return Response.json({ error: error.message }, { status: 500 })
+  // Pre-migration DBs don't have the `region` column yet — fall back to a
+  // region-less query and treat every row as global, rather than 500-ing.
+  if (error) {
+    ;({ data, error } = await supabase
+      .from('api_weights')
+      .select('id, name, weight, score, reports, updated_at')
+      .order('weight', { ascending: false }))
+    if (error) return Response.json({ error: error.message }, { status: 500 })
+  }
 
   // response time + uptime per API (optional table)
   const stats = {}

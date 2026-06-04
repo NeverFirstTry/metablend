@@ -220,13 +220,19 @@ export default function Home() {
       cacheForecast(json.city ?? q, json)
       setRecent(pushRecent(json.city ?? q))
     } catch (e) {
-      // offline? show the last forecast we stashed for this city
+      // A failed request doesn't mean we're offline — it could be a server or
+      // data error while the device is perfectly online. Only treat it as
+      // offline when the browser actually reports no connectivity.
+      const genuinelyOffline = !navigator.onLine
       const cached = readCachedForecast(q)
-      if (cached) {
+      if (genuinelyOffline && cached) {
+        // no internet: fall back to the last forecast we stashed for this city
         setData(cached)
         setOffline(true)
         setError(null)
       } else {
+        // online but the request failed: surface the error, stay "online"
+        setOffline(false)
         setError(e.message)
       }
     } finally {
