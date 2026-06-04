@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { deltaFromDiff, rawFactor } from '@/lib/scoring'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
 const ipCache = new Map()
@@ -10,14 +11,6 @@ function checkRateLimit(ip, city) {
   if (last && Date.now() - last < ONE_HOUR) return true
   ipCache.set(key, Date.now())
   return false
-}
-
-// ── Median helper ─────────────────────────────────────────────────────────────
-function median(arr) {
-  if (!arr.length) return 0
-  const s = [...arr].sort((a, b) => a - b)
-  const m = Math.floor(s.length / 2)
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
 }
 
 // Only daytime-sun values (new i18n key + legacy German). "Clear"/"Klar" is a
@@ -164,20 +157,17 @@ export async function POST(request) {
     if (!cur) continue
 
     const tempDiff = Math.abs(forecast.temp - actualTemp)
-    const delta = tempDiff <= 1 ? +2 : tempDiff <= 2 ? +1 : tempDiff <= 4 ? 0 : tempDiff <= 6 ? -1 : -2
+    const delta = deltaFromDiff(tempDiff, 'instant')
 
     const newScore   = cur.score + delta
     const newReports = cur.reports + 1
 
     // Median-based rawFactor when history is available; fall back to mean
-    let rawFactor
     if (hasHistory && Array.isArray(cur.delta_history)) {
       const history = [...cur.delta_history, delta].slice(-50)
-      rawFactor = Math.max(0.05, 1 + median(history) * 0.3)
-      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor, delta, history })
+      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, history), delta, history })
     } else {
-      rawFactor = Math.max(0.05, 1 + (newScore / newReports) * 0.3)
-      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor, delta, history: null })
+      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, null), delta, history: null })
     }
   }
 
@@ -185,14 +175,8 @@ export async function POST(request) {
   const updatedIds = new Set(updates.map(u => u.id))
   allWeights.forEach(w => {
     if (!updatedIds.has(w.id)) {
-      let rawFactor
-      if (hasHistory && Array.isArray(w.delta_history) && w.delta_history.length) {
-        rawFactor = Math.max(0.05, 1 + median(w.delta_history) * 0.3)
-      } else {
-        const avg = w.reports > 0 ? w.score / w.reports : 0
-        rawFactor = Math.max(0.05, 1 + avg * 0.3)
-      }
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor, delta: null, history: null })
+      const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
+      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), delta: null, history: null })
     }
   })
 

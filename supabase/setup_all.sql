@@ -75,7 +75,7 @@ alter table forecasts drop constraint if exists forecasts_api_id_fkey;
 alter table api_weights drop constraint if exists api_weights_pkey;
 alter table api_weights add  primary key (id, region);
 
--- ── Seed every API across every region (existing scores preserved) ──────────
+-- ── Seed the global sources across every region (existing scores preserved) ──
 insert into api_weights (id, region, weight, score, reports, name, delta_history)
 select a.id, r.region, 0.25, 0, 0, a.name, '[]'::jsonb
 from (values
@@ -87,13 +87,19 @@ from (values
   ('visual-crossing',      'Visual Crossing'),
   ('world-weather-online', 'World Weather Online'),
   ('weatherstack',         'Weatherstack'),
-  ('nasa-power',           'NASA POWER'),
-  ('geosphere',            'GeoSphere Austria')
+  ('nasa-power',           'NASA POWER')
 ) as a(id, name)
 cross join (values
   ('global'), ('europe'), ('north_america'), ('south_america'),
   ('asia'), ('africa'), ('oceania')
 ) as r(region)
+on conflict (id, region) do nothing;
+
+-- GeoSphere only covers Austria, so seed it just for europe + the global pool.
+insert into api_weights (id, region, weight, score, reports, name, delta_history)
+values
+  ('geosphere', 'global', 0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb),
+  ('geosphere', 'europe', 0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb)
 on conflict (id, region) do nothing;
 
 -- ── Consensus history (RSS feed + intraday chart) ───────────────────────────

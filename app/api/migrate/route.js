@@ -11,7 +11,8 @@ const APIS = [
   { id: 'world-weather-online', name: 'World Weather Online' },
   { id: 'weatherstack',         name: 'Weatherstack' },
   { id: 'nasa-power',           name: 'NASA POWER' },
-  { id: 'geosphere',            name: 'GeoSphere Austria' },
+  // GeoSphere only covers Austria → seed it for europe + the global pool only.
+  { id: 'geosphere',            name: 'GeoSphere Austria', regions: ['global', 'europe'] },
 ]
 
 // One-time data setup endpoint.
@@ -20,7 +21,7 @@ const APIS = [
 export async function GET() {
   const rows = []
   for (const api of APIS) {
-    for (const region of REGIONS) {
+    for (const region of (api.regions ?? REGIONS)) {
       rows.push({ id: api.id, region, weight: 0.25, score: 0, reports: 0, name: api.name })
     }
   }

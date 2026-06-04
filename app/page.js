@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
 import RainRadar from './components/RainRadar'
+import BetaBanner from './components/BetaBanner'
 
 // ── Offline forecast cache (localStorage, per city) ───────────────────────────
 function cacheForecast(city, json) {
@@ -44,6 +45,25 @@ function pushRecent(city) {
   const list = [city, ...getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())].slice(0, 5)
   setCookie('metablend_recent', JSON.stringify(list))
   return list
+}
+
+// ── Favorite cities (localStorage) ────────────────────────────────────────────
+function getFavorites() {
+  if (typeof localStorage === 'undefined') return []
+  try { return JSON.parse(localStorage.getItem('mb_favorites') ?? '[]') } catch { return [] }
+}
+function toggleFavorite(city) {
+  if (!city) return getFavorites()
+  const cur = getFavorites()
+  const has = cur.some(c => c.toLowerCase() === city.toLowerCase())
+  const list = has
+    ? cur.filter(c => c.toLowerCase() !== city.toLowerCase())
+    : [city, ...cur].slice(0, 8)
+  try { localStorage.setItem('mb_favorites', JSON.stringify(list)) } catch {}
+  return list
+}
+function isFavorite(list, city) {
+  return !!city && list.some(c => c.toLowerCase() === city.toLowerCase())
 }
 
 // ── Temperature units ─────────────────────────────────────────────────────────
@@ -146,6 +166,8 @@ export default function Home() {
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
   const [recent, setRecent] = useState([])
+  const [favorites, setFavorites] = useState([])
+  const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
   const [showEmbed, setShowEmbed] = useState(false)
   const [compareMode, setCompareMode] = useState(false)
@@ -160,6 +182,7 @@ export default function Home() {
     setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
+    setFavorites(getFavorites())
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {})
@@ -170,11 +193,27 @@ export default function Home() {
     const goOffline = () => setOffline(true)
     window.addEventListener('online', goOnline)
     window.addEventListener('offline', goOffline)
+
+    // PWA install: stash the prompt event so we can offer an Install button
+    const onInstallable = (e) => { e.preventDefault(); setInstallPrompt(e) }
+    const onInstalled = () => setInstallPrompt(null)
+    window.addEventListener('beforeinstallprompt', onInstallable)
+    window.addEventListener('appinstalled', onInstalled)
+
     return () => {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
+      window.removeEventListener('beforeinstallprompt', onInstallable)
+      window.removeEventListener('appinstalled', onInstalled)
     }
   }, [])
+
+  async function installApp() {
+    if (!installPrompt) return
+    installPrompt.prompt()
+    await installPrompt.userChoice
+    setInstallPrompt(null) // can only be used once
+  }
 
   function changeLang(code) {
     setLang(code)
@@ -403,6 +442,14 @@ export default function Home() {
             <Link href="/planner" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase">
               {t(lang, 'planner')}
             </Link>
+            {installPrompt && (
+              <button
+                onClick={installApp}
+                className="text-emerald-400 text-xs border border-emerald-400/40 rounded-lg px-2 py-1 hover:bg-emerald-400/10 transition-colors tracking-widest uppercase"
+              >
+                ⬇ {t(lang, 'installApp')}
+              </button>
+            )}
           </div>
         </div>
         <p className="text-zinc-500 text-sm mb-4 tracking-widest uppercase">
@@ -410,10 +457,7 @@ export default function Home() {
         </p>
 
         {/* In-development disclaimer */}
-        <div className="bg-amber-900/20 border border-amber-500/30 rounded-lg p-3 text-amber-300/90 text-xs mb-8 flex items-start gap-2">
-          <span className="shrink-0">🚧</span>
-          <span>{t(lang, 'betaDisclaimer')}</span>
-        </div>
+        <BetaBanner lang={lang} className="mb-8" />
 
         {/* Search */}
         <div className="relative flex gap-2 mb-10">
@@ -465,11 +509,40 @@ export default function Home() {
           >
             ⇄ {t(lang, 'compareBtn')}
           </button>
+          {data && (
+            <button
+              onClick={() => setFavorites(toggleFavorite(data.city))}
+              title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
+              className={`px-3 rounded-lg text-sm shrink-0 border transition-colors ${
+                isFavorite(favorites, data.city)
+                  ? 'bg-amber-400 text-black border-amber-400 font-bold'
+                  : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-amber-400'
+              }`}
+            >
+              {isFavorite(favorites, data.city) ? '★' : '☆'}
+            </button>
+          )}
         </div>
+
+        {/* Favorite city chips */}
+        {favorites.length > 0 && !compareMode && (
+          <div className="flex gap-2 flex-wrap -mt-6 mb-4">
+            <span className="text-amber-500/70 text-xs uppercase tracking-wider self-center">★ {t(lang, 'favoritesTitle')}:</span>
+            {favorites.map(c => (
+              <button
+                key={c}
+                onClick={() => { setCity(c); loadForecast(c) }}
+                className="bg-amber-900/20 border border-amber-500/30 rounded-full px-3 py-1 text-xs text-amber-200 hover:border-amber-400 transition-colors"
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Recent city chips */}
         {recent.length > 0 && !compareMode && (
-          <div className="flex gap-2 flex-wrap -mt-6 mb-10">
+          <div className={`flex gap-2 flex-wrap mb-10 ${favorites.length ? '' : '-mt-6'}`}>
             <span className="text-zinc-600 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
             {recent.map(c => (
               <button

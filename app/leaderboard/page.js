@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import BetaBanner from '../components/BetaBanner'
 
 const DISPLAY_NAMES = {
   'open-meteo':           'Open-Meteo',
@@ -27,6 +28,25 @@ const REGION_LABELS = {
 
 function name(id, fallback) {
   return DISPLAY_NAMES[id] ?? fallback ?? id
+}
+
+// Tiny bar sparkline of recent scoring deltas (−2…+2): green = the source was
+// close to the truth that report, red = it was off.
+function Sparkline({ data }) {
+  if (!Array.isArray(data) || data.length < 2) return null
+  const recent = data.slice(-24)
+  const bw = 4, gap = 1, h = 18, mid = h / 2
+  return (
+    <svg width={recent.length * (bw + gap)} height={h} className="block">
+      {recent.map((d, i) => {
+        const c = Math.max(-2, Math.min(2, d))
+        const barH = Math.max(1, (Math.abs(c) / 2) * (mid - 1))
+        const y = c >= 0 ? mid - barH : mid
+        const fill = c > 0 ? '#34d399' : c < 0 ? '#f87171' : '#52525b'
+        return <rect key={i} x={i * (bw + gap)} y={y} width={bw} height={barH} fill={fill} rx={0.5} />
+      })}
+    </svg>
+  )
 }
 
 export default function Leaderboard() {
@@ -88,6 +108,8 @@ export default function Leaderboard() {
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           Accuracy per region · weighted by community feedback
         </p>
+
+        <BetaBanner className="mb-6" />
 
         <div className="mb-8 flex items-center gap-3 flex-wrap">
           <button
@@ -173,6 +195,13 @@ export default function Leaderboard() {
                           <div className="text-zinc-500 text-xs uppercase tracking-wider">Ø Score</div>
                         </div>
                       </div>
+
+                      {api.delta_history?.length > 1 && (
+                        <div className="mt-3 pt-3 border-t border-zinc-800">
+                          <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1.5">Recent accuracy</div>
+                          <Sparkline data={api.delta_history} />
+                        </div>
+                      )}
 
                       {(api.uptime != null || api.avgMs != null) && (
                         <div className="grid grid-cols-2 gap-3 text-center mt-3 pt-3 border-t border-zinc-800">

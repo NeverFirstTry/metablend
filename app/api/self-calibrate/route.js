@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { median, deltaFromDiff, rawFactor } from '@/lib/scoring'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
   fetchVisualCrossing, fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
@@ -47,19 +48,6 @@ const CITIES = [
 
 const MIN_SOURCES_PER_CITY = 3 // need a real spread before a median means anything
 
-function median(arr) {
-  if (!arr.length) return 0
-  const s = [...arr].sort((a, b) => a - b)
-  const m = Math.floor(s.length / 2)
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-}
-
-// Same delta buckets the feedback/calibrate routes use, but the reference here
-// is the live consensus median instead of a measured actual.
-function devToDelta(dev) {
-  return dev <= 1 ? +2 : dev <= 2 ? +1 : dev <= 4 ? 0 : dev <= 6 ? -1 : -2
-}
-
 // Pull every source for one point, in parallel. Null (no key) and throws
 // (down/timeout) both just drop out.
 async function fetchCity(lat, lon) {
@@ -93,11 +81,6 @@ async function applyWeights(region, deltaMap, hasRegionCol) {
   const wmap = {}
   weights.forEach(w => { wmap[w.id] = w })
 
-  const rawFactorFrom = (score, reports, history) =>
-    history && history.length
-      ? Math.max(0.05, 1 + median(history) * 0.3)
-      : Math.max(0.05, 1 + (reports > 0 ? score / reports : 0) * 0.3)
-
   const updates = []
 
   // APIs we collected samples for this run
@@ -112,7 +95,7 @@ async function applyWeights(region, deltaMap, hasRegionCol) {
       if (history) history.push(d)
     }
     if (history) history = history.slice(-50)
-    updates.push({ id, score, reports, rawFactor: rawFactorFrom(score, reports, history), history, samples: deltas.length })
+    updates.push({ id, score, reports, rawFactor: rawFactor(score, reports, history), history, samples: deltas.length })
   }
 
   // untouched APIs still count toward normalization so weights stay a partition
@@ -120,7 +103,7 @@ async function applyWeights(region, deltaMap, hasRegionCol) {
   weights.forEach(w => {
     if (touched.has(w.id)) return
     const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
-    updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactorFrom(w.score, w.reports, history), history: null, samples: 0 })
+    updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), history: null, samples: 0 })
   })
 
   const total = updates.reduce((s, u) => s + u.rawFactor, 0)
@@ -204,7 +187,7 @@ async function handle(request) {
 
     const med = median(results.map(r => r.temp))
     for (const r of results) {
-      const delta = devToDelta(Math.abs(r.temp - med))
+      const delta = deltaFromDiff(Math.abs(r.temp - med), 'instant')
       addDelta('global', r.apiId, delta)            // global always accumulates
       if (hasRegionCol) addDelta(city.region, r.apiId, delta)
     }

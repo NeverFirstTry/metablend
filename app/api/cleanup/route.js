@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { deltaFromDiff, rawFactor } from '@/lib/scoring'
 
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
@@ -94,20 +95,18 @@ async function runMeteostatValidation() {
       const cur = wMap[fc.api_id]
       if (!cur) continue
       const diff  = Math.abs(fc.temp - actualTemp)
-      const delta = diff <= 2 ? +2 : diff <= 4 ? +1 : diff <= 6 ? 0 : diff <= 8 ? -1 : -2
+      const delta = deltaFromDiff(diff, 'daily')
 
       const newScore   = cur.score + delta
       const newReports = cur.reports + 1
-      const rawFactor  = Math.max(0.05, 1 + (newScore / newReports) * 0.3)
-      updates.push({ id: fc.api_id, score: newScore, reports: newReports, rawFactor, delta })
+      updates.push({ id: fc.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, null), delta })
     }
 
     // Include APIs that had no forecast for this city so normalization stays correct
     const updatedIds = new Set(updates.map(u => u.id))
     allWeights.forEach(w => {
       if (!updatedIds.has(w.id)) {
-        const avg = w.reports > 0 ? w.score / w.reports : 0
-        updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: Math.max(0.05, 1 + avg * 0.3), delta: null })
+        updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, null), delta: null })
       }
     })
 

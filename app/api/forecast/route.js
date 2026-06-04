@@ -155,7 +155,7 @@ export async function GET(request) {
 
   // 5. Prognosen speichern
   const today = new Date().toISOString().split('T')[0]
-  await supabase.from('forecasts').insert(
+  const { error: fcInsErr } = await supabase.from('forecasts').insert(
     results.map(r => ({
       city:      geo.name,
       lat:       geo.lat,
@@ -169,6 +169,9 @@ export async function GET(request) {
       region,
     }))
   )
+  // Don't fail the request over history storage, but don't swallow it silently
+  // either — a broken insert here is why calibration had no data to learn from.
+  if (fcInsErr) console.error('[forecast] forecasts insert failed:', fcInsErr.message)
 
   // snapshot the consensus for the RSS feed + intraday history chart
   const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null

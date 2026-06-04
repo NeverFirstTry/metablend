@@ -5,7 +5,7 @@ const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asi
 export async function GET() {
   let { data, error } = await supabase
     .from('api_weights')
-    .select('id, name, weight, score, reports, updated_at, region')
+    .select('id, name, weight, score, reports, updated_at, region, delta_history')
     .order('weight', { ascending: false })
 
   // Pre-migration DBs don't have the `region` column yet — fall back to a

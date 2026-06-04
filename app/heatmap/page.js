@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { loadLeaflet } from '@/lib/leaflet'
+import BetaBanner from '../components/BetaBanner'
 
 function accuracyColor(a) {
   if (a == null) return '#71717a' // unknown
@@ -82,6 +83,8 @@ export default function Heatmap() {
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           Where the consensus was right — and wrong
         </p>
+
+        <BetaBanner className="mb-6" />
 
         {error && (
           <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-4">

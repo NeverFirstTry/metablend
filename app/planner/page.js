@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import BetaBanner from '../components/BetaBanner'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -52,9 +53,11 @@ export default function Planner() {
         <h1 className="text-3xl font-bold mb-1">
           Travel<span className="text-emerald-400">Planner</span>
         </h1>
-        <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
+        <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           Best months to visit, from 10 years of climate data
         </p>
+
+        <BetaBanner className="mb-8" />
 
         <div className="flex gap-2 mb-10">
           <input

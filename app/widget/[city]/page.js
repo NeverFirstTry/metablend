@@ -56,6 +56,7 @@ export default function Widget() {
           </div>
           <div style={{ textAlign: 'center', fontSize: 12, color: '#71717a' }}>
             Meta<span style={{ color: '#34d399' }}>Blend</span>
+            <span style={{ fontSize: 9, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: 1, marginLeft: 5 }}>beta</span>
           </div>
         </>
       )}

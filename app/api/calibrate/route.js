@@ -1,14 +1,8 @@
 import { supabase } from '@/lib/supabase'
+import { deltaFromDiff, rawFactor } from '@/lib/scoring'
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
-
-function median(arr) {
-  if (!arr.length) return 0
-  const s = [...arr].sort((a, b) => a - b)
-  const m = Math.floor(s.length / 2)
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2
-}
 
 // Actual daily mean temp from Visual Crossing's historical timeline.
 async function fetchActualTemp(lat, lon, date, key) {
@@ -89,32 +83,23 @@ export async function GET() {
       const cur = wMap[f.api_id]
       if (!cur) continue
       const tempDiff = Math.abs(f.temp - actualTemp)
-      const delta = tempDiff <= 1 ? +2 : tempDiff <= 2 ? +1 : tempDiff <= 4 ? 0 : tempDiff <= 6 ? -1 : -2
+      const delta = deltaFromDiff(tempDiff, 'instant')
       const newScore = cur.score + delta
       const newReports = cur.reports + 1
 
-      let rawFactor, history = null
+      let history = null
       if (hasHistory && Array.isArray(cur.delta_history)) {
         history = [...cur.delta_history, delta].slice(-50)
-        rawFactor = Math.max(0.05, 1 + median(history) * 0.3)
-      } else {
-        rawFactor = Math.max(0.05, 1 + (newScore / newReports) * 0.3)
       }
-      updates.push({ id: f.api_id, score: newScore, reports: newReports, rawFactor, delta, history })
+      updates.push({ id: f.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, history), delta, history })
     }
 
     // keep untouched APIs so normalisation stays correct
     const updatedIds = new Set(updates.map(u => u.id))
     allWeights.forEach(w => {
       if (updatedIds.has(w.id)) return
-      let rawFactor
-      if (hasHistory && Array.isArray(w.delta_history) && w.delta_history.length) {
-        rawFactor = Math.max(0.05, 1 + median(w.delta_history) * 0.3)
-      } else {
-        const avg = w.reports > 0 ? w.score / w.reports : 0
-        rawFactor = Math.max(0.05, 1 + avg * 0.3)
-      }
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor, delta: null, history: null })
+      const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
+      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), delta: null, history: null })
     })
 
     if (!updates.length) continue
