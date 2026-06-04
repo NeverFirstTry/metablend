@@ -11,6 +11,7 @@ const APIS = [
   { id: 'world-weather-online', name: 'World Weather Online' },
   { id: 'weatherstack',         name: 'Weatherstack' },
   { id: 'nasa-power',           name: 'NASA POWER' },
+  { id: 'geosphere',            name: 'GeoSphere Austria' },
 ]
 
 // One-time data setup endpoint.

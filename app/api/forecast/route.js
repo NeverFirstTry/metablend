@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import {
   geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
-  fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
+  fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
   fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
 } from '@/lib/weather'
@@ -11,6 +11,7 @@ const DISPLAY_NAMES = {
   'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
   tomorrow: 'Tomorrow.io', 'met-norway': 'MET Norway', 'visual-crossing': 'Visual Crossing',
   'world-weather-online': 'World Weather Online', weatherstack: 'Weatherstack', 'nasa-power': 'NASA POWER',
+  geosphere: 'GeoSphere Austria',
 }
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
@@ -68,6 +69,7 @@ export async function GET(request) {
     timedFetch('world-weather-online', () => fetchWorldWeatherOnline(geo.lat, geo.lon)),
     timedFetch('weatherstack',         () => fetchWeatherStack(geo.lat, geo.lon)),
     timedFetch('nasa-power',           () => fetchNASAPOWER(geo.lat, geo.lon)),
+    timedFetch('geosphere',            () => fetchGeoSphere(geo.lat, geo.lon)),
   ])
 
   const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
