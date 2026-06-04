@@ -1,4 +1,7 @@
+
 # MetaBlend 🌤
+
+
 
 **Weather truth through consensus.**
 
@@ -8,6 +11,12 @@ been, and gives you the blended answer — plus how confident the sources are th
 they agree.
 
 🔗 Live: https://metablend-beta.vercel.app
+
+---
+
+DISCLAIMER
+
+"This project was built with strong assistance from Claude AI and Claude Code. The idea, architecture decisions, feature design and debugging were done by a human. A big part of the code was written by AI. We believe in transparency about AI usage in development."
 
 ---
 
