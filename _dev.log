@@ -1,0 +1,13 @@
+
+> metablend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.7 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.178.125:3000
+- Environments: .env.local
+✓ Ready in 531ms
+
+ GET / 200 in 245ms (next.js: 125ms, application-code: 119ms)
+ GET /api/calibrate 200 in 571ms (next.js: 126ms, application-code: 445ms)
+  Reload env: .env.local
