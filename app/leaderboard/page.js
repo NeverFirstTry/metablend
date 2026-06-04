@@ -34,17 +34,38 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [active, setActive] = useState('global')
+  const [recal, setRecal] = useState(null) // { busy, msg, ok }
 
-  useEffect(() => {
-    fetch('/api/leaderboard')
+  function loadLeaderboard() {
+    return fetch('/api/leaderboard')
       .then(r => r.json())
       .then(d => {
         if (d.error) throw new Error(d.error)
         setRegions(d.regions ?? [])
       })
       .catch(e => setError(e.message))
-      .finally(() => setLoading(false))
+  }
+
+  useEffect(() => {
+    loadLeaderboard().finally(() => setLoading(false))
   }, [])
+
+  // Admin-only: needs the CALIBRATE_SECRET. Anyone without it just gets a 401,
+  // so the button is safe to ship publicly.
+  async function recalibrate() {
+    const key = window.prompt('Admin key to recalibrate weights:')
+    if (!key) return
+    setRecal({ busy: true, msg: 'Recalibrating against the live consensus…' })
+    try {
+      const res = await fetch('/api/self-calibrate', { method: 'POST', headers: { 'x-calibrate-key': key } })
+      const d = await res.json()
+      if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`)
+      await loadLeaderboard()
+      setRecal({ busy: false, ok: true, msg: `Rebalanced ${Object.keys(d.rebalanced ?? {}).length} region(s) from ${d.citiesScored}/${d.citiesProbed} cities · seeded ${d.forecastsSeeded} forecasts.` })
+    } catch (e) {
+      setRecal({ busy: false, ok: false, msg: e.message })
+    }
+  }
 
   const current = regions?.find(r => r.region === active)
 
@@ -64,9 +85,24 @@ export default function Leaderboard() {
         <h1 className="text-3xl font-bold mb-1">
           API<span className="text-emerald-400">Leaderboard</span>
         </h1>
-        <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
+        <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           Accuracy per region · weighted by community feedback
         </p>
+
+        <div className="mb-8 flex items-center gap-3 flex-wrap">
+          <button
+            onClick={recalibrate}
+            disabled={recal?.busy}
+            className="text-xs px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors disabled:opacity-50"
+          >
+            {recal?.busy ? '⏳ Recalibrating…' : '⚖ Recalibrate weights'}
+          </button>
+          {recal && !recal.busy && (
+            <span className={`text-xs ${recal.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+              {recal.ok ? '✓ ' : '⚠ '}{recal.msg}
+            </span>
+          )}
+        </div>
 
         {loading && <div className="text-zinc-500 text-sm">Loading leaderboard…</div>}
 
