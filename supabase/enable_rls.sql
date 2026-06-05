@@ -24,7 +24,7 @@ begin
     select schemaname, tablename, policyname
     from pg_policies
     where schemaname = 'public'
-      and tablename in ('api_weights','forecasts','feedback','consensus_history','api_stats')
+      and tablename in ('api_weights','forecasts','feedback','consensus_history','api_stats','error_log')
   loop
     execute format('drop policy if exists %I on %I.%I', r.policyname, r.schemaname, r.tablename);
   end loop;
@@ -36,3 +36,4 @@ alter table forecasts         enable row level security;
 alter table feedback          enable row level security;
 alter table consensus_history enable row level security;
 alter table api_stats         enable row level security;
+alter table error_log         enable row level security;

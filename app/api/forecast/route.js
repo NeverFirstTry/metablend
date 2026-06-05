@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { withErrorLog, logError } from '@/lib/log'
 import {
   geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
@@ -32,7 +33,7 @@ const CACHE = new Map()
 const CACHE_TTL = 15 * 60 * 1000
 const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
 
-export async function GET(request) {
+export const GET = withErrorLog('forecast', async (request) => {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city')
   const lang = searchParams.get('lang') ?? 'en'
@@ -171,7 +172,7 @@ export async function GET(request) {
   )
   // Don't fail the request over history storage, but don't swallow it silently
   // either — a broken insert here is why calibration had no data to learn from.
-  if (fcInsErr) console.error('[forecast] forecasts insert failed:', fcInsErr.message)
+  if (fcInsErr) logError('forecast.insert', fcInsErr, { city: geo.name })
 
   // snapshot the consensus for the RSS feed + intraday history chart
   const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
@@ -260,4 +261,4 @@ export async function GET(request) {
 
   CACHE.set(key, { ts: Date.now(), payload })
   return Response.json(payload)
-}
+})

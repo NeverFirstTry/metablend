@@ -127,10 +127,20 @@ create table if not exists api_stats (
   last_checked    timestamptz default now()
 );
 
+-- ── Server-side error log (best-effort; written by lib/log.js) ──────────────
+create table if not exists error_log (
+  id         bigserial primary key,
+  scope      text,
+  message    text,
+  meta       jsonb,
+  created_at timestamptz default now()
+);
+
 -- ── Indexes ─────────────────────────────────────────────────────────────────
 create index if not exists feedback_latlon_idx        on feedback (lat, lon);
 create index if not exists consensus_history_city_time on consensus_history (city, created_at desc);
 create index if not exists forecasts_valid_for_idx     on forecasts (valid_for);
+create index if not exists error_log_time              on error_log (created_at desc);
 
 -- ── RLS is managed separately, NOT here ─────────────────────────────────────
 --    This script is RLS-neutral so re-running it never changes your security

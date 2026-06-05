@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
+import { withErrorLog } from '@/lib/log'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
 const ipCache = new Map()
@@ -20,7 +21,7 @@ const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
 // each data point a user submits immediately nudges the weights.
 const MIN_REPORTS_TO_UPDATE = 1
 
-export async function POST(request) {
+export const POST = withErrorLog('feedback', async (request) => {
   const ip =
     request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
     request.headers.get('x-real-ip') ??
@@ -213,4 +214,4 @@ export async function POST(request) {
       .filter(u => u.delta !== null)
       .map(u => ({ api: u.id, delta: u.delta, weight: (u.rawFactor / totalFactor * 100).toFixed(1) + '%' })),
   })
-}
+})
