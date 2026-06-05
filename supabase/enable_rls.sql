@@ -6,13 +6,31 @@
 --   • on Vercel: Project → Settings → Environment Variables
 -- Then restart/redeploy so lib/supabase.js picks it up.
 --
--- This enables RLS with NO policies, so the public anon key (which ships in the
--- browser bundle) can no longer read or write any table. The server uses the
--- service-role key, which bypasses RLS — and the browser never queries Supabase
--- directly (it only calls /api/* routes), so nothing breaks.
+-- This (1) drops any lingering permissive policies — older tables like forecasts
+-- and feedback often shipped with an "allow all" policy that keeps anon access
+-- open even after RLS is enabled — and (2) enables RLS with NO policies, so the
+-- public anon key can no longer read or write any table. The server uses the
+-- service-role key, which bypasses RLS; the browser never queries Supabase
+-- directly (only /api/* routes), so nothing breaks.
 --
--- To roll back to the open beta, see setup_all.sql (… disable row level security).
+-- Safe to re-run. To reopen the beta: `alter table <t> disable row level security`.
 -- ════════════════════════════════════════════════════════════════════════════
+
+-- 1. Drop every existing policy on the app tables (so none stays permissive).
+do $$
+declare r record;
+begin
+  for r in
+    select schemaname, tablename, policyname
+    from pg_policies
+    where schemaname = 'public'
+      and tablename in ('api_weights','forecasts','feedback','consensus_history','api_stats')
+  loop
+    execute format('drop policy if exists %I on %I.%I', r.policyname, r.schemaname, r.tablename);
+  end loop;
+end $$;
+
+-- 2. Enable RLS (no policies = deny-all for anon; service role bypasses it).
 alter table api_weights       enable row level security;
 alter table forecasts         enable row level security;
 alter table feedback          enable row level security;
