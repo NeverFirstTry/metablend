@@ -204,18 +204,18 @@ function WelcomeState({ lang, onPick }) {
     { icon: CloudRain, title: t(lang, 'welcomeF3Title'), sub: t(lang, 'welcomeF3Sub') },
   ]
   return (
-    <div className="animate-fade-in-up text-center py-6 sm:py-10">
-      <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 mb-6">
-        <Sparkles className="text-emerald-400" size={30} aria-hidden />
+    <div className="animate-fade-in-up text-center py-2 sm:py-4">
+      <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 mb-5">
+        <Sparkles className="text-emerald-400" size={28} aria-hidden />
       </div>
       <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 text-balance">
         {t(lang, 'welcomeTitle')}
       </h2>
-      <p className="text-zinc-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-10">
+      <p className="text-zinc-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
         {t(lang, 'welcomeSub')}
       </p>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10 text-left">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
         {features.map((f, i) => (
           <div
             key={f.title}
@@ -559,21 +559,21 @@ export default function Home() {
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="flex items-baseline justify-between mb-1">
-          <h1 className="text-4xl font-bold tracking-tight flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex items-center gap-2">
             Meta<span className="text-emerald-400">Blend</span>
             <span className="text-[10px] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
               Beta
             </span>
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Unit toggle */}
-            <div className="flex rounded-lg overflow-hidden border border-zinc-800">
+            <div className="flex rounded-lg overflow-hidden border border-zinc-800 shrink-0">
               {['C', 'F'].map(u => (
                 <button
                   key={u}
                   onClick={() => changeUnit(u)}
-                  className={`px-2 py-1 text-xs transition-colors ${
+                  className={`w-9 py-1 text-xs leading-none text-center transition-colors ${
                     unit === u ? 'bg-emerald-400 text-black font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-emerald-400'
                   }`}
                 >
@@ -618,7 +618,7 @@ export default function Home() {
         <BetaBanner lang={lang} className="mb-8" />
 
         {/* Search */}
-        <div className="relative flex gap-2 mb-10">
+        <div className="relative flex gap-2 mb-8">
           <button
             onClick={handleLocation}
             disabled={locating || loading}
@@ -671,7 +671,7 @@ export default function Home() {
               compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
             }`}
           >
-            <ArrowLeftRight size={14} aria-hidden /> {t(lang, 'compareBtn')}
+            <ArrowLeftRight size={14} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'compareBtn')}</span>
           </button>
           {data && (
             <button
@@ -690,7 +690,7 @@ export default function Home() {
 
         {/* Favorite city chips */}
         {favorites.length > 0 && !compareMode && (
-          <div className="flex gap-2 flex-wrap -mt-6 mb-4">
+          <div className="flex gap-2 flex-wrap -mt-4 mb-4">
             <span className="text-amber-500/70 text-xs uppercase tracking-wider self-center inline-flex items-center gap-1"><Star size={11} fill="currentColor" aria-hidden /> {t(lang, 'favoritesTitle')}:</span>
             {favorites.map(c => (
               <button
@@ -706,7 +706,7 @@ export default function Home() {
 
         {/* Recent city chips */}
         {recent.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap mb-10 ${favorites.length ? '' : '-mt-6'}`}>
+          <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
             <span className="text-zinc-600 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
             {recent.map(c => (
               <button
