@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
 import BetaBanner from '../components/BetaBanner'
 
@@ -73,8 +74,8 @@ export default function Heatmap() {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 block">
-          ← Back
+        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+          <ArrowLeft size={15} aria-hidden /> Back
         </Link>
 
         <h1 className="text-3xl font-bold mb-1">
@@ -87,8 +88,8 @@ export default function Heatmap() {
         <BetaBanner className="mb-6" />
 
         {error && (
-          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-4">
-            ⚠ {error}
+          <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-4 flex items-center gap-2">
+            <AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}
           </div>
         )}
 

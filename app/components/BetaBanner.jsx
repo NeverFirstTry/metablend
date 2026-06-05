@@ -1,3 +1,4 @@
+import { Construction } from 'lucide-react'
 import { t } from '@/lib/i18n'
 
 // Shared "in development" notice. Defaults to English for the secondary pages;
@@ -5,7 +6,7 @@ import { t } from '@/lib/i18n'
 export default function BetaBanner({ lang = 'en', className = '' }) {
   return (
     <div className={`bg-amber-900/20 border border-amber-500/30 rounded-lg p-3 text-amber-300/90 text-xs flex items-start gap-2 ${className}`}>
-      <span className="shrink-0">🚧</span>
+      <Construction size={15} className="shrink-0 mt-px" aria-hidden />
       <span>{t(lang, 'betaDisclaimer')}</span>
     </div>
   )

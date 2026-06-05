@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
+import { CloudRain } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
 
 // RainViewer radar laid over an OpenStreetMap base.
@@ -59,8 +60,8 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
 
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
-      <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
-        🌧 {title}
+      <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4 flex items-center gap-2">
+        <CloudRain size={14} aria-hidden /> {title}
       </div>
       <div
         ref={containerRef}

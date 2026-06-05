@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import BetaBanner from '../components/BetaBanner'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -46,8 +47,8 @@ export default function Planner() {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 block">
-          ← Back
+        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+          <ArrowLeft size={15} aria-hidden /> Back
         </Link>
 
         <h1 className="text-3xl font-bold mb-1">
@@ -70,25 +71,26 @@ export default function Planner() {
           <button
             onClick={() => search()}
             disabled={loading}
-            className="bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 transition-colors disabled:opacity-40"
+            aria-label="Search"
+            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 flex items-center justify-center"
           >
-            {loading ? '↻' : '▶'}
+            {loading ? <Loader2 size={18} className="animate-spin-slow" aria-hidden /> : <Search size={18} aria-hidden />}
           </button>
         </div>
 
         {error && (
-          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6">⚠ {error}</div>
+          <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</div>
         )}
 
         {data && (
-          <>
+          <div className="animate-fade-in-up">
             <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
               {data.city}{data.country ? `, ${data.country}` : ''}
             </div>
 
             {best.length > 0 && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6">
-                <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">Best months to visit</div>
+                <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5"><CalendarCheck size={13} aria-hidden /> Best months to visit</div>
                 <div className="flex gap-2 flex-wrap">
                   {best.map(m => (
                     <span key={m} className="bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 rounded-lg px-3 py-1 text-sm">
@@ -112,10 +114,10 @@ export default function Planner() {
                   const isBest = best.includes(m.month)
                   return (
                     <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${m.avgTemp}°C · ${m.avgRainDays} rainy days`}>
-                      <div className="text-[10px] text-orange-300">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
+                      <div className="text-[10px] text-orange-300 tabular-nums">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
                       <div className="w-full flex gap-px items-end h-full">
-                        <div className="flex-1 bg-orange-400/80 rounded-t" style={{ height: `${Math.max(2, tempH)}%` }} />
-                        <div className="flex-1 bg-blue-400/70 rounded-t" style={{ height: `${Math.max(2, rainH)}%` }} />
+                        <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
+                        <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
                       </div>
                       <div className={`text-[10px] uppercase ${isBest ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
                         {MONTHS[m.month - 1]}
@@ -125,7 +127,7 @@ export default function Planner() {
                 })}
               </div>
             </div>
-          </>
+          </div>
         )}
       </div>
     </main>

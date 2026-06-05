@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import BetaBanner from '../components/BetaBanner'
 
 const DISPLAY_NAMES = {
@@ -94,11 +95,11 @@ export default function Leaderboard() {
       <div className="max-w-2xl mx-auto">
 
         <div className="flex items-center justify-between mb-6">
-          <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors">
-            ← Back
+          <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
+            <ArrowLeft size={15} aria-hidden /> Back
           </Link>
-          <Link href="/heatmap" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors">
-            Heatmap →
+          <Link href="/heatmap" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
+            <MapIcon size={15} aria-hidden /> Heatmap
           </Link>
         </div>
 
@@ -115,22 +116,29 @@ export default function Leaderboard() {
           <button
             onClick={recalibrate}
             disabled={recal?.busy}
-            className="text-xs px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 transition-colors disabled:opacity-50"
+            className="press text-xs px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-50 inline-flex items-center gap-1.5"
           >
-            {recal?.busy ? '⏳ Recalibrating…' : '⚖ Recalibrate weights'}
+            {recal?.busy
+              ? <Loader2 size={13} className="animate-spin-slow" aria-hidden />
+              : <Scale size={13} aria-hidden />}
+            {recal?.busy ? 'Recalibrating…' : 'Recalibrate weights'}
           </button>
           {recal && !recal.busy && (
-            <span className={`text-xs ${recal.ok ? 'text-emerald-400' : 'text-red-400'}`}>
-              {recal.ok ? '✓ ' : '⚠ '}{recal.msg}
+            <span className={`text-xs inline-flex items-center gap-1.5 ${recal.ok ? 'text-emerald-400' : 'text-red-400'}`}>
+              {recal.ok ? <CheckCircle2 size={13} aria-hidden /> : <AlertTriangle size={13} aria-hidden />}{recal.msg}
             </span>
           )}
         </div>
 
-        {loading && <div className="text-zinc-500 text-sm">Loading leaderboard…</div>}
+        {loading && (
+          <div className="text-zinc-500 text-sm flex items-center gap-2">
+            <Loader2 size={15} className="animate-spin-slow" aria-hidden /> Loading leaderboard…
+          </div>
+        )}
 
         {error && (
-          <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm">
-            ⚠ {error}
+          <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm flex items-center gap-2">
+            <AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}
           </div>
         )}
 
@@ -142,7 +150,7 @@ export default function Leaderboard() {
                 <button
                   key={r.region}
                   onClick={() => setActive(r.region)}
-                  className={`text-xs px-3 py-2 rounded-lg border transition-colors ${
+                  className={`press text-xs px-3 py-2 rounded-lg border ${
                     active === r.region
                       ? 'bg-emerald-400 text-black border-emerald-400 font-bold'
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-emerald-400'
@@ -162,36 +170,36 @@ export default function Leaderboard() {
                   const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
 
                   return (
-                    <div key={api.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <div key={api.id} className="animate-fade-in-up bg-zinc-900 border border-zinc-800 rounded-xl p-5" style={{ animationDelay: `${i * 60}ms` }}>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <span className={`text-lg font-bold ${medalColor}`}>{medal}</span>
+                          <span className={`text-lg font-bold tabular-nums ${medalColor}`}>{medal}</span>
                           <div>
                             <div className="font-bold text-base">{name(api.id, api.name)}</div>
                             <div className="text-zinc-600 text-xs">{api.id}</div>
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="text-emerald-400 font-bold text-lg">{weightPct}%</div>
+                          <div className="text-emerald-400 font-bold text-lg tabular-nums">{weightPct}%</div>
                           <div className="text-zinc-600 text-xs">Weight</div>
                         </div>
                       </div>
 
                       <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-4">
-                        <div className="h-full bg-emerald-400 rounded-full transition-all" style={{ width: `${weightPct}%` }} />
+                        <div className="h-full bg-emerald-400 rounded-full transition-[width] duration-700 ease-out" style={{ width: `${weightPct}%` }} />
                       </div>
 
                       <div className="grid grid-cols-3 gap-3 text-center">
                         <div>
-                          <div className="text-sm font-bold">{api.score ?? 0}</div>
+                          <div className="text-sm font-bold tabular-nums">{api.score ?? 0}</div>
                           <div className="text-zinc-500 text-xs uppercase tracking-wider">Score</div>
                         </div>
                         <div>
-                          <div className="text-sm font-bold">{api.reports ?? 0}</div>
+                          <div className="text-sm font-bold tabular-nums">{api.reports ?? 0}</div>
                           <div className="text-zinc-500 text-xs uppercase tracking-wider">Reports</div>
                         </div>
                         <div>
-                          <div className="text-sm font-bold">{avgScore}</div>
+                          <div className="text-sm font-bold tabular-nums">{avgScore}</div>
                           <div className="text-zinc-500 text-xs uppercase tracking-wider">Ø Score</div>
                         </div>
                       </div>
@@ -214,7 +222,7 @@ export default function Leaderboard() {
                             <div className="text-zinc-500 text-xs uppercase tracking-wider">Uptime</div>
                           </div>
                           <div>
-                            <div className="text-sm font-bold">{api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–'}</div>
+                            <div className="text-sm font-bold tabular-nums">{api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–'}</div>
                             <div className="text-zinc-500 text-xs uppercase tracking-wider">Avg response</div>
                           </div>
                         </div>
