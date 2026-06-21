@@ -3,6 +3,97 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-06-21
+
+Beta launch hardening: locked down the database, made the forecast resilient,
+unified the scoring math, added self-calibration, a few user-facing features,
+error logging, and the legal/site pages.
+
+### Security
+- **Database locked down with RLS.** All tables now have row-level security
+  enabled with **no policies** (deny-all for the public anon key). The server
+  uses `SUPABASE_SERVICE_ROLE_KEY` (`lib/supabase.js`), which bypasses RLS; the
+  browser only ever talks to `/api/*` routes. Verified via Supabase's security
+  advisor.
+- **`supabase/enable_rls.sql`** — drops any lingering permissive policies, then
+  enables RLS on every app table. **`supabase/setup_all.sql`** — one-shot,
+  idempotent, RLS-neutral schema setup (consolidates all migrations, drops the
+  `forecasts.api_id` FK that blocked inserts, adds `forecasts.created_at`).
+
+### Calibration & scoring
+- **`/api/self-calibrate`** (admin, gated by `CALIBRATE_SECRET`) — probes a
+  16-city basket, rebalances weights against the live consensus median, and
+  seeds forecasts so the daily cron can refine them against real actuals. A
+  "Recalibrate weights" button on the leaderboard triggers it (prompts for the
+  key).
+- **`lib/scoring.js`** — single source of truth for `median`, `deltaFromDiff`,
+  and `rawFactor`; the feedback, calibrate, cleanup, and self-calibrate routes
+  all share it (with a `node:test` suite, `npm test`).
+- **Exponential weight scaling** — `rawFactor` now scales `exp(avgScore * 0.5)`
+  so accurate sources pull far more weight (linear scaling let weights converge);
+  floor lowered to 0.01.
+- **Outlier penalty** — any source more than 5 °C off the cross-API median temp
+  takes a hard −2, on top of the actual-vs-forecast delta.
+- **Feedback re-weights on every report** (`MIN_REPORTS_TO_UPDATE` 5 → 1).
+
+### Reliability
+- **Keyless 7-day fallback** — if Open-Meteo's daily endpoint is down, the
+  forecast falls back to a MET Norway daily aggregation instead of blanking the
+  strip; `geocodeCity`/`fetchOpenMeteo` now degrade on non-OK/non-JSON responses
+  instead of 500-ing the route.
+- **`/api/cleanup` added to the cron** (daily) alongside `/api/calibrate`.
+- Forecast insert failures are now logged instead of silently swallowed.
+
+### Added — source
+- **GeoSphere Austria** — a free, keyless DACH-region source (Austria coverage),
+  seeded for the `europe` + `global` weight pools only.
+
+### Added — features
+- **Favorite cities** — star toggle on a loaded city; saved to `localStorage`
+  and shown as chips.
+- **Leaderboard accuracy sparklines** — per-API bar sparkline of recent scoring
+  deltas (from `delta_history`).
+- **PWA install prompt** — an "Install app" button via `beforeinstallprompt`.
+- **Beta disclaimer** — a `BETA` badge + in-development banner (`BetaBanner`) on
+  every page, translated across EN/DE/FR/ES/IT.
+
+### Added — observability
+- **Error logging** — `lib/log.js` (`logError` + `withErrorLog`) always logs to
+  the server console (→ Vercel logs) and best-effort writes to a new `error_log`
+  table; `/api/forecast` and `/api/feedback` handlers are wrapped.
+
+### Added — legal & site
+- **Footer** on every page with a **GitHub source link**, Privacy/Terms links,
+  copyright, and weather/map data attribution.
+- **`/privacy`** — plain-language notice (cookies, feedback data, IP
+  rate-limiting, Plausible analytics, third-party APIs, Supabase/Vercel hosting,
+  ~48h retention; contact via GitHub issues).
+- **`/terms`** — beta "as is" disclaimer, acceptable use, copyright, and
+  data-source attribution/licenses (Open-Meteo CC BY, MET Norway, OSM ODbL, …).
+- Heatmap map tiles now carry the standard "© OpenStreetMap contributors"
+  attribution.
+
+### Fixed
+- **Offline banner** only shows when the device is genuinely offline
+  (`navigator.onLine`), not on any failed request.
+- **Service worker** (`public/sw.js`) only caches successful same-origin shell
+  responses, never the API; cache bumped to `v2`.
+- **Leaderboard** falls back to a region-less query on pre-migration databases.
+
+### Changed
+- **License changed from MIT to all-rights-reserved.** The source stays public on
+  GitHub for transparency, but reuse now requires permission.
+
+### Database migrations (run in the Supabase SQL editor)
+- `supabase/setup_all.sql` — full idempotent schema (safe to re-run; RLS-neutral).
+- `supabase/enable_rls.sql` — lock the database down (run after setting
+  `SUPABASE_SERVICE_ROLE_KEY` in the server env). Adds/locks the `error_log` table.
+
+### Environment variables
+- `SUPABASE_SERVICE_ROLE_KEY` — server-only; bypasses RLS. **Required in
+  production** once RLS is enabled (set in `.env.local` and on Vercel).
+- `CALIBRATE_SECRET` — gates `/api/self-calibrate`.
+
 ## 2026-06-04
 
 A large batch of new features, internationalization, docs, and fixes.
