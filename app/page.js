@@ -13,6 +13,7 @@ import {
 import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
 import RainRadar from './components/RainRadar'
 import BetaBanner from './components/BetaBanner'
+import Footer from './components/Footer'
 import CountUp from './components/CountUp'
 
 // ── Offline forecast cache (localStorage, per city) ───────────────────────────
@@ -1246,6 +1247,8 @@ export default function Home() {
 
           </div>
         )}
+
+        <Footer />
       </div>
 
       {/* Toast */}

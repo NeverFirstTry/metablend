@@ -1,21 +1,20 @@
-MIT License
+Copyright (c) 2026 MetaBlend. All rights reserved.
 
-Copyright (c) 2026 MetaBlend
+This source code is published for transparency and reference only.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+No permission is granted to copy, modify, merge, publish, distribute,
+sublicense, or sell copies of this software or any portion of it, in source
+or binary form, without the prior written consent of the copyright holder.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Weather and map data displayed by this application are the property of their
+respective providers (Open-Meteo, MET Norway, OpenWeatherMap, WeatherAPI,
+Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER,
+GeoSphere Austria, and OpenStreetMap contributors) and are used under their
+respective licenses; this notice does not grant any rights to that data.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+LIABILITY ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+OR OTHER DEALINGS IN THE SOFTWARE.

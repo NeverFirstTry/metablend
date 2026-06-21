@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import BetaBanner from '../components/BetaBanner'
+import Footer from '../components/Footer'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
@@ -129,6 +130,8 @@ export default function Planner() {
             </div>
           </div>
         )}
+
+        <Footer />
       </div>
     </main>
   )

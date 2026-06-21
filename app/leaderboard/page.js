@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import BetaBanner from '../components/BetaBanner'
+import Footer from '../components/Footer'
 
 const DISPLAY_NAMES = {
   'open-meteo':           'Open-Meteo',
@@ -239,6 +240,7 @@ export default function Leaderboard() {
           <p className="text-zinc-600 text-sm">No weight data available yet.</p>
         )}
 
+        <Footer />
       </div>
     </main>
   )

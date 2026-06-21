@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
 import BetaBanner from '../components/BetaBanner'
+import Footer from '../components/Footer'
 
 function accuracyColor(a) {
   if (a == null) return '#71717a' // unknown
@@ -40,7 +41,7 @@ export default function Heatmap() {
           worldCopyJump: true,
         })
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap',
+          attribution: '&copy; OpenStreetMap contributors',
         }).addTo(mapRef.current)
       }
 
@@ -111,6 +112,8 @@ export default function Heatmap() {
             No geolocated feedback yet. Submit feedback from the home page to populate the map.
           </p>
         )}
+
+        <Footer />
       </div>
     </main>
   )
