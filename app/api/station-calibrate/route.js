@@ -43,7 +43,19 @@ async function stationTemp(stationId, key) {
   }
 }
 
-export const GET = withErrorLog('station-calibrate', async () => {
+export const GET = withErrorLog('station-calibrate', async (request) => {
+  // Triggered by an external scheduler (GitHub Action / cron-job.org) rather than
+  // a Vercel cron, so gate it behind CALIBRATE_SECRET when one is configured.
+  const secret = process.env.CALIBRATE_SECRET
+  if (secret) {
+    const { searchParams } = new URL(request.url)
+    const provided =
+      searchParams.get('key') ??
+      request.headers.get('x-calibrate-key') ??
+      (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
+    if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   const key = process.env.WUNDERGROUND_KEY
   if (!key) return Response.json({ skipped: 'WUNDERGROUND_KEY not configured' })
 

@@ -48,7 +48,10 @@ All of these share the exact same scoring math (`lib/scoring.js`):
 - **Station calibration (hourly)** — `/api/station-calibrate` finds Weather
   Underground personal weather stations within 10 km of each recently-searched
   city, takes the median of their live readings as ground truth, and scores the
-  last hour of forecasts against it. Real measurements, every hour.
+  last hour of forecasts against it. Real measurements, every hour. Gated by
+  `CALIBRATE_SECRET` and triggered by a GitHub Action
+  (`.github/workflows/station-calibrate.yml`) — Vercel sub-daily crons need a Pro
+  plan, so an external scheduler keeps it on any plan.
 - **Daily calibration** — `/api/calibrate` scores yesterday's forecasts against
   Visual Crossing historical actuals (6 am UTC cron).
 - **Nightly validation** — `/api/cleanup` checks yesterday's forecasts against

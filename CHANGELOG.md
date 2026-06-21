@@ -26,10 +26,11 @@ error logging, and the legal/site pages.
   seeds forecasts so the daily cron can refine them against real actuals. A
   "Recalibrate weights" button on the leaderboard triggers it (prompts for the
   key).
-- **`/api/station-calibrate`** + **hourly cron** — finds Weather Underground
-  personal weather stations within 10 km of each recently-searched city, takes
-  the median of their live temperatures as ground truth, and re-weights the last
-  hour of forecasts against it. Real measured actuals, every hour.
+- **`/api/station-calibrate`** — finds Weather Underground personal weather
+  stations within 10 km of each recently-searched city, takes the median of their
+  live temperatures as ground truth, and re-weights the last hour of forecasts
+  against it. Real measured actuals. Gated by `CALIBRATE_SECRET` and triggered
+  hourly by a GitHub Action (Vercel sub-daily crons need a Pro plan).
 - **`lib/scoring.js`** — single source of truth for `median`, `deltaFromDiff`,
   and `rawFactor`; the feedback, calibrate, cleanup, self-calibrate, and
   station-calibrate routes all share it (with a `node:test` suite, `npm test`).

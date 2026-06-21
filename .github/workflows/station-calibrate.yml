@@ -1,0 +1,22 @@
+name: Station calibration (hourly)
+
+# Runs /api/station-calibrate every hour. Used instead of a Vercel cron because
+# sub-daily crons need a Vercel Pro plan; GitHub Actions works on any plan.
+#
+# Setup: add a repository secret named CALIBRATE_SECRET (Settings → Secrets and
+# variables → Actions) matching the CALIBRATE_SECRET in your Vercel env.
+
+on:
+  schedule:
+    - cron: '17 * * * *' # hourly, off the :00 mark (GitHub delays :00 crons most)
+  workflow_dispatch: {}    # allow manual runs from the Actions tab
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger station calibration
+        run: |
+          curl -fsS "https://metablend-beta.vercel.app/api/station-calibrate" \
+            -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
+            --max-time 300

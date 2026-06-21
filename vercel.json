@@ -7,10 +7,6 @@
     {
       "path": "/api/calibrate",
       "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/station-calibrate",
-      "schedule": "0 * * * *"
     }
   ]
 }
