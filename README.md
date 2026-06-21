@@ -29,16 +29,33 @@ DISCLAIMER
    0 and 1; better sources count for more.
 4. **Score the confidence** from how tightly the sources agree — when they all
    land on the same temperature, confidence is high; when they scatter, it drops.
-5. **Learn over time.** When you report the actual weather (or the nightly
-   Meteostat job checks yesterday's forecasts against reality), each API's score
-   moves up or down and the weights re-normalise. Weights are tracked *per region*,
-   so an API that nails European weather but struggles in Asia is rewarded where
-   it earns it.
+5. **Learn over time.** Several signals move each API's score up or down and the
+   weights re-normalise. Weights are tracked *per region*, so an API that nails
+   European weather but struggles in Asia is rewarded where it earns it.
 
 The weighting is deliberately simple: an API's recent accuracy (the median of its
-last scoring deltas) nudges a raw factor up or down, and all the factors are
-normalised so they sum to 1. No black boxes — just "be right more often, count
-for more."
+last scoring deltas) scales a raw factor `exp(avgScore · 0.5)`, and all the factors
+are normalised so they sum to 1. A source more than 5 °C off the cross-API median
+takes an extra penalty as an outlier guard. No black boxes — just "be right more
+often, count for more."
+
+### How the weights get calibrated
+
+All of these share the exact same scoring math (`lib/scoring.js`):
+
+- **Community feedback** — you report the actual weather; it's compared against
+  the current consensus and re-weights immediately (`/api/feedback`).
+- **Station calibration (hourly)** — `/api/station-calibrate` finds Weather
+  Underground personal weather stations within 10 km of each recently-searched
+  city, takes the median of their live readings as ground truth, and scores the
+  last hour of forecasts against it. Real measurements, every hour.
+- **Daily calibration** — `/api/calibrate` scores yesterday's forecasts against
+  Visual Crossing historical actuals (6 am UTC cron).
+- **Nightly validation** — `/api/cleanup` checks yesterday's forecasts against
+  Meteostat and prunes old rows (5 am UTC cron).
+- **Self-calibration (on demand)** — `/api/self-calibrate` rebalances every
+  source against the live multi-source median across a basket of cities; handy
+  for seeding non-uniform weights. Admin-only (`CALIBRATE_SECRET`).
 
 ---
 
@@ -52,8 +69,11 @@ for more."
 - **Live rain radar** (RainViewer over OpenStreetMap)
 - **7-day forecast**
 - **Community feedback** that retrains the weights, with abuse/sanity guards
-- **Per-region API leaderboard** — see who wins in Europe, Asia, etc.
+- **Per-region API leaderboard** — see who wins in Europe, Asia, etc., with a
+  recent-accuracy sparkline per source
 - **Global feedback heatmap** showing where the consensus was right vs. wrong
+- **Favorite & recent cities** for one-tap access
+- **Travel planner** — best months to visit, from 10 years of climate data
 - **15-minute response caching** to keep the upstream APIs happy
 - **Offline mode** (PWA + service worker) showing your last known forecast
 - **Installable PWA** on iOS and Android
@@ -77,16 +97,18 @@ for more."
 
 | Source | Key needed | Notes |
 | --- | --- | --- |
-| [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen |
+| [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |
 | [NASA POWER](https://power.larc.nasa.gov) | no | Satellite-derived hourly data |
+| [GeoSphere Austria](https://data.hub.geosphere.at) | no | INCA analysis grid; Austria/DACH coverage only |
 | [OpenWeatherMap](https://openweathermap.org/api) | yes | |
 | [WeatherAPI](https://www.weatherapi.com) | yes | |
 | [Tomorrow.io](https://www.tomorrow.io) | yes | |
-| [Visual Crossing](https://www.visualcrossing.com) | yes | |
+| [Visual Crossing](https://www.visualcrossing.com) | yes | Also the daily calibration source |
 | [World Weather Online](https://www.worldweatheronline.com) | yes | |
 | [Weatherstack](https://weatherstack.com) | yes | |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
+| [Weather Underground PWS](https://www.wunderground.com) | yes | Ground truth for hourly station calibration only |
 
 Sources without a configured key are simply skipped — the app still works with
 just the keyless ones.
@@ -109,25 +131,51 @@ weather key is optional (missing ones get skipped):
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
+# Server-only — bypasses RLS. Required in production once RLS is enabled.
+SUPABASE_SERVICE_ROLE_KEY=
+
 # Optional weather APIs
 OPENWEATHERMAP_API_KEY=
 WEATHERAPI_KEY=
 TOMORROW_KEY=
-VISUAL_CROSSING_KEY=
+VISUAL_CROSSING_KEY=    # also the daily calibration source
 WORLD_WEATHER_KEY=
 WEATHERSTACK_KEY=
-RAPIDAPI_KEY=          # Meteostat, for nightly validation
+RAPIDAPI_KEY=           # Meteostat, for nightly validation
+WUNDERGROUND_KEY=       # Weather Underground PWS, for hourly station calibration
+
+# Optional jobs / admin
+CALIBRATE_SECRET=       # gates /api/self-calibrate (set to any random string)
+WEBHOOK_URL=            # optional low-confidence alert target
 ```
 
-Set up the database by running the SQL files in `supabase/` (in order:
-`migration.sql` → `migration2.sql` → `migration3.sql` → `migration4.sql`) in the
-Supabase SQL editor, then hit `/api/migrate` once to seed the weight rows.
+Set up the database by pasting **`supabase/setup_all.sql`** into the Supabase SQL
+editor and running it — it's one idempotent script that creates every table and
+seeds the weight rows (no need for `/api/migrate` or the older `migrationN.sql`
+files). To lock the database down, set `SUPABASE_SERVICE_ROLE_KEY` and then run
+**`supabase/enable_rls.sql`** (see Security below).
 
 ```bash
-npm run dev
+npm run dev    # start the app
+npm test       # run the scoring unit tests
 ```
 
 Open http://localhost:3000.
+
+---
+
+## Security
+
+The browser never talks to Supabase directly — only to the app's own `/api/*`
+routes. So the database is locked down with **row-level security enabled on every
+table and no policies** (deny-all for the public anon key). The server uses
+`SUPABASE_SERVICE_ROLE_KEY`, which bypasses RLS. Run `supabase/enable_rls.sql`
+once to apply this; it drops any lingering permissive policies first. The
+`SUPABASE_SERVICE_ROLE_KEY` must be set both locally and in your host's
+environment (e.g. Vercel) — without it, server reads/writes fail under RLS.
+
+A small `error_log` table plus server-console logging (`lib/log.js`) captures
+runtime errors for visibility.
 
 ---
 
@@ -143,34 +191,23 @@ PRs welcome.
 Adding a weather source is the easiest first contribution: write a
 `fetchYourApi(lat, lon)` in `lib/weather.js` that returns the standard shape
 (`apiId`, `displayName`, `temp`, `feelsLike`, `rainPct`, `windKmh`, `condition`),
-wire it into `app/api/forecast/route.js`, and add its weight rows to a migration.
+wire it into `app/api/forecast/route.js`, and add its weight rows in
+`supabase/setup_all.sql` (and `app/api/migrate/route.js`).
 
 ---
 
+## Legal
+
+- **Privacy notice** — [`/privacy`](https://metablend-beta.vercel.app/privacy):
+  what data is collected (cookies, feedback, transient IP rate-limiting,
+  cookieless Plausible analytics) and how it's used.
+- **Terms & data attribution** — [`/terms`](https://metablend-beta.vercel.app/terms):
+  beta "as is" disclaimer and credit/licenses for the weather and map sources.
+
 ## License
 
-MIT — see below.
-
-```
-MIT License
-
-Copyright (c) 2026 MetaBlend
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+**© 2026 MetaBlend. All rights reserved.** The source is published here for
+transparency and reference; no permission is granted to copy, modify, or
+redistribute it without written consent. See [`LICENSE`](LICENSE). Weather and
+map data remain the property of their respective providers and are used under
+their own licenses.

@@ -26,9 +26,13 @@ error logging, and the legal/site pages.
   seeds forecasts so the daily cron can refine them against real actuals. A
   "Recalibrate weights" button on the leaderboard triggers it (prompts for the
   key).
+- **`/api/station-calibrate`** + **hourly cron** — finds Weather Underground
+  personal weather stations within 10 km of each recently-searched city, takes
+  the median of their live temperatures as ground truth, and re-weights the last
+  hour of forecasts against it. Real measured actuals, every hour.
 - **`lib/scoring.js`** — single source of truth for `median`, `deltaFromDiff`,
-  and `rawFactor`; the feedback, calibrate, cleanup, and self-calibrate routes
-  all share it (with a `node:test` suite, `npm test`).
+  and `rawFactor`; the feedback, calibrate, cleanup, self-calibrate, and
+  station-calibrate routes all share it (with a `node:test` suite, `npm test`).
 - **Exponential weight scaling** — `rawFactor` now scales `exp(avgScore * 0.5)`
   so accurate sources pull far more weight (linear scaling let weights converge);
   floor lowered to 0.01.
@@ -93,6 +97,8 @@ error logging, and the legal/site pages.
 - `SUPABASE_SERVICE_ROLE_KEY` — server-only; bypasses RLS. **Required in
   production** once RLS is enabled (set in `.env.local` and on Vercel).
 - `CALIBRATE_SECRET` — gates `/api/self-calibrate`.
+- `WUNDERGROUND_KEY` — Weather Underground PWS API key for `/api/station-calibrate`
+  (the hourly cron requires a Vercel plan that allows sub-daily crons).
 
 ## 2026-06-04
 
