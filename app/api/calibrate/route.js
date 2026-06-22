@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
+import { isAuthorizedJob } from '@/lib/auth'
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
@@ -20,7 +21,9 @@ async function fetchActualTemp(lat, lon, date, key) {
 // Daily auto-calibration: score yesterday's forecasts against the real weather
 // and re-weight the APIs, exactly like the feedback route does (same delta
 // thresholds, median-of-history factor, per-region normalisation).
-export async function GET() {
+export async function GET(request) {
+  if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
   const key = process.env.VISUAL_CROSSING_KEY
   if (!key) return Response.json({ skipped: 'VISUAL_CROSSING_KEY not configured' })
 

@@ -3,6 +3,48 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-06-22
+
+Security hardening pass (after an application security review), plus social/SEO
+and attribution fixes.
+
+### Security
+- **Rate limit on `/api/forecast`** — the cache-miss path is throttled per IP
+  (40/min) so nobody can drain the metered upstream weather APIs (and run up
+  costs) by spamming distinct cities. Cache hits stay free.
+- **Cron endpoints gated by `CRON_SECRET`** — `/api/calibrate`, `/api/cleanup`,
+  and `/api/webhook` now reject unauthenticated callers once `CRON_SECRET` is
+  set (Vercel attaches it to cron invocations automatically; the forecast route
+  passes it on its internal calls). Until it's set they stay open, so nothing
+  breaks before the env var is added. New shared helper `lib/auth.js`.
+- **Removed the legacy `/api/migrate` route** — an unauthenticated DB-write
+  endpoint that `supabase/setup_all.sql` long ago superseded.
+- **Calibrate secret is header-only** — `/api/self-calibrate` and
+  `/api/station-calibrate` no longer accept the secret as a `?key=` query param
+  (query strings can leak into access logs); `x-calibrate-key` / Bearer only.
+- **Security headers** — `X-Content-Type-Options: nosniff`, `Referrer-Policy`,
+  and a `Permissions-Policy` are now sent on every response (`next.config.mjs`).
+  No `X-Frame-Options` on purpose, so the `/widget` embeds keep working.
+
+### Added — social & SEO
+- **Generated OG/Twitter share image** — `app/opengraph-image.js` +
+  `twitter-image.js` render a branded 1200×630 card. The old metadata pointed at
+  an `og.png` that never existed, so every shared link showed a broken preview.
+- **`robots.txt` and `sitemap.xml`** via `app/robots.js` / `app/sitemap.js`.
+
+### Fixed
+- **Terms copyright wording** — reworded so "no license … is granted" can't be
+  misread as granting one.
+- **Privacy notice** now discloses BigDataCloud reverse-geocoding (used only when
+  you tap "my location").
+- **Rain radar** map tiles carry the standard "OpenStreetMap contributors"
+  attribution (matching the heatmap).
+- Removed unused create-next-app scaffold SVGs from `public/`.
+
+### Environment variables
+- `CRON_SECRET` — gates the cron job endpoints. Set it in the host environment
+  (Vercel sends it to crons automatically).
+
 ## 2026-06-21
 
 Beta launch hardening: locked down the database, made the forecast resilient,

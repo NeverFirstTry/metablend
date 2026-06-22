@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
+import { clientIp } from '@/lib/auth'
 import {
   geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
@@ -33,6 +34,24 @@ const CACHE = new Map()
 const CACHE_TTL = 15 * 60 * 1000
 const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
 
+// Per-IP throttle on the expensive (cache-miss) path so nobody can drain the
+// metered upstream weather APIs by spamming distinct cities. In-memory and
+// best-effort (per warm instance, resets on cold start) — enough to stop casual
+// abuse without a datastore. Cache hits below are free and never counted.
+const RATE = new Map()
+const RATE_MAX = 40             // cache-miss forecasts …
+const RATE_WINDOW = 60 * 1000   // … per minute, per IP
+function forecastRateLimited(ip) {
+  const now = Date.now()
+  const e = RATE.get(ip)
+  if (!e || now > e.resetAt) {
+    RATE.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
+    return false
+  }
+  e.count += 1
+  return e.count > RATE_MAX
+}
+
 export const GET = withErrorLog('forecast', async (request) => {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city')
@@ -47,6 +66,11 @@ export const GET = withErrorLog('forecast', async (request) => {
   const cached = CACHE.get(key)
   if (cached && Date.now() - cached.ts < CACHE_TTL) {
     return Response.json({ ...cached.payload, cached: true })
+  }
+
+  // Cache miss → this request will hit the metered upstream APIs, so throttle.
+  if (forecastRateLimited(clientIp(request))) {
+    return Response.json({ error: 'Too many requests — please slow down.' }, { status: 429 })
   }
 
   // 1. Stadt → Koordinaten
@@ -227,13 +251,19 @@ export const GET = withErrorLog('forecast', async (request) => {
     }
   } catch { /* api_stats table may not exist yet */ }
 
-  // Cleanup in background
+  // Cleanup + webhook are gated jobs — carry the cron secret on these internal
+  // calls so they pass the auth check once CRON_SECRET is configured.
   const origin = new URL(request.url).origin
-  fetch(`${origin}/api/cleanup`).catch(() => {})
+  const jobHeaders = process.env.CRON_SECRET
+    ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
+    : undefined
+
+  // Cleanup in background
+  fetch(`${origin}/api/cleanup`, { headers: jobHeaders }).catch(() => {})
 
   // Low-confidence consensus → fire the webhook check in the background
   if (consensus.confidencePct < 40) {
-    fetch(`${origin}/api/webhook`).catch(() => {})
+    fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {})
   }
 
   const payload = {

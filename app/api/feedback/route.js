@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
 import { withErrorLog } from '@/lib/log'
+import { clientIp } from '@/lib/auth'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
 const ipCache = new Map()
@@ -22,10 +23,7 @@ const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
 const MIN_REPORTS_TO_UPDATE = 1
 
 export const POST = withErrorLog('feedback', async (request) => {
-  const ip =
-    request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
-    request.headers.get('x-real-ip') ??
-    '127.0.0.1'
+  const ip = clientIp(request)
 
   const body = await request.json()
   const { city, actualTemp, actualCond, reportDate, region = 'global', lat = null, lon = null } = body

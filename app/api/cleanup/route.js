@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { isAuthorizedJob } from '@/lib/auth'
 
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
@@ -147,7 +148,9 @@ async function runMeteostatValidation() {
 }
 
 // ── GET handler ───────────────────────────────────────────────────────────────
-export async function GET() {
+export async function GET(request) {
+  if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
 
   const [{ error: fe }, { error: fb }] = await Promise.all([

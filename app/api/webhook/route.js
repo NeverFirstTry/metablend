@@ -1,9 +1,12 @@
 import { supabase } from '@/lib/supabase'
+import { isAuthorizedJob } from '@/lib/auth'
 
 // Fires a POST to WEBHOOK_URL for any city whose consensus confidence has
 // recently dropped below 40%. Triggered in the background by the forecast route
 // (and safe to hit from a cron). One alert per city per run.
-export async function GET() {
+export async function GET(request) {
+  if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
+
   const url = process.env.WEBHOOK_URL
   if (!url) return Response.json({ skipped: 'WEBHOOK_URL not configured' })
 

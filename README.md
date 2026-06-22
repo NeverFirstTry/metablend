@@ -149,13 +149,15 @@ WUNDERGROUND_KEY=       # Weather Underground PWS, for hourly station calibratio
 
 # Optional jobs / admin
 CALIBRATE_SECRET=       # gates /api/self-calibrate (set to any random string)
+CRON_SECRET=            # gates the cron jobs (/api/calibrate, /api/cleanup,
+                        # /api/webhook); Vercel sends it automatically to crons
 WEBHOOK_URL=            # optional low-confidence alert target
 ```
 
 Set up the database by pasting **`supabase/setup_all.sql`** into the Supabase SQL
 editor and running it — it's one idempotent script that creates every table and
-seeds the weight rows (no need for `/api/migrate` or the older `migrationN.sql`
-files). To lock the database down, set `SUPABASE_SERVICE_ROLE_KEY` and then run
+seeds the weight rows (the older `migrationN.sql` files are no longer needed).
+To lock the database down, set `SUPABASE_SERVICE_ROLE_KEY` and then run
 **`supabase/enable_rls.sql`** (see Security below).
 
 ```bash
@@ -180,6 +182,16 @@ environment (e.g. Vercel) — without it, server reads/writes fail under RLS.
 A small `error_log` table plus server-console logging (`lib/log.js`) captures
 runtime errors for visibility.
 
+**Job endpoints.** `/api/self-calibrate` and `/api/station-calibrate` require the
+`CALIBRATE_SECRET` (sent as the `x-calibrate-key` header). The cron jobs
+(`/api/calibrate`, `/api/cleanup`, `/api/webhook`) are gated by `CRON_SECRET`:
+set it in the environment and Vercel attaches it to cron invocations
+automatically, while public callers get a `401`. Until `CRON_SECRET` is set these
+endpoints stay open so the crons keep working without it.
+
+**Rate limiting.** `/api/forecast` (cache miss) and `/api/feedback` are throttled
+per IP to protect the metered upstream APIs and the weighting from abuse.
+
 ---
 
 ## Contributing
@@ -195,7 +207,7 @@ Adding a weather source is the easiest first contribution: write a
 `fetchYourApi(lat, lon)` in `lib/weather.js` that returns the standard shape
 (`apiId`, `displayName`, `temp`, `feelsLike`, `rainPct`, `windKmh`, `condition`),
 wire it into `app/api/forecast/route.js`, and add its weight rows in
-`supabase/setup_all.sql` (and `app/api/migrate/route.js`).
+`supabase/setup_all.sql`.
 
 ---
 
