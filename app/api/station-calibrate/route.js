@@ -48,9 +48,8 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   // a Vercel cron, so gate it behind CALIBRATE_SECRET when one is configured.
   const secret = process.env.CALIBRATE_SECRET
   if (secret) {
-    const { searchParams } = new URL(request.url)
+    // Header-only — a query param would end up in access/proxy logs.
     const provided =
-      searchParams.get('key') ??
       request.headers.get('x-calibrate-key') ??
       (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
     if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })

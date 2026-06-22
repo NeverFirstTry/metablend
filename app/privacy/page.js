@@ -59,7 +59,9 @@ export default function Privacy() {
               <li>Open-Meteo (incl. geocoding, air quality, historical archive)</li>
               <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing,
                   World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria</li>
-              <li>Map tiles by OpenStreetMap contributors (heatmap)</li>
+              <li>BigDataCloud — only if you use “my location”, to turn your
+                  coordinates into a city name (reverse geocoding)</li>
+              <li>Map tiles by OpenStreetMap contributors (heatmap and rain radar)</li>
             </ul>
             <p className="mt-2">The app is hosted on <strong>Vercel</strong> and its database runs on
             <strong> Supabase</strong> (EU region, Frankfurt). Each provider handles the data it receives under

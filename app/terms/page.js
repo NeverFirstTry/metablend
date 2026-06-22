@@ -41,8 +41,8 @@ export default function Terms() {
           <Section title="Copyright">
             © {new Date().getFullYear()} MetaBlend. All rights reserved. The source code is published on
             {' '}<a href="https://github.com/NeverFirstTry/metablend" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">GitHub</a>
-            {' '}for transparency, but no license to copy, modify, or redistribute it is granted. The MetaBlend
-            name and design are the property of their author.
+            {' '}for transparency only; this does not grant any license to copy, modify, or redistribute it.
+            The MetaBlend name and design are the property of their author.
           </Section>
 
           <Section title="Data sources & attribution">

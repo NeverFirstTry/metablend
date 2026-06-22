@@ -9,8 +9,8 @@ import {
 // against the live multi-source median across a basket of cities (the "instant"
 // consensus pass), and seeds today's forecasts so the ground-truth cron
 // (/api/calibrate, /api/cleanup) can refine those weights against real actuals
-// over the next day. Trigger it from a terminal with the shared secret:
-//   curl "http://localhost:3000/api/self-calibrate?key=$CALIBRATE_SECRET"
+// over the next day. Trigger it from a terminal with the shared secret (header):
+//   curl -H "x-calibrate-key: $CALIBRATE_SECRET" http://localhost:3000/api/self-calibrate
 // or from the leaderboard "Recalibrate" button (which prompts for the key).
 
 const FETCHERS = {
@@ -132,9 +132,8 @@ async function handle(request) {
   if (!secret) {
     return Response.json({ error: 'CALIBRATE_SECRET is not configured on the server.' }, { status: 503 })
   }
-  const { searchParams } = new URL(request.url)
+  // Header-only — a query param would end up in access/proxy logs.
   const provided =
-    searchParams.get('key') ??
     request.headers.get('x-calibrate-key') ??
     (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
   if (provided !== secret) {
