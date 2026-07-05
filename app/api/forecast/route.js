@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import {
-  geocodeCity, getRegion,
+  geocodeCity, getRegion, localDateForLon,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
@@ -45,6 +45,10 @@ function forecastRateLimited(ip) {
   const now = Date.now()
   const e = RATE.get(ip)
   if (!e || now > e.resetAt) {
+    // occasionally sweep expired IPs so the map doesn't grow unbounded
+    if (RATE.size > 1000) {
+      for (const [k, v] of RATE) if (now > v.resetAt) RATE.delete(k)
+    }
     RATE.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
     return false
   }
@@ -144,22 +148,34 @@ export const GET = withErrorLog('forecast', async (request) => {
   weightRows.forEach(w => { weightMap[w.id] = w.weight })
 
   // 4. Gewichteten Durchschnitt berechnen
+  // Rain is averaged only across sources reporting a true precipitation
+  // probability (rainIsProb) — cloud cover / humidity stand-ins used to bias
+  // the answer toward "rain". NASA/GeoSphere pseudo-probabilities serve as a
+  // fallback when no real probability source responded.
   let totalWeight = 0
-  let wTemp = 0, wFeelsLike = 0, wRain = 0, wWind = 0
+  let wTemp = 0, wFeelsLike = 0, wWind = 0
+  let rainSum = 0, rainWeight = 0
 
   results.forEach(r => {
     const w = weightMap[r.apiId] ?? 0.25
     wTemp      += r.temp                   * w
     wFeelsLike += (r.feelsLike ?? r.temp)  * w
-    wRain      += r.rainPct                * w
     wWind      += r.windKmh                * w
     totalWeight += w
+    if (r.rainIsProb && r.rainPct != null) { rainSum += r.rainPct * w; rainWeight += w }
   })
+  if (!rainWeight) {
+    results.forEach(r => {
+      if (r.rainPct == null) return
+      const w = weightMap[r.apiId] ?? 0.25
+      rainSum += r.rainPct * w; rainWeight += w
+    })
+  }
 
   const consensus = {
     temp:      Math.round((wTemp      / totalWeight) * 10) / 10,
     feelsLike: Math.round((wFeelsLike / totalWeight) * 10) / 10,
-    rainPct:   Math.round( wRain      / totalWeight),
+    rainPct:   rainWeight ? Math.round(rainSum / rainWeight) : null,
     windKmh:   Math.round( wWind      / totalWeight),
   }
 
@@ -167,19 +183,22 @@ export const GET = withErrorLog('forecast', async (request) => {
   const std = Math.sqrt(temps.reduce((s, t) => s + (t - consensus.temp) ** 2, 0) / temps.length)
   consensus.confidencePct = Math.max(0, Math.min(100, Math.round(100 - std * 12)))
 
-  // warn only when everyone agrees it's nasty
+  // warn only when everyone agrees it's nasty — judged on real rain
+  // probabilities only, so a humid overcast day can't trip the alarm
   const STORM = /thunder|storm|gewitter|orage|tormenta|temporale/i
-  const allHeavyRain = results.length >= 2 && results.every(r => r.rainPct > 80)
+  const probSources = results.filter(r => r.rainIsProb && r.rainPct != null)
+  const allHeavyRain = probSources.length >= 2 && probSources.every(r => r.rainPct > 80)
   const allStorm = results.length >= 2 && results.every(r => STORM.test(r.condition ?? ''))
   const warning = (allHeavyRain || allStorm)
     ? { active: true, type: allStorm ? 'thunderstorm' : 'heavy_rain' }
     : { active: false }
 
-  const willRain = consensus.rainPct >= 40
+  const willRain = consensus.rainPct == null ? null : consensus.rainPct >= 40
   const bestTime = hourly?.best ?? null
 
-  // 5. Prognosen speichern
-  const today = new Date().toISOString().split('T')[0]
+  // 5. Prognosen speichern — tagged with the city's local date, so daily
+  // calibration compares them against the right day's actuals
+  const today = localDateForLon(geo.lon)
   const { error: fcInsErr } = await supabase.from('forecasts').insert(
     results.map(r => ({
       city:      geo.name,
@@ -224,45 +243,49 @@ export const GET = withErrorLog('forecast', async (request) => {
     historyToday = (hist ?? []).map(h => ({ temp: h.temp, t: h.created_at }))
   } catch { /* table may not exist yet */ }
 
-  // Response-time + uptime stats (EMA on the response time, running up/down counts)
+  // Response-time + uptime stats (EMA on the response time, running up/down
+  // counts). Atomic via the bump_api_stats DB function; falls back to the old
+  // read-modify-write (which can drop concurrent increments) on DBs that
+  // haven't re-run setup_all.sql yet.
   try {
     const attempts = timed.filter(t => t.value !== null || t.down)
     if (attempts.length) {
-      const { data: existing } = await supabase
-        .from('api_stats')
-        .select('api_id, avg_response_ms, success_count, fail_count')
-      const cur = {}
-      ;(existing ?? []).forEach(r => { cur[r.api_id] = r })
-      const rows = attempts.map(t => {
-        const prev = cur[t.id]
-        const up = t.value !== null
-        const avg = prev?.avg_response_ms != null
-          ? Math.round(prev.avg_response_ms * 0.7 + t.ms * 0.3)
-          : t.ms
-        return {
-          api_id: t.id,
-          avg_response_ms: avg,
-          success_count: (prev?.success_count ?? 0) + (up ? 1 : 0),
-          fail_count: (prev?.fail_count ?? 0) + (up ? 0 : 1),
-          last_checked: new Date().toISOString(),
-        }
+      const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
+        rows: attempts.map(t => ({ api_id: t.id, ms: t.ms, up: t.value !== null })),
       })
-      await supabase.from('api_stats').upsert(rows, { onConflict: 'api_id' })
+      if (rpcErr) {
+        const { data: existing } = await supabase
+          .from('api_stats')
+          .select('api_id, avg_response_ms, success_count, fail_count')
+        const cur = {}
+        ;(existing ?? []).forEach(r => { cur[r.api_id] = r })
+        const rows = attempts.map(t => {
+          const prev = cur[t.id]
+          const up = t.value !== null
+          const avg = prev?.avg_response_ms != null
+            ? Math.round(prev.avg_response_ms * 0.7 + t.ms * 0.3)
+            : t.ms
+          return {
+            api_id: t.id,
+            avg_response_ms: avg,
+            success_count: (prev?.success_count ?? 0) + (up ? 1 : 0),
+            fail_count: (prev?.fail_count ?? 0) + (up ? 0 : 1),
+            last_checked: new Date().toISOString(),
+          }
+        })
+        await supabase.from('api_stats').upsert(rows, { onConflict: 'api_id' })
+      }
     }
   } catch { /* api_stats table may not exist yet */ }
 
-  // Cleanup + webhook are gated jobs — carry the cron secret on these internal
-  // calls so they pass the auth check once CRON_SECRET is configured.
-  const origin = new URL(request.url).origin
-  const jobHeaders = process.env.CRON_SECRET
-    ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
-    : undefined
-
-  // Cleanup in background
-  fetch(`${origin}/api/cleanup`, { headers: jobHeaders }).catch(() => {})
-
-  // Low-confidence consensus → fire the webhook check in the background
+  // Low-confidence consensus → fire the webhook check in the background.
+  // (Cleanup is NOT triggered here anymore — it's a daily cron; running two
+  // table-scan deletes per cache-miss search was pure overhead.)
   if (consensus.confidencePct < 40) {
+    const origin = new URL(request.url).origin
+    const jobHeaders = process.env.CRON_SECRET
+      ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
+      : undefined
     fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {})
   }
 

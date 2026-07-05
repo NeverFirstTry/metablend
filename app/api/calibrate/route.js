@@ -1,6 +1,11 @@
 import { supabase } from '@/lib/supabase'
-import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
+import { deltaFromDiff, median } from '@/lib/scoring'
+import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
+
+// 50 cities × (one Visual Crossing fetch + weight round-trips) runs well past
+// the default serverless limit — give the cron room to finish.
+export const maxDuration = 60
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
@@ -19,14 +24,18 @@ async function fetchActualTemp(lat, lon, date, key) {
 }
 
 // Daily auto-calibration: score yesterday's forecasts against the real weather
-// and re-weight the APIs, exactly like the feedback route does (same delta
-// thresholds, median-of-history factor, per-region normalisation).
+// and re-weight the APIs — same scoring math as the feedback route, but with
+// the 'daily' thresholds since an instantaneous forecast is being compared
+// against a 24-hour mean (exactly like the Meteostat validation).
 export async function GET(request) {
   if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const key = process.env.VISUAL_CROSSING_KEY
   if (!key) return Response.json({ skipped: 'VISUAL_CROSSING_KEY not configured' })
 
+  // Forecast rows are tagged with the CITY's local date, and Visual Crossing
+  // interprets a plain date at the queried coordinates as local too — so
+  // scoring "yesterday" compares each city against its own local day.
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
 
   // Don't calibrate the same day twice (sentinel row ages out via cleanup)
@@ -38,10 +47,12 @@ export async function GET(request) {
     .limit(1)
   if (sentinel?.length) return Response.json({ skipped: 'already calibrated', date: yesterday })
 
+  // Ordered oldest-first so "last row wins" below really is the latest per API.
   const { data: forecasts } = await supabase
     .from('forecasts')
-    .select('city, lat, lon, api_id, temp, region')
+    .select('city, lat, lon, api_id, temp, region, created_at')
     .eq('valid_for', yesterday)
+    .order('created_at', { ascending: true })
   if (!forecasts?.length) return Response.json({ skipped: 'no forecasts for yesterday', date: yesterday })
 
   // unique cities, capped
@@ -66,66 +77,21 @@ export async function GET(request) {
     forecasts.filter(f => f.city === city).forEach(f => { latestPerApi[f.api_id] = f })
     const unique = Object.values(latestPerApi)
 
-    // region weights (with delta_history if the column exists), falling back to global
-    let { data: allWeights, error: wErr } = await supabase
-      .from('api_weights')
-      .select('id, score, reports, weight, delta_history')
-      .eq('region', region)
-    const hasHistory = !wErr
-    if (!allWeights?.length) {
-      const { data: gw } = await supabase.from('api_weights').select('id, score, reports, weight, delta_history')
-      allWeights = gw ?? []
-    }
-    if (!allWeights.length) continue
-
-    const wMap = {}
-    allWeights.forEach(w => { wMap[w.id] = w })
-
     // Median forecast temp across all APIs — used to flag outliers (see below).
     const medianTemp = median(unique.map(f => f.temp))
 
-    const updates = []
+    const deltaMap = {}
     for (const f of unique) {
-      const cur = wMap[f.api_id]
-      if (!cur) continue
       const tempDiff = Math.abs(f.temp - actualTemp)
       // Outlier penalty: an API more than 5°C off the cross-API median gets a
       // hard −2 regardless of how it scored against the actual temp.
-      const delta = Math.abs(f.temp - medianTemp) > 5
+      deltaMap[f.api_id] = Math.abs(f.temp - medianTemp) > 5
         ? -2
-        : deltaFromDiff(tempDiff, 'instant')
-      const newScore = cur.score + delta
-      const newReports = cur.reports + 1
-
-      let history = null
-      if (hasHistory && Array.isArray(cur.delta_history)) {
-        history = [...cur.delta_history, delta].slice(-50)
-      }
-      updates.push({ id: f.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, history), delta, history })
+        : deltaFromDiff(tempDiff, 'daily')
     }
 
-    // keep untouched APIs so normalisation stays correct
-    const updatedIds = new Set(updates.map(u => u.id))
-    allWeights.forEach(w => {
-      if (updatedIds.has(w.id)) return
-      const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), delta: null, history: null })
-    })
-
-    if (!updates.length) continue
-
-    const totalFactor = updates.reduce((s, u) => s + u.rawFactor, 0)
-    for (const u of updates) {
-      const payload = {
-        score: u.score,
-        reports: u.reports,
-        weight: u.rawFactor / totalFactor,
-        updated_at: new Date().toISOString(),
-        ...(hasHistory && u.history !== null ? { delta_history: u.history } : {}),
-      }
-      const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
-      if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
-    }
+    const applied = await applyDeltas(region, deltaMap)
+    if (!applied) continue
 
     // Mark this city's pending feedback as consumed now that weights are updated.
     await supabase.from('feedback').update({ processed: true }).eq('city', city).eq('processed', false)
@@ -133,7 +99,7 @@ export async function GET(request) {
     results.push({
       city,
       actualTemp,
-      apis: updates.filter(u => u.delta !== null).map(u => ({ id: u.id, delta: u.delta })),
+      apis: applied.map(u => ({ id: u.id, delta: u.deltas[0] })),
     })
     calibrated++
   }

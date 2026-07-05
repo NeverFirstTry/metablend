@@ -1,12 +1,16 @@
 import { supabase } from '@/lib/supabase'
-import { median, deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { median, deltaFromDiff } from '@/lib/scoring'
+import { applyDeltas } from '@/lib/weights'
 import { withErrorLog } from '@/lib/log'
 
 // Ground-truth calibration from Weather Underground Personal Weather Stations.
 // For each city we have a recent forecast for, find PWS within 10 km, take the
 // median of their live temperatures as the actual, and re-weight every API's
 // stored forecast against it — same delta/normalization the feedback route uses.
-// Meant to run hourly via a Vercel cron.
+// Meant to run hourly via an external scheduler (GitHub Action).
+
+// Up to 15 cities × (1 lookup + 6 station reads) — needs more than the default.
+export const maxDuration = 60
 
 const RADIUS_KM = 10
 const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour
@@ -59,10 +63,12 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   if (!key) return Response.json({ skipped: 'WUNDERGROUND_KEY not configured' })
 
   const since = new Date(Date.now() - LOOKBACK_MIN * 60 * 1000).toISOString()
+  // Ordered oldest-first so "last row wins" below really is the latest per API.
   const { data: forecasts } = await supabase
     .from('forecasts')
     .select('city, lat, lon, api_id, temp, region, created_at')
     .gte('created_at', since)
+    .order('created_at', { ascending: true })
   if (!forecasts?.length) return Response.json({ skipped: 'no forecasts in the last hour', since })
 
   // Unique cities (with coordinates), capped
@@ -80,15 +86,14 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   let calibrated = 0
 
   for (const { city, lat, lon, region } of cities) {
-    // 1. Nearby PWS → 2. their live temps → 3. median = ground truth
+    // 1. Nearby PWS → 2. their live temps (in parallel) → 3. median = ground truth
     const stations = await nearbyStations(lat, lon, key)
     if (!stations.length) { results.push({ city, skipped: 'no PWS within 10km' }); continue }
 
-    const temps = []
-    for (const s of stations.slice(0, MAX_STATIONS)) {
-      const t = await stationTemp(s.id, key)
-      if (t != null) temps.push(t)
-    }
+    const readings = await Promise.all(
+      stations.slice(0, MAX_STATIONS).map(s => stationTemp(s.id, key))
+    )
+    const temps = readings.filter(t => t != null)
     if (!temps.length) { results.push({ city, skipped: 'no station readings' }); continue }
     const actualTemp = median(temps)
 
@@ -97,65 +102,25 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     forecasts.filter(f => f.city === city).forEach(f => { latestPerApi[f.api_id] = f })
     const unique = Object.values(latestPerApi)
 
-    // Region weights (with delta_history if present), falling back to global
-    let { data: allWeights, error: wErr } = await supabase
-      .from('api_weights')
-      .select('id, score, reports, weight, delta_history')
-      .eq('region', region)
-    const hasHistory = !wErr
-    if (!allWeights?.length) {
-      const { data: gw } = await supabase.from('api_weights').select('id, score, reports, weight, delta_history')
-      allWeights = gw ?? []
-    }
-    if (!allWeights.length) continue
-
-    const wMap = {}
-    allWeights.forEach(w => { wMap[w.id] = w })
-
     // Cross-API median forecast — used for the outlier guard, same as feedback
     const medForecast = median(unique.map(f => f.temp))
 
     // 5. Score + re-weight (identical math to the feedback / calibrate routes)
-    const updates = []
+    const deltaMap = {}
     for (const f of unique) {
-      const cur = wMap[f.api_id]
-      if (!cur) continue
-      const delta = Math.abs(f.temp - medForecast) > 5
+      deltaMap[f.api_id] = Math.abs(f.temp - medForecast) > 5
         ? -2
         : deltaFromDiff(Math.abs(f.temp - actualTemp), 'instant')
-      const newScore = cur.score + delta
-      const newReports = cur.reports + 1
-      let history = null
-      if (hasHistory && Array.isArray(cur.delta_history)) history = [...cur.delta_history, delta].slice(-50)
-      updates.push({ id: f.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, history), delta, history })
     }
 
-    const touched = new Set(updates.map(u => u.id))
-    allWeights.forEach(w => {
-      if (touched.has(w.id)) return
-      const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), delta: null, history: null })
-    })
-    if (!updates.length) continue
-
-    const totalFactor = updates.reduce((s, u) => s + u.rawFactor, 0)
-    for (const u of updates) {
-      const payload = {
-        score: u.score,
-        reports: u.reports,
-        weight: u.rawFactor / totalFactor,
-        updated_at: new Date().toISOString(),
-        ...(hasHistory && u.history !== null ? { delta_history: u.history } : {}),
-      }
-      const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
-      if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
-    }
+    const applied = await applyDeltas(region, deltaMap)
+    if (!applied) continue
 
     results.push({
       city,
       actualTemp: Math.round(actualTemp * 10) / 10,
       stations: temps.length,
-      apis: updates.filter(u => u.delta !== null).map(u => ({ id: u.id, delta: u.delta })),
+      apis: applied.map(u => ({ id: u.id, delta: u.deltas[0] })),
     })
     calibrated++
   }

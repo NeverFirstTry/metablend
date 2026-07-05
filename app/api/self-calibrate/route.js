@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabase'
-import { median, deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { median, deltaFromDiff } from '@/lib/scoring'
+import { applyDeltas } from '@/lib/weights'
+import { localDateForLon } from '@/lib/weather'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
   fetchVisualCrossing, fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
@@ -46,6 +48,9 @@ const CITIES = [
   { name: 'Auckland',      lat: -36.85, lon: 174.76, region: 'oceania' },
 ]
 
+// The whole basket is fetched live and every source scored — give it room.
+export const maxDuration = 60
+
 const MIN_SOURCES_PER_CITY = 3 // need a real spread before a median means anything
 
 // Pull every source for one point, in parallel. Null (no key) and throws
@@ -61,69 +66,6 @@ async function fetchCity(lat, lon) {
     }
   }))
   return settled.filter(Boolean)
-}
-
-// Recompute + persist one region's weights from accumulated per-API deltas,
-// reusing the exact normalization the feedback route uses so the ground-truth
-// cron continues seamlessly from the same score/reports baseline.
-async function applyWeights(region, deltaMap, hasRegionCol) {
-  let q = supabase.from('api_weights').select('id, score, reports, weight, delta_history')
-  if (hasRegionCol) q = q.eq('region', region)
-  let { data: weights, error: wErr } = await q
-  const hasHistory = !wErr
-  if (!hasHistory) {
-    let q2 = supabase.from('api_weights').select('id, score, reports, weight')
-    if (hasRegionCol) q2 = q2.eq('region', region)
-    ;({ data: weights } = await q2)
-  }
-  if (!weights?.length) return null
-
-  const wmap = {}
-  weights.forEach(w => { wmap[w.id] = w })
-
-  const updates = []
-
-  // APIs we collected samples for this run
-  for (const [id, deltas] of Object.entries(deltaMap)) {
-    const cur = wmap[id]
-    if (!cur) continue
-    let score = cur.score, reports = cur.reports
-    let history = (hasHistory && Array.isArray(cur.delta_history)) ? [...cur.delta_history] : null
-    for (const d of deltas) {
-      score += d
-      reports += 1
-      if (history) history.push(d)
-    }
-    if (history) history = history.slice(-50)
-    updates.push({ id, score, reports, rawFactor: rawFactor(score, reports, history), history, samples: deltas.length })
-  }
-
-  // untouched APIs still count toward normalization so weights stay a partition
-  const touched = new Set(updates.map(u => u.id))
-  weights.forEach(w => {
-    if (touched.has(w.id)) return
-    const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
-    updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), history: null, samples: 0 })
-  })
-
-  const total = updates.reduce((s, u) => s + u.rawFactor, 0)
-  const changes = []
-  for (const u of updates) {
-    const weight = u.rawFactor / total
-    const payload = {
-      score: u.score,
-      reports: u.reports,
-      weight,
-      updated_at: new Date().toISOString(),
-      ...(hasHistory && u.history !== null ? { delta_history: u.history } : {}),
-    }
-    let upd = supabase.from('api_weights').update(payload).eq('id', u.id)
-    if (hasRegionCol) upd = upd.eq('region', region)
-    const { error } = await upd
-    if (error && hasRegionCol) await supabase.from('api_weights').update(payload).eq('id', u.id)
-    if (u.samples) changes.push({ id: u.id, weight: +(weight * 100).toFixed(1), samples: u.samples })
-  }
-  return changes.sort((a, b) => b.weight - a.weight)
 }
 
 async function handle(request) {
@@ -175,7 +117,7 @@ async function handle(request) {
       if (!knownIds.has(r.apiId)) continue // skip sources not in the FK reference table
       forecastRows.push({
         city: city.name, lat: city.lat, lon: city.lon,
-        api_id: r.apiId, valid_for: today,
+        api_id: r.apiId, valid_for: localDateForLon(city.lon),
         temp: r.temp, rain_pct: r.rainPct, wind_kmh: r.windKmh,
         condition: r.condition, region: city.region,
       })
@@ -206,10 +148,16 @@ async function handle(request) {
   }
 
   // ── 4. Apply the instant consensus rebalance per bucket ──────────────────
+  // (shared pipeline in lib/weights.js — same normalization as the feedback
+  // route, so the ground-truth cron continues from the same baseline)
   const rebalanced = {}
   for (const bucket of Object.keys(perBucket)) {
-    const changes = await applyWeights(bucket, perBucket[bucket], hasRegionCol)
-    if (changes) rebalanced[bucket] = changes
+    const applied = await applyDeltas(bucket, perBucket[bucket])
+    if (applied) {
+      rebalanced[bucket] = applied
+        .map(u => ({ id: u.id, weight: +(u.weight * 100).toFixed(1), samples: u.deltas.length }))
+        .sort((a, b) => b.weight - a.weight)
+    }
   }
 
   return Response.json({

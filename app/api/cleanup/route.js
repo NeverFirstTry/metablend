@@ -1,6 +1,10 @@
 import { supabase } from '@/lib/supabase'
-import { deltaFromDiff, rawFactor } from '@/lib/scoring'
+import { deltaFromDiff, median } from '@/lib/scoring'
+import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
+
+// Meteostat lookups + weight round-trips per city can outrun the default limit.
+export const maxDuration = 60
 
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
@@ -27,8 +31,15 @@ async function fetchMeteostat(lat, lon, date) {
 
 // ── Historical validation ─────────────────────────────────────────────────────
 async function runMeteostatValidation() {
+  // Visual Crossing (the 6am /api/calibrate cron) is the primary daily scorer.
+  // Only score against Meteostat when VC isn't configured, so each day's
+  // forecasts count once — not twice against two different ground truths.
+  if (process.env.VISUAL_CROSSING_KEY) {
+    return { skipped: 'daily scoring handled by /api/calibrate (Visual Crossing)' }
+  }
   if (!process.env.RAPIDAPI_KEY) return { skipped: 'RAPIDAPI_KEY not configured' }
 
+  // valid_for is the city-local date; Meteostat daily data is local too.
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
 
   // Guard: a sentinel row in feedback marks "already validated this date"
@@ -41,11 +52,13 @@ async function runMeteostatValidation() {
 
   if (sentinel?.length) return { skipped: 'already validated', date: yesterday }
 
-  // Fetch all of yesterday's stored forecasts
+  // Fetch all of yesterday's stored forecasts, oldest first so "last row wins"
+  // below really is the latest per API.
   const { data: forecasts } = await supabase
     .from('forecasts')
-    .select('city, lat, lon, api_id, temp, region')
+    .select('city, lat, lon, api_id, temp, region, created_at')
     .eq('valid_for', yesterday)
+    .order('created_at', { ascending: true })
 
   if (!forecasts?.length) return { skipped: 'no forecasts for yesterday', date: yesterday }
 
@@ -65,72 +78,40 @@ async function runMeteostatValidation() {
   for (const { city, lat, lon, region } of cities) {
     // Fetch actual weather from Meteostat
     const actual = await fetchMeteostat(lat, lon, yesterday)
-    if (!actual?.tavg) {
+    if (actual?.tavg == null) {   // == null, not falsy — 0°C is a valid average
       results.push({ city, skipped: 'no Meteostat data' })
       continue
     }
 
     const actualTemp = actual.tavg  // daily average – best single comparison point
-    const cityForecasts = forecasts.filter(f => f.city === city)
 
-    // Load region-specific weights, falling back to global
-    const { data: regionRows, error: rwErr } = await supabase
-      .from('api_weights')
-      .select('id, score, reports, weight')
-      .eq('region', region)
+    // latest stored forecast per API for this city
+    const latestPerApi = {}
+    forecasts.filter(f => f.city === city).forEach(f => { latestPerApi[f.api_id] = f })
+    const unique = Object.values(latestPerApi)
 
-    let allWeights = (!rwErr && regionRows?.length) ? regionRows : null
-    if (!allWeights) {
-      const { data: gw } = await supabase.from('api_weights').select('id, score, reports, weight')
-      allWeights = gw ?? []
-    }
-
-    const wMap = {}
-    allWeights.forEach(w => { wMap[w.id] = w })
+    // Median forecast temp across all APIs — used to flag outliers, same as
+    // the feedback/calibrate routes.
+    const medianTemp = median(unique.map(f => f.temp))
 
     // Score each API's forecast against the actual daily average.
     // Thresholds are wider than user-feedback (2/4/6/8°) because we're
     // comparing an instantaneous forecast against a 24-h mean.
-    const updates = []
-    for (const fc of cityForecasts) {
-      const cur = wMap[fc.api_id]
-      if (!cur) continue
-      const diff  = Math.abs(fc.temp - actualTemp)
-      const delta = deltaFromDiff(diff, 'daily')
-
-      const newScore   = cur.score + delta
-      const newReports = cur.reports + 1
-      updates.push({ id: fc.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, null), delta })
+    const deltaMap = {}
+    for (const fc of unique) {
+      const diff = Math.abs(fc.temp - actualTemp)
+      deltaMap[fc.api_id] = Math.abs(fc.temp - medianTemp) > 5
+        ? -2
+        : deltaFromDiff(diff, 'daily')
     }
 
-    // Include APIs that had no forecast for this city so normalization stays correct
-    const updatedIds = new Set(updates.map(u => u.id))
-    allWeights.forEach(w => {
-      if (!updatedIds.has(w.id)) {
-        updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, null), delta: null })
-      }
-    })
-
-    if (!updates.length) continue
-
-    const totalFactor = updates.reduce((s, u) => s + u.rawFactor, 0)
-
-    for (const u of updates) {
-      const payload = {
-        score: u.score,
-        reports: u.reports,
-        weight: u.rawFactor / totalFactor,
-        updated_at: new Date().toISOString(),
-      }
-      // Try region-specific row; fall back to matching only on id
-      const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
-      if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
-    }
+    const applied = await applyDeltas(region, deltaMap)
+    if (!applied) continue
 
     results.push({
       city,
       actualTemp,
-      apis: updates.filter(u => u.delta !== null).map(u => ({ id: u.id, delta: u.delta })),
+      apis: applied.map(u => ({ id: u.id, delta: u.deltas[0] })),
     })
     validated++
   }
@@ -155,7 +136,10 @@ export async function GET(request) {
 
   const [{ error: fe }, { error: fb }] = await Promise.all([
     supabase.from('forecasts').delete().lt('created_at', cutoff),
-    supabase.from('feedback').delete().lt('created_at', cutoff),
+    // Only the job sentinels age out. Real community reports stay — they feed
+    // the heatmap, which is pointless with a 48-hour memory.
+    supabase.from('feedback').delete().lt('created_at', cutoff)
+      .in('actual_cond', ['__calibrate__', '__meteostat__']),
   ])
 
   const validation = await runMeteostatValidation()

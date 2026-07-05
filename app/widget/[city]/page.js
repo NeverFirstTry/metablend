@@ -13,6 +13,9 @@ export default function Widget() {
   const [lang, setLang] = useState('en')
 
   useEffect(() => {
+    // One-time post-hydration sync — navigator isn't available during SSR and
+    // the first client render must match the server HTML ('en').
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLang(detectLang(navigator.language))
   }, [])
 

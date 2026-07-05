@@ -33,7 +33,7 @@ export async function GET(request) {
   const items = rows.map(r => {
     const when = new Date(r.created_at)
     const title = `${r.temp}°C, ${r.condition ?? 'n/a'} — ${r.confidence_pct}% consensus`
-    const desc = `Temperature ${r.temp}°C, rain ${r.rain_pct}%, wind ${r.wind_kmh} km/h, consensus confidence ${r.confidence_pct}%.`
+    const desc = `Temperature ${r.temp}°C, rain ${r.rain_pct ?? '–'}%, wind ${r.wind_kmh} km/h, consensus confidence ${r.confidence_pct}%.`
     return `    <item>
       <title>${escapeXml(title)}</title>
       <description>${escapeXml(desc)}</description>

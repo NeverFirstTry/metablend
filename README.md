@@ -54,8 +54,9 @@ All of these share the exact same scoring math (`lib/scoring.js`):
   plan, so an external scheduler keeps it on any plan.
 - **Daily calibration** — `/api/calibrate` scores yesterday's forecasts against
   Visual Crossing historical actuals (6 am UTC cron).
-- **Nightly validation** — `/api/cleanup` checks yesterday's forecasts against
-  Meteostat and prunes old rows (5 am UTC cron).
+- **Nightly validation** — `/api/cleanup` prunes old rows (5 am UTC cron) and,
+  when Visual Crossing isn't configured, checks yesterday's forecasts against
+  Meteostat instead — one ground truth per day, never both.
 - **Self-calibration (on demand)** — `/api/self-calibrate` rebalances every
   source against the live multi-source median across a basket of cities; handy
   for seeding non-uniform weights. Admin-only (`CALIBRATE_SECRET`).
@@ -65,7 +66,9 @@ All of these share the exact same scoring math (`lib/scoring.js`):
 ## Features
 
 - **Weighted consensus** across many weather APIs with a confidence score
-- **Will it rain today?** — one big, honest yes/no card
+- **Will it rain today?** — one big, honest yes/no card, averaged only from
+  sources that report a true precipitation probability (cloud cover and
+  humidity don't count as rain)
 - **Severe-weather warnings** when every source agrees on thunderstorms or heavy rain
 - **Best time to be outside** today, scored on rain, comfort and wind
 - **UV index, air quality and pollen**, colour-coded at a glance
@@ -207,7 +210,9 @@ Adding a weather source is the easiest first contribution: write a
 `fetchYourApi(lat, lon)` in `lib/weather.js` that returns the standard shape
 (`apiId`, `displayName`, `temp`, `feelsLike`, `rainPct`, `windKmh`, `condition`),
 wire it into `app/api/forecast/route.js`, and add its weight rows in
-`supabase/setup_all.sql`.
+`supabase/setup_all.sql`. Set `rainIsProb: true` only if `rainPct` is a real
+precipitation probability — if the API only offers cloud cover or humidity,
+return `rainPct: null` instead.
 
 ---
 

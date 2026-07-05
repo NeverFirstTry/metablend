@@ -1,26 +1,32 @@
 import { supabase } from '@/lib/supabase'
-import { deltaFromDiff, rawFactor, median } from '@/lib/scoring'
+import { deltaFromDiff, median } from '@/lib/scoring'
+import { applyDeltas } from '@/lib/weights'
+import { localDateForLon } from '@/lib/weather'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
+// Split into check + mark so a report rejected by validation (deviation,
+// nighttime sun, …) doesn't burn the user's one-per-hour slot.
 const ipCache = new Map()
 const ONE_HOUR = 60 * 60 * 1000
 
-function checkRateLimit(ip, city) {
-  const key = `${ip}:${city.toLowerCase()}`
-  const last = ipCache.get(key)
-  if (last && Date.now() - last < ONE_HOUR) return true
-  ipCache.set(key, Date.now())
-  return false
+function isRateLimited(ip, city) {
+  const last = ipCache.get(`${ip}:${city.toLowerCase()}`)
+  return !!(last && Date.now() - last < ONE_HOUR)
+}
+function markRateLimit(ip, city) {
+  // occasionally sweep expired entries so the map doesn't grow unbounded
+  if (ipCache.size > 1000) {
+    const now = Date.now()
+    for (const [k, ts] of ipCache) if (now - ts >= ONE_HOUR) ipCache.delete(k)
+  }
+  ipCache.set(`${ip}:${city.toLowerCase()}`, Date.now())
 }
 
 // Only daytime-sun values (new i18n key + legacy German). "Clear"/"Klar" is a
 // nighttime answer, so it's allowed around the clock.
 const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
-// Beta: re-weight on every single report (1) instead of waiting for a batch, so
-// each data point a user submits immediately nudges the weights.
-const MIN_REPORTS_TO_UPDATE = 1
 
 export const POST = withErrorLog('feedback', async (request) => {
   const ip = clientIp(request)
@@ -33,6 +39,14 @@ export const POST = withErrorLog('feedback', async (request) => {
     return Response.json({ error: 'Missing fields' }, { status: 400 })
   }
 
+  // ── Rate limit (check only; marked after the report is accepted) ──────────
+  if (isRateLimited(ip, city)) {
+    return Response.json(
+      { error: 'You have already submitted feedback for this city in the last hour.' },
+      { status: 429 }
+    )
+  }
+
   // ── Temperature sanity range ──────────────────────────────────────────────
   if (actualTemp < -50 || actualTemp > 60) {
     return Response.json(
@@ -41,9 +55,13 @@ export const POST = withErrorLog('feedback', async (request) => {
     )
   }
 
-  // ── Sunny condition at night (21:00–06:00 UTC) ────────────────────────────
-  const utcHour = new Date().getUTCHours()
-  const isNight = utcHour >= 21 || utcHour < 6
+  // ── Sunny condition at night (21:00–06:00 local) ──────────────────────────
+  // The report carries the city's lon, so estimate its local hour from the
+  // longitude (15° ≈ 1 h) instead of judging "night" by the server's UTC
+  // clock — otherwise e.g. Sydney can't report sun for most of its day.
+  const utcHour = new Date().getUTCHours() + new Date().getUTCMinutes() / 60
+  const localHour = typeof lon === 'number' ? (((utcHour + lon / 15) % 24) + 24) % 24 : utcHour
+  const isNight = localHour >= 21 || localHour < 6
   if (isNight && SUNNY_CONDITIONS.has(actualCond)) {
     return Response.json(
       { error: 'Sunny conditions cannot be reported between 9 PM and 6 AM.' },
@@ -51,21 +69,16 @@ export const POST = withErrorLog('feedback', async (request) => {
     )
   }
 
-  // ── Rate limit ────────────────────────────────────────────────────────────
-  if (checkRateLimit(ip, city)) {
-    return Response.json(
-      { error: 'You have already submitted feedback for this city in the last hour.' },
-      { status: 429 }
-    )
-  }
-
   // ── Load today's forecasts to validate consensus deviation ────────────────
-  const today = new Date().toISOString().split('T')[0]
+  // Ordered oldest-first so "last row wins" below really is the latest per API.
+  // "Today" is the CITY's local date (forecast rows are tagged the same way).
+  const today = localDateForLon(lon)
   const { data: forecasts } = await supabase
     .from('forecasts')
     .select('api_id, temp, rain_pct, condition')
     .eq('city', city)
     .eq('valid_for', today)
+    .order('created_at', { ascending: true })
 
   // how close the consensus got (1 = spot on, 0 = way off). feeds the heatmap.
   let accuracy = null
@@ -100,19 +113,7 @@ export const POST = withErrorLog('feedback', async (request) => {
     .insert({ ...baseRow, lat, lon, accuracy })
   if (insErr) await supabase.from('feedback').insert(baseRow)
 
-  // ── Minimum report threshold ──────────────────────────────────────────────
-  const { count: reportCount } = await supabase
-    .from('feedback')
-    .select('id', { count: 'exact', head: true })
-    .eq('city', city)
-    .neq('actual_cond', '__meteostat__')  // exclude validation sentinels
-
-  if ((reportCount ?? 0) < MIN_REPORTS_TO_UPDATE) {
-    const remaining = MIN_REPORTS_TO_UPDATE - (reportCount ?? 0)
-    return Response.json({
-      message: `Feedback saved. Weights will update once ${remaining} more report${remaining === 1 ? '' : 's'} are collected for ${city}.`,
-    })
-  }
+  markRateLimit(ip, city)
 
   if (!forecasts?.length) {
     return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })
@@ -122,94 +123,32 @@ export const POST = withErrorLog('feedback', async (request) => {
   forecasts.forEach(f => { latestPerApi[f.api_id] = f })
   const unique = Object.values(latestPerApi)
 
-  // ── Load weights (with delta_history if the column exists) ────────────────
-  const tryWithHistory = async (regionFilter) => {
-    const q = supabase.from('api_weights').select('id, score, reports, weight, delta_history')
-    return regionFilter ? q.eq('region', regionFilter) : q
-  }
-
-  let { data: allWeights, error: wErr } = await tryWithHistory(region)
-  const hasHistory = !wErr
-
-  if (!allWeights?.length) {
-    // Try global or without region filter
-    const { data: fallback } = hasHistory
-      ? await tryWithHistory(null)
-      : await supabase.from('api_weights').select('id, score, reports, weight').eq('region', region)
-    allWeights = fallback
-
-    if (!allWeights?.length) {
-      const { data: global } = await supabase.from('api_weights').select('id, score, reports, weight')
-      allWeights = global
-    }
-  }
-
-  if (!allWeights) return Response.json({ error: 'No API weights found' }, { status: 500 })
-
-  const weightMap = {}
-  allWeights.forEach(w => { weightMap[w.id] = w })
-
   // Median forecast temp across all APIs — used to flag outliers (see below).
   const medianTemp = median(unique.map(f => f.temp))
 
-  // ── Compute score deltas using median of history ───────────────────────────
-  const updates = []
+  // ── Score each API against the report ────────────────────────────────────
+  const deltaMap = {}
   for (const forecast of unique) {
-    const cur = weightMap[forecast.api_id]
-    if (!cur) continue
-
     const tempDiff = Math.abs(forecast.temp - actualTemp)
     // Outlier penalty: an API more than 5°C off the cross-API median gets a hard
     // −2 regardless of how the user feedback scored it.
-    const delta = Math.abs(forecast.temp - medianTemp) > 5
+    deltaMap[forecast.api_id] = Math.abs(forecast.temp - medianTemp) > 5
       ? -2
       : deltaFromDiff(tempDiff, 'instant')
-
-    const newScore   = cur.score + delta
-    const newReports = cur.reports + 1
-
-    // Median-based rawFactor when history is available; fall back to mean
-    if (hasHistory && Array.isArray(cur.delta_history)) {
-      const history = [...cur.delta_history, delta].slice(-50)
-      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, history), delta, history })
-    } else {
-      updates.push({ id: forecast.api_id, score: newScore, reports: newReports, rawFactor: rawFactor(newScore, newReports, null), delta, history: null })
-    }
   }
 
-  // Include untouched APIs so normalization stays correct
-  const updatedIds = new Set(updates.map(u => u.id))
-  allWeights.forEach(w => {
-    if (!updatedIds.has(w.id)) {
-      const history = (hasHistory && Array.isArray(w.delta_history)) ? w.delta_history : null
-      updates.push({ id: w.id, score: w.score, reports: w.reports, rawFactor: rawFactor(w.score, w.reports, history), delta: null, history: null })
-    }
-  })
-
-  const totalFactor = updates.reduce((s, u) => s + u.rawFactor, 0)
-
-  // ── Persist updated weights ───────────────────────────────────────────────
-  for (const u of updates) {
-    const newWeight = u.rawFactor / totalFactor
-    const payload = {
-      score: u.score,
-      reports: u.reports,
-      weight: newWeight,
-      updated_at: new Date().toISOString(),
-      ...(hasHistory && u.history !== null ? { delta_history: u.history } : {}),
-    }
-
-    const { error } = await supabase.from('api_weights').update(payload).eq('id', u.id).eq('region', region)
-    if (error) await supabase.from('api_weights').update(payload).eq('id', u.id)
-  }
+  const applied = await applyDeltas(region, deltaMap)
+  if (!applied) return Response.json({ error: 'No API weights found' }, { status: 500 })
 
   // Mark this city's pending feedback as consumed now that weights are updated.
   await supabase.from('feedback').update({ processed: true }).eq('city', city).eq('processed', false)
 
   return Response.json({
     message: 'Thank you! Weights updated.',
-    updates: updates
-      .filter(u => u.delta !== null)
-      .map(u => ({ api: u.id, delta: u.delta, weight: (u.rawFactor / totalFactor * 100).toFixed(1) + '%' })),
+    updates: applied.map(u => ({
+      api: u.id,
+      delta: u.deltas[0],
+      weight: (u.weight * 100).toFixed(1) + '%',
+    })),
   })
 })

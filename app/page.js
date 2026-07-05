@@ -283,9 +283,15 @@ export default function Home() {
   const [justUpdated, setJustUpdated] = useState(false)    // drives the "Updated just now" flash
   const [nowTick, setNowTick] = useState(() => Date.now()) // re-renders the countdown each second
   const autoRefreshRef = useRef(() => {})
+  const suggestTimer = useRef(null)  // debounce for the geocoding suggestions
+  const suggestSeq = useRef(0)       // drops out-of-order suggestion responses
 
   // mount: language, unit, consent, recent cities, service worker, online/offline
   useEffect(() => {
+    // Deliberate one-time sync from cookies/localStorage AFTER hydration: the
+    // server renders the defaults, so reading these in a state initializer
+    // would make the client's first render differ from the server HTML.
+    /* eslint-disable react-hooks/set-state-in-effect */
     const savedLang = getCookie('metablend_lang')
     const detectedLang = savedLang ?? detectLang(navigator.language)
     setLang(detectedLang)
@@ -293,6 +299,7 @@ export default function Home() {
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {})
@@ -347,12 +354,21 @@ export default function Home() {
 
   const isNight = (() => { const h = new Date().getHours(); return h < 6 || h >= 21 })()
 
-  async function fetchSuggestions(value) {
+  // Debounced so fast typing doesn't fire a geocoding request per keystroke;
+  // the sequence counter drops responses that arrive out of order.
+  function fetchSuggestions(value) {
+    clearTimeout(suggestTimer.current)
     if (value.length < 2) { setSuggestions([]); return }
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=5&language=${lang}`)
-    const d = await res.json()
-    setSuggestions(d.results ?? [])
-    setShowSuggestions(true)
+    suggestTimer.current = setTimeout(async () => {
+      const seq = ++suggestSeq.current
+      try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=5&language=${lang}`)
+        const d = await res.json()
+        if (seq !== suggestSeq.current) return
+        setSuggestions(d.results ?? [])
+        setShowSuggestions(true)
+      } catch { /* geocoding hiccup while typing — just show nothing */ }
+    }, 250)
   }
 
   // `silent` = background auto-refresh / manual refresh of the city already on
@@ -749,7 +765,7 @@ export default function Home() {
                 <div className="text-emerald-400 text-xs uppercase tracking-wider mb-2 truncate">{d.city}</div>
                 <div className="text-4xl font-bold mb-3">{showT(d.consensus.temp)}°{unit}</div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct}%</span></div>
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct ?? '–'}%</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'windLabel')}</span><span>{d.consensus.windKmh} km/h</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'consensusLabel')}</span><span>{d.consensus.confidencePct}%</span></div>
                 </div>
@@ -801,22 +817,25 @@ export default function Home() {
               </div>
             )}
 
-            {/* Simple rain answer */}
-            <div className={`rounded-2xl p-6 sm:p-8 border text-center ${
-              data.willRain
-                ? 'bg-blue-500/10 border-blue-500/40'
-                : 'bg-amber-400/10 border-amber-400/40'
-            }`}>
-              <div className="text-5xl sm:text-6xl mb-3">
-                {data.willRain ? t(lang, 'rainYesEmoji') : t(lang, 'rainNoEmoji')}
+            {/* Simple rain answer — hidden when no source provided a real rain
+                probability (willRain is null then, not a confident "no") */}
+            {data.willRain != null && (
+              <div className={`rounded-2xl p-6 sm:p-8 border text-center ${
+                data.willRain
+                  ? 'bg-blue-500/10 border-blue-500/40'
+                  : 'bg-amber-400/10 border-amber-400/40'
+              }`}>
+                <div className="text-5xl sm:text-6xl mb-3">
+                  {data.willRain ? t(lang, 'rainYesEmoji') : t(lang, 'rainNoEmoji')}
+                </div>
+                <div className={`text-2xl sm:text-3xl font-bold ${data.willRain ? 'text-blue-300' : 'text-amber-300'}`}>
+                  {data.willRain ? t(lang, 'rainYesTitle') : t(lang, 'rainNoTitle')}
+                </div>
+                <div className="text-zinc-500 text-sm mt-2">
+                  {data.consensus.rainPct}% · {data.city}
+                </div>
               </div>
-              <div className={`text-2xl sm:text-3xl font-bold ${data.willRain ? 'text-blue-300' : 'text-amber-300'}`}>
-                {data.willRain ? t(lang, 'rainYesTitle') : t(lang, 'rainNoTitle')}
-              </div>
-              <div className="text-zinc-500 text-sm mt-2">
-                {data.consensus.rainPct}% · {data.city}
-              </div>
-            </div>
+            )}
 
             {/* Consensus Hero */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
@@ -923,7 +942,9 @@ export default function Home() {
                 <div className="pt-1 sm:pt-2">
                   <div className="flex gap-4 sm:gap-6 flex-wrap">
                     <div>
-                      <div className="text-lg tabular-nums"><CountUp value={data.consensus.rainPct} suffix="%" /></div>
+                      <div className="text-lg tabular-nums">
+                        {data.consensus.rainPct != null ? <CountUp value={data.consensus.rainPct} suffix="%" /> : '–'}
+                      </div>
                       <div className="text-zinc-500 text-xs uppercase tracking-wider flex items-center gap-1"><Droplets size={11} aria-hidden /> {t(lang, 'rainLabel')}</div>
                     </div>
                     <div>
@@ -1176,7 +1197,8 @@ export default function Home() {
                       {src.feelsLike !== undefined && (
                         <div className="text-zinc-600 text-xs mb-1">{t(lang, 'feelsLike')} {showT(src.feelsLike)}°{unit}</div>
                       )}
-                      <div className="text-zinc-500 text-sm mb-4">{translateCondition(lang, src.condition)} · {src.rainPct}%</div>
+                      {/* only sources with a real rain probability show a % */}
+                      <div className="text-zinc-500 text-sm mb-4">{translateCondition(lang, src.condition)}{src.rainPct != null ? ` · ${src.rainPct}%` : ''}</div>
                       <div className="flex items-center gap-2">
                         <div className="text-zinc-600 text-xs">{t(lang, 'weightLabel')}</div>
                         <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">

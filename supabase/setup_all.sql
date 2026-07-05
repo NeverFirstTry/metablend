@@ -127,6 +127,34 @@ create table if not exists api_stats (
   last_checked    timestamptz default now()
 );
 
+-- Atomic stats bump (EMA on response time, running up/down counts). One call
+-- per forecast request instead of a read-modify-write round trip, so
+-- concurrent requests can't clobber each other's counts.
+-- rows: [{ "api_id": "...", "ms": 123, "up": true }, ...]
+create or replace function bump_api_stats(rows jsonb)
+returns void
+language sql
+as $$
+  insert into api_stats (api_id, avg_response_ms, success_count, fail_count, last_checked)
+  select r->>'api_id',
+         (r->>'ms')::real,
+         case when (r->>'up')::boolean then 1 else 0 end,
+         case when (r->>'up')::boolean then 0 else 1 end,
+         now()
+  from jsonb_array_elements(rows) r
+  on conflict (api_id) do update set
+    avg_response_ms = round((coalesce(api_stats.avg_response_ms, excluded.avg_response_ms) * 0.7
+                             + excluded.avg_response_ms * 0.3)::numeric),
+    success_count   = api_stats.success_count + excluded.success_count,
+    fail_count      = api_stats.fail_count   + excluded.fail_count,
+    last_checked    = now();
+$$;
+
+-- Server-only: the anon key must not be able to pollute the stats via
+-- PostgREST's /rpc endpoint. The service role keeps access.
+revoke execute on function bump_api_stats(jsonb) from public, anon, authenticated;
+grant  execute on function bump_api_stats(jsonb) to service_role;
+
 -- ── Server-side error log (best-effort; written by lib/log.js) ──────────────
 create table if not exists error_log (
   id         bigserial primary key,

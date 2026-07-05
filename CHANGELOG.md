@@ -3,6 +3,80 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-07-05
+
+Correctness pass on the consensus and the learning loop (after a code review).
+
+### Fixed — rain consensus
+- **`rainPct` no longer mixes humidity/cloud cover into the rain answer.** Every
+  source now declares whether its number is a true precipitation probability
+  (`rainIsProb`); OpenWeatherMap, WeatherAPI, World Weather Online and
+  Weatherstack were reporting cloud cover or humidity as "rain %", which biased
+  "Will it rain today?" toward yes. The consensus rain %, the ≥40% yes/no answer
+  and the heavy-rain warning now use only real probabilities (Open-Meteo,
+  MET Norway, Tomorrow.io, Visual Crossing), with the NASA POWER / GeoSphere
+  precip-amount heuristics as fallback. Sources without a probability show no
+  rain % on their cards.
+
+### Fixed — timezones
+- **"Best time to be outside" uses the city's clock, not the server's** (UTC on
+  Vercel). Previously the "hours left today" filter was wrong for any city far
+  from UTC.
+- **The "no sunny reports at night" guard is now local time**, estimated from
+  the report's longitude — it was checking UTC, which blocked e.g. Sydney from
+  reporting sun for most of its day.
+
+### Fixed — weight learning loop
+- **New `lib/weights.js`** — the load → score → normalize → persist pipeline the
+  five calibration paths had each copy-pasted (and let drift) now lives in one
+  place. Persistence uses an **upsert**: the old `.update().eq(region)` silently
+  no-oped when the `(id, region)` row didn't exist, and its error fallback wrote
+  to every region at once.
+- **`/api/calibrate` scores with the `daily` thresholds** — it compares point
+  forecasts against Visual Crossing's 24-h mean, same as the Meteostat check,
+  but was using the tighter `instant` scheme.
+- **No more double scoring** — the Meteostat validation in `/api/cleanup` now
+  runs only when Visual Crossing isn't configured, so each day's forecasts are
+  scored once, not twice against two different ground truths.
+- Meteostat validation skipped days whose average temp was exactly 0 °C (falsy
+  check), scored duplicate forecast rows per API instead of the latest, and
+  lacked the ±5 °C outlier guard the other paths apply — all fixed.
+- "Latest forecast per API" is now actually the latest (`order by created_at`;
+  row order was unspecified before).
+
+### Fixed — dates & stats
+- **Forecasts are tagged with the city's local date**, not the server's UTC
+  date (`localDateForLon`, solar-time approximation from the longitude). An
+  evening search in Asia/Pacific used to land on the wrong calendar day, so
+  daily calibration compared it against the wrong day's actuals. The
+  "vs yesterday" badge uses the city's yesterday too.
+- **`api_stats` updates are atomic** — a new `bump_api_stats` DB function
+  (setup_all.sql) does the EMA + counters in one upsert, so concurrent forecast
+  requests can't clobber each other's counts. Falls back to the old
+  read-modify-write on DBs that haven't re-run setup_all.sql. Anon execution is
+  revoked so the public key can't pollute stats via `/rpc`.
+- **`npm run lint` actually lints now** — the script was a bare `eslint` with
+  no target, which checks nothing; it's `eslint .`. The two
+  `react-hooks/set-state-in-effect` errors it then surfaced (the deliberate
+  post-hydration cookie/localStorage sync in `page.js` and the widget) are
+  documented and locally disabled — reading those values in a state
+  initializer would cause a server/client hydration mismatch.
+
+### Changed
+- **Community feedback is no longer deleted after 48 h** — only the internal job
+  sentinels age out. Real reports feed the heatmap, which was pointless with a
+  two-day memory.
+- `/api/cleanup` is no longer fired on every forecast cache miss (it's a daily
+  cron; that was two table-scan deletes per search).
+- Job routes (`calibrate`, `cleanup`, `station-calibrate`, `self-calibrate`)
+  declare `maxDuration = 60` so long runs aren't cut off at the default limit;
+  station-calibrate reads its PWS stations in parallel.
+- Feedback rejected by validation no longer burns the one-report-per-hour slot
+  (the limit is marked only after a report is accepted).
+- A weather source with an invalid API key (401/403) is treated as "not
+  configured" instead of showing as "down".
+- City suggestions are debounced (250 ms) and drop out-of-order responses.
+
 ## 2026-06-22
 
 Security hardening pass (after an application security review), plus social/SEO
