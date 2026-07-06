@@ -7,7 +7,7 @@ export const metadata = {
   description: 'What data MetaBlend collects and how it is used.',
 }
 
-const UPDATED = 'June 2026'
+const UPDATED = 'July 2026'
 
 export default function Privacy() {
   return (
@@ -36,9 +36,10 @@ export default function Privacy() {
 
           <Section title="Weather feedback you submit">
             When you report “how’s the weather right now,” we store the city, the temperature and condition you
-            entered, and the date — and, <em>only if you choose to share your location</em>, approximate
-            coordinates. This is used to score how close each weather source was (the leaderboard and heatmap).
-            It is not linked to your name, email, or any account, because there are none.
+            entered, the date, and the searched city’s approximate map coordinates (from our geocoder — never
+            your device’s GPS position). This is used to score how close each weather source was, and reports
+            appear as city-level points on the public accuracy heatmap. It is not linked to your name, email,
+            or any account, because there are none.
           </Section>
 
           <Section title="Technical data">
@@ -61,6 +62,9 @@ export default function Privacy() {
                   World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria</li>
               <li>BigDataCloud — only if you use “my location”, to turn your
                   coordinates into a city name (reverse geocoding)</li>
+              <li>Weather Underground (The Weather Company) and Meteostat — receive city
+                  coordinates server-side to fetch reference measurements that score
+                  each source&apos;s accuracy</li>
               <li>Map tiles by OpenStreetMap contributors (heatmap and rain radar)</li>
             </ul>
             <p className="mt-2">The app is hosted on <strong>Vercel</strong> and its database runs on
@@ -69,8 +73,10 @@ export default function Privacy() {
           </Section>
 
           <Section title="How long we keep it">
-            Stored forecasts and feedback are automatically deleted by a daily cleanup job (typically within
-            about 48 hours), aside from anonymous aggregate accuracy weights.
+            Stored forecasts and internal bookkeeping rows are automatically deleted by a daily cleanup job
+            (typically within about 48 hours). Community feedback reports are kept for as long as they power
+            the public accuracy heatmap and the long-term source rankings — or until you ask us to remove
+            them (see below). Aggregate accuracy weights are anonymous and kept indefinitely.
           </Section>
 
           <Section title="Your choices">

@@ -3,6 +3,16 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-07-06
+
+### Changed
+- **Privacy notice matches reality again.** Community feedback is retained to
+  power the heatmap and long-term rankings (it was previously described as
+  deleted within 48 h — true before yesterday's retention change); reports
+  always carry the searched city's geocoded coordinates, never device GPS,
+  and the notice now says so; the server-side validation providers (Weather
+  Underground, Meteostat) are listed as data recipients.
+
 ## 2026-07-05
 
 Correctness pass on the consensus and the learning loop (after a code review).
