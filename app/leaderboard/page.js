@@ -167,7 +167,7 @@ export default function Leaderboard() {
                 {current.apis.map((api, i) => {
                   const weightPct = (api.weight * 100).toFixed(1)
                   const avgScore = api.reports > 0 ? (api.score / api.reports).toFixed(2) : '–'
-                  const medalColor = i === 0 ? 'text-yellow-400' : i === 1 ? 'text-zinc-300' : i === 2 ? 'text-amber-600' : 'text-zinc-600'
+                  const medalColor = i === 0 ? 'text-yellow-400' : i === 1 ? 'text-zinc-300' : i === 2 ? 'text-amber-600' : 'text-zinc-500'
                   const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
 
                   return (
@@ -177,12 +177,12 @@ export default function Leaderboard() {
                           <span className={`text-lg font-bold tabular-nums ${medalColor}`}>{medal}</span>
                           <div>
                             <div className="font-bold text-base">{name(api.id, api.name)}</div>
-                            <div className="text-zinc-600 text-xs">{api.id}</div>
+                            <div className="text-zinc-500 text-xs">{api.id}</div>
                           </div>
                         </div>
                         <div className="text-right">
                           <div className="text-emerald-400 font-bold text-lg tabular-nums">{weightPct}%</div>
-                          <div className="text-zinc-600 text-xs">Weight</div>
+                          <div className="text-zinc-500 text-xs">Weight</div>
                         </div>
                       </div>
 
@@ -237,7 +237,7 @@ export default function Leaderboard() {
         )}
 
         {regions && regions.length === 0 && !error && (
-          <p className="text-zinc-600 text-sm">No weight data available yet.</p>
+          <p className="text-zinc-500 text-sm">No weight data available yet.</p>
         )}
 
         <Footer />

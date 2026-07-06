@@ -66,9 +66,9 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
       <div
         ref={containerRef}
         className="w-full h-64 sm:h-80 rounded-xl overflow-hidden z-0"
-        style={{ background: '#0a0a0d' }}
+        style={{ background: 'var(--map-bg)' }}
       />
-      <div className="text-zinc-600 text-xs mt-3">
+      <div className="text-zinc-500 text-xs mt-3">
         Radar: RainViewer · Map: OpenStreetMap
       </div>
     </div>

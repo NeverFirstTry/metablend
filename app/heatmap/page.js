@@ -108,7 +108,7 @@ export default function Heatmap() {
         </div>
 
         {points && points.length === 0 && !error && (
-          <p className="text-zinc-600 text-sm mt-4">
+          <p className="text-zinc-500 text-sm mt-4">
             No geolocated feedback yet. Submit feedback from the home page to populate the map.
           </p>
         )}

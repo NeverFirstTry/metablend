@@ -5,6 +5,28 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-07-06
 
+### Added
+- **Light mode.** Dark stays the default and the brand; the sun/moon toggle in
+  the header opts into a print-style light theme (paper surfaces, ink text,
+  the emerald recalibrated to emerald-700 for AA contrast on white). The JSX
+  keeps its dark-palette classes — `globals.css` owns the entire translation
+  in one `[data-theme="light"]` block, applied before first paint via a cookie
+  (`metablend_theme`), so there is no flash either way. Map tiles drop the
+  dark-invert filter in light mode.
+- **The current condition is finally in the hero** — big weather icon plus the
+  translated condition ("Partly cloudy") above the temperature, judged
+  day/night by the city's own clock. Previously the single most-asked weather
+  question was only answered inside the per-source cards.
+- **The MetaBlend logo is clickable** and returns to the start view.
+
+### Accessibility
+- Dimmest text bumped from `zinc-600` to `zinc-500` everywhere (the old value
+  sat below AA contrast on the card background); visible `:focus-visible`
+  outline for keyboard users; the toast announces via `role="status"`; unit
+  toggle exposes `aria-pressed`; the language select and theme toggle have
+  proper labels in all five languages. (Reduced-motion support already
+  existed.)
+
 ### Changed
 - **Privacy notice matches reality again.** Community feedback is retained to
   power the heatmap and long-term rankings (it was previously described as

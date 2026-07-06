@@ -28,9 +28,9 @@ export default function Footer({ className = '' }) {
           <Link href="/privacy" className="hover:text-emerald-400 transition-colors">Privacy</Link>
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">Terms</Link>
         </div>
-        <div className="text-zinc-600">© {new Date().getFullYear()} MetaBlend · All rights reserved</div>
+        <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · All rights reserved</div>
       </div>
-      <p className="mt-3 text-zinc-600 leading-relaxed">
+      <p className="mt-3 text-zinc-500 leading-relaxed">
         Weather data from Open-Meteo, MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io,
         Visual Crossing, World Weather Online, Weatherstack, NASA POWER &amp; GeoSphere Austria.
         Maps © OpenStreetMap contributors. Not for safety-critical decisions.

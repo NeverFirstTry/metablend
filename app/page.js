@@ -7,7 +7,7 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Wind, Droplets, Gauge, Eye, CloudFog, Snowflake,
-  Thermometer, Sun, Flower2, CloudRain, Clock, TrendingUp, Layers,
+  Thermometer, Sun, Moon, Flower2, CloudRain, Clock, TrendingUp, Layers,
   Sparkles, Copy, Sunrise, Sunset, Globe,
 } from 'lucide-react'
 import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
@@ -86,15 +86,33 @@ const fToC = f => (f - 32) * 5 / 9
 // digits and accented characters are left intact.
 const heading = s => s.replace(/^\p{Extended_Pictographic}[️⃣]*\s*/u, '')
 
-// detail-row color coding
-function cloudColor(v) { return v == null ? '#71717a' : v < 30 ? '#34d399' : v < 70 ? '#fbbf24' : '#f87171' }
-function visColor(v)   { return v == null ? '#71717a' : v >= 10 ? '#34d399' : v >= 4 ? '#fbbf24' : '#f87171' }
+// ── Metric color coding — CSS variables so both themes stay readable ─────────
+const MUTED = 'var(--muted)'
+const GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
+function cloudColor(v) { return v == null ? MUTED : v < 30 ? GREEN : v < 70 ? YELLOW : RED }
+function visColor(v)   { return v == null ? MUTED : v >= 10 ? GREEN : v >= 4 ? YELLOW : RED }
+function uvColor(v)     { return v == null ? MUTED : v < 3 ? GREEN : v < 6 ? YELLOW : RED }
+function aqiColor(v)    { return v == null ? MUTED : v <= 40 ? GREEN : v <= 80 ? YELLOW : RED }
+function pollenColor(v) { return v == null ? MUTED : v < 20 ? GREEN : v < 50 ? YELLOW : RED }
 
-// ── Extra-metric color coding (green / yellow / red) ──────────────────────────
-const GREEN = '#34d399', YELLOW = '#fbbf24', RED = '#f87171'
-function uvColor(v)     { return v == null ? '#71717a' : v < 3 ? GREEN : v < 6 ? YELLOW : RED }
-function aqiColor(v)    { return v == null ? '#71717a' : v <= 40 ? GREEN : v <= 80 ? YELLOW : RED }
-function pollenColor(v) { return v == null ? '#71717a' : v < 20 ? GREEN : v < 50 ? YELLOW : RED }
+// Consensus condition → hero icon. Sources report English condition strings;
+// night only swaps the clear-sky icon, judged by the city's clock (lon ≈ tz).
+function conditionIcon(condition, lon) {
+  const c = (condition ?? '').toLowerCase()
+  if (/thunder|storm/.test(c)) return '⛈'
+  if (/snow|sleet|ice|freez/.test(c)) return '🌨'
+  if (/drizzle/.test(c)) return '🌦'
+  if (/rain|shower/.test(c)) return '🌧'
+  if (/fog|mist|haze/.test(c)) return '🌫'
+  if (/overcast/.test(c)) return '☁️'
+  if (/partly|broken|scattered|few/.test(c)) return '⛅'
+  if (/cloud/.test(c)) return '☁️'
+  if (/clear|sunny|fair/.test(c)) {
+    const cityHour = (((new Date().getUTCHours() + (lon ?? 0) / 15) % 24) + 24) % 24
+    return cityHour < 6 || cityHour >= 21 ? '🌙' : '☀️'
+  }
+  return '🌤'
+}
 // uvText / aqiText / pollenText now come from lib/i18n (translated, lang-aware)
 
 function MetricCard({ icon: Icon, label, value, sub, color }) {
@@ -133,10 +151,10 @@ function Sparkline({ points, transform = v => v, unit = '' }) {
   const path = vals.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20" preserveAspectRatio="none">
-      <path d={path} fill="none" stroke="#34d399" strokeWidth="2" />
-      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r="3" fill="#34d399" />
-      <text x={x(0)} y={y(vals[0]) - 4} fill="#71717a" fontSize="11">{Math.round(vals[0])}°{unit}</text>
-      <text x={x(vals.length - 1)} y={y(vals[vals.length - 1]) - 4} fill="#34d399" fontSize="11" textAnchor="end">
+      <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2" />
+      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r="3" fill="var(--accent)" />
+      <text x={x(0)} y={y(vals[0]) - 4} fill="var(--muted)" fontSize="11">{Math.round(vals[0])}°{unit}</text>
+      <text x={x(vals.length - 1)} y={y(vals[vals.length - 1]) - 4} fill="var(--accent)" fontSize="11" textAnchor="end">
         {Math.round(vals[vals.length - 1])}°{unit}
       </text>
     </svg>
@@ -232,7 +250,7 @@ function WelcomeState({ lang, onPick }) {
         ))}
       </div>
 
-      <div className="text-zinc-600 text-xs uppercase tracking-widest mb-3">{t(lang, 'welcomeTry')}</div>
+      <div className="text-zinc-500 text-xs uppercase tracking-widest mb-3">{t(lang, 'welcomeTry')}</div>
       <div className="flex gap-2 flex-wrap justify-center">
         {SAMPLE_CITIES.map(c => (
           <button
@@ -244,7 +262,7 @@ function WelcomeState({ lang, onPick }) {
           </button>
         ))}
       </div>
-      <p className="text-zinc-600 text-xs mt-6">{t(lang, 'welcomeHint')}</p>
+      <p className="text-zinc-500 text-xs mt-6">{t(lang, 'welcomeHint')}</p>
     </div>
   )
 }
@@ -266,6 +284,7 @@ export default function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lang, setLang] = useState('en')
   const [unit, setUnit] = useState('C')
+  const [theme, setTheme] = useState('dark') // dark is the default; light is opt-in
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
   const [recent, setRecent] = useState([])
@@ -296,6 +315,7 @@ export default function Home() {
     const detectedLang = savedLang ?? detectLang(navigator.language)
     setLang(detectedLang)
     setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
+    setTheme(getCookie('metablend_theme') === 'light' ? 'light' : 'dark')
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
@@ -340,6 +360,27 @@ export default function Home() {
   function changeUnit(u) {
     setUnit(u)
     setCookie('metablend_unit', u)
+  }
+
+  function toggleTheme() {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    setCookie('metablend_theme', next)
+    // the CSS keys off <html data-theme="light">; absence means dark
+    if (next === 'light') document.documentElement.dataset.theme = 'light'
+    else delete document.documentElement.dataset.theme
+  }
+
+  // Logo click: back to the start view (clear the loaded forecast + compare)
+  function resetToStart() {
+    setData(null)
+    setCompareData(null)
+    setCompareMode(false)
+    setCity('')
+    setError(null)
+    setFbStatus(null)
+    setLastUpdated(null)
+    setNextRefreshAt(null)
   }
 
   // celsius value → number shown in the active unit
@@ -571,6 +612,13 @@ export default function Home() {
     ? new Date(lastUpdated).toLocaleTimeString(lang, { hour: '2-digit', minute: '2-digit' })
     : null
 
+  // Consensus condition for the hero: Open-Meteo's wording when it's up,
+  // otherwise the first healthy source (same pick order as the share text).
+  const heroCondition =
+    data?.sources?.find(s => s.apiId === 'open-meteo' && !s.down)?.condition ??
+    data?.sources?.find(s => !s.down && s.condition)?.condition ??
+    null
+
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
@@ -578,7 +626,13 @@ export default function Home() {
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex items-center gap-2">
-            Meta<span className="text-emerald-400">Blend</span>
+            <button
+              onClick={resetToStart}
+              title={t(lang, 'backToStart')}
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+            >
+              Meta<span className="text-emerald-400">Blend</span>
+            </button>
             <span className="text-[10px] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
               Beta
             </span>
@@ -590,6 +644,7 @@ export default function Home() {
                 <button
                   key={u}
                   onClick={() => changeUnit(u)}
+                  aria-pressed={unit === u}
                   className={`w-9 py-1 text-xs leading-none text-center transition-colors ${
                     unit === u ? 'bg-emerald-400 text-black font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-emerald-400'
                   }`}
@@ -598,10 +653,22 @@ export default function Home() {
                 </button>
               ))}
             </div>
+            {/* Theme toggle — dark is the default, light is the print view */}
+            <button
+              onClick={toggleTheme}
+              title={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
+              aria-label={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
+              className="press w-7 h-7 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-emerald-400 hover:border-emerald-400 flex items-center justify-center shrink-0"
+            >
+              {theme === 'dark'
+                ? <Sun size={14} aria-hidden />
+                : <Moon size={14} aria-hidden />}
+            </button>
             {/* Language switcher */}
             <select
               value={lang}
               onChange={e => changeLang(e.target.value)}
+              aria-label={t(lang, 'langLabel')}
               className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-400 outline-none focus:border-emerald-400 transition-colors cursor-pointer"
             >
               {LANGUAGES.map(l => (
@@ -724,7 +791,7 @@ export default function Home() {
         {/* Recent city chips */}
         {recent.length > 0 && !compareMode && (
           <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
-            <span className="text-zinc-600 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
+            <span className="text-zinc-500 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
             {recent.map(c => (
               <button
                 key={c}
@@ -855,7 +922,7 @@ export default function Home() {
                       <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                     </button>
                     {!offline && nextRefreshAt && (
-                      <span className="text-zinc-600 text-[11px] tabular-nums">
+                      <span className="text-zinc-500 text-[11px] tabular-nums">
                         {t(lang, 'refreshesIn')} {countdownStr}
                       </span>
                     )}
@@ -867,7 +934,7 @@ export default function Home() {
                           <CheckCircle2 size={12} aria-hidden /> {t(lang, 'updatedJustNow')}
                         </span>
                       ) : (
-                        <span className="text-zinc-600">{t(lang, 'lastUpdated')} {lastUpdatedStr}</span>
+                        <span className="text-zinc-500">{t(lang, 'lastUpdated')} {lastUpdatedStr}</span>
                       )}
                     </div>
                   )}
@@ -916,6 +983,16 @@ export default function Home() {
 
               <div className="flex flex-wrap items-start gap-6 mb-5">
                 <div>
+                  {heroCondition && (
+                    <div className="flex items-center gap-3 mb-3">
+                      <span className="text-4xl sm:text-5xl leading-none" aria-hidden>
+                        {conditionIcon(heroCondition, data.lon)}
+                      </span>
+                      <span className="text-xl sm:text-2xl font-bold">
+                        {translateCondition(lang, heroCondition)}
+                      </span>
+                    </div>
+                  )}
                   <div className="text-5xl sm:text-8xl font-bold leading-none tabular-nums tracking-tight">
                     <CountUp
                       value={unit === 'F' ? cToF(data.consensus.temp) : data.consensus.temp}
@@ -933,7 +1010,7 @@ export default function Home() {
                     if (Math.abs(d) < 0.5) return <div className="text-sm mt-1 text-zinc-500">= {t(lang, 'vsYesterdaySame')}</div>
                     const warmer = d > 0
                     return (
-                      <div className="text-sm mt-1" style={{ color: warmer ? '#34d399' : '#60a5fa' }}>
+                      <div className="text-sm mt-1" style={{ color: warmer ? 'var(--ok)' : 'var(--info)' }}>
                         {warmer ? '↑' : '↓'} {Math.abs(showDelta(d)).toFixed(1)}°{unit} {warmer ? t(lang, 'vsYesterdayWarmer') : t(lang, 'vsYesterdayColder')}
                       </div>
                     )
@@ -953,9 +1030,9 @@ export default function Home() {
                     </div>
                     <div>
                       <div className="text-lg tabular-nums" style={{
-                        color: data.consensus.confidencePct >= 70 ? '#34d399'
-                             : data.consensus.confidencePct >= 45 ? '#fbbf24'
-                             : '#f87171'
+                        color: data.consensus.confidencePct >= 70 ? 'var(--ok)'
+                             : data.consensus.confidencePct >= 45 ? 'var(--warn)'
+                             : 'var(--bad)'
                       }}>
                         <CountUp value={data.consensus.confidencePct} suffix="%" />
                       </div>
@@ -1019,13 +1096,13 @@ export default function Home() {
                     color={visColor(data.details.visibilityKm)} />
                   <MetricCard icon={Droplets} label={t(lang, 'precipLabel')}
                     value={data.details.precipMm != null ? `${data.details.precipMm} mm` : '–'}
-                    color={data.details.precipMm > 0 ? '#60a5fa' : '#34d399'} />
+                    color={data.details.precipMm > 0 ? 'var(--info)' : 'var(--ok)'} />
                   <MetricCard icon={Snowflake} label={t(lang, 'snowfallLabel')}
                     value={data.details.snowfallMm != null ? `${data.details.snowfallMm} mm` : '–'}
-                    color={data.details.snowfallMm > 0 ? '#93c5fd' : '#71717a'} />
+                    color={data.details.snowfallMm > 0 ? 'var(--info)' : 'var(--muted)'} />
                   <MetricCard icon={Thermometer} label={t(lang, 'groundTempLabel')}
                     value={data.details.groundTemp != null ? `${showT(data.details.groundTemp)}°${unit}` : '–'}
-                    color="#a1a1aa" />
+                    color="var(--neutral)" />
                 </div>
               </div>
             )}
@@ -1040,9 +1117,9 @@ export default function Home() {
                     const next3 = data.forecast7.slice(1, 4)
                     const avg = next3.reduce((s, d) => s + d.tempMax, 0) / next3.length
                     const d = avg - today
-                    const [label, color] = d > 1.5 ? [t(lang, 'trendWarmer'), '#fb923c']
-                      : d < -1.5 ? [t(lang, 'trendColder'), '#60a5fa']
-                      : [t(lang, 'trendStable'), '#a1a1aa']
+                    const [label, color] = d > 1.5 ? [t(lang, 'trendWarmer'), 'var(--hot)']
+                      : d < -1.5 ? [t(lang, 'trendColder'), 'var(--info)']
+                      : [t(lang, 'trendStable'), 'var(--neutral)']
                     return <span className="text-xs" style={{ color }}>{label}</span>
                   })()}
                 </div>
@@ -1072,13 +1149,13 @@ export default function Home() {
               const diff = Math.round((data.consensus.temp - data.climate.avgTemp) * 10) / 10
               const warmer = diff > 0.5, colder = diff < -0.5
               const word = warmer ? t(lang, 'warmerThanAvg') : colder ? t(lang, 'colderThanAvg') : t(lang, 'likeAvg')
-              const color = warmer ? '#fb923c' : colder ? '#60a5fa' : '#a1a1aa'
+              const color = warmer ? 'var(--hot)' : colder ? 'var(--info)' : 'var(--neutral)'
               return (
                 <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
                   <SectionTitle icon={Globe} className="mb-4">{heading(t(lang, 'climateTitle'))}</SectionTitle>
                   <div className="flex flex-wrap gap-3 mb-4">
-                    <MetricCard icon={Thermometer} label={t(lang, 'climateAvgLabel')} value={`${showT(data.climate.avgTemp)}°${unit}`} color="#a1a1aa" />
-                    <MetricCard icon={CloudRain} label={t(lang, 'climateRainyLabel')} value={data.climate.avgRainyDays ?? '–'} color="#60a5fa" />
+                    <MetricCard icon={Thermometer} label={t(lang, 'climateAvgLabel')} value={`${showT(data.climate.avgTemp)}°${unit}`} color="var(--neutral)" />
+                    <MetricCard icon={CloudRain} label={t(lang, 'climateRainyLabel')} value={data.climate.avgRainyDays ?? '–'} color="var(--info)" />
                   </div>
                   <p className="text-sm" style={{ color }}>
                     {(warmer || colder) && `${diff > 0 ? '↑' : '↓'} ${Math.abs(showDelta(diff)).toFixed(1)}°${unit} `}{word}
@@ -1101,21 +1178,21 @@ export default function Home() {
                       <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
                         <div className="text-orange-400 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5"><Thermometer size={13} aria-hidden /> {t(lang, 'recordHottest')}</div>
                         <div className="text-2xl font-bold tabular-nums">{showT(r.hottest.temp)}°{unit}</div>
-                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.hottest.date)}</div>
+                        <div className="text-zinc-500 text-xs mt-1">{fmtDate(r.hottest.date)}</div>
                       </div>
                     )}
                     {r.coldest && (
                       <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
                         <div className="text-blue-400 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5"><Snowflake size={13} aria-hidden /> {t(lang, 'recordColdest')}</div>
                         <div className="text-2xl font-bold tabular-nums">{showT(r.coldest.temp)}°{unit}</div>
-                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.coldest.date)}</div>
+                        <div className="text-zinc-500 text-xs mt-1">{fmtDate(r.coldest.date)}</div>
                       </div>
                     )}
                     {r.wettest && (
                       <div className="bg-zinc-800/50 border border-zinc-800 rounded-xl p-4">
                         <div className="text-cyan-400 text-xs uppercase tracking-wider mb-1 flex items-center gap-1.5"><CloudRain size={13} aria-hidden /> {t(lang, 'recordWettest')}</div>
                         <div className="text-2xl font-bold tabular-nums">{r.wettest.mm} mm</div>
-                        <div className="text-zinc-600 text-xs mt-1">{fmtDate(r.wettest.date)}</div>
+                        <div className="text-zinc-500 text-xs mt-1">{fmtDate(r.wettest.date)}</div>
                       </div>
                     )}
                   </div>
@@ -1139,9 +1216,9 @@ export default function Home() {
                     </div>
                     <div className="text-zinc-400 text-sm mt-1 flex items-center gap-2 flex-wrap tabular-nums">
                       <span>{showT(data.bestTime.temp)}°{unit}</span>
-                      <span className="text-zinc-600">·</span>
+                      <span className="text-zinc-500">·</span>
                       <span className="inline-flex items-center gap-1"><Droplets size={13} aria-hidden /> {data.bestTime.rainPct}%</span>
-                      <span className="text-zinc-600">·</span>
+                      <span className="text-zinc-500">·</span>
                       <span className="inline-flex items-center gap-1"><Wind size={13} aria-hidden /> {data.bestTime.windKmh} km/h</span>
                     </div>
                   </div>
@@ -1173,7 +1250,7 @@ export default function Home() {
                           <div className="font-bold">{src.displayName ?? src.apiId}</div>
                           <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/40 rounded px-2 py-0.5">● {t(lang, 'sourceDown')}</span>
                         </div>
-                        <div className="text-zinc-600 text-sm">{t(lang, 'noResponse')}{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
+                        <div className="text-zinc-500 text-sm">{t(lang, 'noResponse')}{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
                       </div>
                     )
                   }
@@ -1195,12 +1272,12 @@ export default function Home() {
                       </div>
                       <div className="text-4xl font-bold mb-1 tabular-nums">{showT(src.temp)}°{unit}</div>
                       {src.feelsLike !== undefined && (
-                        <div className="text-zinc-600 text-xs mb-1">{t(lang, 'feelsLike')} {showT(src.feelsLike)}°{unit}</div>
+                        <div className="text-zinc-500 text-xs mb-1">{t(lang, 'feelsLike')} {showT(src.feelsLike)}°{unit}</div>
                       )}
                       {/* only sources with a real rain probability show a % */}
                       <div className="text-zinc-500 text-sm mb-4">{translateCondition(lang, src.condition)}{src.rainPct != null ? ` · ${src.rainPct}%` : ''}</div>
                       <div className="flex items-center gap-2">
-                        <div className="text-zinc-600 text-xs">{t(lang, 'weightLabel')}</div>
+                        <div className="text-zinc-500 text-xs">{t(lang, 'weightLabel')}</div>
                         <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">
                           <div className="h-full bg-emerald-400 rounded-full transition-[width] duration-700 ease-out" style={{ width: `${weight * 100}%` }} />
                         </div>
@@ -1275,7 +1352,7 @@ export default function Home() {
 
       {/* Toast */}
       {toast && (
-        <div className="animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-2">
+        <div role="status" aria-live="polite" className="animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-2">
           <CheckCircle2 size={15} aria-hidden /> {toast}
         </div>
       )}

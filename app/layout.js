@@ -47,6 +47,14 @@ export default function RootLayout({ children }) {
   return (
     <html lang="de" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
+        {/* Theme is dark by default; apply the light cookie before first paint
+            so opted-in users never see a dark flash. Runs synchronously. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "try{if(/(?:^|; )metablend_theme=light/.test(document.cookie))document.documentElement.dataset.theme='light'}catch(e){}",
+          }}
+        />
         {children}
         <Script
           defer
