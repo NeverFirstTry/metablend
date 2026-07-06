@@ -87,7 +87,11 @@ from (values
   ('visual-crossing',      'Visual Crossing'),
   ('world-weather-online', 'World Weather Online'),
   ('weatherstack',         'Weatherstack'),
-  ('nasa-power',           'NASA POWER')
+  ('nasa-power',           'NASA POWER'),
+  ('ecmwf',                'ECMWF IFS'),
+  ('gfs',                  'NOAA GFS'),
+  ('icon',                 'DWD ICON'),
+  ('metablend',            'MetaBlend Local')
 ) as a(id, name)
 cross join (values
   ('global'), ('europe'), ('north_america'), ('south_america'),
@@ -95,12 +99,31 @@ cross join (values
 ) as r(region)
 on conflict (id, region) do nothing;
 
--- GeoSphere only covers Austria, so seed it just for europe + the global pool.
+-- Regional sources: seed only where they can actually report (plus global).
 insert into api_weights (id, region, weight, score, reports, name, delta_history)
 values
-  ('geosphere', 'global', 0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb),
-  ('geosphere', 'europe', 0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb)
+  ('geosphere', 'global',        0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb),
+  ('geosphere', 'europe',        0.25, 0, 0, 'GeoSphere Austria', '[]'::jsonb),
+  ('nws',       'global',        0.25, 0, 0, 'NWS (US)',          '[]'::jsonb),
+  ('nws',       'north_america', 0.25, 0, 0, 'NWS (US)',          '[]'::jsonb),
+  ('brightsky', 'global',        0.25, 0, 0, 'DWD Bright Sky',    '[]'::jsonb),
+  ('brightsky', 'europe',        0.25, 0, 0, 'DWD Bright Sky',    '[]'::jsonb),
+  ('smhi',      'global',        0.25, 0, 0, 'SMHI (Nordics)',    '[]'::jsonb),
+  ('smhi',      'europe',        0.25, 0, 0, 'SMHI (Nordics)',    '[]'::jsonb)
 on conflict (id, region) do nothing;
+
+-- ── MetaBlend Local: learned per-city consensus bias ─────────────────────────
+--    EMA of (ground truth − consensus), fed by user feedback and hourly PWS
+--    calibration; served as the synthetic 'metablend' source (lib/blend.js).
+create table if not exists city_bias (
+  city       text primary key,
+  lat        double precision,
+  lon        double precision,
+  region     text default 'global',
+  temp_bias  real default 0,
+  samples    integer default 0,
+  updated_at timestamptz default now()
+);
 
 -- ── Consensus history (RSS feed + intraday chart) ───────────────────────────
 create table if not exists consensus_history (

@@ -18,6 +18,14 @@ const DISPLAY_NAMES = {
   'world-weather-online': 'World Weather Online',
   'weatherstack':         'Weatherstack',
   'nasa-power':           'NASA POWER',
+  'geosphere':            'GeoSphere Austria',
+  'ecmwf':                'ECMWF IFS',
+  'gfs':                  'NOAA GFS',
+  'icon':                 'DWD ICON',
+  'nws':                  'NWS (US)',
+  'brightsky':            'DWD Bright Sky',
+  'smhi':                 'SMHI (Nordics)',
+  'metablend':            'MetaBlend Local',
 }
 
 const REGION_KEYS = {

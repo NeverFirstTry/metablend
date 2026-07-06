@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
+import { updateCityBias } from '@/lib/blend'
 import { localDateForLon } from '@/lib/weather'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
@@ -81,21 +82,26 @@ export const POST = withErrorLog('feedback', async (request) => {
     .order('created_at', { ascending: true })
 
   // how close the consensus got (1 = spot on, 0 = way off). feeds the heatmap.
+  // The consensus proxy excludes our own synthetic source — MetaBlend Local
+  // must never learn from itself.
   let accuracy = null
+  let consensusTemp = null
   if (forecasts?.length) {
     const latestPerApi = {}
     forecasts.forEach(f => { latestPerApi[f.api_id] = f })
-    const unique = Object.values(latestPerApi)
-    const consensusTemp = unique.reduce((s, f) => s + f.temp, 0) / unique.length
+    const real = Object.values(latestPerApi).filter(f => f.api_id !== 'metablend')
+    if (real.length) {
+      consensusTemp = real.reduce((s, f) => s + f.temp, 0) / real.length
 
-    if (Math.abs(actualTemp - consensusTemp) > 20) {
-      return Response.json(
-        { error: `Temperature deviates more than 20°C from the current forecast consensus (${consensusTemp.toFixed(1)}°C).` },
-        { status: 422 }
-      )
+      if (Math.abs(actualTemp - consensusTemp) > 20) {
+        return Response.json(
+          { error: `Temperature deviates more than 20°C from the current forecast consensus (${consensusTemp.toFixed(1)}°C).` },
+          { status: 422 }
+        )
+      }
+
+      accuracy = Math.max(0, Math.min(1, 1 - Math.abs(actualTemp - consensusTemp) / 10))
     }
-
-    accuracy = Math.max(0, Math.min(1, 1 - Math.abs(actualTemp - consensusTemp) / 10))
   }
 
   // ── Save feedback ─────────────────────────────────────────────────────────
@@ -114,6 +120,12 @@ export const POST = withErrorLog('feedback', async (request) => {
   if (insErr) await supabase.from('feedback').insert(baseRow)
 
   markRateLimit(ip, city)
+
+  // Teach MetaBlend Local: this report's error vs the consensus moves the
+  // city's learned bias (lib/blend.js).
+  if (consensusTemp != null) {
+    await updateCityBias(city, lat, lon, region, actualTemp - consensusTemp)
+  }
 
   if (!forecasts?.length) {
     return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })

@@ -61,6 +61,17 @@ All of these share the exact same scoring math (`lib/scoring.js`):
   source against the live multi-source median across a basket of cities; handy
   for seeding non-uniform weights. Admin-only (`CALIBRATE_SECRET`).
 
+### MetaBlend Local — our own forecast
+
+Once a city has collected enough ground truth, MetaBlend serves its own
+prognostic source: the live consensus corrected by a learned per-city bias —
+an exponential moving average of *(ground truth − consensus)* fed by user
+feedback and the hourly station calibration (`lib/blend.js`, `city_bias`
+table). It is deliberately **excluded from the consensus** it derives from (no
+circularity), but it is stored and scored by the daily calibration exactly
+like every other source — so the leaderboard shows, honestly, whether
+consensus + local correction beats the raw APIs.
+
 ---
 
 ## Features
@@ -104,9 +115,14 @@ All of these share the exact same scoring math (`lib/scoring.js`):
 | Source | Key needed | Notes |
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
+| ECMWF IFS · NOAA GFS · DWD ICON | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |
 | [NASA POWER](https://power.larc.nasa.gov) | no | Satellite-derived hourly data |
 | [GeoSphere Austria](https://data.hub.geosphere.at) | no | INCA analysis grid; Austria/DACH coverage only |
+| [NWS / weather.gov](https://www.weather.gov/documentation/services-web-api) | no | US only; hourly gridpoint forecast |
+| [Bright Sky (DWD)](https://brightsky.dev) | no | Germany only; station observations |
+| [SMHI](https://opendata.smhi.se/metfcst/) | no | Scandinavia + Baltic; snow1g point forecast |
+| MetaBlend Local | — | Synthetic: our consensus + learned per-city bias (see above) |
 | [OpenWeatherMap](https://openweathermap.org/api) | yes | |
 | [WeatherAPI](https://www.weatherapi.com) | yes | |
 | [Tomorrow.io](https://www.tomorrow.io) | yes | |

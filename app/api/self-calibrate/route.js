@@ -5,6 +5,7 @@ import { localDateForLon } from '@/lib/weather'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
   fetchVisualCrossing, fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
+  fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
 } from '@/lib/weather'
 
 // Admin-only: rebalances API weights immediately by scoring every source
@@ -25,6 +26,13 @@ const FETCHERS = {
   'world-weather-online': fetchWorldWeatherOnline,
   weatherstack: fetchWeatherStack,
   'nasa-power': fetchNASAPOWER,
+  // keyless model feeds + regional sources (regionals return null outside coverage)
+  ecmwf: fetchECMWF,
+  gfs: fetchGFS,
+  icon: fetchICON,
+  nws: fetchNWS,
+  brightsky: fetchBrightSky,
+  smhi: fetchSMHI,
 }
 
 // Fixed reference basket (region pre-tagged so we skip geocoding). Spread across

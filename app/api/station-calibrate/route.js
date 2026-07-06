@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
+import { updateCityBias } from '@/lib/blend'
 import { withErrorLog } from '@/lib/log'
 
 // Ground-truth calibration from Weather Underground Personal Weather Stations.
@@ -104,6 +105,13 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
 
     // Cross-API median forecast — used for the outlier guard, same as feedback
     const medForecast = median(unique.map(f => f.temp))
+
+    // Teach MetaBlend Local from station ground truth: error of the raw-source
+    // median (our own synthetic source excluded) vs the PWS median.
+    const real = unique.filter(f => f.api_id !== 'metablend')
+    if (real.length) {
+      await updateCityBias(city, lat, lon, region, actualTemp - median(real.map(f => f.temp)))
+    }
 
     // 5. Score + re-weight (identical math to the feedback / calibrate routes)
     const deltaMap = {}

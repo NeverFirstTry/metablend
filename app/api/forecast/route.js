@@ -5,15 +5,20 @@ import {
   geocodeCity, getRegion, localDateForLon,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
+  fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
   fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
 } from '@/lib/weather'
+import { getCityBias } from '@/lib/blend'
 
 const DISPLAY_NAMES = {
   'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
   tomorrow: 'Tomorrow.io', 'met-norway': 'MET Norway', 'visual-crossing': 'Visual Crossing',
   'world-weather-online': 'World Weather Online', weatherstack: 'Weatherstack', 'nasa-power': 'NASA POWER',
   geosphere: 'GeoSphere Austria',
+  ecmwf: 'ECMWF IFS', gfs: 'NOAA GFS', icon: 'DWD ICON',
+  nws: 'NWS (US)', brightsky: 'DWD Bright Sky', smhi: 'SMHI (Nordics)',
+  metablend: 'MetaBlend Local',
 }
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
@@ -99,6 +104,12 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('weatherstack',         () => fetchWeatherStack(geo.lat, geo.lon)),
     timedFetch('nasa-power',           () => fetchNASAPOWER(geo.lat, geo.lon)),
     timedFetch('geosphere',            () => fetchGeoSphere(geo.lat, geo.lon)),
+    timedFetch('ecmwf',                () => fetchECMWF(geo.lat, geo.lon)),
+    timedFetch('gfs',                  () => fetchGFS(geo.lat, geo.lon)),
+    timedFetch('icon',                 () => fetchICON(geo.lat, geo.lon)),
+    timedFetch('nws',                  () => fetchNWS(geo.lat, geo.lon)),
+    timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
+    timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
   ])
 
   const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
@@ -196,6 +207,28 @@ export const GET = withErrorLog('forecast', async (request) => {
   const willRain = consensus.rainPct == null ? null : consensus.rainPct >= 40
   const bestTime = hourly?.best ?? null
 
+  const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
+
+  // MetaBlend Local — our own prognostic: the live consensus corrected by the
+  // per-city bias learned from user feedback and station calibration
+  // (lib/blend.js). Added AFTER the consensus/confidence/warning math so it
+  // never feeds back into the number it derives from; stored and scored like
+  // any other source so the leaderboard shows if it earns its keep.
+  const bias = await getCityBias(geo.name)
+  if (bias != null) {
+    results.push({
+      apiId: 'metablend',
+      displayName: 'MetaBlend Local',
+      temp: Math.round((consensus.temp + bias) * 10) / 10,
+      feelsLike: Math.round((consensus.feelsLike + bias) * 10) / 10,
+      rainPct: consensus.rainPct,
+      rainIsProb: consensus.rainPct != null,
+      windKmh: consensus.windKmh,
+      condition: mainCondition,
+      synthetic: true,
+    })
+  }
+
   // 5. Prognosen speichern — tagged with the city's local date, so daily
   // calibration compares them against the right day's actuals
   const today = localDateForLon(geo.lon)
@@ -218,7 +251,6 @@ export const GET = withErrorLog('forecast', async (request) => {
   if (fcInsErr) logError('forecast.insert', fcInsErr, { city: geo.name })
 
   // snapshot the consensus for the RSS feed + intraday history chart
-  const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
   let historyToday = []
   try {
     await supabase.from('consensus_history').insert({

@@ -6,6 +6,20 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-07-06
 
 ### Added
+- **Six new keyless sources.** ECMWF IFS, NOAA GFS and DWD ICON as individual
+  model feeds via Open-Meteo (genuine model diversity, each weighted
+  separately), plus three regional agencies: NWS/weather.gov (US, hourly
+  gridpoint forecast with real precipitation probability), Bright Sky/DWD
+  (Germany, station observations) and SMHI (Scandinavia + Baltic, the new
+  snow1g API — pmp3g was retired 2026-03). All verified against the live
+  endpoints; regional sources return null outside their coverage boxes.
+- **MetaBlend Local — our own prognostic source.** The live consensus
+  corrected by a learned per-city temperature bias: an EMA of
+  (ground truth − consensus) fed by user feedback and the hourly PWS station
+  calibration (`lib/blend.js`, new `city_bias` table, RLS enabled). Served
+  once a city has ≥3 samples. Deliberately excluded from the consensus it
+  derives from (no circularity), but stored and scored like any other source —
+  the leaderboard will show whether it earns its keep.
 - **The whole site speaks all five languages now** (EN/DE/FR/ES/IT), not just
   the home page: the privacy notice and terms are fully translated (server
   wrapper keeps the SEO metadata, a client component renders the localized
