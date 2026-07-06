@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { t } from '@/lib/i18n'
 
 const REPO = 'https://github.com/NeverFirstTry/metablend'
 
@@ -12,7 +13,8 @@ function GithubIcon({ size = 14 }) {
 }
 
 // Shared site footer: source link, legal pages, copyright + data attribution.
-export default function Footer({ className = '' }) {
+// Defaults to English; pages with a known language pass it in.
+export default function Footer({ lang = 'en', className = '' }) {
   return (
     <footer className={`mt-16 pt-6 border-t border-zinc-800/70 text-xs text-zinc-500 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
@@ -23,18 +25,14 @@ export default function Footer({ className = '' }) {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
           >
-            <GithubIcon size={14} /> Source
+            <GithubIcon size={14} /> {t(lang, 'footerSource')}
           </a>
-          <Link href="/privacy" className="hover:text-emerald-400 transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-emerald-400 transition-colors">Terms</Link>
+          <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPrivacy')}</Link>
+          <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
         </div>
-        <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · All rights reserved</div>
+        <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
       </div>
-      <p className="mt-3 text-zinc-500 leading-relaxed">
-        Weather data from Open-Meteo, MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io,
-        Visual Crossing, World Weather Online, Weatherstack, NASA POWER &amp; GeoSphere Austria.
-        Maps © OpenStreetMap contributors. Not for safety-critical decisions.
-      </p>
+      <p className="mt-3 text-zinc-500 leading-relaxed">{t(lang, 'footerData')}</p>
     </footer>
   )
 }

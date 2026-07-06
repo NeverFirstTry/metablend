@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
+import { t } from '@/lib/i18n'
+import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 
@@ -15,8 +17,10 @@ function accuracyColor(a) {
 }
 
 export default function Heatmap() {
+  const lang = useLang()
   const containerRef = useRef(null)
   const mapRef = useRef(null)
+  const markersRef = useRef(null)
   const [points, setPoints] = useState(null)
   const [error, setError] = useState(null)
 
@@ -45,6 +49,11 @@ export default function Heatmap() {
         }).addTo(mapRef.current)
       }
 
+      // markers live in a clearable group so a language change re-renders
+      // the popups instead of stacking duplicate pins
+      if (!markersRef.current) markersRef.current = L.layerGroup().addTo(mapRef.current)
+      markersRef.current.clearLayers()
+
       points.forEach(p => {
         const color = accuracyColor(p.accuracy)
         L.circleMarker([p.lat, p.lon], {
@@ -55,18 +64,20 @@ export default function Heatmap() {
           weight: 1,
         })
           .bindPopup(
-            `<b>${p.city ?? 'Unknown'}</b><br/>` +
-            (p.accuracy != null ? `Accuracy: ${Math.round(p.accuracy * 100)}%` : 'Accuracy: n/a') +
-            (p.temp != null ? `<br/>Reported: ${p.temp}°C` : '')
+            `<b>${p.city ?? t(lang, 'hmUnknown')}</b><br/>` +
+            (p.accuracy != null
+              ? `${t(lang, 'hmAccuracy')}: ${Math.round(p.accuracy * 100)}%`
+              : `${t(lang, 'hmAccuracy')}: n/a`) +
+            (p.temp != null ? `<br/>${t(lang, 'hmReported')}: ${p.temp}°C` : '')
           )
-          .addTo(mapRef.current)
+          .addTo(markersRef.current)
       })
 
       setTimeout(() => mapRef.current?.invalidateSize(), 100)
     }).catch(() => {})
 
     return () => { cancelled = true }
-  }, [points])
+  }, [points, lang])
 
   useEffect(() => () => {
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
@@ -76,17 +87,17 @@ export default function Heatmap() {
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
-          <ArrowLeft size={15} aria-hidden /> Back
+          <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 
         <h1 className="text-3xl font-bold mb-1">
           Feedback<span className="text-emerald-400">Heatmap</span>
         </h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
-          Where the consensus was right — and wrong
+          {t(lang, 'hmSubtitle')}
         </p>
 
-        <BetaBanner className="mb-6" />
+        <BetaBanner lang={lang} className="mb-6" />
 
         {error && (
           <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-4 flex items-center gap-2">
@@ -97,23 +108,24 @@ export default function Heatmap() {
         <div
           ref={containerRef}
           className="w-full h-[60vh] rounded-2xl overflow-hidden border border-zinc-800 z-0"
-          style={{ background: '#0a0a0d' }}
+          style={{ background: 'var(--map-bg)' }}
         />
 
+        {/* legend dots keep the marker hexes — they must match the map pins */}
         <div className="flex gap-4 mt-4 text-xs text-zinc-400 flex-wrap">
-          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#34d399' }} /> Accurate (≥70%)</span>
-          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#fbbf24' }} /> Mixed (40–70%)</span>
-          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#f87171' }} /> Off (&lt;40%)</span>
-          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#71717a' }} /> Unknown</span>
+          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#34d399' }} /> {t(lang, 'hmAccurate')} (≥70%)</span>
+          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#fbbf24' }} /> {t(lang, 'hmMixed')} (40–70%)</span>
+          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#f87171' }} /> {t(lang, 'hmOff')} (&lt;40%)</span>
+          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#71717a' }} /> {t(lang, 'hmUnknown')}</span>
         </div>
 
         {points && points.length === 0 && !error && (
           <p className="text-zinc-500 text-sm mt-4">
-            No geolocated feedback yet. Submit feedback from the home page to populate the map.
+            {t(lang, 'hmEmpty')}
           </p>
         )}
 
-        <Footer />
+        <Footer lang={lang} />
       </div>
     </main>
   )

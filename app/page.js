@@ -151,10 +151,11 @@ function Sparkline({ points, transform = v => v, unit = '' }) {
   const path = vals.map((v, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ')
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20" preserveAspectRatio="none">
-      <path d={path} fill="none" stroke="var(--accent)" strokeWidth="2" />
-      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r="3" fill="var(--accent)" />
-      <text x={x(0)} y={y(vals[0]) - 4} fill="var(--muted)" fontSize="11">{Math.round(vals[0])}°{unit}</text>
-      <text x={x(vals.length - 1)} y={y(vals[vals.length - 1]) - 4} fill="var(--accent)" fontSize="11" textAnchor="end">
+      {/* var() only resolves in CSS styles, not SVG presentation attributes */}
+      <path d={path} fill="none" style={{ stroke: 'var(--accent)' }} strokeWidth="2" />
+      <circle cx={x(vals.length - 1)} cy={y(vals[vals.length - 1])} r="3" style={{ fill: 'var(--accent)' }} />
+      <text x={x(0)} y={y(vals[0]) - 4} style={{ fill: 'var(--muted)' }} fontSize="11">{Math.round(vals[0])}°{unit}</text>
+      <text x={x(vals.length - 1)} y={y(vals[vals.length - 1]) - 4} style={{ fill: 'var(--accent)' }} fontSize="11" textAnchor="end">
         {Math.round(vals[vals.length - 1])}°{unit}
       </text>
     </svg>
@@ -1347,7 +1348,7 @@ export default function Home() {
           </div>
         )}
 
-        <Footer />
+        <Footer lang={lang} />
       </div>
 
       {/* Toast */}

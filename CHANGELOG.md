@@ -6,6 +6,14 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-07-06
 
 ### Added
+- **The whole site speaks all five languages now** (EN/DE/FR/ES/IT), not just
+  the home page: the privacy notice and terms are fully translated (server
+  wrapper keeps the SEO metadata, a client component renders the localized
+  body from the language cookie), and the leaderboard, heatmap, planner and
+  footer use the shared dictionary via a new `useLang()` hook. Month names in
+  the planner localize via `toLocaleDateString`. The consent-banner text now
+  honestly lists the preference cookies (language, unit, theme, recent
+  cities) instead of claiming there is only one.
 - **Light mode.** Dark stays the default and the brand; the sun/moon toggle in
   the header opts into a print-style light theme (paper surfaces, ink text,
   the emerald recalibrated to emerald-700 for AA contrast on white). The JSX

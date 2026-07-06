@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { t } from '@/lib/i18n'
+import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 
@@ -18,14 +20,14 @@ const DISPLAY_NAMES = {
   'nasa-power':           'NASA POWER',
 }
 
-const REGION_LABELS = {
-  global:        '🌍 Global',
-  europe:        '🇪🇺 Europe',
-  north_america: '🌎 North America',
-  south_america: '🌎 South America',
-  asia:          '🌏 Asia',
-  africa:        '🌍 Africa',
-  oceania:       '🌏 Oceania',
+const REGION_KEYS = {
+  global:        'regionGlobal',
+  europe:        'regionEurope',
+  north_america: 'regionNorthAmerica',
+  south_america: 'regionSouthAmerica',
+  asia:          'regionAsia',
+  africa:        'regionAfrica',
+  oceania:       'regionOceania',
 }
 
 function name(id, fallback) {
@@ -44,14 +46,15 @@ function Sparkline({ data }) {
         const c = Math.max(-2, Math.min(2, d))
         const barH = Math.max(1, (Math.abs(c) / 2) * (mid - 1))
         const y = c >= 0 ? mid - barH : mid
-        const fill = c > 0 ? '#34d399' : c < 0 ? '#f87171' : '#52525b'
-        return <rect key={i} x={i * (bw + gap)} y={y} width={bw} height={barH} fill={fill} rx={0.5} />
+        const fill = c > 0 ? 'var(--ok)' : c < 0 ? 'var(--bad)' : 'var(--neutral)'
+        return <rect key={i} x={i * (bw + gap)} y={y} width={bw} height={barH} style={{ fill }} rx={0.5} />
       })}
     </svg>
   )
 }
 
 export default function Leaderboard() {
+  const lang = useLang()
   const [regions, setRegions] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -97,10 +100,10 @@ export default function Leaderboard() {
 
         <div className="flex items-center justify-between mb-6">
           <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-            <ArrowLeft size={15} aria-hidden /> Back
+            <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
           </Link>
           <Link href="/heatmap" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-            <MapIcon size={15} aria-hidden /> Heatmap
+            <MapIcon size={15} aria-hidden /> {t(lang, 'lbHeatmap')}
           </Link>
         </div>
 
@@ -108,10 +111,10 @@ export default function Leaderboard() {
           API<span className="text-emerald-400">Leaderboard</span>
         </h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
-          Accuracy per region · weighted by community feedback
+          {t(lang, 'lbSubtitle')}
         </p>
 
-        <BetaBanner className="mb-6" />
+        <BetaBanner lang={lang} className="mb-6" />
 
         <div className="mb-8 flex items-center gap-3 flex-wrap">
           <button
@@ -122,7 +125,7 @@ export default function Leaderboard() {
             {recal?.busy
               ? <Loader2 size={13} className="animate-spin-slow" aria-hidden />
               : <Scale size={13} aria-hidden />}
-            {recal?.busy ? 'Recalibrating…' : 'Recalibrate weights'}
+            {recal?.busy ? t(lang, 'lbRecalibrating') : t(lang, 'lbRecalibrate')}
           </button>
           {recal && !recal.busy && (
             <span className={`text-xs inline-flex items-center gap-1.5 ${recal.ok ? 'text-emerald-400' : 'text-red-400'}`}>
@@ -133,7 +136,7 @@ export default function Leaderboard() {
 
         {loading && (
           <div className="text-zinc-500 text-sm flex items-center gap-2">
-            <Loader2 size={15} className="animate-spin-slow" aria-hidden /> Loading leaderboard…
+            <Loader2 size={15} className="animate-spin-slow" aria-hidden /> {t(lang, 'lbLoading')}
           </div>
         )}
 
@@ -157,7 +160,7 @@ export default function Leaderboard() {
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-emerald-400'
                   }`}
                 >
-                  {REGION_LABELS[r.region] ?? r.region}
+                  {REGION_KEYS[r.region] ? t(lang, REGION_KEYS[r.region]) : r.region}
                 </button>
               ))}
             </div>
@@ -182,7 +185,7 @@ export default function Leaderboard() {
                         </div>
                         <div className="text-right">
                           <div className="text-emerald-400 font-bold text-lg tabular-nums">{weightPct}%</div>
-                          <div className="text-zinc-500 text-xs">Weight</div>
+                          <div className="text-zinc-500 text-xs">{t(lang, 'lbWeight')}</div>
                         </div>
                       </div>
 
@@ -193,21 +196,21 @@ export default function Leaderboard() {
                       <div className="grid grid-cols-3 gap-3 text-center">
                         <div>
                           <div className="text-sm font-bold tabular-nums">{api.score ?? 0}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">Score</div>
+                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbScore')}</div>
                         </div>
                         <div>
                           <div className="text-sm font-bold tabular-nums">{api.reports ?? 0}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">Reports</div>
+                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbReports')}</div>
                         </div>
                         <div>
                           <div className="text-sm font-bold tabular-nums">{avgScore}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">Ø Score</div>
+                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbAvgScore')}</div>
                         </div>
                       </div>
 
                       {api.delta_history?.length > 1 && (
                         <div className="mt-3 pt-3 border-t border-zinc-800">
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1.5">Recent accuracy</div>
+                          <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1.5">{t(lang, 'lbRecent')}</div>
                           <Sparkline data={api.delta_history} />
                         </div>
                       )}
@@ -216,15 +219,15 @@ export default function Leaderboard() {
                         <div className="grid grid-cols-2 gap-3 text-center mt-3 pt-3 border-t border-zinc-800">
                           <div>
                             <div className="text-sm font-bold" style={{
-                              color: api.uptime == null ? '#a1a1aa' : api.uptime >= 99 ? '#34d399' : api.uptime >= 90 ? '#fbbf24' : '#f87171',
+                              color: api.uptime == null ? 'var(--neutral)' : api.uptime >= 99 ? 'var(--ok)' : api.uptime >= 90 ? 'var(--warn)' : 'var(--bad)',
                             }}>
                               {api.uptime != null ? `${api.uptime}%` : '–'}
                             </div>
-                            <div className="text-zinc-500 text-xs uppercase tracking-wider">Uptime</div>
+                            <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbUptime')}</div>
                           </div>
                           <div>
                             <div className="text-sm font-bold tabular-nums">{api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–'}</div>
-                            <div className="text-zinc-500 text-xs uppercase tracking-wider">Avg response</div>
+                            <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbAvgResponse')}</div>
                           </div>
                         </div>
                       )}
@@ -237,10 +240,10 @@ export default function Leaderboard() {
         )}
 
         {regions && regions.length === 0 && !error && (
-          <p className="text-zinc-500 text-sm">No weight data available yet.</p>
+          <p className="text-zinc-500 text-sm">{t(lang, 'lbNoData')}</p>
         )}
 
-        <Footer />
+        <Footer lang={lang} />
       </div>
     </main>
   )

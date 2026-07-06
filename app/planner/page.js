@@ -3,10 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
+import { t } from '@/lib/i18n'
+import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+// localized short month name (any non-leap year works as the anchor)
+const monthName = (lang, m) => new Date(2001, m - 1, 1).toLocaleDateString(lang, { month: 'short' })
 
 // score a month for "nice to visit": mild temp (18-26° ideal) and few rainy days
 function comfortScore(m) {
@@ -16,6 +19,7 @@ function comfortScore(m) {
 }
 
 export default function Planner() {
+  const lang = useLang()
   const [city, setCity] = useState('')
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -49,22 +53,22 @@ export default function Planner() {
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
-          <ArrowLeft size={15} aria-hidden /> Back
+          <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 
         <h1 className="text-3xl font-bold mb-1">
           Travel<span className="text-emerald-400">Planner</span>
         </h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
-          Best months to visit, from 10 years of climate data
+          {t(lang, 'plSubtitle')}
         </p>
 
-        <BetaBanner className="mb-8" />
+        <BetaBanner lang={lang} className="mb-8" />
 
         <div className="flex gap-2 mb-10">
           <input
             className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
-            placeholder="Enter city… e.g. Lisbon, Tokyo, Cape Town"
+            placeholder={t(lang, 'plPlaceholder')}
             value={city}
             onChange={e => setCity(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') search() }}
@@ -91,11 +95,11 @@ export default function Planner() {
 
             {best.length > 0 && (
               <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6">
-                <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5"><CalendarCheck size={13} aria-hidden /> Best months to visit</div>
+                <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5"><CalendarCheck size={13} aria-hidden /> {t(lang, 'plBest')}</div>
                 <div className="flex gap-2 flex-wrap">
                   {best.map(m => (
                     <span key={m} className="bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 rounded-lg px-3 py-1 text-sm">
-                      {MONTHS[m - 1]}
+                      {monthName(lang, m)}
                     </span>
                   ))}
                 </div>
@@ -105,8 +109,8 @@ export default function Planner() {
             {/* 12-month chart */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <div className="flex gap-4 text-xs mb-5">
-                <span className="text-orange-400">■ Avg temperature</span>
-                <span className="text-blue-400">■ Rainy days</span>
+                <span className="text-orange-400">■ {t(lang, 'plAvgTemp')}</span>
+                <span className="text-blue-400">■ {t(lang, 'plRainyDays')}</span>
               </div>
               <div className="grid grid-cols-12 gap-1 items-end h-48">
                 {months.map(m => {
@@ -114,14 +118,14 @@ export default function Planner() {
                   const rainH = ((m.avgRainDays ?? 0) / maxRain) * 100
                   const isBest = best.includes(m.month)
                   return (
-                    <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${m.avgTemp}°C · ${m.avgRainDays} rainy days`}>
+                    <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${m.avgTemp}°C · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
                       <div className="text-[10px] text-orange-300 tabular-nums">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
                       <div className="w-full flex gap-px items-end h-full">
                         <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
                         <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
                       </div>
                       <div className={`text-[10px] uppercase ${isBest ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
-                        {MONTHS[m.month - 1]}
+                        {monthName(lang, m.month)}
                       </div>
                     </div>
                   )
@@ -131,7 +135,7 @@ export default function Planner() {
           </div>
         )}
 
-        <Footer />
+        <Footer lang={lang} />
       </div>
     </main>
   )
