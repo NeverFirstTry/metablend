@@ -1,5 +1,6 @@
 import { Geist, Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
@@ -56,6 +57,7 @@ export default function RootLayout({ children }) {
           }}
         />
         {children}
+        <Analytics />
         <Script
           defer
           data-domain="metablend-beta.vercel.app"
