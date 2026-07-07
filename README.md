@@ -48,8 +48,9 @@ All of these share the exact same scoring math (`lib/scoring.js`):
 - **Station calibration (hourly)** — `/api/station-calibrate` pulls aviation
   METAR observations (NOAA Aviation Weather Center — free, no key) near each
   recently-searched city, takes the median of the nearest fresh reports as
-  ground truth, and scores the last hour of forecasts against it. Real
-  measurements, every hour. Gated by
+  ground truth, and scores the last hour of forecasts against it — temperature
+  as the primary delta plus a second, stricter-scaled delta for wind accuracy
+  when both sides report wind. Real measurements, every hour. Gated by
   `CALIBRATE_SECRET` and triggered by a GitHub Action
   (`.github/workflows/station-calibrate.yml`) — Vercel sub-daily crons need a Pro
   plan, so an external scheduler keeps it on any plan.
@@ -68,10 +69,24 @@ Once a city has collected enough ground truth, MetaBlend serves its own
 prognostic source: the live consensus corrected by a learned per-city bias —
 an exponential moving average of *(ground truth − consensus)* fed by user
 feedback and the hourly station calibration (`lib/blend.js`, `city_bias`
-table). It is deliberately **excluded from the consensus** it derives from (no
-circularity), but it is stored and scored by the daily calibration exactly
+table). The bias is learned in separate **day and night buckets**, since
+consensus errors are usually asymmetric (models routinely miss nighttime
+cooling). It is deliberately **excluded from the consensus** it derives from
+(no circularity), but it is stored and scored by the daily calibration exactly
 like every other source — so the leaderboard shows, honestly, whether
 consensus + local correction beats the raw APIs.
+
+The **7-day strip is a consensus too**: five keyless daily forecasts
+(Open-Meteo best-match, GFS, ICON, ECMWF, MET Norway) blended per day with the
+same learned weights as the live blend (`blendDailyForecasts`).
+
+### Backups
+
+`/api/backup` (gated like the other job endpoints) exports the learned state —
+`api_weights`, `city_bias`, `feedback`, `api_stats` — and a nightly GitHub
+Action (`.github/workflows/backup.yml`) stores it as a 30-day workflow
+artifact. This data is the product's memory and cannot be re-derived; the
+export contains nothing that isn't already public via the app's own endpoints.
 
 ---
 

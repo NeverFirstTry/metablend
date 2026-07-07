@@ -28,27 +28,31 @@ function haversineKm(lat1, lon1, lat2, lon2) {
   return 12742 * Math.asin(Math.sqrt(a))
 }
 
-// Fresh METAR temperatures within RADIUS_KM of the point, nearest first.
-async function metarTemps(lat, lon) {
+// Fresh METAR observations within RADIUS_KM of the point, nearest first.
+// Returns { temps, winds } — temps in °C, winds in km/h (METAR wspd is knots).
+async function metarObs(lat, lon) {
   const bbox = `${(lat - 0.7).toFixed(2)},${(lon - 1.0).toFixed(2)},${(lat + 0.7).toFixed(2)},${(lon + 1.0).toFixed(2)}`
   try {
     const res = await fetch(`https://aviationweather.gov/api/data/metar?bbox=${bbox}&format=json`, {
       signal: AbortSignal.timeout(8000),
     })
-    if (!res.ok) return []
+    if (!res.ok) return { temps: [], winds: [] }
     const reports = await res.json()
-    if (!Array.isArray(reports)) return []
+    if (!Array.isArray(reports)) return { temps: [], winds: [] }
     const cutoff = Date.now() - MAX_OBS_AGE_MIN * 60 * 1000
-    return reports
+    const nearest = reports
       .filter(r => typeof r.temp === 'number' && r.lat != null && r.lon != null)
       .filter(r => !r.reportTime || new Date(r.reportTime).getTime() >= cutoff)
-      .map(r => ({ temp: r.temp, distanceKm: haversineKm(lat, lon, r.lat, r.lon) }))
+      .map(r => ({ ...r, distanceKm: haversineKm(lat, lon, r.lat, r.lon) }))
       .filter(r => r.distanceKm <= RADIUS_KM)
       .sort((a, b) => a.distanceKm - b.distanceKm)
       .slice(0, MAX_STATIONS)
-      .map(r => r.temp)
+    return {
+      temps: nearest.map(r => r.temp),
+      winds: nearest.filter(r => typeof r.wspd === 'number').map(r => r.wspd * 1.852),
+    }
   } catch {
-    return []
+    return { temps: [], winds: [] }
   }
 }
 
@@ -68,7 +72,7 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   // Ordered oldest-first so "last row wins" below really is the latest per API.
   const { data: forecasts } = await supabase
     .from('forecasts')
-    .select('city, lat, lon, api_id, temp, region, created_at')
+    .select('city, lat, lon, api_id, temp, wind_kmh, region, created_at')
     .gte('created_at', since)
     .order('created_at', { ascending: true })
   if (!forecasts?.length) return Response.json({ skipped: 'no forecasts in the last hour', since })
@@ -89,9 +93,10 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
 
   for (const { city, lat, lon, region } of cities) {
     // 1. Fresh METARs near the city → 2. median = ground truth
-    const temps = await metarTemps(lat, lon)
+    const { temps, winds } = await metarObs(lat, lon)
     if (!temps.length) { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
     const actualTemp = median(temps)
+    const actualWind = winds.length ? median(winds) : null
 
     // 4. Latest stored forecast per API for this city (within the lookback window)
     const latestPerApi = {}
@@ -108,12 +113,19 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
       await updateCityBias(city, lat, lon, region, actualTemp - median(real.map(f => f.temp)))
     }
 
-    // 5. Score + re-weight (identical math to the feedback / calibrate routes)
+    // 5. Score + re-weight (identical math to the feedback / calibrate routes).
+    // Temperature is the primary delta; when both sides report wind, a second
+    // delta on the looser 'wind' scheme rewards wind accuracy too.
     const deltaMap = {}
     for (const f of unique) {
-      deltaMap[f.api_id] = Math.abs(f.temp - medForecast) > 5
+      const tempDelta = Math.abs(f.temp - medForecast) > 5
         ? -2
         : deltaFromDiff(Math.abs(f.temp - actualTemp), 'instant')
+      const deltas = [tempDelta]
+      if (actualWind != null && typeof f.wind_kmh === 'number') {
+        deltas.push(deltaFromDiff(Math.abs(f.wind_kmh - actualWind), 'wind'))
+      }
+      deltaMap[f.api_id] = deltas
     }
 
     const applied = await applyDeltas(region, deltaMap)
@@ -122,8 +134,9 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     results.push({
       city,
       actualTemp: Math.round(actualTemp * 10) / 10,
+      actualWind: actualWind != null ? Math.round(actualWind) : null,
       stations: temps.length,
-      apis: applied.map(u => ({ id: u.id, delta: u.deltas[0] })),
+      apis: applied.map(u => ({ id: u.id, deltas: u.deltas })),
     })
     calibrated++
   }

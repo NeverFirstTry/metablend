@@ -3,6 +3,29 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-07-07
+
+### Added
+- **Consensus 7-day forecast.** The daily strip was single-source (Open-Meteo
+  only) — odd for a product whose thesis is "never trust one source". It now
+  blends five keyless daily forecasts (Open-Meteo best-match, GFS, ICON,
+  ECMWF, MET Norway) per day with the same learned weights as the live blend
+  (`blendDailyForecasts`, pure and unit-tested).
+- **Wind accuracy counts now.** METAR observations carry wind; hourly station
+  calibration scores each source's wind forecast on a stricter-scaled scheme
+  (±3/8/15/25 km/h) as a second delta alongside temperature.
+- **Day/night bias buckets for MetaBlend Local.** Consensus errors are
+  asymmetric (models miss nighttime cooling), so the per-city bias now learns
+  and serves separate day (06–21 local) and night buckets, falling back to a
+  samples-weighted blend while one bucket is still cold.
+- **Nightly backups.** `/api/backup` exports the learned state (weights, bias,
+  feedback, stats) and a GitHub Action stores it as a 30-day artifact —
+  Supabase's free tier has no automated backups and this data is the product's
+  memory. Reuses the existing `CALIBRATE_SECRET`; `error_log` excluded.
+- **Learning-pipeline unit tests.** The weight normalization core
+  (`buildWeightUpdates`), the bias EMA (`emaBias`) and the daily blender are
+  now pure, exported and covered by `node --test` (21 tests).
+
 ## 2026-07-06
 
 ### Fixed

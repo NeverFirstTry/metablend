@@ -115,15 +115,21 @@ on conflict (id, region) do nothing;
 -- ── MetaBlend Local: learned per-city consensus bias ─────────────────────────
 --    EMA of (ground truth − consensus), fed by user feedback and hourly PWS
 --    calibration; served as the synthetic 'metablend' source (lib/blend.js).
+--    Learned in separate day/night buckets (consensus errors are asymmetric —
+--    models routinely miss nighttime cooling).
 create table if not exists city_bias (
-  city       text primary key,
-  lat        double precision,
-  lon        double precision,
-  region     text default 'global',
-  temp_bias  real default 0,
-  samples    integer default 0,
-  updated_at timestamptz default now()
+  city              text primary key,
+  lat               double precision,
+  lon               double precision,
+  region            text default 'global',
+  temp_bias         real default 0,      -- day bucket (06–21 city-local)
+  samples           integer default 0,
+  temp_bias_night   real default 0,      -- night bucket (21–06 city-local)
+  samples_night     integer default 0,
+  updated_at        timestamptz default now()
 );
+alter table city_bias add column if not exists temp_bias_night real default 0;
+alter table city_bias add column if not exists samples_night   integer default 0;
 
 -- ── Consensus history (RSS feed + intraday chart) ───────────────────────────
 create table if not exists consensus_history (

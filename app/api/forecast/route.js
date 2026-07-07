@@ -6,10 +6,10 @@ import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
-  fetchOpenMeteoForecast, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
+  fetchDailyBundle, blendDailyForecasts, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
   fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
 } from '@/lib/weather'
-import { getCityBias } from '@/lib/blend'
+import { getCityBias, isNightAt } from '@/lib/blend'
 
 const DISPLAY_NAMES = {
   'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
@@ -112,8 +112,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
   ])
 
-  const [{ days: forecast7, sunrise, sunset }, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
-    fetchOpenMeteoForecast(geo.lat, geo.lon),
+  const [dailyBundle, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
+    fetchDailyBundle(geo.lat, geo.lon),
     fetchOpenMeteoExtras(geo.lat, geo.lon),
     fetchOpenMeteoHourly(geo.lat, geo.lon),
     fetchOpenMeteoDetails(geo.lat, geo.lon),
@@ -157,6 +157,10 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   const weightMap = {}
   weightRows.forEach(w => { weightMap[w.id] = w.weight })
+
+  // Consensus 7-day: blend the keyless daily forecasts (OM best-match, GFS,
+  // ICON, ECMWF, MET Norway) with the same learned weights as the live blend.
+  const { days: forecast7, sunrise, sunset } = blendDailyForecasts(dailyBundle, weightMap)
 
   // 4. Gewichteten Durchschnitt berechnen
   // Rain is averaged only across sources reporting a true precipitation
@@ -214,7 +218,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // (lib/blend.js). Added AFTER the consensus/confidence/warning math so it
   // never feeds back into the number it derives from; stored and scored like
   // any other source so the leaderboard shows if it earns its keep.
-  const bias = await getCityBias(geo.name)
+  const bias = await getCityBias(geo.name, isNightAt(geo.lon))
   if (bias != null) {
     results.push({
       apiId: 'metablend',

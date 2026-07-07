@@ -1,0 +1,29 @@
+name: Nightly data backup
+
+# Exports the learned state (api_weights, city_bias, feedback, api_stats) via
+# /api/backup and keeps it as a workflow artifact for 30 days. Supabase's free
+# tier has no automated backups, and this data is the product's memory — it
+# cannot be re-derived. The export contains nothing that isn't already public
+# through the app's own endpoints. Reuses the CALIBRATE_SECRET repo secret.
+
+on:
+  schedule:
+    - cron: '47 4 * * *' # nightly, off the :00 mark
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Export learned state
+        run: |
+          curl -fsS "https://metablend-beta.vercel.app/api/backup" \
+            -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
+            --max-time 120 -o "metablend-backup.json"
+          python3 -c "import json;d=json.load(open('metablend-backup.json'));print({k:(len(v) if isinstance(v,list) else v) for k,v in d['tables'].items()})"
+      - name: Store as artifact (30-day retention)
+        uses: actions/upload-artifact@v4
+        with:
+          name: metablend-backup-${{ github.run_id }}
+          path: metablend-backup.json
+          retention-days: 30
