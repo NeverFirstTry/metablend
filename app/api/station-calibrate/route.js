@@ -4,47 +4,51 @@ import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
 import { withErrorLog } from '@/lib/log'
 
-// Ground-truth calibration from Weather Underground Personal Weather Stations.
-// For each city we have a recent forecast for, find PWS within 10 km, take the
-// median of their live temperatures as the actual, and re-weight every API's
-// stored forecast against it — same delta/normalization the feedback route uses.
-// Meant to run hourly via an external scheduler (GitHub Action).
+// Ground-truth calibration from aviation METAR observations (NOAA Aviation
+// Weather Center — free, no key). For each city with a recent forecast, pull
+// every METAR in a bounding box around it, take the median temperature of the
+// nearest fresh reports as ground truth, and re-weight every API's stored
+// forecast against it — same delta/normalization the feedback route uses.
+// Replaced Weather Underground PWS, which required a key we never had, so the
+// hourly calibration had been silently skipping since launch.
 
-// Up to 15 cities × (1 lookup + 6 station reads) — needs more than the default.
+// Up to 15 cities × 1 bbox lookup each — needs more than the default.
 export const maxDuration = 60
 
-const RADIUS_KM = 10
+const RADIUS_KM = 60           // METAR stations (airports) are sparser than PWS
 const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour
-const MAX_CITIES = 15          // cap per run to respect Wunderground rate limits
-const MAX_STATIONS = 6         // closest N stations per city (median of these)
+const MAX_CITIES = 15          // cap per run out of courtesy to the free API
+const MAX_STATIONS = 4         // nearest N fresh reports (median of these)
+const MAX_OBS_AGE_MIN = 90     // METARs are hourly; skip anything staler
 
-// Uses the Weather.com PWS API (the current Wunderground endpoint). A key is
-// available free to PWS contributors.
-async function nearbyStations(lat, lon, key) {
-  const url = `https://api.weather.com/v3/location/near?geocode=${lat},${lon}&product=pws&format=json&apiKey=${key}`
-  try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
-    if (!res.ok) return []
-    const loc = (await res.json()).location
-    if (!Array.isArray(loc?.stationId)) return []
-    // parallel arrays, sorted nearest-first
-    return loc.stationId
-      .map((id, i) => ({ id, distanceKm: loc.distanceKm?.[i] ?? Infinity }))
-      .filter(s => s.distanceKm <= RADIUS_KM)
-  } catch {
-    return []
-  }
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const rad = d => (d * Math.PI) / 180
+  const a = Math.sin(rad(lat2 - lat1) / 2) ** 2 +
+    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lon2 - lon1) / 2) ** 2
+  return 12742 * Math.asin(Math.sqrt(a))
 }
 
-async function stationTemp(stationId, key) {
-  const url = `https://api.weather.com/v2/pws/observations/current?stationId=${encodeURIComponent(stationId)}&format=json&units=m&apiKey=${key}`
+// Fresh METAR temperatures within RADIUS_KM of the point, nearest first.
+async function metarTemps(lat, lon) {
+  const bbox = `${(lat - 0.7).toFixed(2)},${(lon - 1.0).toFixed(2)},${(lat + 0.7).toFixed(2)},${(lon + 1.0).toFixed(2)}`
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) })
-    if (!res.ok) return null
-    const t = (await res.json()).observations?.[0]?.metric?.temp
-    return typeof t === 'number' ? t : null
+    const res = await fetch(`https://aviationweather.gov/api/data/metar?bbox=${bbox}&format=json`, {
+      signal: AbortSignal.timeout(8000),
+    })
+    if (!res.ok) return []
+    const reports = await res.json()
+    if (!Array.isArray(reports)) return []
+    const cutoff = Date.now() - MAX_OBS_AGE_MIN * 60 * 1000
+    return reports
+      .filter(r => typeof r.temp === 'number' && r.lat != null && r.lon != null)
+      .filter(r => !r.reportTime || new Date(r.reportTime).getTime() >= cutoff)
+      .map(r => ({ temp: r.temp, distanceKm: haversineKm(lat, lon, r.lat, r.lon) }))
+      .filter(r => r.distanceKm <= RADIUS_KM)
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, MAX_STATIONS)
+      .map(r => r.temp)
   } catch {
-    return null
+    return []
   }
 }
 
@@ -59,9 +63,6 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
       (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
     if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
-
-  const key = process.env.WUNDERGROUND_KEY
-  if (!key) return Response.json({ skipped: 'WUNDERGROUND_KEY not configured' })
 
   const since = new Date(Date.now() - LOOKBACK_MIN * 60 * 1000).toISOString()
   // Ordered oldest-first so "last row wins" below really is the latest per API.
@@ -87,15 +88,9 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   let calibrated = 0
 
   for (const { city, lat, lon, region } of cities) {
-    // 1. Nearby PWS → 2. their live temps (in parallel) → 3. median = ground truth
-    const stations = await nearbyStations(lat, lon, key)
-    if (!stations.length) { results.push({ city, skipped: 'no PWS within 10km' }); continue }
-
-    const readings = await Promise.all(
-      stations.slice(0, MAX_STATIONS).map(s => stationTemp(s.id, key))
-    )
-    const temps = readings.filter(t => t != null)
-    if (!temps.length) { results.push({ city, skipped: 'no station readings' }); continue }
+    // 1. Fresh METARs near the city → 2. median = ground truth
+    const temps = await metarTemps(lat, lon)
+    if (!temps.length) { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
     const actualTemp = median(temps)
 
     // 4. Latest stored forecast per API for this city (within the lookback window)

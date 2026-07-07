@@ -45,10 +45,11 @@ All of these share the exact same scoring math (`lib/scoring.js`):
 
 - **Community feedback** — you report the actual weather; it's compared against
   the current consensus and re-weights immediately (`/api/feedback`).
-- **Station calibration (hourly)** — `/api/station-calibrate` finds Weather
-  Underground personal weather stations within 10 km of each recently-searched
-  city, takes the median of their live readings as ground truth, and scores the
-  last hour of forecasts against it. Real measurements, every hour. Gated by
+- **Station calibration (hourly)** — `/api/station-calibrate` pulls aviation
+  METAR observations (NOAA Aviation Weather Center — free, no key) near each
+  recently-searched city, takes the median of the nearest fresh reports as
+  ground truth, and scores the last hour of forecasts against it. Real
+  measurements, every hour. Gated by
   `CALIBRATE_SECRET` and triggered by a GitHub Action
   (`.github/workflows/station-calibrate.yml`) — Vercel sub-daily crons need a Pro
   plan, so an external scheduler keeps it on any plan.
@@ -130,7 +131,7 @@ consensus + local correction beats the raw APIs.
 | [World Weather Online](https://www.worldweatheronline.com) | yes | |
 | [Weatherstack](https://weatherstack.com) | yes | |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
-| [Weather Underground PWS](https://www.wunderground.com) | yes | Ground truth for hourly station calibration only |
+| [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration only |
 
 Sources without a configured key are simply skipped — the app still works with
 just the keyless ones.
@@ -164,7 +165,6 @@ VISUAL_CROSSING_KEY=    # also the daily calibration source
 WORLD_WEATHER_KEY=
 WEATHERSTACK_KEY=
 RAPIDAPI_KEY=           # Meteostat, for nightly validation
-WUNDERGROUND_KEY=       # Weather Underground PWS, for hourly station calibration
 
 # Optional jobs / admin
 CALIBRATE_SECRET=       # gates /api/self-calibrate (set to any random string)

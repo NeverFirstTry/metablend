@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-07-06
 
+### Fixed
+- **Hourly station calibration actually runs now.** It required a Weather
+  Underground PWS key that was never configured, so every hourly run since
+  launch had silently skipped. Ground truth now comes from aviation METAR
+  observations (NOAA Aviation Weather Center — free, no key): all fresh
+  reports within 60 km of each recently-searched city, median of the nearest
+  four. One bbox request per city instead of up to seven, and it feeds
+  MetaBlend Local's per-city bias learning from day one.
+
 ### Added
 - **Six new keyless sources.** ECMWF IFS, NOAA GFS and DWD ICON as individual
   model feeds via Open-Meteo (genuine model diversity, each weighted

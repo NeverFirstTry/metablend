@@ -21,7 +21,7 @@ function AttributionList() {
       <li><a href="https://www.met.no" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MET Norway</a> (NLOD / CC BY 4.0)</li>
       <li>OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack</li>
       <li><a href="https://power.larc.nasa.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NASA POWER</a> · <a href="https://data.hub.geosphere.at" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoSphere Austria</a></li>
-      <li><a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NWS/NOAA</a> (US public domain) · <a href="https://brightsky.dev" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Bright Sky / DWD</a> · <a href="https://opendata.smhi.se" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">SMHI</a> (CC BY 4.0)</li>
+      <li><a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NOAA</a> (NWS &amp; Aviation Weather METARs, US public domain) · <a href="https://brightsky.dev" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Bright Sky / DWD</a> · <a href="https://opendata.smhi.se" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">SMHI</a> (CC BY 4.0)</li>
       <li>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OpenStreetMap</a> (ODbL)</li>
     </ul>
   )

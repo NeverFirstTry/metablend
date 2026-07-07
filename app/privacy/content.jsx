@@ -32,7 +32,7 @@ const CONTENT = {
           <li>Open-Meteo (incl. geocoding, air quality, historical archive)</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — only if you use “my location”, to turn your coordinates into a city name (reverse geocoding)</li>
-          <li>Weather Underground (The Weather Company) and Meteostat — receive city coordinates server-side to fetch reference measurements that score each source&apos;s accuracy</li>
+          <li>NOAA Aviation Weather (METAR reports) and Meteostat — receive city coordinates server-side to fetch reference measurements that score each source&apos;s accuracy</li>
           <li>Map tiles by OpenStreetMap contributors (heatmap and rain radar)</li>
         </ul>
         <p className="mt-2">The app is hosted on <strong>Vercel</strong> and its database runs on <strong>Supabase</strong> (EU region, Frankfurt). Each provider handles the data it receives under its own privacy policy.</p>
@@ -58,7 +58,7 @@ const CONTENT = {
           <li>Open-Meteo (inkl. Geocoding, Luftqualität, historisches Archiv)</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — nur bei „Mein Standort“, um Koordinaten in einen Stadtnamen zu übersetzen (Reverse-Geocoding)</li>
-          <li>Weather Underground (The Weather Company) und Meteostat — erhalten serverseitig Stadtkoordinaten, um Referenzmessungen für die Genauigkeitsbewertung abzurufen</li>
+          <li>NOAA Aviation Weather (METAR-Meldungen) und Meteostat — erhalten serverseitig Stadtkoordinaten, um Referenzmessungen für die Genauigkeitsbewertung abzurufen</li>
           <li>Kartenkacheln von OpenStreetMap-Mitwirkenden (Heatmap und Regenradar)</li>
         </ul>
         <p className="mt-2">Die App läuft auf <strong>Vercel</strong>, die Datenbank auf <strong>Supabase</strong> (EU-Region, Frankfurt). Jeder Anbieter verarbeitet die erhaltenen Daten nach seiner eigenen Datenschutzerklärung.</p>
@@ -84,7 +84,7 @@ const CONTENT = {
           <li>Open-Meteo (y compris géocodage, qualité de l’air, archives historiques)</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — uniquement si vous utilisez « ma position », pour convertir vos coordonnées en nom de ville (géocodage inverse)</li>
-          <li>Weather Underground (The Weather Company) et Meteostat — reçoivent côté serveur les coordonnées des villes pour récupérer des mesures de référence servant à noter la précision de chaque source</li>
+          <li>NOAA Aviation Weather (relevés METAR) et Meteostat — reçoivent côté serveur les coordonnées des villes pour récupérer des mesures de référence servant à noter la précision de chaque source</li>
           <li>Tuiles cartographiques des contributeurs OpenStreetMap (carte et radar de pluie)</li>
         </ul>
         <p className="mt-2">L’application est hébergée sur <strong>Vercel</strong> et sa base de données sur <strong>Supabase</strong> (région UE, Francfort). Chaque fournisseur traite les données reçues selon sa propre politique de confidentialité.</p>
@@ -110,7 +110,7 @@ const CONTENT = {
           <li>Open-Meteo (incl. geocodificación, calidad del aire, archivo histórico)</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo si usas «mi ubicación», para convertir tus coordenadas en un nombre de ciudad (geocodificación inversa)</li>
-          <li>Weather Underground (The Weather Company) y Meteostat — reciben coordenadas de ciudades en el servidor para obtener mediciones de referencia con las que puntuar la precisión de cada fuente</li>
+          <li>NOAA Aviation Weather (informes METAR) y Meteostat — reciben coordenadas de ciudades en el servidor para obtener mediciones de referencia con las que puntuar la precisión de cada fuente</li>
           <li>Teselas de mapa de los colaboradores de OpenStreetMap (mapa y radar de lluvia)</li>
         </ul>
         <p className="mt-2">La app se aloja en <strong>Vercel</strong> y su base de datos en <strong>Supabase</strong> (región UE, Fráncfort). Cada proveedor trata los datos que recibe según su propia política de privacidad.</p>
@@ -136,7 +136,7 @@ const CONTENT = {
           <li>Open-Meteo (incl. geocoding, qualità dell’aria, archivio storico)</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo se usi «la mia posizione», per convertire le coordinate in un nome di città (geocoding inverso)</li>
-          <li>Weather Underground (The Weather Company) e Meteostat — ricevono lato server le coordinate delle città per ottenere misurazioni di riferimento con cui valutare la precisione di ogni fonte</li>
+          <li>NOAA Aviation Weather (bollettini METAR) e Meteostat — ricevono lato server le coordinate delle città per ottenere misurazioni di riferimento con cui valutare la precisione di ogni fonte</li>
           <li>Tessere mappa dei collaboratori di OpenStreetMap (mappa e radar pioggia)</li>
         </ul>
         <p className="mt-2">L’app è ospitata su <strong>Vercel</strong> e il database su <strong>Supabase</strong> (regione UE, Francoforte). Ogni fornitore tratta i dati che riceve secondo la propria informativa sulla privacy.</p>
