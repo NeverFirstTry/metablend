@@ -1,4 +1,4 @@
-const BASE = 'https://metablend-beta.vercel.app'
+const BASE = 'https://metablend.app'
 
 export default function sitemap() {
   const now = new Date()

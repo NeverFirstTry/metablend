@@ -1,7 +1,7 @@
 {
   "name": "MetaBlend – Weather truth through consensus",
   "short_name": "MetaBlend",
-  "description": "Multiple weather APIs blended into one weighted consensus.",
+  "description": "Free weather app blending 16 forecast sources into one weighted consensus — rain radar, 7-day forecast, and a self-learning local forecast.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

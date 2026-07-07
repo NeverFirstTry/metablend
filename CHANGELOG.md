@@ -5,6 +5,16 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-07-07
 
+### SEO
+- **The site is finally findable.** English-first metadata (the html said
+  `lang="de"` with German titles while the SSR content is English), a
+  keyword-rich title/description with a `%s · MetaBlend` template, per-page
+  titles and descriptions for the leaderboard, heatmap, planner, privacy and
+  terms (they all shared the root title before), JSON-LD `WebApplication`
+  structured data, and `metablend.app` declared as the canonical domain across
+  metadata, sitemap and robots — consolidating ranking signals that were split
+  between the two live domains.
+
 ### Added
 - **Consensus 7-day forecast.** The daily strip was single-source (Open-Meteo
   only) — odd for a product whose thesis is "never trust one source". It now

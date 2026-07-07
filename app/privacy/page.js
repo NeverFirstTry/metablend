@@ -1,8 +1,9 @@
 import PrivacyContent from './content'
 
 export const metadata = {
-  title: 'Privacy — MetaBlend',
-  description: 'What data MetaBlend collects and how it is used.',
+  title: 'Privacy Notice',
+  description: 'What data MetaBlend collects, how long it is kept, and which weather providers receive your searches.',
+  alternates: { canonical: '/privacy' },
 }
 
 // Metadata must live in a server component; the localized body is client-side
