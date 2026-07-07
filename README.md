@@ -106,6 +106,8 @@ export contains nothing that isn't already public via the app's own endpoints.
   recent-accuracy sparkline per source
 - **Global feedback heatmap** showing where the consensus was right vs. wrong
 - **Favorite & recent cities** for one-tap access
+- **Server-rendered city pages** (`/weather/vienna`, …) — crawlable consensus
+  forecasts for 54 cities, ISR-cached; any city works on demand
 - **Travel planner** — best months to visit, from 10 years of climate data
 - **15-minute response caching** to keep the upstream APIs happy
 - **Offline mode** (PWA + service worker) showing your last known forecast

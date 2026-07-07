@@ -5,6 +5,22 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-07-07
 
+### Added — per-city pages
+- **Server-rendered city pages** at `/weather/<slug>` (e.g. `/weather/vienna`)
+  with a crawlable hub at `/weather`: real consensus data in plain HTML —
+  current conditions, a semantic 7-day table, which sources are currently most
+  trusted in that region, and climate context. ISR-cached 15 minutes (no
+  build-time fetching, so deploys don't burn upstream quota). 54 curated
+  cities in the sitemap; any other city renders on demand. This is the
+  programmatic-SEO surface: "weather <city>" queries vastly outnumber
+  "weather app" queries, and the per-city accuracy data is content nobody
+  else has.
+- **`/?city=X` deep links work now** — the home page loads that city on
+  mount. The RSS feed has been linking to these URLs all along; they used to
+  do nothing.
+- Plausible analytics now report to both domain dashboards (comma-separated
+  `data-domain`), so canonical-domain visits aren't lost.
+
 ### SEO
 - **The site is finally findable.** English-first metadata (the html said
   `lang="de"` with German titles while the SSR content is English), a

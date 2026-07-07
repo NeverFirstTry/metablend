@@ -320,6 +320,13 @@ export default function Home() {
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
+    // Deep link: /?city=Vienna loads that city straight away (used by the
+    // per-city SEO pages and the RSS feed links).
+    const deepLink = new URLSearchParams(window.location.search).get('city')
+    if (deepLink) {
+      setCity(deepLink)
+      loadForecast(deepLink)
+    }
     /* eslint-enable react-hooks/set-state-in-effect */
 
     if ('serviceWorker' in navigator) {
@@ -344,6 +351,8 @@ export default function Home() {
       window.removeEventListener('beforeinstallprompt', onInstallable)
       window.removeEventListener('appinstalled', onInstalled)
     }
+    // mount-only by design; loadForecast is stable enough for the one-shot deep link
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   async function installApp() {
