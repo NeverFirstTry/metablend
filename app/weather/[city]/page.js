@@ -15,18 +15,21 @@ function displayName(slug) {
   return findCity(slug)?.name ?? titleCase(slugToQuery(slug))
 }
 
+// Self-fetch goes through the public production domain, NOT VERCEL_URL — the
+// raw deployment URL sits behind Vercel's deployment protection and 401s
+// server-to-server fetches. Returns the payload, 'unknown' for a city the
+// geocoder can't resolve (→ 404), or throws for transient failures (→ 500,
+// which crawlers retry instead of de-indexing the page).
 async function getForecast(slug) {
-  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000'
-  try {
-    const res = await fetch(`${base}/api/forecast?city=${encodeURIComponent(slugToQuery(slug))}`, {
-      next: { revalidate: 900 },
-    })
-    if (!res.ok) return null
-    const json = await res.json()
-    return json.error ? null : json
-  } catch {
-    return null
-  }
+  const base = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
+  const res = await fetch(`${base}/api/forecast?city=${encodeURIComponent(slugToQuery(slug))}`, {
+    next: { revalidate: 900 },
+  })
+  if (res.status === 404) return 'unknown'
+  if (!res.ok) throw new Error(`forecast api ${res.status}`)
+  const json = await res.json()
+  if (json.error) return 'unknown'
+  return json
 }
 
 export async function generateMetadata({ params }) {
@@ -45,7 +48,7 @@ export async function generateMetadata({ params }) {
 export default async function CityWeather({ params }) {
   const { city } = await params
   const data = await getForecast(city)
-  if (!data) notFound()
+  if (data === 'unknown') notFound()
 
   const name = data.city ?? displayName(city)
   const condition =
