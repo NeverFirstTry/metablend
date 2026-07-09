@@ -1,0 +1,31 @@
+name: IndexNow ping
+
+# After every deploy, tell Bing/Yandex/Seznam/Naver about all current URLs so
+# new pages (e.g. added cities) get crawled within hours instead of weeks.
+# The key is public by design — it's served from the site root and only
+# proves URL ownership; it grants no access to anything.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for the Vercel deploy to go live
+        run: sleep 120
+      - name: Submit sitemap URLs to IndexNow
+        run: |
+          KEY=0e1ef02ebe2f3ac1d30c1f30feba0c57bc7e5607e3ad5a3b
+          URLS=$(curl -fsS https://metablend.app/sitemap.xml \
+            | grep -o '<loc>[^<]*</loc>' | sed -e 's/<[^>]*>//g' | jq -R . | jq -s .)
+          COUNT=$(echo "$URLS" | jq length)
+          echo "submitting $COUNT urls"
+          jq -n --argjson urls "$URLS" --arg key "$KEY" \
+            '{host:"metablend.app", key:$key, keyLocation:("https://metablend.app/"+$key+".txt"), urlList:$urls}' \
+            > body.json
+          curl -fsS -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json; charset=utf-8" \
+            --data-binary @body.json -w "HTTP %{http_code}\n"
