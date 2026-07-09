@@ -10,7 +10,8 @@ dozen forecasts the same question, weighs each one by how accurate it's actually
 been, and gives you the blended answer — plus how confident the sources are that
 they agree.
 
-🔗 Live: https://metablend.app
+🔗 Live: https://metablend.app 
+  "For issues or support either open an issue in github or contact me using info@metablend.app"
 
 ---
 
