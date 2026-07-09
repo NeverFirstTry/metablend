@@ -53,8 +53,8 @@ export default function OpengraphImage() {
             color: '#71717a',
           }}
         >
-          <div style={{ display: 'flex' }}>10+ forecasts, weighted by accuracy</div>
-          <div style={{ display: 'flex', color: '#34d399' }}>metablend-beta.vercel.app</div>
+          <div style={{ display: 'flex' }}>16 forecasts, weighted by accuracy</div>
+          <div style={{ display: 'flex', color: '#34d399' }}>metablend.app</div>
         </div>
       </div>
     ),

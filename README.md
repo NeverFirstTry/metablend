@@ -10,7 +10,7 @@ dozen forecasts the same question, weighs each one by how accurate it's actually
 been, and gives you the blended answer — plus how confident the sources are that
 they agree.
 
-🔗 Live: https://metablend-beta.vercel.app
+🔗 Live: https://metablend.app
 
 ---
 
@@ -251,10 +251,10 @@ return `rainPct: null` instead.
 
 ## Legal
 
-- **Privacy notice** — [`/privacy`](https://metablend-beta.vercel.app/privacy):
+- **Privacy notice** — [`/privacy`](https://metablend.app/privacy):
   what data is collected (cookies, feedback, transient IP rate-limiting,
   cookieless Plausible analytics) and how it's used.
-- **Terms & data attribution** — [`/terms`](https://metablend-beta.vercel.app/terms):
+- **Terms & data attribution** — [`/terms`](https://metablend.app/terms):
   beta "as is" disclaimer and credit/licenses for the weather and map sources.
 
 ## License

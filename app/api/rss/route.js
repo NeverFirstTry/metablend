@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 
-const SITE = 'https://metablend-beta.vercel.app'
+const SITE = 'https://metablend.app'
 
 function escapeXml(s = '') {
   return String(s)

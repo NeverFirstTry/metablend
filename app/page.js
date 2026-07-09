@@ -565,7 +565,7 @@ export default function Home() {
   async function shareForecast() {
     if (!data) return
     const condition = data.sources?.find(s => s.apiId === 'open-meteo')?.condition ?? data.sources?.[0]?.condition ?? ''
-    const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend-beta.vercel.app`
+    const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend.app`
     if (navigator.share) {
       try { await navigator.share({ title: 'MetaBlend', text }); return } catch { /* cancelled → fall through */ }
     }
@@ -579,7 +579,7 @@ export default function Home() {
 
   async function copyEmbed() {
     if (!data) return
-    const src = `https://metablend-beta.vercel.app/widget/${encodeURIComponent(data.city)}`
+    const src = `https://metablend.app/widget/${encodeURIComponent(data.city)}`
     const code = `<iframe src="${src}" width="300" height="200" frameborder="0" title="MetaBlend ${data.city}"></iframe>`
     try {
       await navigator.clipboard.writeText(code)
@@ -980,7 +980,7 @@ export default function Home() {
                     />
                   </div>
                   <code className="block text-xs text-emerald-300 break-all mb-2">
-                    {`<iframe src="https://metablend-beta.vercel.app/widget/${encodeURIComponent(data.city)}" width="300" height="200" frameborder="0"></iframe>`}
+                    {`<iframe src="https://metablend.app/widget/${encodeURIComponent(data.city)}" width="300" height="200" frameborder="0"></iframe>`}
                   </code>
                   <button
                     onClick={copyEmbed}
