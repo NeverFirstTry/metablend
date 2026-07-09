@@ -8,11 +8,11 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 // SEO: metablend.app is the declared canonical (both domains serve the site;
 // the canonical consolidates ranking signals onto the branded one). Metadata
 // is English — the SSR shell and default UI language are English.
+// Kept under 160 chars — Bing flags longer meta descriptions as an SEO error,
+// which counts against new domains in its indexing-quality checks.
 const DESCRIPTION =
-  'Free weather app that blends 16 forecast sources — ECMWF, GFS, ICON, ' +
-  'Open-Meteo, MET Norway, NWS and more — into one weighted consensus. ' +
-  'Rain radar, 7-day forecast, UV and air quality, and a self-learning ' +
-  'local forecast that gets sharper with every report.'
+  'Free weather app blending 16 forecast sources — ECMWF, GFS, ICON and more — ' +
+  'into one consensus that learns which source to trust in your city.'
 
 export const metadata = {
   metadataBase: new URL('https://metablend.app'),

@@ -7,9 +7,8 @@ import Footer from '../components/Footer'
 export const metadata = {
   title: 'City Weather — Consensus Forecasts for 50+ Cities',
   description:
-    'Consensus weather forecasts for major cities worldwide, blended from 16 weather ' +
-    'services and weighted by measured accuracy: current conditions, rain probability ' +
-    'and 7-day outlooks.',
+    'Consensus forecasts for 54 cities worldwide, blended from 16 weather sources: ' +
+    'current conditions, rain probability and 7-day outlook.',
   alternates: { canonical: '/weather' },
 }
 

@@ -38,9 +38,8 @@ export async function generateMetadata({ params }) {
   return {
     title: `${name} Weather — 16-Source Consensus Forecast`,
     description:
-      `Live consensus weather for ${name}: current temperature, rain probability, wind and ` +
-      `a 7-day forecast blended from 16 weather services (ECMWF, GFS, ICON, Open-Meteo and more), ` +
-      `weighted by real measured accuracy.`,
+      `${name} weather from 16 blended sources: current temperature, rain probability, ` +
+      `wind and a 7-day consensus forecast, weighted by measured accuracy.`,
     alternates: { canonical: `/weather/${city}` },
   }
 }

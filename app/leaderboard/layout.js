@@ -2,9 +2,8 @@
 export const metadata = {
   title: 'Weather API Leaderboard — Which Forecast Is Most Accurate?',
   description:
-    'Live accuracy rankings of 16 weather sources per region — ECMWF, GFS, ICON, ' +
-    'Open-Meteo, MET Norway and more — scored hourly against real station ' +
-    'observations and community reports.',
+    'Which weather source is most accurate? Live per-region rankings of 16 ' +
+    'providers, scored hourly against real station observations.',
   alternates: { canonical: '/leaderboard' },
 }
 
