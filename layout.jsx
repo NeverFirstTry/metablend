@@ -1,17 +1,21 @@
 import Script from 'next/script'
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export default function RootLayout({ children }) {
   return (
     <html lang="de">
       <head>
-        {/* Plausible Analytics hier einfügen */}
+        <title>Next.js</title>
         <Script
           defer
           data-domain="metablend.app"
           src="https://plausible.io"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SpeedInsights />
+      </body>
     </html>
   )
 }
