@@ -17,6 +17,6 @@ jobs:
     steps:
       - name: Trigger station calibration
         run: |
-          curl -fsS "https://metablend-beta.vercel.app/api/station-calibrate" \
+          curl -fsSL "https://metablend.app/api/station-calibrate" \
             -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
             --max-time 300

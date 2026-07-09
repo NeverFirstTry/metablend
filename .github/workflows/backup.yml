@@ -17,7 +17,7 @@ jobs:
     steps:
       - name: Export learned state
         run: |
-          curl -fsS "https://metablend-beta.vercel.app/api/backup" \
+          curl -fsSL "https://metablend.app/api/backup" \
             -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
             --max-time 120 -o "metablend-backup.json"
           python3 -c "import json;d=json.load(open('metablend-backup.json'));print({k:(len(v) if isinstance(v,list) else v) for k,v in d['tables'].items()})"
