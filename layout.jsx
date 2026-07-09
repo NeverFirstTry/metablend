@@ -8,7 +8,7 @@ export default function RootLayout({ children }) {
         <title>Next.js</title>
         <Script
           defer
-          data-domain="metablend.app"
+          data-domain="https://metablend.app/"
           src="https://plausible.io"
         />
       </head>
