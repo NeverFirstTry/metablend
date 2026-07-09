@@ -5,7 +5,7 @@ import { isAuthorizedJob } from '@/lib/auth'
 
 // 50 cities × (one Visual Crossing fetch + weight round-trips) runs well past
 // the default serverless limit — give the cron room to finish.
-export const maxDuration = 60
+export const maxDuration = 300
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50

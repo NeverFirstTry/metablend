@@ -12,8 +12,10 @@ import { withErrorLog } from '@/lib/log'
 // Replaced Weather Underground PWS, which required a key we never had, so the
 // hourly calibration had been silently skipping since launch.
 
-// Up to 15 cities × 1 bbox lookup each — needs more than the default.
-export const maxDuration = 60
+// METARs are prefetched in parallel and weights persist as one batch upsert,
+// but 15 cities of DB work still outgrow the default limit (a run 504ed once
+// traffic picked up) — give it real headroom.
+export const maxDuration = 300
 
 const RADIUS_KM = 60           // METAR stations (airports) are sparser than PWS
 const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour
@@ -91,9 +93,13 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   const results = []
   let calibrated = 0
 
-  for (const { city, lat, lon, region } of cities) {
-    // 1. Fresh METARs near the city → 2. median = ground truth
-    const { temps, winds } = await metarObs(lat, lon)
+  // The slow network part runs in parallel up front; the DB scoring below
+  // stays serial on purpose — cities in the same region touch the same weight
+  // rows, and concurrent read-modify-writes would drop deltas.
+  const observations = await Promise.all(cities.map(c => metarObs(c.lat, c.lon)))
+
+  for (const [i, { city, lat, lon, region }] of cities.entries()) {
+    const { temps, winds } = observations[i]
     if (!temps.length) { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
     const actualTemp = median(temps)
     const actualWind = winds.length ? median(winds) : null
