@@ -28,6 +28,7 @@ export default function Footer({ lang = 'en', className = '' }) {
             <GithubIcon size={14} /> {t(lang, 'footerSource')}
           </a>
           <Link href="/weather" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerCities')}</Link>
+          <Link href="/aviation" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerAviation')}</Link>
           <a href="mailto:info@metablend.app" className="hover:text-emerald-400 transition-colors">info@metablend.app</a>
           <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPrivacy')}</Link>
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>

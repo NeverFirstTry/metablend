@@ -15,6 +15,13 @@ export default function sitemap() {
     { url: `${BASE}/heatmap`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
     { url: `${BASE}/privacy`, lastModified: legalUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/terms`, lastModified: legalUpdated, changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${BASE}/aviation`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    ...['loww', 'lowi', 'lows', 'eddm', 'eddf', 'egll', 'lfpg', 'eham', 'lirf', 'lszh', 'kjfk', 'klax', 'kord', 'rjtt', 'yssy', 'omdb'].map(icao => ({
+      url: `${BASE}/aviation/${icao}`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.6,
+    })),
     ...CITIES.map(c => ({
       url: `${BASE}/weather/${c.slug}`,
       lastModified: now,
