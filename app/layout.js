@@ -106,11 +106,9 @@ export default function RootLayout({ children }) {
           }}
         />
         {children}
-        {/* Comma-separated: events count for both dashboards, so analytics on
-            the canonical domain aren't lost (add metablend.app in Plausible). */}
         <Script
           defer
-          data-domain="metablend-beta.vercel.app,metablend.app"
+          data-domain="metablend.app"
           src="https://plausible.io/js/script.js"
         />
       </body>
