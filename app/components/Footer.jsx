@@ -29,13 +29,16 @@ export default function Footer({ lang = 'en', className = '' }) {
           </a>
           <Link href="/weather" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerCities')}</Link>
           <Link href="/aviation" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerAviation')}</Link>
-          <a href="mailto:info@metablend.app" className="hover:text-emerald-400 transition-colors">info@metablend.app</a>
           <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPrivacy')}</Link>
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
         </div>
         <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
       </div>
       <p className="mt-3 text-zinc-500 leading-relaxed">{t(lang, 'footerData')}</p>
+      <p className="mt-2 text-zinc-500">
+        {t(lang, 'footerContact')}:{' '}
+        <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400 transition-colors">info@metablend.app</a>
+      </p>
     </footer>
   )
 }

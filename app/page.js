@@ -8,7 +8,7 @@ import {
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Wind, Droplets, Gauge, Eye, CloudFog, Snowflake,
   Thermometer, Sun, Moon, Flower2, CloudRain, Clock, TrendingUp, Layers,
-  Sparkles, Copy, Sunrise, Sunset, Globe,
+  Sparkles, Copy, Sunrise, Sunset, Globe, Plane,
 } from 'lucide-react'
 import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
 import RainRadar from './components/RainRadar'
@@ -693,6 +693,9 @@ export default function Home() {
             </Link>
             <Link href="/planner" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
               <CalendarDays size={13} aria-hidden /> {t(lang, 'planner')}
+            </Link>
+            <Link href="/aviation" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
+              <Plane size={13} aria-hidden /> {t(lang, 'aviation')}
             </Link>
             {installPrompt && (
               <button
