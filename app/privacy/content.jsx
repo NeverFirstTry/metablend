@@ -39,7 +39,7 @@ const CONTENT = {
       </> },
       { title: 'How long we keep it', body: <>Stored forecasts and internal bookkeeping rows are automatically deleted by a daily cleanup job (typically within about 48 hours). Community feedback reports are kept for as long as they power the public accuracy heatmap and the long-term source rankings — or until you ask us to remove them (see below). Aggregate accuracy weights are anonymous and kept indefinitely.</> },
       { title: 'Your choices', body: <>You can use the app without sharing your location, clear your locally stored preferences anytime, and request removal of feedback data by opening an issue on our <A href={ISSUES}>GitHub repository</A>.</> },
-      { title: 'Contact', body: <>Questions about privacy? Open an issue at <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. As MetaBlend evolves, this notice may change; the “last updated” date above will always reflect the current version.</> },
+      { title: 'Contact', body: <>Questions about privacy? Email <A href="mailto:info@metablend.app">info@metablend.app</A> or open an issue at <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. As MetaBlend evolves, this notice may change; the “last updated” date above will always reflect the current version.</> },
     ],
   },
 
@@ -65,7 +65,7 @@ const CONTENT = {
       </> },
       { title: 'Wie lange wir Daten aufbewahren', body: <>Gespeicherte Vorhersagen und interne Verwaltungseinträge werden von einem täglichen Aufräumjob automatisch gelöscht (in der Regel innerhalb von etwa 48 Stunden). Community-Feedback bleibt länger erhalten — es speist die öffentliche Heatmap und die langfristigen Ranglisten — bis du um Löschung bittest (siehe unten). Aggregierte Genauigkeitsgewichte sind anonym und werden unbegrenzt aufbewahrt.</> },
       { title: 'Deine Möglichkeiten', body: <>Du kannst die App ohne Standortfreigabe nutzen, deine lokal gespeicherten Einstellungen jederzeit löschen und die Entfernung von Feedback-Daten über ein Issue in unserem <A href={ISSUES}>GitHub-Repository</A> beantragen.</> },
-      { title: 'Kontakt', body: <>Fragen zum Datenschutz? Öffne ein Issue unter <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend entwickelt sich weiter; das Datum „zuletzt aktualisiert“ oben zeigt immer die aktuelle Fassung.</> },
+      { title: 'Kontakt', body: <>Fragen zum Datenschutz? Schreib an <A href="mailto:info@metablend.app">info@metablend.app</A> oder öffne ein Issue unter <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend entwickelt sich weiter; das Datum „zuletzt aktualisiert“ oben zeigt immer die aktuelle Fassung.</> },
     ],
   },
 
@@ -91,7 +91,7 @@ const CONTENT = {
       </> },
       { title: 'Durée de conservation', body: <>Les prévisions stockées et les entrées internes de gestion sont supprimées automatiquement par un nettoyage quotidien (généralement sous 48 heures environ). Les signalements de la communauté sont conservés plus longtemps — ils alimentent la carte de précision publique et les classements à long terme — ou jusqu’à ce que vous en demandiez la suppression (voir ci-dessous). Les pondérations agrégées de précision sont anonymes et conservées indéfiniment.</> },
       { title: 'Vos choix', body: <>Vous pouvez utiliser l’application sans partager votre position, effacer vos préférences locales à tout moment et demander la suppression de vos signalements en ouvrant un ticket sur notre <A href={ISSUES}>dépôt GitHub</A>.</> },
-      { title: 'Contact', body: <>Des questions sur la confidentialité ? Ouvrez un ticket sur <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend évolue ; la date de « dernière mise à jour » ci-dessus reflète toujours la version en vigueur.</> },
+      { title: 'Contact', body: <>Des questions sur la confidentialité ? Écrivez à <A href="mailto:info@metablend.app">info@metablend.app</A> ou ouvrez un ticket sur <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend évolue ; la date de « dernière mise à jour » ci-dessus reflète toujours la version en vigueur.</> },
     ],
   },
 
@@ -117,7 +117,7 @@ const CONTENT = {
       </> },
       { title: 'Cuánto tiempo lo conservamos', body: <>Las previsiones almacenadas y los registros internos se eliminan automáticamente con una limpieza diaria (normalmente en unas 48 horas). Los informes de la comunidad se conservan más tiempo — alimentan el mapa público de precisión y las clasificaciones a largo plazo — o hasta que pidas que los eliminemos (ver abajo). Las ponderaciones agregadas de precisión son anónimas y se conservan indefinidamente.</> },
       { title: 'Tus opciones', body: <>Puedes usar la app sin compartir tu ubicación, borrar tus preferencias locales cuando quieras y solicitar la eliminación de tus datos de feedback abriendo una incidencia en nuestro <A href={ISSUES}>repositorio de GitHub</A>.</> },
-      { title: 'Contacto', body: <>¿Preguntas sobre privacidad? Abre una incidencia en <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend sigue evolucionando; la fecha de «última actualización» de arriba refleja siempre la versión vigente.</> },
+      { title: 'Contacto', body: <>¿Preguntas sobre privacidad? Escribe a <A href="mailto:info@metablend.app">info@metablend.app</A> o abre una incidencia en <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend sigue evolucionando; la fecha de «última actualización» de arriba refleja siempre la versión vigente.</> },
     ],
   },
 
@@ -143,7 +143,7 @@ const CONTENT = {
       </> },
       { title: 'Per quanto tempo li conserviamo', body: <>Le previsioni salvate e le righe interne di gestione vengono eliminate automaticamente da una pulizia giornaliera (di norma entro circa 48 ore). Le segnalazioni della community restano più a lungo — alimentano la mappa pubblica della precisione e le classifiche a lungo termine — o finché non ne chiedi la rimozione (vedi sotto). I pesi aggregati di precisione sono anonimi e conservati a tempo indeterminato.</> },
       { title: 'Le tue scelte', body: <>Puoi usare l’app senza condividere la posizione, cancellare le preferenze locali in qualsiasi momento e chiedere la rimozione dei tuoi dati di feedback aprendo una issue sul nostro <A href={ISSUES}>repository GitHub</A>.</> },
-      { title: 'Contatti', body: <>Domande sulla privacy? Apri una issue su <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend continua a evolvere; la data di «ultimo aggiornamento» in alto riflette sempre la versione corrente.</> },
+      { title: 'Contatti', body: <>Domande sulla privacy? Scrivi a <A href="mailto:info@metablend.app">info@metablend.app</A> o apri una issue su <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend continua a evolvere; la data di «ultimo aggiornamento» in alto riflette sempre la versione corrente.</> },
     ],
   },
 }
