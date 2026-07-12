@@ -15,6 +15,7 @@ import RainRadar from './components/RainRadar'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
 import CountUp from './components/CountUp'
+import SourceSpread from './components/SourceSpread'
 
 // ── Offline forecast cache (localStorage, per city) ───────────────────────────
 function cacheForecast(city, json) {
@@ -1054,6 +1055,14 @@ export default function Home() {
                   </div>
                 </div>
               </div>
+              <SourceSpread
+                sources={data.sources}
+                consensusC={data.consensus.temp}
+                unit={unit}
+                title={t(lang, 'spreadTitle')}
+                hint={t(lang, 'spreadHint')}
+              />
+
               {/* Extra metrics: UV, air quality, pollen */}
               {data.extras && (data.extras.uvIndex != null || data.extras.aqi != null || data.extras.pollen != null) && (
                 <div className="border-t border-zinc-800 pt-4 mb-4 flex flex-wrap gap-3">
