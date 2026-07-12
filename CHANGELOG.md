@@ -3,6 +3,68 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-07-12
+
+### Verified
+- **Aviation math audited against independent references.** On live METARs for
+  LOWI, LOWW, EDDM, EGLL, KJFK and KLAX: flight-rules classification matches
+  aviationweather.gov's own category everywhere and the NWS boundary table on
+  all 12 edge cases; runway wind components match an independent vector-math
+  implementation on every runway end, with the from-left/from-right sign
+  convention proven by known-answer cases; pressure altitude is within 3 ft of
+  the FAA formula. Density altitude reads 15–112 ft *above* the exact ISA
+  dry-air value on the test fields — conservative in the safe direction; the
+  page already labels it an approximation and defers to POH charts. The red
+  "not for flight planning" disclaimer renders unconditionally in the page
+  component and was confirmed live on all 16 sitemap airports.
+- Terms now call out the Aviation pages explicitly in the safety-critical
+  clause (all 5 languages) and credit OurAirports in the attribution list.
+
+## 2026-07-11
+
+### Added — MetaBlend Aviation
+- **`/aviation` hub with ICAO search and `/aviation/<icao>` airport pages**:
+  decoded METAR and TAF, flight-rules badge (VFR/MVFR/IFR/LIFR), head/cross
+  wind components for every runway end (best headwind starred), pressure and
+  density altitude — NOAA Aviation Weather Center data plus OurAirports
+  runway data, 12,118 ICAO airports bundled at build time. Supplementary
+  information only; a "not for flight planning" disclaimer sits on every
+  page. Linked from the header nav (5 languages) and the footer.
+
+### Added
+- New app icon (cloud + sun in brand emerald), rasterized from an SVG source
+  into all favicon/PWA sizes.
+- Contact address info@metablend.app in the footer and the privacy notice
+  (all 5 languages).
+
+### Fixed
+- **Batch weight upsert violated the live NOT NULL constraint on `name`** —
+  every batch since the 07-09 speedup had silently fallen back to the slow
+  per-row path (the error-log tripwire added on 07-09 caught exactly this,
+  194 entries). Batch rows now carry the name column; verified clean in
+  production.
+- Plausible reports to the single canonical domain now that metablend.app
+  exists in the dashboard.
+
+## 2026-07-09
+
+### SEO
+- **metablend.app is the canonical domain everywhere** — share text, embed
+  widget, RSS feed, OG image, README and the GitHub workflows (redirect-safe
+  `curl -L`, so flipping Vercel's primary-domain redirect can't break crons).
+- **IndexNow ping on every deploy** (GitHub Action + public key file) for
+  instant Bing/Yandex indexing; honest sitemap `lastModified` for static
+  pages.
+- All meta descriptions trimmed under Bing's 160-character limit — URL
+  inspection flagged them as Errors, which counts against indexing a new
+  domain.
+
+### Fixed
+- **Hourly station calibration no longer 504s**: weight upserts batched (17
+  round-trips → 1), METAR ground truth prefetched in parallel across cities,
+  `maxDuration 300` on the calibration routes. Batch failures now log to
+  `error_log` instead of silently degrading.
+
 ## 2026-07-07
 
 ### Added — per-city pages

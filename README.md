@@ -109,6 +109,12 @@ export contains nothing that isn't already public via the app's own endpoints.
 - **Favorite & recent cities** for one-tap access
 - **Server-rendered city pages** (`/weather/vienna`, …) — crawlable consensus
   forecasts for 54 cities, ISR-cached; any city works on demand
+- **MetaBlend Aviation** (`/aviation`) — decoded METAR & TAF, flight-rules
+  badge, per-runway crosswind components and density altitude for 12,000+
+  ICAO airports (NOAA AWC + OurAirports data). Supplementary information
+  only — every page carries a "not for flight planning" disclaimer. The
+  flight-rules, wind-component and altitude math is verified against NOAA's
+  own classification and FAA reference formulas
 - **Travel planner** — best months to visit, from 10 years of climate data
 - **15-minute response caching** to keep the upstream APIs happy
 - **Offline mode** (PWA + service worker) showing your last known forecast
@@ -149,7 +155,11 @@ export contains nothing that isn't already public via the app's own endpoints.
 | [World Weather Online](https://www.worldweatheronline.com) | yes | |
 | [Weatherstack](https://weatherstack.com) | yes | |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
-| [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration only |
+| [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration; also powers the `/aviation` METAR/TAF pages |
+
+Airport and runway data for the Aviation pages comes from
+[OurAirports](https://ourairports.com) (public domain), trimmed to
+ICAO-coded fields at build time (`lib/airports.json`).
 
 Sources without a configured key are simply skipped — the app still works with
 just the keyless ones.
