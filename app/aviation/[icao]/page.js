@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import Footer from '../../components/Footer'
 import {
@@ -100,13 +101,18 @@ export default async function AirportPage({ params }) {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
-        <nav className="text-zinc-500 text-xs mb-6 flex gap-2">
-          <Link href="/" className="hover:text-emerald-400">MetaBlend</Link>
-          <span>/</span>
-          <Link href="/aviation" className="hover:text-emerald-400">Aviation</Link>
-          <span>/</span>
-          <span className="text-zinc-400">{ap.icao}</span>
-        </nav>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/aviation" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
+            <ArrowLeft size={15} aria-hidden /> Back
+          </Link>
+          <nav className="text-zinc-500 text-xs flex gap-2">
+            <Link href="/" className="hover:text-emerald-400">MetaBlend</Link>
+            <span>/</span>
+            <Link href="/aviation" className="hover:text-emerald-400">Aviation</Link>
+            <span>/</span>
+            <span className="text-zinc-400">{ap.icao}</span>
+          </nav>
+        </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-1">
           <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">

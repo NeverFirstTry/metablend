@@ -29,9 +29,12 @@ export default function SourceSpread({ sources, consensusC, unit = 'C', title, h
     return { ...p, px, lane: Math.min(lane, 3) }
   })
 
-  // recessive guides on even °C values
+  // recessive guides on even °C values; skip the outermost positions so
+  // centered labels can't clip at the container edges
   const ticks = []
-  for (let tc = Math.ceil(lo / 2) * 2; tc <= lo + 2 * half; tc += 2) ticks.push(tc)
+  for (let tc = Math.ceil(lo / 2) * 2; tc <= lo + 2 * half; tc += 2) {
+    if (x(tc) >= 4 && x(tc) <= 96) ticks.push(tc)
+  }
 
   return (
     <div className="mt-6 mb-5">

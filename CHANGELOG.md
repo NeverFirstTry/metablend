@@ -26,6 +26,20 @@ All notable changes to MetaBlend. Format loosely follows
   TEMPO overlays count for weather but not for category, and unknown values
   never count as divergence.
 
+### Added — Design
+- **Source-spread strip in the hero**: every reporting source as a dot on a
+  temperature scale centered on the consensus (minimum ±4 °C, so a tight
+  cluster actually looks tight), colliding dots stacking into lanes, the
+  MetaBlend value as the only accent-colored mark. The one-glance version of
+  what the product does; per-dot tooltips, source cards below stay the
+  detail view. All 5 languages.
+- **Live flight-category board on /aviation**: 30 airports in three regional
+  groups as chips colored by their current VFR/MVFR/IFR/LIFR category (one
+  batched METAR call, 10-minute revalidation, same no-guessing category gate
+  as the airport pages — unclassifiable METARs show "–").
+- Back buttons on the aviation hub and airport pages, matching the other
+  subpages.
+
 ### Added
 - **Landing-page explainer**: "What is consensus forecasting?" in plain
   language above the footer, in all 5 languages — the first real prose on
