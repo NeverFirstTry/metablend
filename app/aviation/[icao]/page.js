@@ -2,10 +2,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import Footer from '../../components/Footer'
 import {
-  getAirport, fetchMetar, fetchTaf, parseVisibility, ceilingFt,
+  getAirport, fetchMetar, fetchTaf, parseVisibility,
   flightRules, RULES_COLOR, densityAltitude, windComponents,
 } from '@/lib/aviation'
-import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear } from '@/lib/metar'
+import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear, skyInfo, reportFlags } from '@/lib/metar'
 
 export const revalidate = 600
 
@@ -33,10 +33,17 @@ export default async function AirportPage({ params }) {
   const [metar, taf] = await Promise.all([fetchMetar(ap.icao), fetchTaf(ap.icao)])
 
   const visSM = metar ? parseVisibility(metar.visib) : null
-  const ceil = metar ? ceilingFt(metar.clouds) : null
-  const rules = metar ? flightRules(visSM, ceil) : null
+  const sky = skyInfo(metar?.clouds)
+  const ceil = sky.ceilingFt
+  // Only claim a flight category when its inputs were actually reported.
+  // Unreported visibility or a ceiling-forming layer without a height
+  // (VV///, BKN///) must fail visibly, not silently read as VFR.
+  const rulesKnown = !!metar && visSM != null && sky.known && !sky.unknownBase
+  const rules = rulesKnown ? flightRules(visSM, ceil) : null
+  const flags = metar ? reportFlags(metar.rawOb) : []
   const da = metar ? densityAltitude(ap.elevFt, metar.temp, metar.altim) : null
   const windOk = metar && typeof metar.wdir === 'number' && typeof metar.wspd === 'number'
+  const windVariable = metar && !windOk && typeof metar.wspd === 'number' && metar.wspd > 0
 
   // Significant weather (thunderstorms, freezing precip, hail …) drives
   // dispatch decisions — surface it from both the current METAR and every
@@ -89,6 +96,16 @@ export default async function AirportPage({ params }) {
               {rules}
             </span>
           )}
+          {metar && !rulesKnown && (
+            <span className="text-xs font-bold tracking-widest border border-zinc-600 text-zinc-400 rounded px-2 py-1">
+              CAT N/A
+            </span>
+          )}
+          {flags.map(f => (
+            <span key={f} className="text-[10px] tracking-widest border border-zinc-700 text-zinc-400 rounded px-1.5 py-0.5">
+              {f}
+            </span>
+          ))}
         </div>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           {ap.municipality ? `${ap.municipality} · ` : ''}{ap.country}
@@ -135,11 +152,24 @@ export default async function AirportPage({ params }) {
                   <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Ceiling</div>
                   <div
                     className="text-2xl sm:text-3xl font-bold tabular-nums"
-                    style={{ color: RULES_COLOR[ceilingCategory(ceil) ?? 'VFR'] }}
+                    style={{
+                      color: ceil != null ? RULES_COLOR[ceilingCategory(ceil)]
+                        : sky.obscured ? RULES_COLOR.LIFR
+                        : sky.unknownBase || !sky.known ? '#a1a1aa'
+                        : RULES_COLOR.VFR,
+                    }}
                   >
-                    {ceil != null ? `${ceil.toLocaleString('en')} ft` : 'No ceiling'}
+                    {ceil != null ? `${ceil.toLocaleString('en')} ft`
+                      : sky.obscured ? 'Obscured'
+                      : sky.unknownBase ? 'Not reported'
+                      : sky.known ? 'No ceiling' : '–'}
                   </div>
-                  <div className="text-zinc-500 text-xs mt-1">lowest BKN/OVC layer AGL</div>
+                  <div className="text-zinc-500 text-xs mt-1">
+                    {sky.obscured ? 'sky obscured, vertical visibility not reported'
+                      : sky.unknownBase && ceil == null ? 'cloud layer height missing from report'
+                      : !sky.known ? 'no sky data in report'
+                      : 'lowest BKN/OVC layer AGL'}
+                  </div>
                 </div>
                 <div>
                   <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Visibility</div>
@@ -156,6 +186,15 @@ export default async function AirportPage({ params }) {
                   )}
                 </div>
               </div>
+              {!rulesKnown && (
+                <p className="text-amber-200/90 text-xs mb-5">
+                  Flight category not determined — {[
+                    visSM == null && 'visibility not reported',
+                    !sky.known && 'no sky data in report',
+                    sky.known && sky.unknownBase && 'cloud height not reported',
+                  ].filter(Boolean).join(', ')}. The raw report below is authoritative.
+                </p>
+              )}
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm mb-5">
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Weather</dt>
                   <dd className="font-bold" style={metarSig.length ? { color: metarSig.some(s => s.severity === 'severe') ? 'var(--bad)' : 'var(--warn)' } : undefined}>
@@ -224,6 +263,17 @@ export default async function AirportPage({ params }) {
           </section>
         )}
 
+        {windVariable && (
+          <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+            <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-3">Runway wind components</h2>
+            <p className="text-sm text-zinc-300">
+              Wind direction is variable ({typeof metar.wdir === 'string' ? metar.wdir : 'VRB'}) at {metar.wspd} kt
+              {metar.wgst ? `, gusting ${metar.wgst} kt` : ''} — per-runway components cannot be computed.
+              With no fixed direction, any runway may see the full {metar.wgst ?? metar.wspd} kt as crosswind.
+            </p>
+          </section>
+        )}
+
         {/* Density altitude */}
         {da && (
           <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
@@ -265,7 +315,7 @@ export default async function AirportPage({ params }) {
                         )}
                         {ws && <span className="font-bold" style={{ color: 'var(--bad)' }}>{ws.label}</span>}
                         {Array.isArray(f.clouds) && f.clouds.length > 0 && (
-                          <span className="text-zinc-400">{f.clouds.map(c => `${c.cover}${c.base ? c.base / 100 : ''}`.trim()).join(' ')}</span>
+                          <span className="text-zinc-400">{f.clouds.map(c => `${c.cover}${typeof c.base === 'number' ? String(Math.round(c.base / 100)).padStart(3, '0') : ''}`.trim()).join(' ')}</span>
                         )}
                       </div>
                     )
