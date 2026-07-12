@@ -1261,7 +1261,8 @@ export default function Home() {
                 <Layers size={14} aria-hidden /> {t(lang, 'sourcesTitle')}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {data.sources.map(src => {
+                {/* house model first — the API appends it last */}
+                {[...data.sources].sort((a, b) => (b.apiId === 'metablend') - (a.apiId === 'metablend')).map(src => {
                   const weight = data.weights[src.apiId] ?? 0.25
 
                   // Down source — failed / timed out
@@ -1279,11 +1280,21 @@ export default function Home() {
 
                   const diff = Math.abs(src.temp - data.consensus.temp)
                   const diffColor = diff <= 1 ? 'text-emerald-400' : diff <= 2.5 ? 'text-yellow-400' : 'text-red-400'
+                  // MetaBlend Local is the house model — the one card that IS the product
+                  const isLocal = src.apiId === 'metablend'
                   return (
-                    <div key={src.apiId} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                    <div
+                      key={src.apiId}
+                      className={`bg-zinc-900 border rounded-xl p-5 ${isLocal ? 'border-emerald-400/40 shadow-[0_0_24px_-8px] shadow-emerald-400/20' : 'border-zinc-800'}`}
+                    >
                       <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-bold">{src.displayName ?? src.apiId}</span>
+                          {isLocal && (
+                            <span className="text-[10px] bg-emerald-400/15 text-emerald-400 border border-emerald-400/30 rounded px-1.5 py-0.5 tracking-wider">
+                              {t(lang, 'localBadge')}
+                            </span>
+                          )}
                           {src.responseMs != null && (
                             <span className="text-[10px] bg-zinc-800 text-zinc-400 rounded px-1.5 py-0.5">{src.responseMs}ms</span>
                           )}
