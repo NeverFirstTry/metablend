@@ -17,6 +17,15 @@ All notable changes to MetaBlend. Format loosely follows
   page already labels it an approximation and defers to POH charts. The red
   "not for flight planning" disclaimer renders unconditionally in the page
   component and was confirmed live on all 16 sitemap airports.
+- **MetaBlend Local verified against an independent ground truth.** Meteostat
+  hourly observations (which feed nothing in the current calibration — it's
+  only the cleanup fallback and Visual Crossing is configured) scored ~1,000
+  stored forecasts across 10 cities / 3 days: MetaBlend Local ranks #2 of 14
+  sources on overall MAE (0.91 °C) and beats 12 of 13 raw sources on strictly
+  paired samples (edges +0.01 to +0.48 °C per forecast); only the
+  Germany-only Bright Sky is marginally ahead (−0.07 °C, n=29). Early data —
+  one weather regime, European summer — but the leaderboard position is not
+  an artifact of scoring against its own training signal.
 - Terms now call out the Aviation pages explicitly in the safety-critical
   clause (all 5 languages) and credit OurAirports in the attribution list.
 
