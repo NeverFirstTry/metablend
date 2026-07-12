@@ -5,7 +5,7 @@ import {
   getAirport, fetchMetar, fetchTaf, parseVisibility,
   flightRules, RULES_COLOR, densityAltitude, windComponents,
 } from '@/lib/aviation'
-import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear, skyInfo, reportFlags } from '@/lib/metar'
+import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear, skyInfo, reportFlags, activeTafPeriod, tafDivergence } from '@/lib/metar'
 
 export const revalidate = 600
 
@@ -61,6 +61,30 @@ export default async function AirportPage({ params }) {
   ]
   const hasSevere = alerts.some(a => a.severity === 'severe')
   const rvr = metar ? parseRvr(metar.rawOb) : [] // measured only — never forecast
+
+  // Live TAF-vs-METAR divergence for the period valid right now. Weather
+  // compares against base+TEMPO (TEMPO exists to carry showers/TS), while
+  // vis/ceiling use the base line only so TEMPO fluctuations don't spam it.
+  // Only runs when the METAR's own inputs were fully reported.
+  const { base: tafNow, tempo: tafTempo } = activeTafPeriod(taf?.fcsts, Date.now() / 1000)
+  const noVic = l => l.replace(' (vicinity)', '')
+  let divergence = []
+  if (rulesKnown && tafNow) {
+    const tafSky = skyInfo(tafNow.clouds)
+    const tafVis = parseVisibility(tafNow.visib)
+    divergence = tafDivergence(
+      {
+        visCat: visCategory(visSM),
+        ceilCat: ceilingCategory(ceil) ?? 'VFR',
+        sig: metarSig.map(s => noVic(s.label)),
+      },
+      {
+        visCat: tafVis != null ? visCategory(tafVis) : null,
+        ceilCat: tafSky.known && !tafSky.unknownBase ? (ceilingCategory(tafSky.ceilingFt) ?? 'VFR') : null,
+        sig: [...sigWeather(tafNow.wxString), ...sigWeather(tafTempo?.wxString)].map(s => noVic(s.label)),
+      },
+    )
+  }
 
   // every runway end, best headwind first
   const ends = windOk
@@ -224,6 +248,44 @@ export default async function AirportPage({ params }) {
             <p className="text-zinc-500 text-sm">No METAR available — this field may not report weather.</p>
           )}
         </section>
+
+        {/* Live TAF-vs-METAR divergence: is the forecast holding up right now? */}
+        {divergence.length > 0 && (
+          <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+            <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">TAF vs METAR — right now</h2>
+            <ul className="space-y-2 text-sm">
+              {divergence.map((d, i) => (
+                <li key={i} className="flex flex-wrap gap-x-2 items-baseline">
+                  {d.field === 'weather' ? (
+                    d.metar ? (
+                      <>
+                        <span className="font-bold" style={{ color: 'var(--bad)' }}>{d.metar}</span>
+                        <span className="text-zinc-400">reported now, not in the TAF for this hour</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-bold" style={{ color: 'var(--warn)' }}>{d.taf}</span>
+                        <span className="text-zinc-400">in the TAF for this hour, not currently observed</span>
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <span className="text-zinc-400 capitalize">{d.field}:</span>
+                      <span className="font-bold" style={{ color: RULES_COLOR[d.metar] }}>METAR {d.metar}</span>
+                      <span className="text-zinc-500">vs</span>
+                      <span className="font-bold" style={{ color: RULES_COLOR[d.taf] }}>TAF {d.taf}</span>
+                      <span className="text-zinc-400">— conditions {d.tafOptimistic ? 'worse' : 'better'} than forecast</span>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+            <p className="text-zinc-500 text-xs mt-3">
+              Category-level comparison of the latest METAR against the TAF period valid now
+              {tafTempo ? ' (TEMPO overlay included for weather)' : ''}.
+            </p>
+          </section>
+        )}
 
         {/* Crosswind */}
         {ends.length > 0 && (
