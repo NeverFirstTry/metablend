@@ -5,6 +5,7 @@ import {
   getAirport, fetchMetar, fetchTaf, parseVisibility, ceilingFt,
   flightRules, RULES_COLOR, densityAltitude, windComponents,
 } from '@/lib/aviation'
+import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear } from '@/lib/metar'
 
 export const revalidate = 600
 
@@ -36,6 +37,23 @@ export default async function AirportPage({ params }) {
   const rules = metar ? flightRules(visSM, ceil) : null
   const da = metar ? densityAltitude(ap.elevFt, metar.temp, metar.altim) : null
   const windOk = metar && typeof metar.wdir === 'number' && typeof metar.wspd === 'number'
+
+  // Significant weather (thunderstorms, freezing precip, hail …) drives
+  // dispatch decisions — surface it from both the current METAR and every
+  // TAF period, above everything else.
+  const metarSig = metar ? sigWeather(metar.wxString) : []
+  const tafAlerts = (taf?.fcsts ?? []).flatMap(f => {
+    const flags = [...sigWeather(f.wxString)]
+    const ws = tafWindshear(f)
+    if (ws) flags.push(ws)
+    return flags.map(fl => ({ ...fl, when: `forecast ${utc(f.timeFrom)} – ${utc(f.timeTo)} (TAF)` }))
+  })
+  const alerts = [
+    ...metarSig.map(fl => ({ ...fl, when: 'reported now (METAR)' })),
+    ...tafAlerts,
+  ]
+  const hasSevere = alerts.some(a => a.severity === 'severe')
+  const rvr = metar ? parseRvr(metar.rawOb) : [] // measured only — never forecast
 
   // every runway end, best headwind first
   const ends = windOk
@@ -82,6 +100,27 @@ export default async function AirportPage({ params }) {
           always obtain an official preflight briefing.
         </div>
 
+        {alerts.length > 0 && (
+          <div
+            className={`border rounded-lg p-3 text-xs mb-6 leading-relaxed ${
+              hasSevere
+                ? 'bg-red-950/60 border-red-400/50 text-red-100'
+                : 'bg-amber-950/40 border-amber-500/40 text-amber-100'
+            }`}
+            role="alert"
+          >
+            <strong className="tracking-widest uppercase">⚠ Significant weather</strong>
+            <ul className="mt-1.5 space-y-0.5">
+              {alerts.map((a, i) => (
+                <li key={i}>
+                  <span className={a.severity === 'severe' ? 'font-bold' : ''}>{a.label}</span>
+                  <span className="opacity-75"> — {a.when}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* METAR */}
         <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
@@ -89,23 +128,49 @@ export default async function AirportPage({ params }) {
           </h2>
           {metar ? (
             <>
-              <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-3 text-sm mb-5">
+              {/* Ceiling + visibility lead: they decide dispatch legality and
+                  alternates, so they get the big numbers (dispatcher input). */}
+              <div className="grid grid-cols-2 gap-6 mb-6">
+                <div>
+                  <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Ceiling</div>
+                  <div
+                    className="text-2xl sm:text-3xl font-bold tabular-nums"
+                    style={{ color: RULES_COLOR[ceilingCategory(ceil) ?? 'VFR'] }}
+                  >
+                    {ceil != null ? `${ceil.toLocaleString('en')} ft` : 'No ceiling'}
+                  </div>
+                  <div className="text-zinc-500 text-xs mt-1">lowest BKN/OVC layer AGL</div>
+                </div>
+                <div>
+                  <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1">Visibility</div>
+                  <div
+                    className="text-2xl sm:text-3xl font-bold tabular-nums"
+                    style={{ color: visSM != null ? RULES_COLOR[visCategory(visSM)] : '#a1a1aa' }}
+                  >
+                    {metar.visib != null ? `${metar.visib} SM` : '–'}
+                  </div>
+                  {rvr.length > 0 && (
+                    <div className="text-zinc-400 text-xs mt-1 tabular-nums">
+                      RVR {rvr.map(r => `${r.rwy}: ${r.text}`).join(' · ')}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm mb-5">
+                <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Weather</dt>
+                  <dd className="font-bold" style={metarSig.length ? { color: metarSig.some(s => s.severity === 'severe') ? 'var(--bad)' : 'var(--warn)' } : undefined}>
+                    {metar.wxString ?? '–'}
+                  </dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Wind</dt>
                   <dd className="font-bold tabular-nums">
                     {typeof metar.wdir === 'number' ? `${String(metar.wdir).padStart(3, '0')}°` : metar.wdir ?? '–'}
                     {typeof metar.wspd === 'number' ? ` / ${metar.wspd} kt` : ''}
                     {metar.wgst ? ` G${metar.wgst}` : ''}
                   </dd></div>
-                <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Visibility</dt>
-                  <dd className="font-bold tabular-nums">{metar.visib ?? '–'} SM</dd></div>
-                <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Ceiling</dt>
-                  <dd className="font-bold tabular-nums">{ceil != null ? `${ceil} ft` : 'none'}</dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Temp / Dew</dt>
                   <dd className="font-bold tabular-nums">{metar.temp ?? '–'}° / {metar.dewp ?? '–'}°C</dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">QNH</dt>
                   <dd className="font-bold tabular-nums">{metar.altim ? `${Math.round(metar.altim)} hPa` : '–'}</dd></div>
-                <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Weather</dt>
-                  <dd className="font-bold">{metar.wxString ?? '–'}</dd></div>
               </dl>
               {Array.isArray(metar.clouds) && metar.clouds.length > 0 && (
                 <p className="text-sm text-zinc-400 mb-4">
@@ -184,18 +249,27 @@ export default async function AirportPage({ params }) {
             <>
               {Array.isArray(taf.fcsts) && taf.fcsts.length > 0 && (
                 <div className="space-y-2 text-sm mb-5">
-                  {taf.fcsts.map((f, i) => (
-                    <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-zinc-800 pt-2 first:border-0 first:pt-0">
-                      <span className="text-zinc-500 tabular-nums">{utc(f.timeFrom)} – {utc(f.timeTo)}</span>
-                      {f.fcstChange && <span className="text-zinc-400">{f.fcstChange}</span>}
-                      {typeof f.wdir === 'number' && <span className="tabular-nums">{String(f.wdir).padStart(3, '0')}°/{f.wspd} kt{f.wgst ? ` G${f.wgst}` : ''}</span>}
-                      {f.visib != null && <span className="tabular-nums">{f.visib} SM</span>}
-                      {f.wxString && <span>{f.wxString}</span>}
-                      {Array.isArray(f.clouds) && f.clouds.length > 0 && (
-                        <span className="text-zinc-400">{f.clouds.map(c => `${c.cover}${c.base ? c.base / 100 : ''}`.trim()).join(' ')}</span>
-                      )}
-                    </div>
-                  ))}
+                  {taf.fcsts.map((f, i) => {
+                    const sig = sigWeather(f.wxString)
+                    const ws = tafWindshear(f)
+                    return (
+                      <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-zinc-800 pt-2 first:border-0 first:pt-0">
+                        <span className="text-zinc-500 tabular-nums">{utc(f.timeFrom)} – {utc(f.timeTo)}</span>
+                        {f.fcstChange && <span className="text-zinc-400">{f.fcstChange}</span>}
+                        {typeof f.wdir === 'number' && <span className="tabular-nums">{String(f.wdir).padStart(3, '0')}°/{f.wspd} kt{f.wgst ? ` G${f.wgst}` : ''}</span>}
+                        {f.visib != null && <span className="tabular-nums">{f.visib} SM</span>}
+                        {f.wxString && (
+                          <span style={sig.length ? { color: sig.some(s => s.severity === 'severe') ? 'var(--bad)' : 'var(--warn)', fontWeight: 700 } : undefined}>
+                            {f.wxString}
+                          </span>
+                        )}
+                        {ws && <span className="font-bold" style={{ color: 'var(--bad)' }}>{ws.label}</span>}
+                        {Array.isArray(f.clouds) && f.clouds.length > 0 && (
+                          <span className="text-zinc-400">{f.clouds.map(c => `${c.cover}${c.base ? c.base / 100 : ''}`.trim()).join(' ')}</span>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )}
               <code className="block text-xs text-zinc-400 bg-zinc-950 border border-zinc-800 rounded-lg p-3 break-all whitespace-pre-wrap">
