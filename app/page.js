@@ -1360,6 +1360,18 @@ export default function Home() {
           </div>
         )}
 
+        {/* Plain-language explainer: comprehension for new visitors and the
+            only real prose on an otherwise UI-heavy page (search engines
+            index this for generic consensus/accuracy queries). */}
+        <section className="mt-16 max-w-2xl" aria-labelledby="how-title">
+          <h2 id="how-title" className="text-lg font-bold mb-3">{t(lang, 'howTitle')}</h2>
+          <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
+            <p>{t(lang, 'howP1')}</p>
+            <p>{t(lang, 'howP2')}</p>
+            <p>{t(lang, 'howP3')}</p>
+          </div>
+        </section>
+
         <Footer lang={lang} />
       </div>
 
