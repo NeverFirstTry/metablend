@@ -5,6 +5,49 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-07-12
 
+### Added — Aviation, per dispatcher feedback
+- **Ceiling and visibility are now the lead values on every airport page** —
+  they decide dispatch legality and alternates, so they get the big numbers,
+  each colored by its own NWS category (LIFR purple → VFR green), with
+  "lowest BKN/OVC layer AGL" spelled out. Wind, temperature and QNH moved
+  down into the small grid.
+- **Significant-weather flagging from METAR and TAF**: an alert strip below
+  the disclaimer surfaces thunderstorms, freezing precipitation, hail,
+  squalls, funnel clouds, dust/sand storms, ice pellets, blowing snow and
+  TAF windshear groups — severe in red, caution in amber, each with its time
+  window. Flagged codes are also highlighted inline in the TAF timeline.
+- **RVR** is shown when (and only when) it is measured in the METAR raw
+  text — RVR is never forecast, so it never appears under a TAF.
+- **Live TAF-vs-METAR divergence**: each airport page compares the latest
+  METAR against the TAF period valid right now, at category level plus
+  significant weather, and shows a card only on disagreement ("Ceiling:
+  METAR IFR vs TAF MVFR — conditions worse than forecast"). Vicinity
+  variants count as anticipated (VCTS in the TAF matches TS in the METAR),
+  TEMPO overlays count for weather but not for category, and unknown values
+  never count as divergence.
+
+### Added
+- **Landing-page explainer**: "What is consensus forecasting?" in plain
+  language above the footer, in all 5 languages — the first real prose on
+  an otherwise UI-only page, phrased around the generic queries new
+  visitors search for.
+- The verification tooling is committed and re-runnable:
+  `scripts/verify-aviation.mjs` + `scripts/verify-local.mjs` with method and
+  results in `docs/aviation-verification.md` and
+  `docs/metablend-local-verification.md`.
+
+### Fixed — METAR decode-hardening (unreported values fail visibly)
+- `VV///`, `OVX` and `BKN///` (ceiling-forming layer, height not reported)
+  no longer disappear into a green "No ceiling" — the page shows *Obscured*
+  (LIFR purple) or *Not reported* (gray), and the flight-category badge is
+  replaced by an explicit **CAT N/A** chip naming the missing input. A METAR
+  with missing visibility can no longer silently read as VFR.
+- Variable wind (VRB): the crosswind section states that per-runway
+  components cannot be computed and gives the honest worst case (full wind
+  speed as crosswind on any runway) instead of silently vanishing.
+- AUTO / COR / CAVOK are surfaced as chips next to the station name.
+- TAF cloud bases are zero-padded (BKN005, not BKN5).
+
 ### Verified
 - **Aviation math audited against independent references.** On live METARs for
   LOWI, LOWW, EDDM, EGLL, KJFK and KLAX: flight-rules classification matches
