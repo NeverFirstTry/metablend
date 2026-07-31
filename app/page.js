@@ -119,9 +119,10 @@ function conditionIcon(condition, lon) {
 function MetricCard({ icon: Icon, label, value, sub, color }) {
   return (
     <div className="bg-zinc-800/60 border border-zinc-800 rounded-xl px-4 py-3 flex-1 min-w-[90px] transition-colors duration-200 hover:border-zinc-700">
-      <div className="text-zinc-500 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+      <div className="text-zinc-500 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5 min-w-0">
         {Icon && <Icon size={13} className="shrink-0" aria-hidden />}
-        <span>{label}</span>
+        {/* break-words: long unbroken labels (Luftgüte was Luftqualität…) must wrap, not escape the card */}
+        <span className="min-w-0 break-words">{label}</span>
       </div>
       <div className="text-2xl font-bold leading-none tabular-nums" style={{ color }}>{value}</div>
       {sub && <div className="text-xs mt-1" style={{ color }}>{sub}</div>}
@@ -898,25 +899,31 @@ export default function Home() {
               </div>
             )}
 
-            {/* Simple rain answer — hidden when no source provided a real rain
-                probability (willRain is null then, not a confident "no") */}
-            {data.willRain != null && (
-              <div className={`rounded-2xl p-6 sm:p-8 border text-center ${
-                data.willRain
-                  ? 'bg-blue-500/10 border-blue-500/40'
-                  : 'bg-amber-400/10 border-amber-400/40'
-              }`}>
-                <div className="text-5xl sm:text-6xl mb-3">
-                  {data.willRain ? t(lang, 'rainYesEmoji') : t(lang, 'rainNoEmoji')}
+            {/* Simple rain answer. Three states: yes / no / mixed (sources
+                disagree). Hidden only when no source provided rain data. */}
+            {data.willRain != null && (() => {
+              const state = data.willRain === true ? 'yes' : data.willRain === false ? 'no' : 'mixed'
+              const box = state === 'yes' ? 'bg-blue-500/10 border-blue-500/40'
+                : state === 'no' ? 'bg-amber-400/10 border-amber-400/40'
+                : 'bg-zinc-500/10 border-zinc-500/40'
+              const txt = state === 'yes' ? 'text-blue-300' : state === 'no' ? 'text-amber-300' : 'text-zinc-300'
+              return (
+                <div className={`rounded-2xl p-6 sm:p-8 border text-center ${box}`}>
+                  <div className="text-5xl sm:text-6xl mb-3">
+                    {t(lang, state === 'yes' ? 'rainYesEmoji' : state === 'no' ? 'rainNoEmoji' : 'rainMixedEmoji')}
+                  </div>
+                  <div className={`text-2xl sm:text-3xl font-bold ${txt}`}>
+                    {t(lang, state === 'yes' ? 'rainYesTitle' : state === 'no' ? 'rainNoTitle' : 'rainMixedTitle')}
+                  </div>
+                  <div className="text-zinc-500 text-sm mt-2">
+                    {data.consensus.rainPct}% · {data.city}
+                  </div>
+                  {state === 'mixed' && (
+                    <div className="text-zinc-500 text-xs mt-1">{t(lang, 'rainMixedSub')}</div>
+                  )}
                 </div>
-                <div className={`text-2xl sm:text-3xl font-bold ${data.willRain ? 'text-blue-300' : 'text-amber-300'}`}>
-                  {data.willRain ? t(lang, 'rainYesTitle') : t(lang, 'rainNoTitle')}
-                </div>
-                <div className="text-zinc-500 text-sm mt-2">
-                  {data.consensus.rainPct}% · {data.city}
-                </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Consensus Hero */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">

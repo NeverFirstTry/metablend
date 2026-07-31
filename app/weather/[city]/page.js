@@ -116,9 +116,11 @@ export default async function CityWeather({ params }) {
           </dl>
           {data.willRain != null && (
             <p className="mt-5 text-sm text-zinc-300">
-              {data.willRain
+              {data.willRain === true
                 ? `Yes — rain is expected in ${name} today (${data.consensus.rainPct}% probability across the sources that forecast rain).`
-                : `No rain expected in ${name} today (${data.consensus.rainPct}% probability across the sources that forecast rain).`}
+                : data.willRain === false
+                  ? `No rain expected in ${name} today (${data.consensus.rainPct}% probability across the sources that forecast rain).`
+                  : `Rain is possible in ${name} today — the sources disagree (${data.consensus.rainPct}% combined probability).`}
             </p>
           )}
         </section>
