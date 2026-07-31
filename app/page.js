@@ -1037,6 +1037,11 @@ export default function Home() {
                         {data.consensus.rainPct != null ? <CountUp value={data.consensus.rainPct} suffix="%" /> : '–'}
                       </div>
                       <div className="text-zinc-500 text-xs uppercase tracking-wider flex items-center gap-1"><Droplets size={11} aria-hidden /> {t(lang, 'rainLabel')}</div>
+                      {data.rainingNow?.count > 0 && (
+                        <div className="text-[10px] mt-0.5" style={{ color: 'var(--info)' }}>
+                          {t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)}
+                        </div>
+                      )}
                     </div>
                     <div>
                       <div className="text-lg tabular-nums"><CountUp value={data.consensus.windKmh} /> km/h</div>

@@ -208,7 +208,26 @@ export const GET = withErrorLog('forecast', async (request) => {
     ? { active: true, type: allStorm ? 'thunderstorm' : 'heavy_rain' }
     : { active: false }
 
-  const willRain = consensus.rainPct == null ? null : consensus.rainPct >= 40
+  // Sources without a probability feed still say things: an explicit rain /
+  // snow / thunder condition is an observation, not the cloud-cover stand-in
+  // that rainIsProb guards against. Their share works as an ensemble vote
+  // that floors the headline probability — "3 sources report rain" must
+  // never coexist with a single-digit rain number. And a confident "no rain"
+  // verdict must never coexist with sources reporting active rain or a
+  // stormy daily outlook for today; those degrade the verdict to null
+  // (= not confident, page shows no banner) rather than flipping to "yes".
+  const PRECIP = /rain|drizzle|shower|sleet|snow|hail|thunder|storm/i
+  const reporting = results.filter(r => r.condition)
+  const rainingNow = reporting.filter(r => PRECIP.test(r.condition))
+  if (reporting.length >= 3 && rainingNow.length) {
+    const vote = Math.round((rainingNow.length / reporting.length) * 100)
+    if (consensus.rainPct == null || vote > consensus.rainPct) consensus.rainPct = vote
+  }
+
+  let willRain = consensus.rainPct == null ? null : consensus.rainPct >= 40
+  const todayStormy = forecast7?.[0] != null
+    && (STORM.test(forecast7[0].condition ?? '') || (forecast7[0].rainPct ?? 0) >= 60)
+  if (willRain === false && (rainingNow.length >= 2 || todayStormy)) willRain = null
   const bestTime = hourly?.best ?? null
 
   const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
@@ -345,6 +364,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     historyToday,
     warning,
     willRain,
+    rainingNow: { count: rainingNow.length, total: reporting.length },
     bestTime,
   }
 

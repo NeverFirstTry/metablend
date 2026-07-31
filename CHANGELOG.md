@@ -50,6 +50,16 @@ All notable changes to MetaBlend. Format loosely follows
   results in `docs/aviation-verification.md` and
   `docs/metablend-local-verification.md`.
 
+### Fixed — rain headline vs. sources contradiction
+- The hero could confidently say "No rain" while source cards right below
+  reported "moderate rain": the rain consensus only averaged sources with a
+  true precipitation-probability feed, so sources *observing* rain (but
+  reporting it only as a condition) couldn't move the number. Their share
+  now works as an ensemble vote that floors the headline probability, the
+  hero notes "N of M sources report rain now", and the confident no-rain
+  banner degrades to neutral whenever ≥2 sources report active rain or
+  today's daily outlook is stormy — it never claims "no" against evidence.
+
 ### Fixed — METAR decode-hardening (unreported values fail visibly)
 - `VV///`, `OVX` and `BKN///` (ceiling-forming layer, height not reported)
   no longer disappear into a green "No ceiling" — the page shows *Obscured*
