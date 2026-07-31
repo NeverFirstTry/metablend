@@ -39,6 +39,10 @@ All notable changes to MetaBlend. Format loosely follows
   as the airport pages — unclassifiable METARs show "–").
 - Back buttons on the aviation hub and airport pages, matching the other
   subpages.
+- **MetaBlend Local highlighted in the source cards**: pinned first (the API
+  appends it last), emerald border and glow, an "our model" badge in all 5
+  languages — while the card body stays identical to every other source, so
+  it visibly competes on the same terms.
 
 ### Added
 - **Landing-page explainer**: "What is consensus forecasting?" in plain
