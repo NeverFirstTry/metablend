@@ -14,12 +14,14 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - name: Export learned state
         run: |
           curl -fsSL "https://metablend.app/api/backup" \
             -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
-            --max-time 120 -o "metablend-backup.json"
+            --max-time 120 -o "metablend-backup.json" \
+            --retry 2 --retry-delay 20 --retry-all-errors
           python3 -c "import json;d=json.load(open('metablend-backup.json'));print({k:(len(v) if isinstance(v,list) else v) for k,v in d['tables'].items()})"
       - name: Store as artifact (30-day retention)
         uses: actions/upload-artifact@v4

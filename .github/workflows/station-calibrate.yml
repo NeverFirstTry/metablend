@@ -14,9 +14,17 @@ on:
 jobs:
   calibrate:
     runs-on: ubuntu-latest
+    # A healthy run takes ~15s. The cap is for the case that actually bit us
+    # once: GitHub failing to hand out a runner, leaving the job hanging for
+    # 15 minutes before it died on its own.
+    timeout-minutes: 8
     steps:
       - name: Trigger station calibration
         run: |
+          # Deliberately NOT retried: this endpoint applies score deltas, so a
+          # retry after a partial-then-timed-out run would double-count them.
+          # A missed hour is a lost signal among thousands; a double-applied
+          # one is a skewed weight. The backup job is read-only and does retry.
           curl -fsSL "https://metablend.app/api/station-calibrate" \
             -H "x-calibrate-key: ${{ secrets.CALIBRATE_SECRET }}" \
             --max-time 300
