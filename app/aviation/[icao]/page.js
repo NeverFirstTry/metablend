@@ -67,7 +67,12 @@ export default async function AirportPage({ params }) {
   // compares against base+TEMPO (TEMPO exists to carry showers/TS), while
   // vis/ceiling use the base line only so TEMPO fluctuations don't spam it.
   // Only runs when the METAR's own inputs were fully reported.
-  const { base: tafNow, tempo: tafTempo } = activeTafPeriod(taf?.fcsts, Date.now() / 1000)
+  // Anchored to the METAR's own observation time, not the clock: the question
+  // is "which TAF period covers the observation we're comparing against". That
+  // also keeps this render pure — on an ISR page Date.now() is the
+  // regeneration time, which drifts away from the data it's judging.
+  const obsSec = metar?.obsTime ?? (metar?.reportTime ? Date.parse(metar.reportTime) / 1000 : null)
+  const { base: tafNow, tempo: tafTempo } = activeTafPeriod(taf?.fcsts, obsSec)
   const noVic = l => l.replace(' (vicinity)', '')
   let divergence = []
   if (rulesKnown && tafNow) {

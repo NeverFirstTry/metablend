@@ -3,6 +3,29 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-08-09
+
+### Fixed — sources could publish a probability they never reported
+- **MET Norway was injecting a fabricated 0 % rain probability into every
+  search since launch.** `locationforecast` reports precipitation *amount*,
+  never `probability_of_precipitation` (verified against both the compact and
+  complete products, four continents) — but the fetcher read
+  `probability_of_precipitation ?? 0` and flagged the result `rainIsProb:
+  true`. A high-weight source therefore voted "0 % chance" in every rain
+  consensus, which is the underlying cause of the headline reading "no rain"
+  while other sources reported active rain. Its amount now becomes a
+  pseudo-probability in the same fallback tier as NASA POWER and GeoSphere:
+  usable when no real probability source answered, never a vote of its own.
+- Tomorrow.io, Visual Crossing and Open-Meteo had the same `?? 0` pattern and
+  would have published a fabricated 0 % on any response missing the field.
+  All four sources now report `rainPct: null` with `rainIsProb: false` when
+  the probability is absent. Regression tests cover the whole class.
+- The aviation TAF-vs-METAR comparison anchored to `Date.now()`, which on an
+  ISR page is the regeneration time rather than the observation's. It now uses
+  the METAR's own `obsTime`, and `activeTafPeriod()` refuses an unknown
+  reference time instead of matching the first period. This also clears the
+  one ESLint error in the repo (`npm run lint` is green again).
+
 ## 2026-07-12
 
 ### Added — Aviation, per dispatcher feedback
