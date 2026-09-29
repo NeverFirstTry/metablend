@@ -2,14 +2,15 @@ import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import {
-  geocodeCity, getRegion, localDateForLon,
+  geocodeCity, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchDailyBundle, blendDailyForecasts, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
   fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
 } from '@/lib/weather'
-import { getCityBias, isNightAt } from '@/lib/blend'
+import { getCityBias } from '@/lib/blend'
+import { isNightAt, localDateForLon, localMidnightUtc } from '@/lib/localtime'
 
 const DISPLAY_NAMES = {
   'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
@@ -289,12 +290,12 @@ export const GET = withErrorLog('forecast', async (request) => {
       condition: mainCondition,
       source_count: results.length,
     })
-    const startOfDay = new Date(); startOfDay.setHours(0, 0, 0, 0)
+    // "today" starts at the city's midnight, not the UTC server's
     const { data: hist } = await supabase
       .from('consensus_history')
       .select('temp, created_at')
       .ilike('city', geo.name)
-      .gte('created_at', startOfDay.toISOString())
+      .gte('created_at', localMidnightUtc(geo.lon).toISOString())
       .order('created_at', { ascending: true })
     historyToday = (hist ?? []).map(h => ({ temp: h.temp, t: h.created_at }))
   } catch { /* table may not exist yet */ }

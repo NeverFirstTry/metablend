@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
-import { localDateForLon } from '@/lib/weather'
+import { localDateForLon } from '@/lib/localtime'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
   fetchVisualCrossing, fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,

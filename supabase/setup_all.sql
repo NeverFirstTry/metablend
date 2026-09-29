@@ -197,6 +197,10 @@ create table if not exists error_log (
 create index if not exists feedback_latlon_idx        on feedback (lat, lon);
 create index if not exists consensus_history_city_time on consensus_history (city, created_at desc);
 create index if not exists forecasts_valid_for_idx     on forecasts (valid_for);
+-- hourly station calibration + nightly cleanup both filter on created_at
+create index if not exists forecasts_created_at_idx    on forecasts (created_at);
+-- nightly retention prune (the city+time index above can't serve a time-only range)
+create index if not exists consensus_history_time      on consensus_history (created_at);
 create index if not exists error_log_time              on error_log (created_at desc);
 
 -- ── RLS is managed separately, NOT here ─────────────────────────────────────

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
+import { formatCalendarDate } from '@/lib/localtime'
 import Footer from '../../components/Footer'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
@@ -59,7 +60,7 @@ export default async function CityWeather({ params }) {
     .slice(0, 3)
     .map(([id, w]) => ({ id, name: upSources.find(s => s.apiId === id)?.displayName ?? id, pct: (w * 100).toFixed(1) }))
   const others = CITIES.filter(c => c.slug !== city).slice(0, 12)
-  const weekday = d => new Date(d).toLocaleDateString('en', { weekday: 'short', month: 'short', day: 'numeric' })
+  const weekday = d => formatCalendarDate(d, 'en', { weekday: 'short', month: 'short', day: 'numeric' })
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">

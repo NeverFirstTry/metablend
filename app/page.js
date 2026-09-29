@@ -11,6 +11,7 @@ import {
   Sparkles, Copy, Sunrise, Sunset, Globe, Plane,
 } from 'lucide-react'
 import { t, LANGUAGES, getWeatherOptions, detectLang, translateCondition, uvText, aqiText, pollenText } from '@/lib/i18n'
+import { isNightAt, formatCalendarDate } from '@/lib/localtime'
 import RainRadar from './components/RainRadar'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
@@ -108,10 +109,7 @@ function conditionIcon(condition, lon) {
   if (/overcast/.test(c)) return '☁️'
   if (/partly|broken|scattered|few/.test(c)) return '⛅'
   if (/cloud/.test(c)) return '☁️'
-  if (/clear|sunny|fair/.test(c)) {
-    const cityHour = (((new Date().getUTCHours() + (lon ?? 0) / 15) % 24) + 24) % 24
-    return cityHour < 6 || cityHour >= 21 ? '🌙' : '☀️'
-  }
+  if (/clear|sunny|fair/.test(c)) return isNightAt(lon) ? '🌙' : '☀️'
   return '🌤'
 }
 // uvText / aqiText / pollenText now come from lib/i18n (translated, lang-aware)
@@ -405,7 +403,9 @@ export default function Home() {
     setConsentGiven(true)
   }
 
-  const isNight = (() => { const h = new Date().getHours(); return h < 6 || h >= 21 })()
+  // Night by the CITY's clock, not the viewer's — it gates the "sunny" option,
+  // and the server rejects sun at night by the same city-local rule.
+  const isNight = isNightAt(data?.lon)
 
   // Debounced so fast typing doesn't fire a geocoding request per keystroke;
   // the sequence counter drops responses that arrive out of order.
@@ -539,7 +539,6 @@ export default function Home() {
           city: data.city,
           actualTemp: tempC,
           actualCond: feedback.cond,
-          region: data.region ?? 'global',
           lat: data.lat ?? null,
           lon: data.lon ?? null,
         }),
@@ -549,7 +548,12 @@ export default function Home() {
         setFbStatus({ ok: false, msg: json.error })
       } else {
         setFbStatus({ ok: true, msg: json.message })
-        loadForecast()
+        // Show the re-weighting on the cards now. Re-fetching would only hit
+        // the forecast route's 15-min cache and bring back the old weights.
+        const reportedCity = data.city
+        if (json.weights) {
+          setData(d => d?.city === reportedCity ? { ...d, weights: { ...d.weights, ...json.weights } } : d)
+        }
       }
     } catch {
       setFbStatus({ ok: false, msg: 'Error sending feedback.' })
@@ -847,7 +851,7 @@ export default function Home() {
                 <div className="text-emerald-400 text-xs uppercase tracking-wider mb-2 truncate">{d.city}</div>
                 <div className="text-4xl font-bold mb-3">{showT(d.consensus.temp)}°{unit}</div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct ?? '–'}%</span></div>
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct != null ? `${d.consensus.rainPct}%` : '–'}</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'windLabel')}</span><span>{d.consensus.windKmh} km/h</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'consensusLabel')}</span><span>{d.consensus.confidencePct}%</span></div>
                 </div>
@@ -1160,16 +1164,15 @@ export default function Home() {
                 <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                   <div className="grid grid-cols-7 gap-1 min-w-[360px]">
                     {data.forecast7.map((day, i) => {
-                      const date = new Date(day.date)
                       const label = i === 0 ? t(lang, 'todayLabel')
-                        : date.toLocaleDateString(lang, { weekday: 'short' })
+                        : formatCalendarDate(day.date, lang, { weekday: 'short' })
                       return (
                         <div key={day.date} className={`flex flex-col items-center gap-2 p-2 rounded-xl ${i === 0 ? 'bg-zinc-800 border border-emerald-400/30' : 'hover:bg-zinc-800 transition-colors'}`}>
                           <div className={`text-xs uppercase tracking-wider ${i === 0 ? 'text-emerald-400' : 'text-zinc-500'}`}>{label}</div>
                           <div className="text-xl">{day.icon}</div>
                           <div className="text-sm font-bold">{showT(day.tempMax)}°{unit}</div>
                           <div className="text-xs text-zinc-500">{showT(day.tempMin)}°{unit}</div>
-                          <div className="text-xs text-blue-400">{day.rainPct}%</div>
+                          <div className="text-xs text-blue-400">{day.rainPct != null ? `${day.rainPct}%` : '–'}</div>
                         </div>
                       )
                     })}
@@ -1203,7 +1206,7 @@ export default function Home() {
               const r = data.records
               const near = (r.hottest && Math.abs(data.consensus.temp - r.hottest.temp) <= 2) ||
                            (r.coldest && Math.abs(data.consensus.temp - r.coldest.temp) <= 2)
-              const fmtDate = d => d ? new Date(d).toLocaleDateString(lang, { day: '2-digit', month: 'short', year: '2-digit' }) : ''
+              const fmtDate = d => d ? formatCalendarDate(d, lang, { day: '2-digit', month: 'short', year: '2-digit' }) : ''
               return (
                 <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-8">
                   <SectionTitle icon={Trophy} className="mb-4">{heading(t(lang, 'recordsTitle'))}</SectionTitle>

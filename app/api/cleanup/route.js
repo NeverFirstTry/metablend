@@ -9,6 +9,12 @@ export const maxDuration = 60
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
 
+// consensus_history gets a row per cache-miss forecast and error_log one per
+// failure; neither was ever pruned. Nothing reads history older than a day
+// (RSS: 24 h, intraday chart: today, webhook: 1 h) — 30 days leaves plenty of
+// room to look back by hand.
+const RETENTION_DAYS = 30
+
 // ── Meteostat (RapidAPI) ──────────────────────────────────────────────────────
 async function fetchMeteostat(lat, lon, date) {
   const key = process.env.RAPIDAPI_KEY
@@ -133,20 +139,24 @@ export async function GET(request) {
   if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
+  const retentionCutoff = new Date(Date.now() - RETENTION_DAYS * 86_400_000).toISOString()
 
-  const [{ error: fe }, { error: fb }] = await Promise.all([
+  const deletes = await Promise.all([
     supabase.from('forecasts').delete().lt('created_at', cutoff),
     // Only the job sentinels age out. Real community reports stay — they feed
     // the heatmap, which is pointless with a 48-hour memory.
     supabase.from('feedback').delete().lt('created_at', cutoff)
       .in('actual_cond', ['__calibrate__', '__meteostat__']),
+    supabase.from('consensus_history').delete().lt('created_at', retentionCutoff),
+    supabase.from('error_log').delete().lt('created_at', retentionCutoff),
   ])
 
   const validation = await runMeteostatValidation()
 
-  if (fe || fb) {
-    return Response.json({ error: fe?.message ?? fb?.message, validation }, { status: 500 })
+  const failed = deletes.find(d => d.error)
+  if (failed) {
+    return Response.json({ error: failed.error.message, validation }, { status: 500 })
   }
 
-  return Response.json({ ok: true, cutoff, validation })
+  return Response.json({ ok: true, cutoff, retentionCutoff, validation })
 }

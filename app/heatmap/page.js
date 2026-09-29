@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ArrowLeft, AlertTriangle } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
 import { t } from '@/lib/i18n'
+import { escapeHtml } from '@/lib/html'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
@@ -14,6 +15,15 @@ function accuracyColor(a) {
   if (a >= 0.7) return '#34d399'  // good
   if (a >= 0.4) return '#fbbf24'  // meh
   return '#f87171'                // off
+}
+
+// Leaflet renders popup strings as innerHTML, and the city name is whatever a
+// feedback report said — escape every interpolated value.
+function popupContent(p, lang) {
+  const accuracy = p.accuracy != null ? `${Math.round(p.accuracy * 100)}%` : 'n/a'
+  return `<b>${escapeHtml(p.city ?? t(lang, 'hmUnknown'))}</b><br/>` +
+    `${escapeHtml(t(lang, 'hmAccuracy'))}: ${accuracy}` +
+    (p.temp != null ? `<br/>${escapeHtml(t(lang, 'hmReported'))}: ${escapeHtml(p.temp)}°C` : '')
 }
 
 export default function Heatmap() {
@@ -63,13 +73,7 @@ export default function Heatmap() {
           fillOpacity: 0.7,
           weight: 1,
         })
-          .bindPopup(
-            `<b>${p.city ?? t(lang, 'hmUnknown')}</b><br/>` +
-            (p.accuracy != null
-              ? `${t(lang, 'hmAccuracy')}: ${Math.round(p.accuracy * 100)}%`
-              : `${t(lang, 'hmAccuracy')}: n/a`) +
-            (p.temp != null ? `<br/>${t(lang, 'hmReported')}: ${p.temp}°C` : '')
-          )
+          .bindPopup(popupContent(p, lang))
           .addTo(markersRef.current)
       })
 

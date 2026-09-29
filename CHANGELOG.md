@@ -3,6 +3,51 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-09-29
+
+### Fixed — security: feedback input
+- **Stored XSS on /heatmap.** Feedback city names are user input, and the
+  heatmap pasted them straight into Leaflet popups, which render as
+  innerHTML. Every interpolated popup value is now escaped
+  (`lib/html.js`), which also neutralizes any rows already stored.
+- **Feedback is validated before it can touch anything** (`lib/feedback.js`,
+  unit tested): the temperature must be a real number (a string like `"abc"`
+  failed every comparison, slipped past the range check and scored every
+  source −2), the condition must be one of the form's keys (the
+  `__calibrate__` job sentinel, sent with yesterday's date, could switch off
+  the daily calibration), the city a short string, and malformed JSON is a
+  400 instead of a logged 500.
+- **The server no longer trusts the client for what it can derive itself.**
+  The report date is always the city-local today; the weight region and the
+  heatmap pin come from the city's own stored forecast coordinates, so a
+  report can no longer steer another region's weights or drop a pin at
+  arbitrary coordinates. Reports with nothing to compare against get no pin.
+
+### Fixed
+- **7-day weekdays and record dates were one day early for everyone west of
+  UTC.** `new Date('2026-09-30')` is UTC midnight, which a New York browser
+  renders as Tuesday. Calendar dates are now formatted in UTC
+  (`formatCalendarDate`).
+- **Feedback now shows its effect**: the new weights come back in the
+  response and update the source cards in place. The old reload re-fetched
+  whatever was typed in the search box, and hit the 15-minute cache anyway.
+- The feedback form's "sunny" option is gated by the city's clock, matching
+  the server rule, instead of the viewer's.
+- The intraday consensus chart starts at the city's midnight, not the
+  server's UTC midnight.
+- The 7-day strip and compare view show "–" instead of a bare "%" when no
+  source reported a rain probability.
+
+### Changed
+- `/api/cleanup` now prunes `consensus_history` and `error_log` after 30 days;
+  both grew without bound. New indexes on `forecasts(created_at)` and
+  `consensus_history(created_at)` in `setup_all.sql` — **re-run it once in the
+  Supabase SQL editor** (idempotent) to create them.
+- City-local time helpers (solar hour, night, local date, local midnight)
+  live in one pure module, `lib/localtime.js`, shared by server and client —
+  they had been copied into four places.
+- Removed a stray, unused root `layout.jsx` and untracked `_dev.log`.
+
 ## 2026-08-09
 
 ### Fixed — sources could publish a probability they never reported
