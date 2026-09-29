@@ -6,11 +6,10 @@ import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
-  fetchDailyBundle, blendDailyForecasts, fetchOpenMeteoExtras, fetchOpenMeteoHourly,
-  fetchOpenMeteoDetails, fetchMonthHistory, fetchYesterdayTemp,
+  fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
 } from '@/lib/weather'
 import { getCityBias } from '@/lib/blend'
-import { isNightAt, localDateForLon, localMidnightUtc } from '@/lib/localtime'
+import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { sourceName } from '@/lib/sources'
 
@@ -26,11 +25,17 @@ async function timedFetch(id, fn) {
   }
 }
 
-// 15-min in-memory cache, keyed by city+lang. Lives as long as the warm
-// instance does; cold starts just re-fetch.
+// "Right now" only — everything ahead (48 h / 7 / 14 days, climate, best
+// time) is /api/outlook's job.
+//
+// Two cache layers: Vercel's CDN (shared by every visitor of a city, the one
+// that actually saves upstream quota) and a 15-min in-memory copy per warm
+// instance as a second line. Errors are never cached.
 const CACHE = new Map()
 const CACHE_TTL = 15 * 60 * 1000
 const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
+const cdnHeaders = ttlSec => ({ 'Cache-Control': `public, s-maxage=${ttlSec}, stale-while-revalidate=${ttlSec * 2}` })
+const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 // Per-IP throttle on the expensive (cache-miss) path so nobody can drain the
 // metered upstream weather APIs by spamming distinct cities. In-memory and
@@ -43,28 +48,26 @@ export const GET = withErrorLog('forecast', async (request) => {
   const city = searchParams.get('city')
   const lang = searchParams.get('lang') ?? 'en'
 
-  if (!city) {
-    return Response.json({ error: 'No city specified' }, { status: 400 })
-  }
+  if (!city) return noStore({ error: 'No city specified' }, 400)
 
-  // serve a fresh cached copy if we have one
+  // serve a fresh in-memory copy if we have one — the CDN may keep it only
+  // for what's left of its 15 minutes
   const key = cacheKey(city, lang)
   const cached = CACHE.get(key)
-  if (cached && Date.now() - cached.ts < CACHE_TTL) {
-    return Response.json({ ...cached.payload, cached: true })
+  const age = cached ? Date.now() - cached.ts : Infinity
+  if (age < CACHE_TTL) {
+    return Response.json({ ...cached.payload, cached: true }, { headers: cdnHeaders(Math.max(1, Math.round((CACHE_TTL - age) / 1000))) })
   }
 
   // Cache miss → this request will hit the metered upstream APIs, so throttle.
   if (limiter.limited(clientIp(request))) {
-    return Response.json({ error: 'Too many requests — please slow down.' }, { status: 429 })
+    return noStore({ error: 'Too many requests — please slow down.' }, 429)
   }
 
   // 1. Stadt → Koordinaten
   const geo = await geocodeCity(city, lang)
   if (!geo) {
-    return Response.json({
-      error: `"${city}" was not found. Check the spelling or pick a city from the suggestions.`,
-    }, { status: 404 })
+    return noStore({ error: `"${city}" was not found. Check the spelling or pick a city from the suggestions.` }, 404)
   }
 
   const region = getRegion(geo.lat, geo.lon)
@@ -89,19 +92,11 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
   ])
 
-  const [dailyBundle, extras, hourly, details, history, yesterdayTemp] = await Promise.all([
-    fetchDailyBundle(geo.lat, geo.lon),
+  const [extras, details, yesterdayTemp] = await Promise.all([
     fetchOpenMeteoExtras(geo.lat, geo.lon),
-    fetchOpenMeteoHourly(geo.lat, geo.lon),
     fetchOpenMeteoDetails(geo.lat, geo.lon),
-    fetchMonthHistory(geo.lat, geo.lon),
     fetchYesterdayTemp(geo.lat, geo.lon),
   ])
-
-  // climate normals for the current month (today-vs-average is computed client-side)
-  const climate = history
-    ? { month: history.month, years: history.years, avgTemp: history.avgTemp, avgRainyDays: history.avgRainyDays }
-    : null
 
   // successful sources, tagged with their response time
   const results = timed
@@ -113,9 +108,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     .filter(t => t.down)
     .map(t => ({ apiId: t.id, displayName: sourceName(t.id), down: true, responseMs: t.ms }))
 
-  if (results.length === 0) {
-    return Response.json({ error: 'No API data available' }, { status: 500 })
-  }
+  if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
 
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
@@ -134,10 +127,6 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   const weightMap = {}
   weightRows.forEach(w => { weightMap[w.id] = w.weight })
-
-  // Consensus 7-day: blend the keyless daily forecasts (OM best-match, GFS,
-  // ICON, ECMWF, MET Norway) with the same learned weights as the live blend.
-  const { days: forecast7, sunrise, sunset } = blendDailyForecasts(dailyBundle, weightMap)
 
   // 4. Gewichteten Durchschnitt berechnen
   // Rain is averaged only across sources reporting a true precipitation
@@ -188,12 +177,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   // Sources without a probability feed still say things: an explicit rain /
   // snow / thunder condition is an observation, not the cloud-cover stand-in
   // that rainIsProb guards against. Their share works as an ensemble vote
-  // that floors the headline probability — "3 sources report rain" must
-  // never coexist with a single-digit rain number. And a confident "no rain"
-  // verdict must never coexist with sources reporting active rain or a
-  // stormy daily outlook for today; those degrade the verdict to 'mixed'
-  // (sources disagree — shown as its own banner) rather than flipping to
-  // "yes". null stays reserved for "no rain data at all".
+  // that floors the probability — "3 sources report rain" must never
+  // coexist with a single-digit rain number. null stays reserved for "no
+  // rain data at all". (The rain *verdict* for the hours ahead is the
+  // outlook's 48 h headline now.)
   const PRECIP = /rain|drizzle|shower|sleet|snow|hail|thunder|storm/i
   const reporting = results.filter(r => r.condition)
   const rainingNow = reporting.filter(r => PRECIP.test(r.condition))
@@ -201,12 +188,6 @@ export const GET = withErrorLog('forecast', async (request) => {
     const vote = Math.round((rainingNow.length / reporting.length) * 100)
     if (consensus.rainPct == null || vote > consensus.rainPct) consensus.rainPct = vote
   }
-
-  let willRain = consensus.rainPct == null ? null : consensus.rainPct >= 40
-  const todayStormy = forecast7?.[0] != null
-    && (STORM.test(forecast7[0].condition ?? '') || (forecast7[0].rainPct ?? 0) >= 60)
-  if (willRain === false && (rainingNow.length >= 2 || todayStormy)) willRain = 'mixed'
-  const bestTime = hourly?.best ?? null
 
   const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
 
@@ -251,8 +232,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // either — a broken insert here is why calibration had no data to learn from.
   if (fcInsErr) logError('forecast.insert', fcInsErr, { city: geo.name })
 
-  // snapshot the consensus for the RSS feed + intraday history chart
-  let historyToday = []
+  // snapshot the consensus for the RSS feed and the low-confidence webhook
   try {
     await supabase.from('consensus_history').insert({
       city: geo.name,
@@ -266,14 +246,6 @@ export const GET = withErrorLog('forecast', async (request) => {
       condition: mainCondition,
       source_count: results.length,
     })
-    // "today" starts at the city's midnight, not the UTC server's
-    const { data: hist } = await supabase
-      .from('consensus_history')
-      .select('temp, created_at')
-      .ilike('city', geo.name)
-      .gte('created_at', localMidnightUtc(geo.lon).toISOString())
-      .order('created_at', { ascending: true })
-    historyToday = (hist ?? []).map(h => ({ temp: h.temp, t: h.created_at }))
   } catch { /* table may not exist yet */ }
 
   // Response-time + uptime stats (EMA on the response time, running up/down
@@ -331,21 +303,14 @@ export const GET = withErrorLog('forecast', async (request) => {
     consensus,
     sources:  [...results, ...downSources],
     weights:  weightMap,
-    forecast7,
-    sunrise,
-    sunset,
     extras,
     details,
-    climate,
-    records:  history?.records ?? null,
     yesterdayTemp: yesterdayTemp ?? null,
-    historyToday,
     warning,
-    willRain,
     rainingNow: { count: rainingNow.length, total: reporting.length },
-    bestTime,
+    generatedAt: new Date().toISOString(),
   }
 
   CACHE.set(key, { ts: Date.now(), payload })
-  return Response.json(payload)
+  return Response.json(payload, { headers: cdnHeaders(CACHE_TTL / 1000) })
 })
