@@ -3,6 +3,22 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-09-30
+
+### Added — hiking engine (phase 1 of the app)
+- **`/api/hike`** — summit forecasts: the outlook's ~10 models downscaled to
+  the peak's height; summit wind interpolated from the 850 / 700 / 600 hPa
+  levels; freezing level (GFS / ICON, else from the summit temperature);
+  hourly thunderstorm risk (CAPE + rain chance, lightning potential in
+  Europe); the summit window for today and tomorrow and what ends it
+  ("storms from 14:00"); 7 summit days. Weights borrowed from the region's
+  outlook learning. CDN-cached per peak for 30 min.
+- **`/api/peaks`** — worldwide peak and hut search (OpenStreetMap via Photon
+  + elevation service, GeoNames fallback), 41 featured Alps peaks first,
+  umlaut- and alias-tolerant ("glockner", "Raxalpe", "Oetscher").
+- The outlook's daylight rule is shared (`inDaylight`) so best-time-out and
+  the summit window agree on what daylight is.
+
 ## 2026-09-29
 
 ### Changed — Today · Tomorrow · Week

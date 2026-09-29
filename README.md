@@ -112,6 +112,22 @@ Both routes answer from **Vercel's CDN** (`s-maxage` 30 min for the outlook,
 15 min for right now, stale-while-revalidate, errors never cached): a city
 viewed by 1 or 1,000 people costs the same upstream calls.
 
+### Hiking engine (for the app)
+
+The mountain weather that will be exclusive to the MetaBlend app (see
+`docs/superpowers/specs/2026-09-30-hiking-app-design.md`). `/api/hike`
+downscales the outlook's models to a summit's height and adds what matters
+up there: wind at the summit's pressure level (10 m model wind understates
+ridges), the freezing level, an hourly thunderstorm risk from storm energy
+(CAPE) and rain chance, and the **summit window** — the longest stretch of
+daylight that is dry, storm-free, below 40 km/h wind and not brutally cold,
+plus what ends it. Summits have no observations to learn from, so the blend
+borrows the region's learned outlook weights. `/api/peaks` searches peaks and
+huts worldwide (OpenStreetMap via Photon, heights from Open-Meteo's
+elevation service, GeoNames as fallback) with 41 hand-picked Alps peaks
+first (`lib/hike/featured.json`, built by `scripts/build-featured-peaks.mjs`).
+Both answer from Vercel's CDN (30 min per peak, a day per search).
+
 ### Backups
 
 `/api/backup` (gated like the other job endpoints) exports the learned state —
