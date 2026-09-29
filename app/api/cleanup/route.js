@@ -2,9 +2,12 @@ import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
+import { logError } from '@/lib/log'
+import { runOutlookVerification } from '@/lib/outlook/job'
 
-// Meteostat lookups + weight round-trips per city can outrun the default limit.
-export const maxDuration = 60
+// Meteostat lookups, weight round-trips per city and the outlook's METAR
+// verification can outrun the default limit.
+export const maxDuration = 300
 
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
@@ -153,10 +156,19 @@ export async function GET(request) {
 
   const validation = await runMeteostatValidation()
 
-  const failed = deletes.find(d => d.error)
-  if (failed) {
-    return Response.json({ error: failed.error.message, validation }, { status: 500 })
+  // Outlook learning: check the saved predictions whose time has come
+  let outlook
+  try {
+    outlook = await runOutlookVerification()
+  } catch (e) {
+    await logError('outlook.verify', e)
+    outlook = { error: e.message }
   }
 
-  return Response.json({ ok: true, cutoff, retentionCutoff, validation })
+  const failed = deletes.find(d => d.error)
+  if (failed) {
+    return Response.json({ error: failed.error.message, validation, outlook }, { status: 500 })
+  }
+
+  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook })
 }

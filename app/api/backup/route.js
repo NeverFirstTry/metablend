@@ -15,6 +15,7 @@ const TABLES = [
   { name: 'city_bias', order: 'city' },
   { name: 'feedback', order: 'id', cap: 20000 },
   { name: 'api_stats', order: 'api_id' },
+  { name: 'outlook_weights', order: 'id' }, // learned per-range trust — can't be re-derived either
 ]
 
 export const GET = withErrorLog('backup', async (request) => {
