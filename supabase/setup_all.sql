@@ -184,6 +184,57 @@ $$;
 revoke execute on function bump_api_stats(jsonb) from public, anon, authenticated;
 grant  execute on function bump_api_stats(jsonb) to service_role;
 
+-- ── Outlook (future forecast) learning ──────────────────────────────────────
+--    Saved predictions per source — kind 'h' (+6/12/24/48 h, one per city per
+--    6 h) and 'd' (days 1–14, one per city per local day) — checked daily
+--    against METAR history by /api/cleanup; weights per region × range.
+create table if not exists outlook_snapshots (
+  id             bigserial primary key,
+  city           text not null,
+  lat            double precision,
+  lon            double precision,
+  region         text not null default 'global',
+  source         text not null,
+  kind           text not null check (kind in ('h', 'd')),
+  slot           integer not null,
+  issued_at      timestamptz not null default now(),
+  utc_offset_sec integer not null default 0,
+  checkpoints    jsonb not null default '[]'::jsonb,
+  verified       jsonb not null default '{}'::jsonb,
+  next_due_at    timestamptz
+);
+create unique index if not exists outlook_snapshots_slot on outlook_snapshots (city, source, kind, slot);
+create index if not exists outlook_snapshots_due  on outlook_snapshots (next_due_at);
+create index if not exists outlook_snapshots_city on outlook_snapshots (city, issued_at desc);
+
+create table if not exists outlook_weights (
+  id            text    not null,
+  region        text    not null default 'global',
+  horizon       text    not null check (horizon in ('h48', 'd7', 'd14')),
+  name          text,
+  weight        double precision default 0.25,
+  score         integer default 0,
+  reports       integer default 0,
+  delta_history jsonb   default '[]'::jsonb,
+  updated_at    timestamptz default now(),
+  primary key (id, region, horizon)
+);
+
+-- Marks checkpoints done and moves next_due_at, many rows in one call.
+-- rows: [{ "id": 1, "verified": {...}, "next_due_at": "…" | null }, ...]
+create or replace function mark_outlook_verified(rows jsonb)
+returns void
+language sql
+as $$
+  update outlook_snapshots s
+     set verified    = r->'verified',
+         next_due_at = (r->>'next_due_at')::timestamptz
+    from jsonb_array_elements(rows) r
+   where s.id = (r->>'id')::bigint;
+$$;
+revoke execute on function mark_outlook_verified(jsonb) from public, anon, authenticated;
+grant  execute on function mark_outlook_verified(jsonb) to service_role;
+
 -- ── Server-side error log (best-effort; written by lib/log.js) ──────────────
 create table if not exists error_log (
   id         bigserial primary key,
