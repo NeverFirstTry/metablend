@@ -2,6 +2,23 @@ import { supabase } from '@/lib/supabase'
 
 const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
 
+// Rows → [{ region, apis, leader }], best-weighted first, stats attached.
+function groupByRegion(rows, stats) {
+  const byRegion = {}
+  for (const row of rows) {
+    const region = row.region ?? 'global'
+    ;(byRegion[region] ??= []).push({ ...row, ...stats[row.id] })
+  }
+  for (const region of Object.keys(byRegion)) {
+    byRegion[region].sort((a, b) => b.weight - a.weight)
+  }
+  return REGION_ORDER.filter(r => byRegion[r]?.length).map(region => ({
+    region,
+    apis: byRegion[region],
+    leader: byRegion[region][0] ?? null,
+  }))
+}
+
 export async function GET() {
   let { data, error } = await supabase
     .from('api_weights')
@@ -31,24 +48,19 @@ export async function GET() {
     }
   })
 
-  // bucket by region, best-weighted first, attach stats
-  const byRegion = {}
-  for (const row of data ?? []) {
-    const region = row.region ?? 'global'
-    ;(byRegion[region] ??= []).push({ ...row, ...stats[row.id] })
-  }
-  for (const region of Object.keys(byRegion)) {
-    byRegion[region].sort((a, b) => b.weight - a.weight)
-  }
-
-  const regions = REGION_ORDER.filter(r => byRegion[r]?.length).map(region => ({
-    region,
-    apis: byRegion[region],
-    leader: byRegion[region][0] ?? null,
-  }))
+  const regions = groupByRegion(data ?? [], stats)
 
   // flat global list, kept around for older clients
-  const apis = byRegion.global ?? data ?? []
+  const apis = regions.find(r => r.region === 'global')?.apis ?? data ?? []
 
-  return Response.json({ regions, apis })
+  // Outlook rankings per range. api_stats timings belong to the live
+  // endpoints, so they're deliberately not attached here.
+  const { data: ow } = await supabase
+    .from('outlook_weights')
+    .select('id, name, weight, score, reports, updated_at, region, horizon, delta_history')
+  const horizons = Object.fromEntries(
+    ['h48', 'd7', 'd14'].map(h => [h, groupByRegion((ow ?? []).filter(r => r.horizon === h), {})])
+  )
+
+  return Response.json({ regions, apis, horizons })
 }
