@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Thermometer, CloudRain } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
-import { headlineText, headlineTone, dayWord, fill } from '@/lib/outlook/text'
+import { headlineText, headlineTone, dayPhrase, fill } from '@/lib/outlook/text'
 import { MetricCard } from '../ui'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
@@ -63,7 +63,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
               </button>
               {d.spread > 4 && (
                 <div className="px-2 pb-2 -mt-1 text-xs" style={{ color: 'var(--warn)' }}>
-                  ⚠ {fill(t(lang, 'hlSplit'), { spread: fmt.fmtSpan(d.spread), day: dayWord(lang, d.date, todayLocal) })}
+                  ⚠ {fill(t(lang, 'hlSplit'), { spread: fmt.fmtSpan(d.spread), when: dayPhrase(lang, d.date, todayLocal) })}
                 </div>
               )}
               {open && <div className="px-2 pb-4"><HourlyChart hours={dayHours} unit={unit} lang={lang} height={140} /></div>}

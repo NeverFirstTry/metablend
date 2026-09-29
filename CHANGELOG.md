@@ -34,6 +34,11 @@ All notable changes to MetaBlend. Format loosely follows
   city's sunrise to half an hour before sunset), ignores breezes under
   15 km/h, prefers temperatures near 21 °C, and shows nothing when every
   remaining hour is wet anyway. Today's and tomorrow's are picked separately.
+- Tomorrow's rain headline starts at 06:00: a wet hour at midnight is
+  tonight's (the Today tab covers the night) and no longer becomes "Rain
+  likely 00:00–01:00 tomorrow".
+- "Models split by 4° on tomorrow" → "… tomorrow" / "… on Monday"; German
+  now says "am Montag", Spanish no longer says "el mañana".
 
 ### Added — the outlook: 48 hours, 7 days, 14 days
 - **The page now leads with what's coming, not what's outside the window.**
