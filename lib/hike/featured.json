@@ -1,0 +1,439 @@
+[
+ {
+  "id": "grossglockner",
+  "name": "Großglockner",
+  "aka": [
+   "Grossglockner"
+  ],
+  "lat": 47.07455,
+  "lon": 12.69388,
+  "elev": 3798,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "wildspitze",
+  "name": "Wildspitze",
+  "lat": 46.88524,
+  "lon": 10.86728,
+  "elev": 3768,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "grossvenediger",
+  "name": "Großvenediger",
+  "aka": [
+   "Grossvenediger"
+  ],
+  "lat": 47.10927,
+  "lon": 12.34534,
+  "elev": 3657,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "olperer",
+  "name": "Olperer",
+  "lat": 47.05331,
+  "lon": 11.65872,
+  "elev": 3476,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "kitzsteinhorn",
+  "name": "Kitzsteinhorn",
+  "lat": 47.18804,
+  "lon": 12.6875,
+  "elev": 3203,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "hoher-dachstein",
+  "name": "Hoher Dachstein",
+  "aka": [
+   "Dachstein"
+  ],
+  "lat": 47.47519,
+  "lon": 13.60567,
+  "elev": 2995,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "hochkoenig",
+  "name": "Hochkönig",
+  "aka": [
+   "Hochkoenig"
+  ],
+  "lat": 47.42033,
+  "lon": 13.06245,
+  "elev": 2941,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "hafelekarspitze",
+  "name": "Hafelekarspitze (Nordkette)",
+  "aka": [
+   "Nordkette"
+  ],
+  "lat": 47.31283,
+  "lon": 11.38632,
+  "elev": 2334,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "hochschwab",
+  "name": "Hochschwab",
+  "lat": 47.61824,
+  "lon": 15.14245,
+  "elev": 2277,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "patscherkofel",
+  "name": "Patscherkofel",
+  "lat": 47.20883,
+  "lon": 11.46061,
+  "elev": 2246,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "schneeberg",
+  "name": "Schneeberg (Klosterwappen)",
+  "aka": [
+   "Schneeberg"
+  ],
+  "lat": 47.76706,
+  "lon": 15.8045,
+  "elev": 2076,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "rax",
+  "name": "Rax (Heukuppe)",
+  "aka": [
+   "Rax",
+   "Raxalpe"
+  ],
+  "lat": 47.68899,
+  "lon": 15.68947,
+  "elev": 2007,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "oetscher",
+  "name": "Ötscher",
+  "aka": [
+   "Oetscher"
+  ],
+  "lat": 47.86186,
+  "lon": 15.20251,
+  "elev": 1893,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "schafberg",
+  "name": "Schafberg",
+  "lat": 47.77658,
+  "lon": 13.43349,
+  "elev": 1783,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "traunstein",
+  "name": "Traunstein",
+  "lat": 47.8732,
+  "lon": 13.8398,
+  "elev": 1691,
+  "country": "AT",
+  "kind": "peak"
+ },
+ {
+  "id": "erzherzog-johann-huette",
+  "name": "Erzherzog-Johann-Hütte",
+  "aka": [
+   "Adlersruhe",
+   "Erzherzog Johann Huette"
+  ],
+  "lat": 47.07007,
+  "lon": 12.70158,
+  "elev": 3454,
+  "country": "AT",
+  "kind": "hut"
+ },
+ {
+  "id": "schiestlhaus",
+  "name": "Schiestlhaus",
+  "lat": 47.62216,
+  "lon": 15.14835,
+  "elev": 2153,
+  "country": "AT",
+  "kind": "hut"
+ },
+ {
+  "id": "zugspitze",
+  "name": "Zugspitze",
+  "lat": 47.42122,
+  "lon": 10.9863,
+  "elev": 2962,
+  "country": "DE",
+  "kind": "peak"
+ },
+ {
+  "id": "watzmann",
+  "name": "Watzmann (Mittelspitze)",
+  "aka": [
+   "Watzmann"
+  ],
+  "lat": 47.55439,
+  "lon": 12.92203,
+  "elev": 2713,
+  "country": "DE",
+  "kind": "peak"
+ },
+ {
+  "id": "alpspitze",
+  "name": "Alpspitze",
+  "lat": 47.4295,
+  "lon": 11.04781,
+  "elev": 2628,
+  "country": "DE",
+  "kind": "peak"
+ },
+ {
+  "id": "wendelstein",
+  "name": "Wendelstein",
+  "lat": 47.70348,
+  "lon": 12.01205,
+  "elev": 1838,
+  "country": "DE",
+  "kind": "peak"
+ },
+ {
+  "id": "herzogstand",
+  "name": "Herzogstand",
+  "lat": 47.61346,
+  "lon": 11.30849,
+  "elev": 1731,
+  "country": "DE",
+  "kind": "peak"
+ },
+ {
+  "id": "dufourspitze",
+  "name": "Dufourspitze (Monte Rosa)",
+  "aka": [
+   "Monte Rosa"
+  ],
+  "lat": 45.93692,
+  "lon": 7.86676,
+  "elev": 4634,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "matterhorn",
+  "name": "Matterhorn",
+  "aka": [
+   "Cervino"
+  ],
+  "lat": 45.97643,
+  "lon": 7.6586,
+  "elev": 4478,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "jungfrau",
+  "name": "Jungfrau",
+  "lat": 46.53677,
+  "lon": 7.96259,
+  "elev": 4158,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "piz-bernina",
+  "name": "Piz Bernina",
+  "lat": 46.38243,
+  "lon": 9.90805,
+  "elev": 4049,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "eiger",
+  "name": "Eiger",
+  "lat": 46.57763,
+  "lon": 8.00547,
+  "elev": 3967,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "titlis",
+  "name": "Titlis",
+  "lat": 46.77203,
+  "lon": 8.43781,
+  "elev": 3238,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "saentis",
+  "name": "Säntis",
+  "aka": [
+   "Saentis"
+  ],
+  "lat": 47.24944,
+  "lon": 9.34324,
+  "elev": 2502,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "pilatus",
+  "name": "Pilatus (Tomlishorn)",
+  "aka": [
+   "Pilatus"
+  ],
+  "lat": 46.97391,
+  "lon": 8.24122,
+  "elev": 2128,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "rigi",
+  "name": "Rigi Kulm",
+  "aka": [
+   "Rigi"
+  ],
+  "lat": 47.05668,
+  "lon": 8.48526,
+  "elev": 1798,
+  "country": "CH",
+  "kind": "peak"
+ },
+ {
+  "id": "hoernlihuette",
+  "name": "Hörnlihütte",
+  "aka": [
+   "Hornlihutte",
+   "Hoernlihuette"
+  ],
+  "lat": 45.9822,
+  "lon": 7.67701,
+  "elev": 3260,
+  "country": "CH",
+  "kind": "hut"
+ },
+ {
+  "id": "gran-paradiso",
+  "name": "Gran Paradiso",
+  "lat": 45.51782,
+  "lon": 7.2672,
+  "elev": 4061,
+  "country": "IT",
+  "kind": "peak"
+ },
+ {
+  "id": "ortler",
+  "name": "Ortler",
+  "aka": [
+   "Ortles"
+  ],
+  "lat": 46.5091,
+  "lon": 10.54493,
+  "elev": 3905,
+  "country": "IT",
+  "kind": "peak"
+ },
+ {
+  "id": "marmolada",
+  "name": "Marmolada (Punta Penia)",
+  "aka": [
+   "Marmolada"
+  ],
+  "lat": 46.43455,
+  "lon": 11.85135,
+  "elev": 3343,
+  "country": "IT",
+  "kind": "peak"
+ },
+ {
+  "id": "tre-cime",
+  "name": "Drei Zinnen (Große Zinne)",
+  "aka": [
+   "Tre Cime",
+   "Cima Grande",
+   "Drei Zinnen"
+  ],
+  "lat": 46.61944,
+  "lon": 12.30254,
+  "elev": 2999,
+  "country": "IT",
+  "kind": "peak"
+ },
+ {
+  "id": "rifugio-auronzo",
+  "name": "Rifugio Auronzo",
+  "lat": 46.6122,
+  "lon": 12.2961,
+  "elev": 2320,
+  "country": "IT",
+  "kind": "hut"
+ },
+ {
+  "id": "mont-blanc",
+  "name": "Mont Blanc",
+  "aka": [
+   "Monte Bianco"
+  ],
+  "lat": 45.83271,
+  "lon": 6.86517,
+  "elev": 4806,
+  "country": "FR",
+  "kind": "peak"
+ },
+ {
+  "id": "aiguille-du-midi",
+  "name": "Aiguille du Midi",
+  "lat": 45.87864,
+  "lon": 6.88735,
+  "elev": 3842,
+  "country": "FR",
+  "kind": "peak"
+ },
+ {
+  "id": "refuge-du-gouter",
+  "name": "Refuge du Goûter",
+  "aka": [
+   "Gouter"
+  ],
+  "lat": 45.85108,
+  "lon": 6.83059,
+  "elev": 3835,
+  "country": "FR",
+  "kind": "hut"
+ },
+ {
+  "id": "triglav",
+  "name": "Triglav",
+  "lat": 46.3783,
+  "lon": 13.83658,
+  "elev": 2864,
+  "country": "SI",
+  "kind": "peak"
+ }
+]
