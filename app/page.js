@@ -15,10 +15,10 @@ import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
-import RangeTabs from './components/outlook/RangeTabs'
-import Tab48h from './components/outlook/Tab48h'
+import RangeTabs, { RANGES } from './components/outlook/RangeTabs'
+import TabToday from './components/outlook/TabToday'
+import TabTomorrow from './components/outlook/TabTomorrow'
 import Tab7d from './components/outlook/Tab7d'
-import Tab14d from './components/outlook/Tab14d'
 import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookSkeleton, OutlookError } from './components/outlook/Status'
@@ -177,11 +177,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
-  // The future forecast (48 h / 7 days / 14 days) — fetched alongside "right
+  // The future forecast (today / tomorrow / week) — fetched alongside "right
   // now" and failing independently of it.
   const [outlook, setOutlook] = useState(null)
   const [outlookError, setOutlookError] = useState(null)
-  const [tab, setTab] = useState('h48')
+  const [tab, setTab] = useState('today')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lang, setLang] = useState('en')
@@ -222,7 +222,7 @@ export default function Home() {
     setFavorites(getFavorites())
     try {
       const savedTab = localStorage.getItem(TAB_KEY)
-      if (['h48', 'd7', 'd14'].includes(savedTab)) setTab(savedTab)
+      if (RANGES.some(([id]) => id === savedTab)) setTab(savedTab)
     } catch { /* private mode */ }
     // Deep link: /?city=Vienna loads that city straight away (used by the
     // per-city SEO pages and the RSS feed links).
@@ -874,9 +874,9 @@ export default function Home() {
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
             {outlook ? (
-              tab === 'h48' ? <Tab48h outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
+              tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
                 : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                  : <Tab14d outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
+                  : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
             ) : outlookError ? (
               <OutlookError lang={lang} onRetry={retryOutlook} />
             ) : (

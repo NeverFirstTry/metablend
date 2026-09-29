@@ -2,7 +2,8 @@
 
 import { Clock, Sun, Wind, Flower2, CloudRain } from 'lucide-react'
 import { t, uvText, aqiText, pollenText } from '@/lib/i18n'
-import { headlineText, headlineTone, dayWord } from '@/lib/outlook/text'
+import { headlineText, headlineTone } from '@/lib/outlook/text'
+import { todayHours } from '@/lib/outlook/headlines'
 import { MetricCard, SectionTitle, Fold } from '../ui'
 import RainRadar from '../RainRadar'
 import Headline from './Headline'
@@ -15,28 +16,31 @@ const uvColor = v => (v == null ? MUTED : v < 3 ? GREEN : v < 6 ? YELLOW : RED)
 const aqiColor = v => (v == null ? MUTED : v <= 40 ? GREEN : v <= 80 ? YELLOW : RED)
 const pollenColor = v => (v == null ? MUTED : v < 20 ? GREEN : v < 50 ? YELLOW : RED)
 
-export default function Tab48h({ outlook, now, unit, lang, fmt }) {
-  const hours = outlook.hourly.slice(0, 48)
+// The rest of today (through the night once it's evening), hour by hour.
+export default function TabToday({ outlook, now, unit, lang, fmt }) {
   const todayLocal = outlook.nowLocal.slice(0, 10)
-  const h = outlook.headlines?.h48
-  const best = outlook.bestTime
+  const { hours } = todayHours(outlook.hourly, todayLocal)
+  const h = outlook.headlines?.today
+  const best = outlook.bestTime?.today
   const x = now?.extras
   return (
     <div className="space-y-4 animate-fade-in">
-      <Headline text={headlineText(lang, 'h48', h, { todayLocal, ...fmt })} tone={headlineTone('h48', h)} />
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
-        <HourlyChart hours={hours} unit={unit} lang={lang} />
-        <p className="text-zinc-500 text-xs mt-2">{t(lang, 'bandHint')}</p>
-        <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
-        <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} />
-      </div>
+      <Headline text={headlineText(lang, 'today', h, { todayLocal, ...fmt })} tone={headlineTone('today', h)} />
+      {hours.length > 0 && (
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
+          <HourlyChart hours={hours} unit={unit} lang={lang} />
+          <p className="text-zinc-500 text-xs mt-2">{t(lang, 'bandHint')}</p>
+          <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
+          <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} />
+        </div>
+      )}
       <div className="flex flex-wrap gap-3">
         {best && (
           <MetricCard
             icon={Sun}
             label={t(lang, 'bestTimeOut')}
             value={`${best.icon ?? ''} ${best.t.slice(11, 16)}`}
-            sub={`${dayWord(lang, best.t.slice(0, 10), todayLocal)} · ${fmt.fmtTemp(best.temp)} · ${best.rainPct ?? '–'}%`}
+            sub={`${fmt.fmtTemp(best.temp)} · ${best.rainPct ?? '–'}%`}
             color="var(--ok)"
           />
         )}

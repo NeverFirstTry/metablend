@@ -2,13 +2,13 @@ import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { geocodeCity, getRegion } from '@/lib/weather'
-import { fetchOpenMeteoMultiRaw, fetchEnsembleRaw, fetchClimateRaw } from '@/lib/outlook/sources'
+import { fetchOpenMeteoMultiRaw, fetchClimateRaw } from '@/lib/outlook/sources'
 import { fetchNationalRaw, fetchMetNorwayRaw } from '@/lib/outlook/national'
 import { buildOutlook } from '@/lib/outlook/build'
 import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { saveSnapshots } from '@/lib/outlook/snapshots'
 
-// The future forecast: 48 h / 7 days / 14 days consensus + headlines.
+// The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
 // for 30 minutes, so 1 or 1,000 viewers cost the same upstream calls.
 export const maxDuration = 30
@@ -27,9 +27,8 @@ export const GET = withErrorLog('outlook', async (request) => {
   if (!geo) return noStore({ error: `"${q}" was not found.` }, 404)
   const region = getRegion(geo.lat, geo.lon)
 
-  const [multi, ensemble, climate, national, weights] = await Promise.all([
+  const [multi, climate, national, weights] = await Promise.all([
     fetchOpenMeteoMultiRaw(geo.lat, geo.lon),
-    fetchEnsembleRaw(geo.lat, geo.lon),
     fetchClimateRaw(geo.lat, geo.lon),
     fetchNationalRaw(geo.lat, geo.lon),
     loadOutlookWeights(region),
@@ -37,7 +36,7 @@ export const GET = withErrorLog('outlook', async (request) => {
   // MET Norway only as the fallback when the model request failed
   const met = multi ? null : await fetchMetNorwayRaw(geo.lat, geo.lon)
 
-  const { payload, series, utcOffsetSec, todayLocal } = buildOutlook({ geo, region, multi, ensemble, climate, national, met, weights })
+  const { payload, series, utcOffsetSec, todayLocal } = buildOutlook({ geo, region, multi, climate, national, met, weights })
   if (!payload.hourly.length && !payload.days.length) {
     return noStore({ error: 'Forecast unavailable right now — please try again shortly.' }, 502)
   }

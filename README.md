@@ -80,7 +80,7 @@ cooling). It is deliberately **excluded from the consensus** it derives from
 like every other source — so the leaderboard shows, honestly, whether
 consensus + local correction beats the raw APIs.
 
-### The outlook — 48 hours, 7 days, 14 days
+### The outlook — today, tomorrow, the week
 
 "Right now" is something anyone can see out of the window, so the page leads
 with what's coming. `/api/outlook` blends the future from ~10 independent
@@ -94,13 +94,15 @@ SMHI, DWD MOSMIX via Bright Sky). Two rules keep the consensus honest:
   silently continue as ECMWF copies and would fake agreement. MET Norway's
   locationforecast is only a fallback for the same reason (measured, see
   `docs/superpowers/specs/2026-09-29-future-forecast-design.md`).
-- **Uncertainty that grows with range.** Each hour and day carries the spread
-  of the sources; week 2, where only ECMWF and GFS remain, takes its band from
-  the ECMWF (51) and GEFS (31) ensemble members instead.
+- **Honest spread.** Each hour and day carries how far the sources disagree,
+  drawn as a band behind the consensus and as an agreement meter per day.
 
-Each tab opens with one headline (next rain window, best day outside, trend vs
-the 10-year normal). And the learning loop now covers the future too: every
-source's predictions at +6 / 12 / 24 / 48 h and for days 1–14 are saved
+The outlook stops at a week on purpose: beyond that only ECMWF and GFS remain
+and the answer turns into a trend nobody plans a day around. Each tab opens
+with one headline: the next rain window today (through the night once it's
+evening), tomorrow's rain, high and change from today, and the best day of the
+week. And the learning loop covers the future too: every source's predictions
+at +6 / 12 / 24 / 48 h and for days 1–7 are saved
 (`outlook_snapshots`) and checked nightly against airport observations once
 their time has come, so `outlook_weights` learns **who is right about tomorrow
 and next week**, per region and per range — shown as extra tabs on the
@@ -122,23 +124,24 @@ export contains nothing that isn't already public via the app's own endpoints.
 
 ## Features
 
-- **The outlook in three tabs** — **48 h** (hourly chart with the sources'
-  spread, hour strip, next rain window), **7 days** (low/high, rain chance and
-  an agreement meter per day, a warning where the models split, tap a day for
-  its hours) and **14 days** (trend vs the 10-year normal with an uncertainty
-  band that widens with range); each opens with a one-sentence answer
+- **The outlook in three tabs** — **Today** (hourly chart with the sources'
+  spread, hour strip, next rain window, UV / air / pollen, radar),
+  **Tomorrow** (the whole day hour by hour, high / low, best time out, vs the
+  10-year normal) and **Week** (low/high, rain chance and an agreement meter
+  per day, a warning where the models split, tap a day for its hours, the
+  week vs normal); each opens with a one-sentence answer
 - **Weighted consensus** across many weather APIs with a confidence score,
   compact on top ("right now" is one tap away)
 - **Honest rain chances** — real probabilities where a source publishes one,
   otherwise the share of sources calling rain; never a made-up 0 %
 - **Severe-weather warnings** when every source agrees on thunderstorms or heavy rain
-- **Best time to be outside** in the next 48 h, scored on rain, comfort and wind
+- **Best time to be outside** today and tomorrow, scored on rain, comfort and wind
 - **UV index, air quality and pollen**, colour-coded at a glance
 - **Live rain radar** (RainViewer over OpenStreetMap)
 - **Community feedback** that retrains the weights, with abuse/sanity guards
-- **Per-region leaderboard** — who's right now, and who's right about the
-  next 48 h, 7 days and 14 days, in Europe, Asia, etc., with a recent-accuracy
-  sparkline per source
+- **Per-region leaderboard** — who's right now, and who's right about today
+  and tomorrow and about the week, in Europe, Asia, etc., with a
+  recent-accuracy sparkline per source
 - **Global feedback heatmap** showing where the consensus was right vs. wrong
 - **Favorite & recent cities** for one-tap access
 - **Server-rendered city pages** (`/weather/vienna`, …) — crawlable consensus
@@ -176,10 +179,9 @@ export contains nothing that isn't already public via the app's own endpoints.
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
 | ECMWF IFS · NOAA GFS · DWD ICON | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
-| UK Met Office · Canada GEM · JMA · Météo-France | no | Outlook only (via Open-Meteo): further global models for the 48 h / 7-day / 14-day blend |
+| UK Met Office · Canada GEM · JMA · Météo-France | no | Outlook only (via Open-Meteo): further global models for the today / tomorrow / week blend |
 | KNMI HARMONIE · DMI HARMONIE · MET Nordic | no | Outlook only (via Open-Meteo): high-resolution regional models, ~2.5 days, Europe / Nordics |
-| ECMWF ENS · NOAA GEFS ensembles | no | Outlook only (Open-Meteo ensemble API): 51 + 31 members for the week-2 uncertainty band |
-| [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, 10-day statistical forecast |
+| [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, statistical forecast |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |
 | [NASA POWER](https://power.larc.nasa.gov) | no | Satellite-derived hourly data |
 | [GeoSphere Austria](https://data.hub.geosphere.at) | no | INCA analysis grid; Austria/DACH coverage only |

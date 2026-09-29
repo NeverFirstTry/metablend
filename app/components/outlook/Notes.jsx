@@ -1,6 +1,6 @@
 import { t } from '@/lib/i18n'
 
-const KEYS = { fewer_sources: 'noteFewerSources', ensemble_unavailable: 'noteEnsembleUnavailable' }
+const KEYS = { fewer_sources: 'noteFewerSources' }
 
 // Honest footnotes when the outlook runs on fewer sources than usual.
 export default function Notes({ notes, lang }) {

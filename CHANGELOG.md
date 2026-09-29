@@ -5,6 +5,36 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-29
 
+### Changed — Today · Tomorrow · Week
+- **The outlook's tabs are now Today, Tomorrow and Week**; the 14-day view is
+  gone. Past a week only two models remain and the answer turns into a trend
+  nobody plans a day around, so the page now spends its space on the days
+  people actually plan.
+  - **Today** — the rest of today hour by hour (from 18:00 on it runs through
+    the night to 06:00), the next rain window, the best time out, UV / air /
+    pollen and the radar. Headlines like "Dry for the rest of today" or "Rain
+    through the night".
+  - **Tomorrow** — the whole day hour by hour, rain window or "Dry tomorrow",
+    its high and when, "3° warmer than today", high / low with the sources'
+    agreement, and tomorrow vs the 10-year normal.
+  - **Week** — the 7-day list as before, now with the week vs normal and
+    rainy days vs normal (moved over from the 14-day tab).
+  All 5 languages.
+- **Leaner engine.** The model request fetches 8 days instead of 16 and the
+  ensemble request (only used for week 2) is gone: one upstream call fewer per
+  lookup. Records and the trend chart went with the 14-day tab.
+- **Learning follows the tabs**: predictions are saved for days 1–7, the
+  leaderboard ranks "Today & tomorrow" and "Week". Older day-8–14 checkpoints
+  expire unscored instead of skewing the week's ranking.
+- City pages lead with today's and tomorrow's headline.
+
+### Fixed — "best time out" after dark
+- The best time to be outside could land at 21:00, long after sunset: a
+  calm evening won on wind alone. It now only considers daylight (from the
+  city's sunrise to half an hour before sunset), ignores breezes under
+  15 km/h, prefers temperatures near 21 °C, and shows nothing when every
+  remaining hour is wet anyway. Today's and tomorrow's are picked separately.
+
 ### Added — the outlook: 48 hours, 7 days, 14 days
 - **The page now leads with what's coming, not what's outside the window.**
   "Right now" shrinks to one line (tap for the details), and three tabs take

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { HORIZONS } from '@/lib/outlook/weights'
 
 const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
 
@@ -58,8 +59,9 @@ export async function GET() {
   const { data: ow } = await supabase
     .from('outlook_weights')
     .select('id, name, weight, score, reports, updated_at, region, horizon, delta_history')
+    .in('horizon', HORIZONS)
   const horizons = Object.fromEntries(
-    ['h48', 'd7', 'd14'].map(h => [h, groupByRegion((ow ?? []).filter(r => r.horizon === h), {})])
+    HORIZONS.map(h => [h, groupByRegion((ow ?? []).filter(r => r.horizon === h), {})])
   )
 
   return Response.json({ regions, apis, horizons })

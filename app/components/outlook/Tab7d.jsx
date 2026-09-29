@@ -1,9 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { Thermometer, CloudRain } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, headlineTone, dayWord, fill } from '@/lib/outlook/text'
+import { MetricCard } from '../ui'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
 import Notes from './Notes'
@@ -23,6 +25,8 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
   const [openDay, setOpenDay] = useState(null)
   const todayLocal = outlook.nowLocal.slice(0, 10)
   const h = outlook.headlines?.d7
+  const w1 = outlook.vsNormal?.week1
+  const rd = outlook.rainyDays
   const days = outlook.days.slice(0, 7)
   const lo = Math.min(...days.map(d => d.tempMin)), hi = Math.max(...days.map(d => d.tempMax)), span = hi - lo || 1
   return (
@@ -68,6 +72,22 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
         })}
       </div>
       <p className="text-zinc-500 text-xs">{t(lang, 'agreeHint')}</p>
+      {(w1 != null || rd?.of > 0) && (
+        <div className="flex flex-wrap gap-3">
+          {w1 != null && (
+            <MetricCard icon={Thermometer} label={t(lang, 'vsNormal10')} value={fmt.fmtDelta(w1)} sub={t(lang, 'thisWeek')} color={w1 > 0 ? 'var(--hot)' : 'var(--info)'} />
+          )}
+          {rd?.of > 0 && (
+            <MetricCard
+              icon={CloudRain}
+              label={t(lang, 'rainyDaysLabel')}
+              value={fill(t(lang, 'rainyDaysValue'), { n: rd.forecast, total: rd.of })}
+              sub={rd.normal != null ? fill(t(lang, 'normalValue'), { n: rd.normal }) : null}
+              color="var(--info)"
+            />
+          )}
+        </div>
+      )}
       <Notes notes={outlook.notes} lang={lang} />
     </div>
   )

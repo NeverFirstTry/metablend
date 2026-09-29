@@ -65,7 +65,8 @@ export default async function CityWeather({ params }) {
   const [data, outlook] = await Promise.all([getForecast(city), getOutlook(city)])
   if (data === 'unknown') notFound()
   const todayLocal = outlook?.nowLocal?.slice(0, 10)
-  const rain = outlook ? headlineText('en', 'h48', outlook.headlines?.h48, { todayLocal }) : null
+  const today = outlook ? headlineText('en', 'today', outlook.headlines?.today, { todayLocal }) : null
+  const tomorrow = outlook ? headlineText('en', 'tomorrow', outlook.headlines?.tomorrow, { todayLocal }) : null
   const week = outlook?.days?.slice(0, 7) ?? []
 
   const name = data.city ?? displayName(city)
@@ -133,9 +134,10 @@ export default async function CityWeather({ params }) {
               <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Sun</dt><dd className="font-bold tabular-nums">{outlook.sun.sunrise} – {outlook.sun.sunset}</dd></div>
             )}
           </dl>
-          {rain && (
+          {(today || tomorrow) && (
             <p className="mt-5 text-sm text-zinc-300">
-              Outlook for {name}: {rain.title}{rain.sub ? ` (${rain.sub})` : ''}.
+              {/* both titles name their day ("… tonight", "Dry tomorrow") */}
+              Outlook for {name}: {[today, tomorrow].filter(Boolean).map(h => `${h.title}${h.sub ? ` (${h.sub})` : ''}.`).join(' ')}
             </p>
           )}
         </section>

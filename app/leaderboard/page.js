@@ -25,9 +25,9 @@ function name(id, fallback) {
   return n !== id ? n : fallback ?? id
 }
 
-// "Right now" is the live ranking; the other three rank the outlook's
+// "Right now" is the live ranking; the other two rank the outlook's
 // predictions per range, scored once their time has come.
-const HORIZONS = [['now', 'lbRightNow'], ['h48', 'tab48h'], ['d7', 'tab7d'], ['d14', 'tab14d']]
+const HORIZONS = [['now', 'lbRightNow'], ['h48', 'lbTodayTomorrow'], ['d7', 'tabWeek']]
 const LEARNING_BELOW = 200 // checks per region before a range stops saying "still learning"
 
 // Tiny bar sparkline of recent scoring deltas (−2…+2): green = the source was
