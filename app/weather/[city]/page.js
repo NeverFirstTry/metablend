@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
 import { formatCalendarDate } from '@/lib/localtime'
+import { headlineText, deltaFormatter } from '@/lib/outlook/text'
 import Footer from '../../components/Footer'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
@@ -21,16 +22,30 @@ function displayName(slug) {
 // server-to-server fetches. Returns the payload, 'unknown' for a city the
 // geocoder can't resolve (→ 404), or throws for transient failures (→ 500,
 // which crawlers retry instead of de-indexing the page).
+const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
+// Same lower-cased key the app uses, so these self-fetches share its CDN copies
+const cityQuery = slug => encodeURIComponent(slugToQuery(slug).toLowerCase())
+
 async function getForecast(slug) {
-  const base = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
-  const res = await fetch(`${base}/api/forecast?city=${encodeURIComponent(slugToQuery(slug))}`, {
-    next: { revalidate: 900 },
-  })
+  const res = await fetch(`${BASE}/api/forecast?city=${cityQuery(slug)}&lang=en`, { next: { revalidate: 900 } })
   if (res.status === 404) return 'unknown'
   if (!res.ok) throw new Error(`forecast api ${res.status}`)
   const json = await res.json()
   if (json.error) return 'unknown'
   return json
+}
+
+// The outlook (7-day table, rain sentence, climate) is a bonus on this page:
+// if it fails, the page still renders the current consensus.
+async function getOutlook(slug) {
+  try {
+    const res = await fetch(`${BASE}/api/outlook?city=${cityQuery(slug)}`, { next: { revalidate: 900 } })
+    if (!res.ok) return null
+    const json = await res.json()
+    return json.error ? null : json
+  } catch {
+    return null
+  }
 }
 
 export async function generateMetadata({ params }) {
@@ -47,8 +62,11 @@ export async function generateMetadata({ params }) {
 
 export default async function CityWeather({ params }) {
   const { city } = await params
-  const data = await getForecast(city)
+  const [data, outlook] = await Promise.all([getForecast(city), getOutlook(city)])
   if (data === 'unknown') notFound()
+  const todayLocal = outlook?.nowLocal?.slice(0, 10)
+  const rain = outlook ? headlineText('en', 'h48', outlook.headlines?.h48, { todayLocal }) : null
+  const week = outlook?.days?.slice(0, 7) ?? []
 
   const name = data.city ?? displayName(city)
   const condition =
@@ -111,23 +129,19 @@ export default async function CityWeather({ params }) {
             <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Rain probability</dt><dd className="font-bold tabular-nums">{data.consensus.rainPct != null ? `${data.consensus.rainPct}%` : '–'}</dd></div>
             <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Wind</dt><dd className="font-bold tabular-nums">{data.consensus.windKmh} km/h</dd></div>
             <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Source agreement</dt><dd className="font-bold tabular-nums">{data.consensus.confidencePct}%</dd></div>
-            {data.sunrise && data.sunrise !== '–' && (
-              <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Sun</dt><dd className="font-bold tabular-nums">{data.sunrise} – {data.sunset}</dd></div>
+            {outlook?.sun?.sunrise && (
+              <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Sun</dt><dd className="font-bold tabular-nums">{outlook.sun.sunrise} – {outlook.sun.sunset}</dd></div>
             )}
           </dl>
-          {data.willRain != null && (
+          {rain && (
             <p className="mt-5 text-sm text-zinc-300">
-              {data.willRain === true
-                ? `Yes — rain is expected in ${name} today (${data.consensus.rainPct}% probability across the sources that forecast rain).`
-                : data.willRain === false
-                  ? `No rain expected in ${name} today (${data.consensus.rainPct}% probability across the sources that forecast rain).`
-                  : `Rain is possible in ${name} today — the sources disagree (${data.consensus.rainPct}% combined probability).`}
+              Outlook for {name}: {rain.title}{rain.sub ? ` (${rain.sub})` : ''}.
             </p>
           )}
         </section>
 
         {/* 7-day, as a real table (crawlable) */}
-        {data.forecast7?.length > 0 && (
+        {week.length > 0 && (
           <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">7-day consensus forecast</h2>
             <table className="w-full text-sm text-left min-w-[420px]">
@@ -141,20 +155,20 @@ export default async function CityWeather({ params }) {
                 </tr>
               </thead>
               <tbody>
-                {data.forecast7.map(d => (
+                {week.map(d => (
                   <tr key={d.date} className="border-t border-zinc-800">
                     <td className="py-2 pr-4 whitespace-nowrap">{weekday(d.date)}</td>
-                    <td className="py-2 pr-4">{d.icon} {d.condition}</td>
-                    <td className="py-2 pr-4 tabular-nums">{d.tempMax}° / {d.tempMin}°</td>
+                    <td className="py-2 pr-4">{d.icon ?? ''} {d.condition ?? ''}</td>
+                    <td className="py-2 pr-4 tabular-nums">{Math.round(d.tempMax)}° / {Math.round(d.tempMin)}°</td>
                     <td className="py-2 pr-4 tabular-nums">{d.rainPct != null ? `${d.rainPct}%` : '–'}</td>
-                    <td className="py-2 tabular-nums">{d.windKmh} km/h</td>
+                    <td className="py-2 tabular-nums">{d.windKmh != null ? `${d.windKmh} km/h` : '–'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
             <p className="text-zinc-500 text-xs mt-3">
-              Each day blends five independent daily forecasts (Open-Meteo, GFS, ICON, ECMWF, MET Norway),
-              weighted by measured accuracy.
+              Each day blends {outlook.sources.length} independent forecasts ({outlook.sources.map(s => s.name).join(', ')}),
+              weighted by how accurate each has been for this range.
             </p>
           </section>
         )}
@@ -172,10 +186,11 @@ export default async function CityWeather({ params }) {
               Currently most trusted here: {topWeights.map(t => `${t.name} (${t.pct}%)`).join(', ')}.
             </p>
           )}
-          {data.climate?.avgTemp != null && (
+          {outlook?.vsNormal?.week1 != null && (
             <p className="text-sm text-zinc-400 leading-relaxed mt-3">
-              Historically, this month in {name} averages {data.climate.avgTemp}°C with about{' '}
-              {data.climate.avgRainyDays} rainy days (10 years of climate data).
+              This week runs {deltaFormatter('C')(outlook.vsNormal.week1)}C against the 10-year normal for {name};{' '}
+              {outlook.rainyDays.forecast} of the next {outlook.rainyDays.of} days look rainy
+              {outlook.rainyDays.normal != null ? ` (normal: ${outlook.rainyDays.normal})` : ''}.
             </p>
           )}
         </section>

@@ -4,29 +4,11 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { sourceName } from '@/lib/sources'
+import { fill } from '@/lib/outlook/text'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
-
-const DISPLAY_NAMES = {
-  'open-meteo':           'Open-Meteo',
-  'owm':                  'OpenWeatherMap',
-  'weatherapi':           'WeatherAPI',
-  'tomorrow':             'Tomorrow.io',
-  'met-norway':           'MET Norway',
-  'visual-crossing':      'Visual Crossing',
-  'world-weather-online': 'World Weather Online',
-  'weatherstack':         'Weatherstack',
-  'nasa-power':           'NASA POWER',
-  'geosphere':            'GeoSphere Austria',
-  'ecmwf':                'ECMWF IFS',
-  'gfs':                  'NOAA GFS',
-  'icon':                 'DWD ICON',
-  'nws':                  'NWS (US)',
-  'brightsky':            'DWD Bright Sky',
-  'smhi':                 'SMHI (Nordics)',
-  'metablend':            'MetaBlend Local',
-}
 
 const REGION_KEYS = {
   global:        'regionGlobal',
@@ -39,8 +21,14 @@ const REGION_KEYS = {
 }
 
 function name(id, fallback) {
-  return DISPLAY_NAMES[id] ?? fallback ?? id
+  const n = sourceName(id)
+  return n !== id ? n : fallback ?? id
 }
+
+// "Right now" is the live ranking; the other three rank the outlook's
+// predictions per range, scored once their time has come.
+const HORIZONS = [['now', 'lbRightNow'], ['h48', 'tab48h'], ['d7', 'tab7d'], ['d14', 'tab14d']]
+const LEARNING_BELOW = 200 // checks per region before a range stops saying "still learning"
 
 // Tiny bar sparkline of recent scoring deltas (−2…+2): green = the source was
 // close to the truth that report, red = it was off.
@@ -64,6 +52,8 @@ function Sparkline({ data }) {
 export default function Leaderboard() {
   const lang = useLang()
   const [regions, setRegions] = useState(null)
+  const [horizons, setHorizons] = useState({})
+  const [horizon, setHorizon] = useState('now')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [active, setActive] = useState('global')
@@ -75,6 +65,7 @@ export default function Leaderboard() {
       .then(d => {
         if (d.error) throw new Error(d.error)
         setRegions(d.regions ?? [])
+        setHorizons(d.horizons ?? {})
       })
       .catch(e => setError(e.message))
   }
@@ -100,7 +91,9 @@ export default function Leaderboard() {
     }
   }
 
-  const current = regions?.find(r => r.region === active)
+  const list = horizon === 'now' ? regions : horizons?.[horizon] ?? []
+  const current = list?.find(r => r.region === active) ?? list?.[0]
+  const checks = current?.apis?.reduce((n, a) => n + (a.reports ?? 0), 0) ?? 0
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
@@ -124,7 +117,28 @@ export default function Leaderboard() {
 
         <BetaBanner lang={lang} className="mb-6" />
 
-        <div className="mb-8 flex items-center gap-3 flex-wrap">
+        {/* Range tabs */}
+        <div role="tablist" className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1 mb-4">
+          {HORIZONS.map(([id, key]) => (
+            <button
+              key={id}
+              role="tab"
+              aria-selected={horizon === id}
+              onClick={() => setHorizon(id)}
+              className={`press flex-1 text-xs py-2 rounded-lg transition-colors ${horizon === id ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
+            >
+              {t(lang, key)}
+            </button>
+          ))}
+        </div>
+        {horizon !== 'now' && (
+          <p className="text-zinc-500 text-xs mb-6">
+            {t(lang, 'lbHorizonHint')}
+            {checks < LEARNING_BELOW && list?.length > 0 && <span className="block mt-1" style={{ color: 'var(--warn)' }}>{fill(t(lang, 'lbLearning'), { n: checks })}</span>}
+          </p>
+        )}
+
+        <div className={`mb-8 flex items-center gap-3 flex-wrap ${horizon === 'now' ? '' : 'hidden'}`}>
           <button
             onClick={recalibrate}
             disabled={recal?.busy}
@@ -154,16 +168,16 @@ export default function Leaderboard() {
           </div>
         )}
 
-        {regions && regions.length > 0 && (
+        {list && list.length > 0 && (
           <>
             {/* Region tabs */}
             <div className="flex gap-2 flex-wrap mb-6">
-              {regions.map(r => (
+              {list.map(r => (
                 <button
                   key={r.region}
                   onClick={() => setActive(r.region)}
                   className={`press text-xs px-3 py-2 rounded-lg border ${
-                    active === r.region
+                    current?.region === r.region
                       ? 'bg-emerald-400 text-black border-emerald-400 font-bold'
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-emerald-400'
                   }`}
@@ -247,8 +261,8 @@ export default function Leaderboard() {
           </>
         )}
 
-        {regions && regions.length === 0 && !error && (
-          <p className="text-zinc-500 text-sm">{t(lang, 'lbNoData')}</p>
+        {list && list.length === 0 && !error && !loading && (
+          <p className="text-zinc-500 text-sm">{horizon === 'now' ? t(lang, 'lbNoData') : fill(t(lang, 'lbLearning'), { n: 0 })}</p>
         )}
 
         <Footer lang={lang} />
