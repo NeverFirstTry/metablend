@@ -47,6 +47,10 @@ All notable changes to MetaBlend. Format loosely follows
   live in one pure module, `lib/localtime.js`, shared by server and client —
   they had been copied into four places.
 - Removed a stray, unused root `layout.jsx` and untracked `_dev.log`.
+- **Vercel Speed Insights is live** (cookieless Core Web Vitals). The package
+  had been installed for months, but its snippet sat in that stray file and
+  never loaded. Disclosed in the privacy notice in all 5 languages, whose
+  retention section now also states the 30-day pruning.
 
 ## 2026-08-09
 
