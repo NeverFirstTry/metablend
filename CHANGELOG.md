@@ -5,6 +5,48 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-29
 
+### Added — the outlook: 48 hours, 7 days, 14 days
+- **The page now leads with what's coming, not what's outside the window.**
+  "Right now" shrinks to one line (tap for the details), and three tabs take
+  over: **48 h** (hourly chart with the sources' spread band, hour strip, best
+  time outside, UV/air/pollen, radar), **7 days** (low/high bar, rain chance and
+  an agreement meter per day, "models split by N°" warnings, tap a day for its
+  hours) and **14 days** (trend against the 10-year normal, an uncertainty band
+  that visibly widens with range, week 2 labelled "trend only", this month's
+  records). Each tab opens with a one-sentence answer: the next rain window,
+  the best day to go outside, the trend. The last tab is remembered. All 5
+  languages.
+- **A new future engine, `/api/outlook`.** ~10 independent weather models in
+  one Open-Meteo request (ECMWF, GFS, ICON, UKMO, GEM, JMA, Météo-France and the
+  KNMI / DMI / MET Nordic high-resolution models) plus NWS, SMHI and DWD MOSMIX
+  where they apply; ECMWF + GEFS ensembles (82 members) for the week-2 band;
+  10-year normals from the climate archive. Sources were measured for
+  independence first: the regional models' `*_seamless` variants turned into
+  copies of each other after ~2 days and MET Norway's own forecast tracked MET
+  Nordic to 0.04 °C, so pure models are used and MET Norway is only the
+  fallback. Rain chance is a real probability where published, otherwise the
+  share of sources calling rain — null (never 0 %) when nobody says anything.
+- **MetaBlend now learns who's right about the future.** Every source's
+  predictions at +6 / 12 / 24 / 48 h and for days 1–14 are saved per city and
+  checked by the nightly cleanup against NOAA METAR history once their time
+  has come (checkpoints are marked done before scoring, so nothing is ever
+  counted twice). Separate weights per region and range (`outlook_weights`)
+  feed back into the blend; the leaderboard gets **Right now · 48 h · 7 days ·
+  14 days** tabs. Verified end to end against real Vienna airport data.
+- **One upstream lookup per city and period, however many people look.** Both
+  routes are served from Vercel's CDN (30 min outlook, 15 min right now,
+  stale-while-revalidate, concurrent misses collapsed; errors never cached).
+  Confirmed in production: repeat requests come back `HIT`.
+
+### Changed
+- `/api/forecast` is "right now" only: the 7-day bundle, hourly best time,
+  10-year history, rain verdict and intraday chart moved to the outlook (about
+  15 → 5 Open-Meteo calls per lookup). City pages (`/weather/<city>`) take their
+  7-day table, rain sentence and climate line from the outlook.
+- `app/page.js` split into focused components (1,431 → ~930 lines).
+- The landing-page explainer and the privacy notice (the saved forecast range)
+  updated in all 5 languages.
+
 ### Fixed — security: feedback input
 - **Stored XSS on /heatmap.** Feedback city names are user input, and the
   heatmap pasted them straight into Leaflet popups, which render as

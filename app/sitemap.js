@@ -7,7 +7,7 @@ export default function sitemap() {
   // Search engines learn to distrust lastModified when everything always
   // claims "just now" — only genuinely live pages carry the current time.
   const legalUpdated = new Date('2026-07-07')
-  const privacyUpdated = new Date('2026-09-29')
+  const privacyUpdated = new Date('2026-09-29') // also the saved forecast range (outlook)
   return [
     { url: `${BASE}/`, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE}/leaderboard`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
