@@ -46,6 +46,12 @@ All notable changes to MetaBlend. Format loosely follows
 - `app/page.js` split into focused components (1,431 → ~930 lines).
 - The landing-page explainer and the privacy notice (the saved forecast range)
   updated in all 5 languages.
+- **Station calibration really runs hourly now.** GitHub Actions' "hourly"
+  schedule had been firing only every 6–8 hours, so the trigger moved into the
+  database: a Supabase `pg_cron` job (`station-calibrate-hourly`, :17 every hour)
+  calls the endpoint through `pg_net`, reading the key from Supabase Vault at
+  run time. The GitHub workflow stays as a manual button. See
+  `supabase/cron.sql`.
 
 ### Fixed — security: feedback input
 - **Stored XSS on /heatmap.** Feedback city names are user input, and the

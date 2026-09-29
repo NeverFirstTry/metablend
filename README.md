@@ -52,9 +52,9 @@ All of these share the exact same scoring math (`lib/scoring.js`):
   ground truth, and scores the last hour of forecasts against it — temperature
   as the primary delta plus a second, stricter-scaled delta for wind accuracy
   when both sides report wind. Real measurements, every hour. Gated by
-  `CALIBRATE_SECRET` and triggered by a GitHub Action
-  (`.github/workflows/station-calibrate.yml`) — Vercel sub-daily crons need a Pro
-  plan, so an external scheduler keeps it on any plan.
+  `CALIBRATE_SECRET` and triggered by a Supabase `pg_cron` job
+  (`supabase/cron.sql`) — Vercel sub-daily crons need a Pro plan, and GitHub
+  Actions' hourly schedule proved unreliable, so the database fires it itself.
 - **Daily calibration** — `/api/calibrate` scores yesterday's forecasts against
   Visual Crossing historical actuals (6 am UTC cron).
 - **Nightly validation** — `/api/cleanup` prunes old rows (5 am UTC cron) and,
@@ -234,7 +234,9 @@ WEATHERSTACK_KEY=
 RAPIDAPI_KEY=           # Meteostat, for nightly validation
 
 # Optional jobs / admin
-CALIBRATE_SECRET=       # gates /api/self-calibrate (set to any random string)
+CALIBRATE_SECRET=       # gates /api/self-calibrate + /api/station-calibrate
+                        # (any random string; also stored in Supabase Vault
+                        # as calibrate_secret, see supabase/cron.sql)
 CRON_SECRET=            # gates the cron jobs (/api/calibrate, /api/cleanup,
                         # /api/webhook); Vercel sends it automatically to crons
 WEBHOOK_URL=            # optional low-confidence alert target
