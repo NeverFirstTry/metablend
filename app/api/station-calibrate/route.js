@@ -3,6 +3,7 @@ import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
 import { withErrorLog } from '@/lib/log'
+import { haversineKm } from '@/lib/geo'
 
 // Ground-truth calibration from aviation METAR observations (NOAA Aviation
 // Weather Center — free, no key). For each city with a recent forecast, pull
@@ -22,13 +23,6 @@ const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour
 const MAX_CITIES = 15          // cap per run out of courtesy to the free API
 const MAX_STATIONS = 4         // nearest N fresh reports (median of these)
 const MAX_OBS_AGE_MIN = 90     // METARs are hourly; skip anything staler
-
-function haversineKm(lat1, lon1, lat2, lon2) {
-  const rad = d => (d * Math.PI) / 180
-  const a = Math.sin(rad(lat2 - lat1) / 2) ** 2 +
-    Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lon2 - lon1) / 2) ** 2
-  return 12742 * Math.asin(Math.sqrt(a))
-}
 
 // Fresh METAR observations within RADIUS_KM of the point, nearest first.
 // Returns { temps, winds } — temps in °C, winds in km/h (METAR wspd is knots).

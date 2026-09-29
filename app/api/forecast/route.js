@@ -11,16 +11,8 @@ import {
 } from '@/lib/weather'
 import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon, localMidnightUtc } from '@/lib/localtime'
-
-const DISPLAY_NAMES = {
-  'open-meteo': 'Open-Meteo', owm: 'OpenWeatherMap', weatherapi: 'WeatherAPI',
-  tomorrow: 'Tomorrow.io', 'met-norway': 'MET Norway', 'visual-crossing': 'Visual Crossing',
-  'world-weather-online': 'World Weather Online', weatherstack: 'Weatherstack', 'nasa-power': 'NASA POWER',
-  geosphere: 'GeoSphere Austria',
-  ecmwf: 'ECMWF IFS', gfs: 'NOAA GFS', icon: 'DWD ICON',
-  nws: 'NWS (US)', brightsky: 'DWD Bright Sky', smhi: 'SMHI (Nordics)',
-  metablend: 'MetaBlend Local',
-}
+import { createRateLimiter } from '@/lib/ratelimit'
+import { sourceName } from '@/lib/sources'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -44,23 +36,7 @@ const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
 // metered upstream weather APIs by spamming distinct cities. In-memory and
 // best-effort (per warm instance, resets on cold start) — enough to stop casual
 // abuse without a datastore. Cache hits below are free and never counted.
-const RATE = new Map()
-const RATE_MAX = 40             // cache-miss forecasts …
-const RATE_WINDOW = 60 * 1000   // … per minute, per IP
-function forecastRateLimited(ip) {
-  const now = Date.now()
-  const e = RATE.get(ip)
-  if (!e || now > e.resetAt) {
-    // occasionally sweep expired IPs so the map doesn't grow unbounded
-    if (RATE.size > 1000) {
-      for (const [k, v] of RATE) if (now > v.resetAt) RATE.delete(k)
-    }
-    RATE.set(ip, { count: 1, resetAt: now + RATE_WINDOW })
-    return false
-  }
-  e.count += 1
-  return e.count > RATE_MAX
-}
+const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 }) // cache-miss forecasts per minute, per IP
 
 export const GET = withErrorLog('forecast', async (request) => {
   const { searchParams } = new URL(request.url)
@@ -79,7 +55,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   // Cache miss → this request will hit the metered upstream APIs, so throttle.
-  if (forecastRateLimited(clientIp(request))) {
+  if (limiter.limited(clientIp(request))) {
     return Response.json({ error: 'Too many requests — please slow down.' }, { status: 429 })
   }
 
@@ -135,7 +111,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // sources that actively failed (threw / timed out) — shown as "down"
   const downSources = timed
     .filter(t => t.down)
-    .map(t => ({ apiId: t.id, displayName: DISPLAY_NAMES[t.id] ?? t.id, down: true, responseMs: t.ms }))
+    .map(t => ({ apiId: t.id, displayName: sourceName(t.id), down: true, responseMs: t.ms }))
 
   if (results.length === 0) {
     return Response.json({ error: 'No API data available' }, { status: 500 })
