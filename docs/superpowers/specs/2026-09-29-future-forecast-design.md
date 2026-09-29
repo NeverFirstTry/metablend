@@ -110,14 +110,19 @@ days (measured: knmi/dmi/metno seamless within 0.27–0.59 °C of each other in
 Vienna, London and Oslo), which would fake agreement. Pure models return
 null outside their range/domain, so they drop out by themselves.
 
-National services with real forecasts, fetched in parallel:
-- **met-norway** (locationforecast) — **only inside the Nordic box**; outside
-  it tracks ECMWF within 0.2–0.4 °C (measured), so it would be a duplicate.
-- **nws** (US hourly gridpoint, 7 d), **smhi** (snow1g, 10 d, Nordics),
-  **brightsky** (DWD MOSMIX via Bright Sky, Germany, 10 d).
-- Implementation step: measure each national product against the models in
-  its home region (3 cities, first 72 h); any product within 0.4 °C mean
-  |Δ| of another included source is dropped as a duplicate.
+National services with real forecasts, fetched in parallel (measured
+2026-09-29, mean |Δ| over the first 72 h vs the included models):
+- **nws** (US hourly gridpoint, ~6.5 d) — 1.6–2.0 °C from ECMWF/GFS/GEM:
+  independent.
+- **smhi** (snow1g, Nordics) — 0.5 °C from ECMWF/ICON, 0.9 °C from MET
+  Nordic: independent enough.
+- **brightsky** (DWD MOSMIX via Bright Sky, Germany, 10 d) — 1.2–2.9 °C:
+  independent.
+- **met-norway** (locationforecast) is **not** a blend source: in Stockholm
+  it matches the pure MET Nordic model to 0.04 °C, and elsewhere it tracks
+  ECMWF within 0.2–0.4 °C. It is only the fallback when Open-Meteo fails.
+- Daily values from national hourly series are only formed for days with
+  ≥ 20 hourly points (coarse 3/6-hourly tails don't produce fake maxima).
 
 Week-2 uncertainty: one Open-Meteo **ensemble** request (`ecmwf_ifs025` = 51
 members, `gfs025` = 31 members; keys `*_ecmwf_ifs025_ensemble`,
@@ -193,11 +198,16 @@ forecast route and the leaderboard page).
 
 ### Snapshots
 
-When `/api/outlook` recomputes and the city has no snapshot in the last 6 h
-(models refresh every ~6 h), insert one row per contributing source into
-`outlook_snapshots` with its checkpoints:
-- hourly: temp + rain call at +6, +12, +24, +48 h (UTC target times);
-- daily: max, min, rain call for local days D+1 … D+14 (as far as it reaches).
+When `/api/outlook` recomputes, one row per contributing source goes into
+`outlook_snapshots`, in two kinds:
+- **h** rows (at most every 6 h per city — models refresh every ~6 h): temp +
+  rain call at +6, +12, +24, +48 h (UTC target times). Live ≤ 3 days.
+- **d** rows (at most once per city-local day — daily predictions move
+  slowly): max, min, rain call for local days D+1 … D+14. Live ≤ 16 days.
+
+A unique `(city, source, kind, slot)` index settles races between server
+instances; `next_due_at` (the earliest unverified checkpoint) lets the job
+select only rows with something to check.
 
 ### Verification (daily, inside the existing `/api/cleanup` cron)
 
@@ -217,11 +227,13 @@ When `/api/outlook` recomputes and the city has no snapshot in the last 6 h
   `d14` [3, 5, 7, 10] (D+8…D+14); rain adds a separate delta from the Brier
   score with scheme [0.05, 0.15, 0.35, 0.6].
 - **Never double counts:** checkpoints are marked in the snapshot's
-  `verified` set *before* deltas are applied (a crash loses a signal rather
-  than applying it twice — same policy as station calibration). Checkpoints
-  without a station or data within the window are marked expired.
+  `verified` set (via the `mark_outlook_verified` RPC) *before* deltas are
+  applied — a crash loses a signal rather than applying it twice, same policy
+  as station calibration. Checkpoints without a station, or whose truth has
+  left the ~70 h METAR window, are marked expired.
 - Weights: `outlook_weights (id, region, horizon)`, same normalization as the
   live weights (`buildWeightUpdates`), missing rows seeded on first use.
+  Deltas go to the city's region **and** to `global` (worldwide ranking).
 - Snapshots are deleted once fully verified or after 16 days.
 
 ### Leaderboard
@@ -236,14 +248,19 @@ and keeps its current fields. Young horizons show "still learning — N checks".
 create table if not exists outlook_snapshots (
   id bigserial primary key,
   city text not null, lat double precision, lon double precision,
-  region text default 'global', source text not null,
+  region text not null default 'global', source text not null,
+  kind text not null check (kind in ('h','d')),
+  slot integer not null,                 -- h: floor(ms / 6 h) · d: yyyymmdd
   issued_at timestamptz not null default now(),
-  hourly jsonb not null default '[]',   -- [{t, lead, temp, rain}]
-  daily  jsonb not null default '[]',   -- [{date, lead, max, min, rain}]
-  verified jsonb not null default '{}'  -- {checkpointKey: 'scored'|'expired'}
+  utc_offset_sec integer not null default 0,
+  checkpoints jsonb not null default '[]', -- h: [{key,t,lead,temp,rain}] d: [{key,date,lead,max,min,rain}]
+  verified jsonb not null default '{}',    -- {key: 'scored'|'expired'}
+  next_due_at timestamptz
 );
-create index if not exists outlook_snapshots_issued on outlook_snapshots (issued_at);
-create index if not exists outlook_snapshots_city   on outlook_snapshots (city, issued_at desc);
+create unique index if not exists outlook_snapshots_slot on outlook_snapshots (city, source, kind, slot);
+create index if not exists outlook_snapshots_due  on outlook_snapshots (next_due_at);
+create index if not exists outlook_snapshots_city on outlook_snapshots (city, issued_at desc);
+-- mark_outlook_verified(rows jsonb): [{id, verified, next_due_at}] → service role only
 
 create table if not exists outlook_weights (
   id text not null, region text not null default 'global', horizon text not null,
@@ -258,8 +275,8 @@ RLS enabled with no policies, like every other table (`enable_rls.sql`).
 ## 6. Error handling
 
 - A failing source drops out (as today).
-- Open-Meteo multi-model failure → 48 h/7 d fall back to national services
-  (MET Norway worldwide in this case) with `notes: ['fewer_sources']`.
+- Open-Meteo multi-model failure → 48 h/7 d fall back to the national
+  services plus MET Norway (worldwide) with `notes: ['fewer_sources']`.
 - Ensemble failure → week-2 band from the deterministic spread,
   `notes: ['ensemble_unavailable']`.
 - Nothing at all → 502 `no-store`; the tab shows an error + retry, the now
