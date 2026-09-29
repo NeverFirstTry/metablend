@@ -4,8 +4,9 @@ import { useEffect, useRef } from 'react'
 import { CloudRain } from 'lucide-react'
 import { loadLeaflet } from '@/lib/leaflet'
 
-// RainViewer radar laid over an OpenStreetMap base.
-export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
+// RainViewer radar laid over an OpenStreetMap base. `bare` drops the card
+// chrome for use inside a Fold, which already provides title and border.
+export default function RainRadar({ lat, lon, title = 'Rain Radar', bare = false }) {
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const radarLayerRef = useRef(null)
@@ -58,11 +59,8 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }
   }, [])
 
-  return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
-      <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4 flex items-center gap-2">
-        <CloudRain size={14} aria-hidden /> {title}
-      </div>
+  const map = (
+    <>
       <div
         ref={containerRef}
         className="w-full h-64 sm:h-80 rounded-xl overflow-hidden z-0"
@@ -71,6 +69,16 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar' }) {
       <div className="text-zinc-500 text-xs mt-3">
         Radar: RainViewer · Map: OpenStreetMap
       </div>
+    </>
+  )
+  if (bare) return <div>{map}</div>
+
+  return (
+    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-8">
+      <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4 flex items-center gap-2">
+        <CloudRain size={14} aria-hidden /> {title}
+      </div>
+      {map}
     </div>
   )
 }
