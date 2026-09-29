@@ -45,3 +45,6 @@ next-env.d.ts
 
 # local dev-server log
 _dev.log
+
+# brainstorming companion mockups
+.superpowers/
