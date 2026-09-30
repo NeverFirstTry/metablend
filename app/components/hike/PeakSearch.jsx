@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Search, LocateFixed, Loader2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { nativePosition } from '@/lib/native'
 
 // Debounced peak search. The query is trimmed + lower-cased and the location
 // bias rounded to 0.1° so equal searches share one CDN entry. "Near me" also
@@ -33,12 +34,16 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
     return () => clearTimeout(timer)
   }, [query, active, bias])
 
-  function nearMe() {
-    navigator.geolocation?.getCurrentPosition(pos => {
-      const p = { lat: Math.round(pos.coords.latitude * 10) / 10, lon: Math.round(pos.coords.longitude * 10) / 10 }
+  // inside the app the native location (proper permission prompt), else the browser's
+  async function nearMe() {
+    const done = c => {
+      const p = { lat: Math.round(c.lat * 10) / 10, lon: Math.round(c.lon * 10) / 10 }
       setBias(p)
       onLocate?.(p)
-    }, () => {}, { maximumAge: 600000, timeout: 10000 })
+    }
+    const native = await nativePosition()
+    if (native) return done(native)
+    navigator.geolocation?.getCurrentPosition(pos => done({ lat: pos.coords.latitude, lon: pos.coords.longitude }), () => {}, { maximumAge: 600000, timeout: 10000 })
   }
 
   const shown = active && res.query === query

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
+import { nativeShare } from '@/lib/native'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
@@ -460,6 +461,8 @@ export default function Home() {
     if (!data) return
     const condition = heroCondition(data) ?? ''
     const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend.app`
+    // inside the app: the native share sheet
+    if (await nativeShare({ title: 'MetaBlend', text, url: 'https://metablend.app' })) return
     if (navigator.share) {
       try { await navigator.share({ title: 'MetaBlend', text }); return } catch { /* cancelled → fall through */ }
     }
