@@ -1,0 +1,12 @@
+{
+  "appId": "app.metablend",
+  "appName": "MetaBlend",
+  "webDir": "www",
+  "appendUserAgent": "MetaBlendApp",
+  "server": {
+    "url": "https://metablend.app",
+    "allowNavigation": ["metablend.app"],
+    "errorPath": "index.html"
+  },
+  "backgroundColor": "#0e0e12"
+}
