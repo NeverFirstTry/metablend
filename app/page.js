@@ -13,6 +13,8 @@ import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
 import { nativeShare } from '@/lib/native'
 import { startCity } from '@/lib/app-client'
+import { skyFor } from '@/lib/sky'
+import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
@@ -313,6 +315,10 @@ export default function Home() {
   const showDelta = d => unit === 'F' ? d * 9 / 5 : d
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
+  // the page wears the city's sky: its weather right now at its time of day
+  useSky(outlook ? skyFor({ code: outlook.hourly?.[0]?.code, nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
+  // screen readers pick the voice from it, and hyphens: auto the dictionary
+  useEffect(() => { document.documentElement.lang = lang }, [lang])
 
   function giveConsent() {
     setCookie('metablend_consent', '1')
@@ -810,7 +816,9 @@ export default function Home() {
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <SectionTitle icon={Layers}>{data.city}{data.country ? `, ${data.country}` : ''}</SectionTitle>
+                  <h2 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">
+                    {data.city}{data.country && <span className="text-zinc-400 font-normal">, {data.country}</span>}
+                  </h2>
                   <button
                     onClick={manualRefresh}
                     disabled={refreshing || loading}

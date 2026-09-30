@@ -108,9 +108,7 @@ export default function Leaderboard() {
           </Link>
         </div>
 
-        <h1 className="text-3xl font-bold mb-1">
-          API<span className="text-emerald-400">Leaderboard</span>
-        </h1>
+        <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight mb-1">{t(lang, 'leaderboard')}</h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           {t(lang, 'lbSubtitle')}
         </p>

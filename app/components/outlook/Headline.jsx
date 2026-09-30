@@ -10,9 +10,10 @@ export default function Headline({ text, tone = 'neutral' }) {
   if (!text) return null
   const t = TONES[tone] ?? TONES.neutral
   return (
-    <div className={`rounded-2xl border px-5 py-4 ${t.box}`}>
-      <div className="text-lg sm:text-xl font-bold leading-snug" style={{ color: t.color }}>{text.title}</div>
-      {text.sub && <div className="text-zinc-400 text-sm mt-1">{text.sub}</div>}
+    // keyed by the answer: a new answer (another tab, another city) arrives with the entrance again
+    <div key={text.title} className={`mb-rise-3 mb-glass rounded-2xl border px-5 py-4 ${t.box}`}>
+      <div className="text-xl sm:text-2xl font-semibold leading-snug tracking-tight" style={{ color: t.color }}>{text.title}</div>
+      {text.sub && <div className="text-zinc-400 text-sm mt-1.5">{text.sub}</div>}
     </div>
   )
 }

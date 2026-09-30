@@ -23,28 +23,37 @@ export default function NowLine({ data, unit, lang, showT, showDelta }) {
     ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl">
-      <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-center justify-between gap-3 px-4 sm:px-5 py-3 text-left">
-        <span className="flex items-center gap-2 sm:gap-3 min-w-0">
-          <span className="text-zinc-500 text-[11px] uppercase tracking-wider shrink-0">{t(lang, 'nowWord')}</span>
-          <span className="text-2xl font-bold tabular-nums shrink-0">{showT(c.temp)}°{unit}</span>
-          {condition && <span className="text-xl shrink-0" aria-hidden>{conditionIcon(condition, data.lon)}</span>}
-          {condition && <span className="text-zinc-400 text-sm truncate hidden sm:inline">{translateCondition(lang, condition)}</span>}
+    <div>
+      {/* the hero: the temperature as a big light numeral, straight on the sky */}
+      <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-end justify-between gap-4 text-left group">
+        <span className="flex items-end gap-4 min-w-0">
+          {/* whole degrees in the hero — the tenths live in the details */}
+          <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
+            {Math.round(Number(showT(c.temp)))}°
+          </span>
+          <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
+            {condition && (
+              <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
+                <span aria-hidden>{conditionIcon(condition, data.lon)}</span>
+                <span className="truncate">{translateCondition(lang, condition)}</span>
+              </span>
+            )}
+            {c.feelsLike != null && (
+              <span className="block text-zinc-400 tabular-nums">{t(lang, 'feelsLike')} {Math.round(Number(showT(c.feelsLike)))}°</span>
+            )}
+            <span className="block tabular-nums whitespace-nowrap">
+              <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
+              {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · 🌧 {c.rainPct}%</span>}
+            </span>
+            {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
+          </span>
         </span>
-        <span className="flex items-center gap-3 shrink-0 text-xs">
-          {rainingHint
-            ? <span className="hidden sm:inline" style={{ color: 'var(--info)' }}>{rainingHint}</span>
-            : c.rainPct != null && <span className="text-zinc-400 tabular-nums">🌧 {c.rainPct}%</span>}
-          <span className="tabular-nums" style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
-          <ChevronDown size={16} className={`text-zinc-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden />
-        </span>
+        <ChevronDown size={18} className={`mb-2 shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
       {open && (
-        <div className="px-4 sm:px-5 pb-5 pt-4 border-t border-zinc-800 animate-fade-in space-y-4">
+        <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-2xl px-4 sm:px-5 py-4 animate-fade-in space-y-4">
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-400">
-            {c.feelsLike != null && <span>{t(lang, 'feelsLike')} {showT(c.feelsLike)}°{unit}</span>}
             <span className="inline-flex items-center gap-1"><Wind size={13} aria-hidden /> {c.windKmh} km/h</span>
-            {rainingHint && <span style={{ color: 'var(--info)' }}>{rainingHint}</span>}
             {yd != null && (Math.abs(yd) < 0.5
               ? <span>= {t(lang, 'vsYesterdaySame')}</span>
               : (

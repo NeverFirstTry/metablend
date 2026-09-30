@@ -8,6 +8,8 @@ import { addDays } from '@/lib/localtime'
 import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { worstStorm } from '@/lib/hike/blend'
+import { skyFor } from '@/lib/sky'
+import { useSky } from '@/lib/useSky'
 import RangeTabs from '../outlook/RangeTabs'
 import Headline from '../outlook/Headline'
 import HourlyChart from '../outlook/HourlyChart'
@@ -34,6 +36,8 @@ export default function PeakView({ peak, lang, unit, onBack }) {
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
 
   const d = state.data
+  // the summit's sky right now
+  useSky(d ? skyFor({ code: d.hourly?.[0]?.code, nowLocal: d.nowLocal, sun: d.sun }) : null)
   const todayLocal = d?.nowLocal?.slice(0, 10)
   const date = d && (tab === 'tomorrow' ? addDays(todayLocal, 1) : todayLocal)
   const hours = d ? d.hourly.filter(h => h.t.startsWith(date)) : []
@@ -49,7 +53,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         <ArrowLeft size={15} aria-hidden /> {t(lang, 'hikeBack')}
       </button>
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{peak.name}</h1>
+        <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{peak.name}</h1>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
           <span title={peak.elevApprox ? t(lang, 'elevApprox') : undefined}>{peak.elevApprox ? '≈' : ''}{peak.elev} m</span>
           {peak.country ? ` · ${peak.country}` : ''}

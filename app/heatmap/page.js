@@ -94,9 +94,7 @@ export default function Heatmap() {
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 
-        <h1 className="text-3xl font-bold mb-1">
-          Feedback<span className="text-emerald-400">Heatmap</span>
-        </h1>
+        <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight mb-1">{t(lang, 'heatmap')}</h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           {t(lang, 'hmSubtitle')}
         </p>

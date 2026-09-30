@@ -53,7 +53,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-ui);
   --font-mono: var(--font-geist-mono);
 }
 
@@ -64,7 +64,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-ui);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -269,3 +269,133 @@ html[data-app] body {
 }
 /* the on-screen keyboard would push the tab bar up over the input */
 html[data-app] body:has(:is(input, select, textarea):focus) .app-tabbar { display: none; }
+
+/* ── Typography ─────────────────────────────────────────────────────────────
+   SF Pro on Apple devices (the system face), Hanken Grotesk everywhere else.
+   Page-level `font-mono` falls back to it too; inner font-mono elements
+   (raw METAR / TAF, embed code) keep their monospace. */
+:root { --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-hanken), system-ui, sans-serif; }
+body, main.font-mono { font-family: var(--font-ui); }
+body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
+/* labels read as words, not shouted tags */
+.uppercase.tracking-widest, .uppercase.tracking-wider { text-transform: none; letter-spacing: 0; font-weight: 600; }
+
+/* ── Living sky (default theme) ─────────────────────────────────────────────
+   The page wears the forecast: <html data-sky="dawn|day|cloudy|rain|storm|
+   snow|dusk|night"> (lib/sky.js picks it from the weather code and the city's
+   sun times). Registered colours let one sky fade into the next. */
+@property --sky-a { syntax: '<color>'; inherits: true; initial-value: #060a1c; }
+@property --sky-b { syntax: '<color>'; inherits: true; initial-value: #101d45; }
+@property --sky-c { syntax: '<color>'; inherits: true; initial-value: #27366b; }
+:root {
+  --sky-a: #060a1c; --sky-b: #101d45; --sky-c: #27366b;
+  transition: --sky-a 1.8s var(--ease-out), --sky-b 1.8s var(--ease-out), --sky-c 1.8s var(--ease-out);
+}
+:root[data-sky="dawn"]   { --sky-a: #1a2553; --sky-b: #6a5890; --sky-c: #f19f7b; }
+:root[data-sky="day"]    { --sky-a: #1a5aa6; --sky-b: #3b83cf; --sky-c: #8cc0ea; }
+:root[data-sky="cloudy"] { --sky-a: #34465e; --sky-b: #5b6d86; --sky-c: #93a2b6; }
+:root[data-sky="rain"]   { --sky-a: #18222e; --sky-b: #2c3c4f; --sky-c: #4f6479; }
+:root[data-sky="storm"]  { --sky-a: #110f1b; --sky-b: #27213d; --sky-c: #473c61; }
+:root[data-sky="snow"]   { --sky-a: #40526c; --sky-b: #7789a3; --sky-c: #c1cddb; }
+:root[data-sky="dusk"]   { --sky-a: #141c3d; --sky-b: #583d6d; --sky-c: #df866d; }
+
+:root:not([data-theme="light"]) {
+  --foreground: #f6f8fc;
+  --muted: rgb(226 234 247 / 0.62);
+  --accent: #ffd98a;          /* sunlight */
+  --accent-strong: #ffe7b3;
+  --ok: #8eecc4; --warn: #ffd166; --bad: #ff9a9a; --info: #a9d1ff; --hot: #ffb48f; --neutral: rgb(226 234 247 / 0.7);
+  --surface-2: rgb(255 255 255 / 0.08); --surface-3: rgb(255 255 255 / 0.15);
+  --glass: rgb(255 255 255 / 0.075);
+  --glass-strong: rgb(9 14 32 / 0.55);
+  --hairline: rgb(255 255 255 / 0.13);
+  --map-bg: rgb(9 14 32 / 0.6);
+}
+:root:not([data-theme="light"]) body { background: var(--sky-a); }
+/* the sky itself: a fixed layer, so it doesn't stretch with long pages */
+:root:not([data-theme="light"]) body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 80% -5%, color-mix(in oklab, var(--sky-c) 30%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--sky-a) 0%, var(--sky-b) 52%, var(--sky-c) 100%);
+}
+:root:not([data-theme="light"]) {
+  & .bg-\[\#0e0e12\] { background-color: transparent; }
+  /* glass: blur only on the top-level panels, nested ones are just translucent */
+  & .bg-zinc-900 {
+    background-color: var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(150%);
+    backdrop-filter: blur(22px) saturate(150%);
+  }
+  & .bg-zinc-900 .bg-zinc-900 { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  & .bg-zinc-900\/60, & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
+    background-color: var(--glass-strong);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    backdrop-filter: blur(24px) saturate(160%);
+  }
+  & .bg-zinc-950 { background-color: rgb(9 14 32 / 0.45); }
+  & .bg-zinc-800 { background-color: rgb(255 255 255 / 0.1); }
+  & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(255 255 255 / 0.065); }
+  & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(255 255 255 / 0.1); }
+  & .border-zinc-800, & .border-zinc-800\/70 { border-color: var(--hairline); }
+  & .border-zinc-700 { border-color: rgb(255 255 255 / 0.2); }
+  & .divide-zinc-800 > :not(:last-child) { border-color: var(--hairline); }
+  & .text-zinc-300 { color: rgb(240 245 252 / 0.9); }
+  & .text-zinc-400 { color: rgb(232 239 250 / 0.74); }
+  & .text-zinc-500 { color: var(--muted); }
+  & .text-zinc-600 { color: rgb(226 234 247 / 0.45); }
+  /* accent: sunlight instead of the old acid green */
+  & .text-emerald-400, & .hover\:text-emerald-400:hover { color: var(--accent); }
+  & .text-emerald-300 { color: var(--accent-strong); }
+  & .border-emerald-400, & .hover\:border-emerald-400:hover,
+  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(255 217 138 / 0.7); }
+  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(255 217 138 / 0.35); }
+  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(255 217 138 / 0.1); }
+  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(255 217 138 / 0.16); }
+  /* primary actions: a white pill with deep-sky ink */
+  & .bg-emerald-400 { background-color: #f6f8fc; color: #0e1b36; }
+  & .hover\:bg-emerald-300:hover { background-color: #ffffff; }
+  & .bg-emerald-400.text-black, & .bg-emerald-400 .text-black { color: #0e1b36; }
+  & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(255 217 138 / 0.25); }
+  /* headline tones on the sky */
+  & .bg-blue-500\/10 { background-color: rgb(169 209 255 / 0.12); }
+  & .border-blue-500\/40 { border-color: rgb(169 209 255 / 0.35); }
+  & .bg-amber-400\/10 { background-color: rgb(255 209 102 / 0.12); }
+  & .bg-zinc-800\/60.border-zinc-700 { background-color: var(--glass); }
+  & .osm-dark { filter: invert(1) hue-rotate(185deg) brightness(0.85) contrast(0.95) saturate(0.6); }
+}
+.app-tabbar { transition: background-color 0.3s ease; }
+
+/* ── Motion ─────────────────────────────────────────────────────────────────
+   One orchestrated moment when a forecast arrives (the answer sharpens out
+   of a soft blur), and gentle scroll-linked reveals for the panels below —
+   both off under prefers-reduced-motion (handled above). */
+@keyframes mb-rise {
+  from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(10px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+.mb-rise { animation: mb-rise 0.9s var(--ease-out) both; }
+.mb-rise-2 { animation: mb-rise 0.9s var(--ease-out) 0.12s both; }
+.mb-rise-3 { animation: mb-rise 0.9s var(--ease-out) 0.18s both; }
+@keyframes mb-reveal {
+  from { opacity: 0; transform: translateY(28px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+@supports (animation-timeline: view()) {
+  main .rounded-2xl.bg-zinc-900 {
+    animation: mb-reveal linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+/* coloured glass (headline tones) gets the same blur as the panels */
+:root:not([data-theme="light"]) .mb-glass {
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(150%);
+}
+/* the beta notice: a quiet line of glass, not a warning box */
+:root:not([data-theme="light"]) {
+  & .bg-amber-900\/20 { background-color: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  & .border-amber-500\/30 { border-color: var(--hairline); }
+  & .text-amber-300\/90 { color: rgb(255 231 179 / 0.85); }
+}

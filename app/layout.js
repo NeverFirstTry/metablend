@@ -1,11 +1,12 @@
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist_Mono, Hanken_Grotesk } from 'next/font/google'
 import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
 import { APP_BOOT_SCRIPT } from '@/lib/app-client'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
+// UI face behind the Apple system font (SF Pro) — see --font-ui in globals.css
+const hanken = Hanken_Grotesk({ variable: '--font-hanken', subsets: ['latin', 'latin-ext'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 // SEO: metablend.app is the declared canonical (both domains serve the site;
@@ -70,7 +71,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${hanken.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
         {/* Theme is dark by default; apply the light cookie before first paint
             so opted-in users never see a dark flash. Runs synchronously. */}

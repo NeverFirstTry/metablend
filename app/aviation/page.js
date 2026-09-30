@@ -63,9 +63,7 @@ export default async function AviationHub() {
           </nav>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">
-          MetaBlend <span className="text-emerald-400">Aviation</span>
-        </h1>
+        <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight mb-1">MetaBlend Aviation</h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
           METAR · TAF · crosswind · density altitude — {AIRPORT_COUNT.toLocaleString('en')} airports
         </p>

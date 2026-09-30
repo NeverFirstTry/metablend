@@ -5,6 +5,24 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Changed — living sky design
+- **The page wears the sky** of the city (or summit) on screen: night, dawn,
+  day, cloudy, rain, storm, snow or dusk, from the current weather code and
+  the local sun times (`lib/sky.js`). The gradient eases between skies; the
+  light theme keeps its paper look.
+- Glass panels over the sky, sunlight-gold accent, white pill buttons, the
+  system font (SF Pro on Apple devices, Hanken Grotesk elsewhere) and
+  sentence-case labels instead of spaced capitals; the → arrows are gone.
+- **Hero** — the temperature as a large thin numeral on the sky, condition,
+  "feels like" and agreement beside it; the details open in a glass card.
+- Motion: the city, temperature and headline rise into place on load and on
+  every new answer; cards reveal on scroll where the browser supports it.
+  Reduced motion turns both off.
+- Page titles use the translated page name instead of two-colour wordmarks;
+  `<html lang>` follows the chosen language, so German compounds hyphenate
+  in narrow cards and screen readers pick the right voice.
+- Android builds on Android Gradle Plugin 9.4 / Gradle 9.6.
+
 ### Added — app shell (phase 3 of the app)
 - **`mobile/`** — Capacitor 8 projects for Android and iOS (Swift Package
   Manager) that load metablend.app with the `MetaBlendApp` user agent, plus an
