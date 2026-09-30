@@ -5,6 +5,22 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Added — app shell (phase 3 of the app)
+- **`mobile/`** — Capacitor 8 projects for Android and iOS (Swift Package
+  Manager) that load metablend.app with the `MetaBlendApp` user agent, plus an
+  offline screen. Native plugins: back button, location, share, haptics;
+  SystemBars for the status bar and safe areas. Build steps and a device
+  checklist in `mobile/README.md`.
+- **App chrome on the website, only inside the app** — a bottom tab bar
+  (Forecast · Hiking · More), notch / gesture-bar safe areas, footer, install
+  button and beta banner hidden, toasts and the consent notice lifted above
+  the bar; Android back goes back or closes the app on the first screen.
+- **`/more`** — settings (language, °C/°F, dark/light — the same cookies as
+  the home page) and links to rankings, heatmap, planner, aviation and the
+  legal pages. 5 languages.
+- Share uses the native sheet and "Near me" the native location inside the
+  app; plugin code is only downloaded inside the app.
+
 ### Added — hiking UI (phase 2 of the app)
 - **`/hike`** — inside the app: peak search (debounced, "near me" sorts the
   featured peaks by distance), 41 featured Alps peaks, and a peak page with

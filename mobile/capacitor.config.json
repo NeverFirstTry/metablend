@@ -8,5 +8,11 @@
     "allowNavigation": ["metablend.app"],
     "errorPath": "index.html"
   },
-  "backgroundColor": "#0e0e12"
+  "backgroundColor": "#0e0e12",
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "css",
+      "style": "DARK"
+    }
+  }
 }

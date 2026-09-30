@@ -135,6 +135,16 @@ live summit window of the peak of the day, the featured list and the store
 badges (`lib/hike/stores.js`). The app is recognised by its user agent
 (`MetaBlendApp`); `?app=1` shows the app view in any browser for testing.
 
+### The app (`mobile/`)
+
+A Capacitor 8 shell for Android and iOS that loads metablend.app. Inside it
+the website adds app chrome — a bottom tab bar (Forecast · Hiking · More),
+safe areas, `/more` settings — and uses native share, location, haptics and
+the Android back button through `lib/native.js` (plugin code is only
+downloaded inside the app). Website updates reach the app instantly; only
+native changes need a store build. Setup and device checklist:
+`mobile/README.md`.
+
 ### Backups
 
 `/api/backup` (gated like the other job endpoints) exports the learned state —
