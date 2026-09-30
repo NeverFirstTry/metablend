@@ -481,12 +481,14 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    on its own layer, so it all runs on the compositor at full frame rate. */
 :root { --loader-sun: #ffd98a; --loader-glow: #ffe3a3; --loader-cloud: #ffffff; --loader-shade: 0.5; }
 :root[data-theme="light"] { --loader-sun: #f5b43a; --loader-glow: #fff8dc; --loader-cloud: #ffffff; --loader-shade: 0.85; }
-@keyframes mb-drift { from { transform: translate3d(calc(var(--sway) * -1), 0, 0); } to { transform: translate3d(var(--sway), 0, 0); } }
+/* the 0.01° turn is invisible, but keeps Chrome from snapping a pure sideways
+   slide to whole pixels (which makes a slow drift step instead of glide) */
+@keyframes mb-drift { from { transform: translate3d(calc(var(--sway) * -1), 0, 0) rotate(0.01deg); } to { transform: translate3d(var(--sway), 0, 0) rotate(0.01deg); } }
 @keyframes mb-glow { from { opacity: 0.55; transform: scale(0.88); } to { opacity: 1; transform: scale(1.12); } }
 @keyframes mb-name { 0% { opacity: 0; } 14%, 86% { opacity: 1; } 100% { opacity: 0; } }
 /* 176 × 121 px = the 160 × 110 view scaled 1.1; the sun's centre is at 62.5% / 38.18% */
 .mb-loader .scene { position: relative; width: 176px; height: 121px; }
-.mb-loader .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; }
+.mb-loader .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; backface-visibility: hidden; }
 .mb-loader .glow {
   position: absolute; left: calc(62.5% - 42px); top: calc(38.18% - 42px); width: 84px; height: 84px; border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--loader-glow) 75%, transparent), transparent);
