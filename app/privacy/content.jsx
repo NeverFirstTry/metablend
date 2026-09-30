@@ -30,6 +30,7 @@ const CONTENT = {
         <p className="mb-2">To produce a forecast we send the city or coordinates you search to weather and geocoding providers, and we receive their data back:</p>
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, air quality, historical archive)</li>
+          <li>Photon (komoot) and OpenStreetMap — peak search and summit heights: the search text and, with “Near me”, a location rounded to about 10 km</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — only if you use “my location”, to turn your coordinates into a city name (reverse geocoding)</li>
           <li>NOAA Aviation Weather (METAR reports) and Meteostat — receive city coordinates server-side to fetch reference measurements that score each source&apos;s accuracy</li>
@@ -56,6 +57,7 @@ const CONTENT = {
         <p className="mb-2">Für eine Vorhersage senden wir die gesuchte Stadt bzw. deren Koordinaten an Wetter- und Geocoding-Anbieter und erhalten deren Daten zurück:</p>
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (inkl. Geocoding, Luftqualität, historisches Archiv)</li>
+          <li>Photon (komoot) und OpenStreetMap — Gipfelsuche und Gipfelhöhen: der Suchtext und bei „In meiner Nähe“ ein auf etwa 10 km gerundeter Standort</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — nur bei „Mein Standort“, um Koordinaten in einen Stadtnamen zu übersetzen (Reverse-Geocoding)</li>
           <li>NOAA Aviation Weather (METAR-Meldungen) und Meteostat — erhalten serverseitig Stadtkoordinaten, um Referenzmessungen für die Genauigkeitsbewertung abzurufen</li>
@@ -82,6 +84,7 @@ const CONTENT = {
         <p className="mb-2">Pour produire une prévision, nous envoyons la ville ou les coordonnées recherchées à des fournisseurs de météo et de géocodage, qui nous renvoient leurs données :</p>
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (y compris géocodage, qualité de l’air, archives historiques)</li>
+          <li>Photon (komoot) et OpenStreetMap — recherche de sommets et altitudes : le texte recherché et, avec « Près de moi », une position arrondie à environ 10 km</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — uniquement si vous utilisez « ma position », pour convertir vos coordonnées en nom de ville (géocodage inverse)</li>
           <li>NOAA Aviation Weather (relevés METAR) et Meteostat — reçoivent côté serveur les coordonnées des villes pour récupérer des mesures de référence servant à noter la précision de chaque source</li>
@@ -108,6 +111,7 @@ const CONTENT = {
         <p className="mb-2">Para generar una previsión enviamos la ciudad o coordenadas que buscas a proveedores de meteorología y geocodificación, y recibimos sus datos:</p>
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocodificación, calidad del aire, archivo histórico)</li>
+          <li>Photon (komoot) y OpenStreetMap — búsqueda de cumbres y altitudes: el texto buscado y, con «Cerca de mí», una ubicación redondeada a unos 10 km</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo si usas «mi ubicación», para convertir tus coordenadas en un nombre de ciudad (geocodificación inversa)</li>
           <li>NOAA Aviation Weather (informes METAR) y Meteostat — reciben coordenadas de ciudades en el servidor para obtener mediciones de referencia con las que puntuar la precisión de cada fuente</li>
@@ -134,6 +138,7 @@ const CONTENT = {
         <p className="mb-2">Per produrre una previsione inviamo la città o le coordinate cercate a fornitori di dati meteo e geocoding, e riceviamo i loro dati:</p>
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, qualità dell’aria, archivio storico)</li>
+          <li>Photon (komoot) e OpenStreetMap — ricerca delle vette e quote: il testo cercato e, con «Vicino a me», una posizione arrotondata a circa 10 km</li>
           <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo se usi «la mia posizione», per convertire le coordinate in un nome di città (geocoding inverso)</li>
           <li>NOAA Aviation Weather (bollettini METAR) e Meteostat — ricevono lato server le coordinate delle città per ottenere misurazioni di riferimento con cui valutare la precisione di ogni fonte</li>

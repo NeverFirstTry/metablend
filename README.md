@@ -128,6 +128,13 @@ elevation service, GeoNames as fallback) with 41 hand-picked Alps peaks
 first (`lib/hike/featured.json`, built by `scripts/build-featured-peaks.mjs`).
 Both answer from Vercel's CDN (30 min per peak, a day per search).
 
+`/hike` shows the full hiking section inside the app (search with "near me",
+41 featured peaks, a peak's Today / Tomorrow / Week summit forecast with the
+summit window as the headline) and a crawlable teaser everywhere else: the
+live summit window of the peak of the day, the featured list and the store
+badges (`lib/hike/stores.js`). The app is recognised by its user agent
+(`MetaBlendApp`); `?app=1` shows the app view in any browser for testing.
+
 ### Backups
 
 `/api/backup` (gated like the other job endpoints) exports the learned state —

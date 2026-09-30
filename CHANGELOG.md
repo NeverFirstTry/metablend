@@ -5,6 +5,20 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Added — hiking UI (phase 2 of the app)
+- **`/hike`** — inside the app: peak search (debounced, "near me" sorts the
+  featured peaks by distance), 41 featured Alps peaks, and a peak page with
+  Today / Tomorrow / Week: the summit window as the headline ("Summit window
+  tomorrow 07:00–12:00 · storms likely from 14:00"), the summit temperature
+  chart, an hour strip with summit wind, rain and storm risk, summit wind /
+  freezing level / storm risk cards, and the week's summit lows/highs, wind
+  and freezing level. Everyone else gets a crawlable teaser: the peak of the
+  day's live summit window, the featured list and "Coming soon" store badges.
+  All 5 languages; disclaimer, OpenStreetMap attribution and the
+  borrowed-trust note on every view.
+- Header link **Hiking**; `/hike` in the sitemap; privacy notice lists Photon
+  and OpenStreetMap (5 languages).
+
 ### Added — hiking engine (phase 1 of the app)
 - **`/api/hike`** — summit forecasts: the outlook's ~10 models downscaled to
   the peak's height; summit wind interpolated from the 850 / 700 / 600 hPa
