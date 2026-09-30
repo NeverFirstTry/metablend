@@ -30,7 +30,8 @@ export default function FeedbackPanel({ data, unit, lang, onWeights }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          city: data.city,
+          // the name the forecasts are stored under (English), not the shown one
+          city: data.learnCity ?? data.city,
           actualTemp: tempC,
           actualCond: feedback.cond,
           lat: data.lat ?? null,

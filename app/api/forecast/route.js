@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import {
-  geocodeCity, getRegion,
+  geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
   fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
@@ -71,6 +71,11 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   const region = getRegion(geo.lat, geo.lon)
+  // Everything this route stores or learns is filed under the place's English
+  // name, whatever language it was searched in — "Wien", "Vienne" and "Vienna"
+  // are one city (the outlook does the same). Fetched alongside the sources;
+  // if the lookup fails, the searched name stands in.
+  const learnCityP = lang === 'en' ? Promise.resolve(geo.name) : englishPlaceName(geo.id).then(n => n ?? geo.name)
 
   // 2. All source APIs in parallel, each timed
   const timed = await Promise.all([
@@ -196,7 +201,8 @@ export const GET = withErrorLog('forecast', async (request) => {
   // (lib/blend.js). Added AFTER the consensus/confidence/warning math so it
   // never feeds back into the number it derives from; stored and scored like
   // any other source so the leaderboard shows if it earns its keep.
-  const bias = await getCityBias(geo.name, isNightAt(geo.lon))
+  const learnCity = await learnCityP
+  const bias = await getCityBias(learnCity, isNightAt(geo.lon))
   if (bias != null) {
     results.push({
       apiId: 'metablend',
@@ -216,7 +222,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   const today = localDateForLon(geo.lon)
   const { error: fcInsErr } = await supabase.from('forecasts').insert(
     results.map(r => ({
-      city:      geo.name,
+      city:      learnCity,
       lat:       geo.lat,
       lon:       geo.lon,
       api_id:    r.apiId,
@@ -230,12 +236,12 @@ export const GET = withErrorLog('forecast', async (request) => {
   )
   // Don't fail the request over history storage, but don't swallow it silently
   // either — a broken insert here is why calibration had no data to learn from.
-  if (fcInsErr) logError('forecast.insert', fcInsErr, { city: geo.name })
+  if (fcInsErr) logError('forecast.insert', fcInsErr, { city: learnCity })
 
   // snapshot the consensus for the RSS feed and the low-confidence webhook
   try {
     await supabase.from('consensus_history').insert({
-      city: geo.name,
+      city: learnCity,
       country: geo.country,
       region,
       temp: consensus.temp,
@@ -296,6 +302,7 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   const payload = {
     city:     geo.name,
+    learnCity, // the key feedback reports are matched by (see above)
     country:  geo.country,
     lat:      geo.lat,
     lon:      geo.lon,

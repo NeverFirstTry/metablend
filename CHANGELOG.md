@@ -18,6 +18,13 @@ All notable changes to MetaBlend. Format loosely follows
   (it used to read "Copied" before anything was copied). `lib/share.js`, tested.
 
 ### Fixed
+- **One city, one history** — the live forecast now files everything it
+  stores or learns (forecast rows, the per-city bias behind MetaBlend Local,
+  consensus history) under the place's English name, like the outlook; the
+  response carries it as `learnCity` and feedback reports use it, so they still
+  match. Existing data was merged: Wien (Austria) → Vienna, München → Munich,
+  Klagenfurt am Wörthersee → Klagenfurt, with the city biases combined by
+  sample count (Wien, Missouri stays its own city).
 - **The outlook looked cities up in English**: "Wien" in German showed Vienna's
   weather now but Wien, Missouri's Today / Tomorrow / Week. It now uses the
   visitor's language like the live forecast; its learning snapshots stay keyed
