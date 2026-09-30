@@ -7,6 +7,8 @@ import { CloudSun, MountainSnow, Menu } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { onBackButton, tapHaptic, setStatusBarStyle } from '@/lib/native'
+import { initPush } from '@/lib/push-client'
+import { getCookie } from '@/lib/prefs'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -34,7 +36,11 @@ export default function AppChrome() {
     let off = () => {}
     let gone = false
     onBackButton(({ canGoBack, exit }) => (canGoBack ? router.back() : exit())).then(fn => { if (gone) fn(); else off = fn })
-    return () => { gone = true; off(); themeWatch.disconnect() }
+    // push: a fresh token at every start, and a tapped notification opens its screen
+    let offPush = () => {}
+    initPush({ lang: getCookie('metablend_lang') ?? 'en', unit: getCookie('metablend_unit') === 'F' ? 'F' : 'C', onOpen: url => router.push(url) })
+      .then(fn => { if (gone) fn(); else offPush = fn })
+    return () => { gone = true; off(); offPush(); themeWatch.disconnect() }
   }, [router])
 
   if (!app) return null
