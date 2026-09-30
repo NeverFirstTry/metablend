@@ -32,6 +32,7 @@ import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
 import EmbedPanel from './components/EmbedPanel'
+import PushPrompt from './components/push/PushPrompt'
 import { cityShareUrl, shareText } from '@/lib/share'
 import { heroCondition } from './components/outlook/icons'
 
@@ -874,6 +875,8 @@ ${url}`)
             ) : (
               <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
             )}
+
+            <PushPrompt lang={lang} unit={unit} />
 
             <Fold icon={Layers} title={t(lang, 'sourcesFold')}>
               <SourcesPanel data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />

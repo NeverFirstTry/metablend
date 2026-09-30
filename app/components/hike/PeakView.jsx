@@ -20,6 +20,8 @@ import SummitStrip, { StormLegend, STORM_COLOR } from './SummitStrip'
 import SummitDays from './SummitDays'
 import HikeNotes from './HikeNotes'
 import SkyLoader from '../SkyLoader'
+import PlanHike from './PlanHike'
+import { isNative } from '@/lib/native'
 
 // the models a summit request asks, for the loader's ticker
 const SUMMIT_MODELS = OM_MODELS.map(m => sourceName(m.id))
@@ -30,6 +32,9 @@ export default function PeakView({ peak, lang, unit, onBack }) {
   const [tab, setTab] = useState('today')
   const [state, setState] = useState({ data: null, error: false })
   const [attempt, setAttempt] = useState(0)
+  const [native, setNative] = useState(false)
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration environment sync
+  useEffect(() => setNative(isNative()), [])
   const url = hikeApiPath(peak)
   useEffect(() => {
     let off = false
@@ -67,6 +72,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         </p>
       </div>
       <RangeTabs value={tab} onChange={setTab} lang={lang} />
+      {native && d && <PlanHike peak={peak} lang={lang} unit={unit} todayLocal={todayLocal} />}
       {state.error ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-sm text-zinc-400 flex flex-wrap items-center gap-3">
           <span className="inline-flex items-center gap-2"><CloudOff size={16} aria-hidden /> {t(lang, 'hikeError')}</span>
