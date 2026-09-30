@@ -20,6 +20,11 @@ All notable changes to MetaBlend. Format loosely follows
   legal pages. 5 languages.
 - Share uses the native sheet and "Near me" the native location inside the
   app; plugin code is only downloaded inside the app.
+- Inside the app the header row (units, theme, language, section links) is
+  hidden — it lives in the tab bar and More — and no service worker runs:
+  Android drops the app's user agent on service-worker requests, which made
+  the Hiking tab show the web teaser. The app is now also recognised by a
+  cookie the boot script sets.
 
 ### Added — hiking UI (phase 2 of the app)
 - **`/hike`** — inside the app: peak search (debounced, "near me" sorts the

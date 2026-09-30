@@ -232,7 +232,14 @@ export default function Home() {
     /* eslint-enable react-hooks/set-state-in-effect */
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {})
+      // Not inside the app: it has its own offline screen, and Android drops
+      // the app's user agent on service-worker requests (pages would render
+      // as the website). Remove one an earlier version registered.
+      if (document.documentElement.dataset.app === '1') {
+        navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.unregister())).catch(() => {})
+      } else {
+        navigator.serviceWorker.register('/sw.js').catch(() => {})
+      }
     }
 
     setOffline(!navigator.onLine)
@@ -545,7 +552,8 @@ export default function Home() {
               Beta
             </span>
           </h1>
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+          {/* in the app these live in the tab bar and the More tab */}
+          <div className="web-only flex items-center gap-2 sm:gap-3 flex-wrap">
             {/* Unit toggle */}
             <div className="flex rounded-lg overflow-hidden border border-zinc-800 shrink-0">
               {['C', 'F'].map(u => (
