@@ -10,6 +10,7 @@ import {
   Sparkles, Copy, Plane, MountainSnow,
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang } from '@/lib/i18n'
+import { getCookie, setCookie } from '@/lib/prefs'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
@@ -44,17 +45,6 @@ function readCachedForecast(city) {
   } catch {
     return null
   }
-}
-
-// ── Cookie helpers ────────────────────────────────────────────────────────────
-function getCookie(name) {
-  if (typeof document === 'undefined') return null
-  const match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'))
-  return match ? decodeURIComponent(match[1]) : null
-}
-function setCookie(name, value, days = 365) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString()
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax`
 }
 
 // ── Recent cities (cookie, last 5, deduped) ───────────────────────────────────
