@@ -256,14 +256,21 @@ body {
   & .text-cyan-400     { color: #0e7490; }
 }
 
-/* ── App mode (Capacitor shell, <html data-app>) ─────────────────────────── */
-/* SystemBars injects --safe-area-inset-* on Android (older WebViews report
-   wrong env() values); env() covers iOS. */
+/* ── Safe areas + app mode (Capacitor shell, <html data-app>) ────────────── */
+/* Every page ships viewport-fit=cover (layout.js), so the sky runs under the
+   status bar and the home indicator, and the content is padded by the safe
+   area — 0 where there is no notch, status bar or home indicator (a normal
+   browser tab), the real insets in the app and a home-screen web app.
+   SystemBars injects --safe-area-inset-* on Android (older WebViews report
+   wrong env() values); env() covers iOS and browsers. */
 :root {
   --sa-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
   --sa-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+  --sa-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  --sa-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
 }
-html[data-app] body { padding-top: var(--sa-top); padding-bottom: calc(64px + var(--sa-bottom)); }
+body { padding: var(--sa-top) var(--sa-right) var(--sa-bottom) var(--sa-left); }
+html[data-app] body { padding-bottom: calc(64px + var(--sa-bottom)); }
 html[data-app] .web-only { display: none !important; }
 .app-tabbar { padding-bottom: var(--sa-bottom); }
 :root[data-theme="light"] .app-tabbar {
@@ -271,13 +278,11 @@ html[data-app] .web-only { display: none !important; }
   -webkit-backdrop-filter: blur(24px) saturate(170%);
   backdrop-filter: blur(24px) saturate(170%);
 }
-/* fixed bottom overlays (toast, consent notice) sit above the tab bar */
+/* fixed bottom overlays (toast, consent notice): above the tab bar in the
+   app, above the home indicator / gesture bar on the web */
 html[data-app] .app-lift { margin-bottom: calc(64px + var(--sa-bottom)); }
-/* landscape: keep content out of the notch / rounded corners */
-html[data-app] body {
-  padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
-  padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
-}
+html:not([data-app]) .app-lift { margin-bottom: var(--sa-bottom); }
+html:not([data-app]) .app-lift.mb-edge { margin-bottom: 0; padding-bottom: calc(0.75rem + var(--sa-bottom)); }
 /* the on-screen keyboard would push the tab bar up over the input */
 html[data-app] body:has(:is(input, select, textarea):focus) .app-tabbar { display: none; }
 

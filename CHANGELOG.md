@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Changed — system theme, iPhone safe areas
+- **Appearance follows the device by default** (dark or light, live when the
+  device switches); More → Appearance offers System / Dark / Light, and the
+  header button stores an explicit choice. `lib/theme.js` (pre-paint script,
+  tested) and `components/ThemeSync.jsx`; browser bars get a colour per scheme.
+- **The app's header sat under the iPhone status bar** — every page now ships
+  `viewport-fit=cover` in its HTML (the boot script used to add it at runtime,
+  which didn't take on iOS) and pads the content by the safe area: the sky runs
+  under the status bar and home indicator, the content stays clear of them.
+  0 in a normal browser tab; also fixes the home-screen web app.
+
 ### Changed — daylight sky, loader, night icons
 - **The light theme wears the sky too** — the same eight skies as pale
   daylight (zenith colour on top, bright horizon below), navy ink, frosted

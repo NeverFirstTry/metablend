@@ -3,7 +3,9 @@ import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
+import ThemeSync from './components/ThemeSync'
 import { APP_BOOT_SCRIPT } from '@/lib/app-client'
+import { THEME_BOOT_SCRIPT } from '@/lib/theme'
 
 // UI face behind the Apple system font (SF Pro) — see --font-ui in globals.css
 const hanken = Hanken_Grotesk({ variable: '--font-hanken', subsets: ['latin', 'latin-ext'] })
@@ -65,23 +67,24 @@ export const metadata = {
   },
 }
 
+// viewport-fit=cover everywhere: the sky runs under the status bar / notch and
+// globals.css pads the content by the safe area (0 in a normal browser tab)
 export const viewport = {
-  themeColor: '#0e0e12',
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#eef5fc' },
+    { media: '(prefers-color-scheme: dark)', color: '#0e0e12' },
+  ],
 }
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${hanken.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        {/* Theme is dark by default; apply the light cookie before first paint
-            so opted-in users never see a dark flash. Runs synchronously. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "try{if(/(?:^|; )metablend_theme=light/.test(document.cookie))document.documentElement.dataset.theme='light'}catch(e){}",
-          }}
-        />
-        {/* Inside the app: <html data-app> + viewport-fit=cover before first paint (no layout jump) */}
+        {/* The theme (the device's setting unless the visitor chose one) before
+            first paint, so light users never see a dark flash. Synchronous. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
+        {/* Inside the app: <html data-app> before first paint (no layout jump) */}
         <script dangerouslySetInnerHTML={{ __html: APP_BOOT_SCRIPT }} />
         {/* Structured data so search engines understand what MetaBlend is */}
         <script
@@ -113,6 +116,7 @@ export default function RootLayout({ children }) {
         />
         {children}
         <AppChrome />
+        <ThemeSync />
         <Script
           defer
           data-domain="metablend.app"

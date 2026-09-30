@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
+import { THEME_COOKIE, applyTheme } from '@/lib/theme'
+import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare } from '@/lib/native'
 import { startCity } from '@/lib/app-client'
 import { skyFor, isDark } from '@/lib/sky'
@@ -164,7 +166,7 @@ export default function Home() {
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lang, setLang] = useState('en')
   const [unit, setUnit] = useState('C')
-  const [theme, setTheme] = useState('dark') // dark is the default; light is opt-in
+  const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
   const [recent, setRecent] = useState([])
@@ -195,7 +197,6 @@ export default function Home() {
     const detectedLang = savedLang ?? detectLang(navigator.language)
     setLang(detectedLang)
     setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
-    setTheme(getCookie('metablend_theme') === 'light' ? 'light' : 'dark')
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
@@ -268,13 +269,12 @@ export default function Home() {
     setCookie('metablend_unit', u)
   }
 
+  // the header button flips what's on screen and keeps that as an explicit
+  // choice; More → Appearance → System goes back to following the device
   function toggleTheme() {
     const next = theme === 'dark' ? 'light' : 'dark'
-    setTheme(next)
-    setCookie('metablend_theme', next)
-    // the CSS keys off <html data-theme="light">; absence means dark
-    if (next === 'light') document.documentElement.dataset.theme = 'light'
-    else delete document.documentElement.dataset.theme
+    setCookie(THEME_COOKIE, next)
+    applyTheme(next)
   }
 
   // Logo click: back to the start view (clear the loaded forecast + compare)
@@ -930,7 +930,7 @@ export default function Home() {
 
       {/* Cookie consent banner */}
       {!consentGiven && (
-        <div className="app-lift animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
+        <div className="app-lift mb-edge animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
           <p className="text-zinc-400 text-xs">{t(lang, 'cookieText')}</p>
           <button
             onClick={giveConsent}

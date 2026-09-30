@@ -7,16 +7,12 @@ import { t, LANGUAGES } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { getCookie, setCookie } from '@/lib/prefs'
+import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
 
 const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms']]
 const label = s => s.replace(/\s*→$/, '')
 
-// The CSS keys off <html data-theme="light">; absence means dark.
-function applyThemeAttr(x) {
-  if (x === 'light') document.documentElement.dataset.theme = 'light'
-  else delete document.documentElement.dataset.theme
-}
 
 // The app's "More" tab: settings (the same cookies the home page writes)
 // and the sections that have no tab of their own.
@@ -24,10 +20,10 @@ export default function MoreClient() {
   const lang = useLang()
   const cookieUnit = useUnit()
   const [unit, setUnit] = useState(null)
-  const [theme, setTheme] = useState('dark')
+  const [theme, setTheme] = useState('system')
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration cookie sync
-    setTheme(getCookie('metablend_theme') === 'light' ? 'light' : 'dark')
+    setTheme(readThemePref(getCookie(THEME_COOKIE)))
   }, [])
   const u = unit ?? cookieUnit
 
@@ -37,10 +33,10 @@ export default function MoreClient() {
       {text}
     </button>
   )
-  const applyTheme = x => {
-    setCookie('metablend_theme', x)
+  const chooseTheme = x => {
+    setCookie(THEME_COOKIE, x)
     setTheme(x)
-    applyThemeAttr(x)
+    applyTheme(x)
   }
   const box = 'bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-2'
   const caption = 'text-zinc-500 text-xs uppercase tracking-wider'
@@ -70,7 +66,7 @@ export default function MoreClient() {
         <div className={box}>
           <div className={caption}>{t(lang, 'themeLabel')}</div>
           <div className="flex gap-1 bg-zinc-800/60 rounded-xl p-1">
-            {[['dark', 'themeDarkName'], ['light', 'themeLightName']].map(([x, k]) => pick(x, theme === x, t(lang, k), () => applyTheme(x)))}
+            {[['system', 'themeSystemName'], ['dark', 'themeDarkName'], ['light', 'themeLightName']].map(([x, k]) => pick(x, theme === x, t(lang, k), () => chooseTheme(x)))}
           </div>
         </div>
       </section>
