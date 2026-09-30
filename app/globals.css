@@ -262,3 +262,10 @@ html[data-app] .web-only { display: none !important; }
 :root[data-theme="light"] .app-tabbar { background: rgba(255, 255, 255, 0.95); }
 /* fixed bottom overlays (toast, consent notice) sit above the tab bar */
 html[data-app] .app-lift { margin-bottom: calc(64px + var(--sa-bottom)); }
+/* landscape: keep content out of the notch / rounded corners */
+html[data-app] body {
+  padding-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+  padding-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
+}
+/* the on-screen keyboard would push the tab bar up over the input */
+html[data-app] body:has(:is(input, select, textarea):focus) .app-tabbar { display: none; }

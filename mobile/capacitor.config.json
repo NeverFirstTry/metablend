@@ -5,14 +5,17 @@
   "appendUserAgent": "MetaBlendApp",
   "server": {
     "url": "https://metablend.app",
-    "allowNavigation": ["metablend.app"],
+    "allowNavigation": [
+      "metablend.app"
+    ],
     "errorPath": "index.html"
   },
   "backgroundColor": "#0e0e12",
   "plugins": {
     "SystemBars": {
       "insetsHandling": "css",
-      "style": "DARK"
+      "style": "DARK",
+      "initialViewportFitValueHint": "cover"
     }
   }
 }

@@ -1,7 +1,7 @@
 import MoreClient from './MoreClient'
 
 // The app's "More" tab — also reachable on the web, but not indexed.
-export const metadata = { title: 'More — MetaBlend', robots: { index: false } }
+export const metadata = { title: 'More', robots: { index: false } } // the layout appends " · MetaBlend"
 
 export default function MorePage() {
   return (

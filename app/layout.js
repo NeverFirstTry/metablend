@@ -3,6 +3,7 @@ import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
+import { APP_BOOT_SCRIPT } from '@/lib/app-client'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
@@ -65,7 +66,6 @@ export const metadata = {
 
 export const viewport = {
   themeColor: '#0e0e12',
-  viewportFit: 'cover', // safe-area insets for the app shell (notch, home indicator)
 }
 
 export default function RootLayout({ children }) {
@@ -80,6 +80,8 @@ export default function RootLayout({ children }) {
               "try{if(/(?:^|; )metablend_theme=light/.test(document.cookie))document.documentElement.dataset.theme='light'}catch(e){}",
           }}
         />
+        {/* Inside the app: <html data-app> + viewport-fit=cover before first paint (no layout jump) */}
+        <script dangerouslySetInnerHTML={{ __html: APP_BOOT_SCRIPT }} />
         {/* Structured data so search engines understand what MetaBlend is */}
         <script
           type="application/ld+json"

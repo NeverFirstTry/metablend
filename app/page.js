@@ -12,6 +12,7 @@ import {
 import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
 import { nativeShare } from '@/lib/native'
+import { startCity } from '@/lib/app-client'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
@@ -217,10 +218,16 @@ export default function Home() {
     } catch { /* private mode */ }
     // Deep link: /?city=Vienna loads that city straight away (used by the
     // per-city SEO pages and the RSS feed links).
-    const deepLink = new URLSearchParams(window.location.search).get('city')
-    if (deepLink) {
-      setCity(deepLink)
-      loadForecast(deepLink)
+    // Inside the app the Forecast tab reloads the page, so it brings back the
+    // last city looked at.
+    const first = startCity({
+      deepLink: new URLSearchParams(window.location.search).get('city'),
+      inApp: document.documentElement.dataset.app === '1',
+      recent: getRecent(),
+    })
+    if (first) {
+      setCity(first)
+      loadForecast(first)
     }
     /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -462,7 +469,7 @@ export default function Home() {
     const condition = heroCondition(data) ?? ''
     const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend.app`
     // inside the app: the native share sheet
-    if (await nativeShare({ title: 'MetaBlend', text, url: 'https://metablend.app' })) return
+    if (await nativeShare({ title: 'MetaBlend', text })) return // the text already carries the link
     if (navigator.share) {
       try { await navigator.share({ title: 'MetaBlend', text }); return } catch { /* cancelled → fall through */ }
     }

@@ -6,14 +6,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import { CloudSun, MountainSnow, Menu } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
-import { isAppRequest } from '@/lib/app-client'
-import { onBackButton, tapHaptic } from '@/lib/native'
+import { onBackButton, tapHaptic, setStatusBarStyle } from '@/lib/native'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
-// App-only chrome: marks <html data-app> (CSS hides web-only parts and makes
-// room for the bar), renders the bottom tab bar and wires Android's back
-// button. Renders nothing for web visitors.
+// App-only chrome. The layout's boot script has already marked <html
+// data-app> before first paint (never inside iframes); this renders the
+// bottom tab bar, keeps the status bar icons readable in both themes and
+// wires Android's back button. Renders nothing for web visitors.
 export default function AppChrome() {
   const [app, setApp] = useState(false)
   const lang = useLang()
@@ -21,20 +21,26 @@ export default function AppChrome() {
   const router = useRouter()
 
   useEffect(() => {
-    const inApp = isAppRequest({ userAgent: navigator.userAgent, cookie: document.cookie })
-    if (inApp) document.documentElement.dataset.app = '1'
+    const html = document.documentElement
+    const inApp = html.dataset.app === '1'
     // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration environment sync
     setApp(inApp)
+    if (!inApp) return
+    // status bar icons follow the theme (dark icons on the light theme)
+    const sync = () => setStatusBarStyle(html.dataset.theme === 'light')
+    sync()
+    const themeWatch = new MutationObserver(sync)
+    themeWatch.observe(html, { attributes: true, attributeFilter: ['data-theme'] })
     let off = () => {}
     let gone = false
     onBackButton(({ canGoBack, exit }) => (canGoBack ? router.back() : exit())).then(fn => { if (gone) fn(); else off = fn })
-    return () => { gone = true; off() }
+    return () => { gone = true; off(); themeWatch.disconnect() }
   }, [router])
 
   if (!app) return null
   const active = href => (href === '/' ? path === '/' : path?.startsWith(href))
   return (
-    <nav className="app-tabbar fixed bottom-0 inset-x-0 z-40 border-t border-zinc-800 bg-[#0e0e12]/95 backdrop-blur">
+    <nav aria-label="MetaBlend" className="app-tabbar fixed bottom-0 inset-x-0 z-40 border-t border-zinc-800 bg-[#0e0e12]/95 backdrop-blur">
       <div className="max-w-3xl mx-auto grid grid-cols-3">
         {TABS.map(([href, key, Icon]) => (
           <Link
