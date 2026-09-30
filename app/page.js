@@ -340,7 +340,12 @@ export default function Home() {
     const q = targetCity ?? city
     if (!q.trim()) return
     if (silent) setRefreshing(true)
-    else { setLoading(true); setError(null) }
+    else {
+      setLoading(true); setError(null)
+      // a search is on its way: a suggestion lookup still pending from the last
+      // keystrokes must not pop its list open over the loader
+      clearTimeout(suggestTimer.current); suggestSeq.current++; setShowSuggestions(false)
+    }
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([

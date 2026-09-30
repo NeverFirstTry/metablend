@@ -15,6 +15,9 @@ const VIEW = '0 0 160 110' // every layer shares one coordinate space; the sun s
 // Each moving part is its own layer that only moves or fades as a whole, so
 // the browser slides finished pictures around instead of redrawing the scene
 // every frame (animating shapes inside one SVG repainted all of it per frame).
+// The layers are divs around the SVGs: HTML boxes reliably animate on the
+// compositor in every engine; SVG elements can fall back to the main thread
+// in Firefox.
 // No filters on moving layers: some GPUs re-render filtered layers as they move.
 export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = false }) {
   const [i, setI] = useState(0)
@@ -28,19 +31,23 @@ export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = 
     <div className={`mb-loader flex flex-col items-center text-center animate-fade-in ${compact ? 'py-6' : 'py-10 sm:py-14'}`}>
       <div className="scene" aria-hidden>
         <div className="glow" />
-        <svg className="layer rays" viewBox={VIEW}>
-          <g stroke="var(--loader-sun)" strokeWidth="3" strokeLinecap="round">
-            {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
-              <line key={a} x1="100" y1="16" x2="100" y2="21" transform={`rotate(${a} 100 42)`} />
-            ))}
-          </g>
-        </svg>
-        <svg className="layer" viewBox={VIEW}><circle cx="100" cy="42" r="15" fill="var(--loader-sun)" /></svg>
-        <svg className="layer cloud-back" viewBox={VIEW} fill="var(--loader-cloud)">
-          <circle cx="30" cy="42" r="10" /><circle cx="44" cy="35" r="13" /><circle cx="57" cy="43" r="9" />
-          <rect x="20" y="42" width="46" height="11" rx="5.5" />
-        </svg>
-        <svg className="layer cloud-front" viewBox={VIEW} fill="var(--loader-cloud)">
+        <div className="layer rays">
+          <svg viewBox={VIEW}>
+            <g stroke="var(--loader-sun)" strokeWidth="3" strokeLinecap="round">
+              {[0, 45, 90, 135, 180, 225, 270, 315].map(a => (
+                <line key={a} x1="100" y1="16" x2="100" y2="21" transform={`rotate(${a} 100 42)`} />
+              ))}
+            </g>
+          </svg>
+        </div>
+        <div className="layer"><svg viewBox={VIEW}><circle cx="100" cy="42" r="15" fill="var(--loader-sun)" /></svg></div>
+        <div className="layer cloud-back">
+          <svg viewBox={VIEW} fill="var(--loader-cloud)">
+            <circle cx="30" cy="42" r="10" /><circle cx="44" cy="35" r="13" /><circle cx="57" cy="43" r="9" />
+            <rect x="20" y="42" width="46" height="11" rx="5.5" />
+          </svg>
+        </div>
+        <div className="layer cloud-front"><svg viewBox={VIEW} fill="var(--loader-cloud)">
           {/* its soft shadow is drawn in, not a filter: the layer stays a finished picture */}
           <defs>
             <radialGradient id={shade}>
@@ -51,7 +58,7 @@ export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = 
           <ellipse cx="76" cy="97" rx="50" ry="7" fill={`url(#${shade})`} />
           <circle cx="52" cy="70" r="20" /><circle cx="78" cy="60" r="26" /><circle cx="104" cy="74" r="16" />
           <rect x="32" y="70" width="88" height="22" rx="11" />
-        </svg>
+        </svg></div>
       </div>
       <p role="status" className="mt-6 text-lg sm:text-xl font-semibold tracking-tight">{title}</p>
       {names.length > 0 && (

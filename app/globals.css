@@ -481,31 +481,35 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    on its own layer, so it all runs on the compositor at full frame rate. */
 :root { --loader-sun: #ffd98a; --loader-glow: #ffe3a3; --loader-cloud: #ffffff; --loader-shade: 0.5; }
 :root[data-theme="light"] { --loader-sun: #f5b43a; --loader-glow: #fff8dc; --loader-cloud: #ffffff; --loader-shade: 0.85; }
-/* the 0.01° turn is invisible, but keeps Chrome from snapping a pure sideways
-   slide to whole pixels (which makes a slow drift step instead of glide) */
-@keyframes mb-drift { from { transform: translate3d(calc(var(--sway) * -1), 0, 0) rotate(0.01deg); } to { transform: translate3d(var(--sway), 0, 0) rotate(0.01deg); } }
+/* the 0.01° turn is invisible, but keeps the browser from snapping a pure
+   sideways slide to whole pixels (a slow drift would step instead of glide) */
+/* fixed distances, no var() inside keyframes: every engine can hand these to its compositor */
+@keyframes mb-drift-front { from { transform: translate3d(-14px, 0, 0) rotate(0.01deg); } to { transform: translate3d(14px, 0, 0) rotate(0.01deg); } }
+@keyframes mb-drift-back { from { transform: translate3d(-10px, 0, 0) rotate(0.01deg); } to { transform: translate3d(10px, 0, 0) rotate(0.01deg); } }
 @keyframes mb-glow { from { opacity: 0.55; transform: scale(0.88); } to { opacity: 1; transform: scale(1.12); } }
 @keyframes mb-name { 0% { opacity: 0; } 14%, 86% { opacity: 1; } 100% { opacity: 0; } }
 /* 176 × 121 px = the 160 × 110 view scaled 1.1; the sun's centre is at 62.5% / 38.18% */
 .mb-loader .scene { position: relative; width: 176px; height: 121px; }
-.mb-loader .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; backface-visibility: hidden; }
+.mb-loader .layer { position: absolute; inset: 0; will-change: transform; backface-visibility: hidden; }
+.mb-loader .layer svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .mb-loader .glow {
   position: absolute; left: calc(62.5% - 42px); top: calc(38.18% - 42px); width: 84px; height: 84px; border-radius: 50%;
   background: radial-gradient(closest-side, color-mix(in srgb, var(--loader-glow) 75%, transparent), transparent);
   animation: mb-glow 2.4s ease-in-out infinite alternate; will-change: transform, opacity;
 }
 .mb-loader .rays { transform-origin: 62.5% 38.18%; animation: mb-spin 16s linear infinite; }
-.mb-loader .cloud-back { --sway: 10px; opacity: var(--loader-shade); animation: mb-drift 4.6s ease-in-out infinite alternate-reverse; }
-.mb-loader .cloud-front { --sway: 14px; animation: mb-drift 3.2s ease-in-out infinite alternate; }
+.mb-loader .cloud-back { opacity: var(--loader-shade); animation: mb-drift-back 4.6s ease-in-out infinite alternate-reverse; }
+.mb-loader .cloud-front { animation: mb-drift-front 3.2s ease-in-out infinite alternate; }
 .mb-loader .ticker { animation: mb-name 1.6s ease both; }
 @media (prefers-reduced-motion: reduce) {
   .mb-loader .ticker, main .rounded-2xl.bg-zinc-900 { animation: none !important; }
 }
 
-/* lists that float over the page (city suggestions): content slides under
-   them, so these keep a real blur and a stronger tint */
+/* lists that float over the page (city suggestions): nearly opaque, so the
+   page under them can't show through, plus a blur for the edges */
 :root .mb-overlay.bg-zinc-900 {
-  background-color: var(--glass-strong);
+  background-color: rgb(12 20 45 / 0.94);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
 }
+:root[data-theme="light"] .mb-overlay.bg-zinc-900 { background-color: rgb(255 255 255 / 0.95); }
