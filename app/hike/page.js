@@ -6,7 +6,7 @@ import { isAppRequest } from '@/lib/app-client'
 import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { t, detectLang, LANGUAGES } from '@/lib/i18n'
-import { fill } from '@/lib/outlook/text'
+import { addDays } from '@/lib/localtime'
 import Footer from '../components/Footer'
 import Headline from '../components/outlook/Headline'
 import FeaturedList from '../components/hike/FeaturedList'
@@ -56,10 +56,15 @@ export default async function HikePage({ searchParams }) {
   const peak = peakOfDay()
   const data = await liveWindow(peak)
   const todayLocal = data?.nowLocal?.slice(0, 10)
-  const w = data?.windows?.today
+  // after dark "no daylight left" says nothing — show tomorrow's window instead
+  const late = data && !data.windows?.today
+  const w = late ? data.windows?.tomorrow : data?.windows?.today
+  const date = late ? addDays(todayLocal, 1) : todayLocal
+  const stormUnknown = !!data?.notes?.includes('no_storm_data')
 
   return shell(
     <>
+      <AppFlag value={appParam} />
       <div className="flex items-center justify-between mb-6">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
@@ -72,9 +77,9 @@ export default async function HikePage({ searchParams }) {
       <StoreBadges lang={lang} />
 
       <section className="mt-8 space-y-3">
-        <div className="text-emerald-400 text-xs tracking-widest uppercase">{fill(t(lang, 'hikeLiveToday'), { peak: peak.name, elev: peak.elev })}</div>
+        <div className="text-emerald-400 text-xs tracking-widest">{peak.name} · {peak.elev} m</div>
         {data
-          ? <Headline text={windowText(lang, w, { date: todayLocal, todayLocal })} tone={windowTone(w)} />
+          ? <Headline text={windowText(lang, w, { date, todayLocal, stormUnknown })} tone={windowTone(w, { stormUnknown })} />
           : <p className="text-sm text-zinc-500">{t(lang, 'hikeLiveNone')}</p>}
       </section>
 

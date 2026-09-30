@@ -14,8 +14,9 @@ All notable changes to MetaBlend. Format loosely follows
   freezing level / storm risk cards, and the week's summit lows/highs, wind
   and freezing level. Everyone else gets a crawlable teaser: the peak of the
   day's live summit window, the featured list and "Coming soon" store badges.
-  All 5 languages; disclaimer, OpenStreetMap attribution and the
-  borrowed-trust note on every view.
+  All 5 languages; disclaimer and OpenStreetMap attribution on every view,
+  the borrowed-trust note on the peak page. A peak whose models report no
+  storm energy never gets a green headline — it says the storm risk is unknown.
 - Header link **Hiking**; `/hike` in the sitemap; privacy notice lists Photon
   and OpenStreetMap (5 languages).
 

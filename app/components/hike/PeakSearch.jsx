@@ -52,11 +52,12 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
             onChange={e => setText(e.target.value)}
             placeholder={t(lang, 'hikeSearch')}
             aria-label={t(lang, 'hikeSearch')}
+            maxLength={80}
             className="w-full bg-transparent py-3 text-sm outline-none"
           />
-          {res.loading && <Loader2 size={16} className="animate-spin-slow text-zinc-500 shrink-0" aria-hidden />}
+          {active && res.loading && <Loader2 size={16} className="animate-spin-slow text-zinc-500 shrink-0" aria-hidden />}
         </label>
-        <button onClick={nearMe} className="press shrink-0 inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-xl px-3 text-xs text-zinc-300 hover:border-emerald-400">
+        <button onClick={nearMe} aria-label={t(lang, 'hikeNearMe')} className="press shrink-0 inline-flex items-center gap-1.5 bg-zinc-900 border border-zinc-800 rounded-xl px-3 text-xs text-zinc-300 hover:border-emerald-400">
           <LocateFixed size={15} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'hikeNearMe')}</span>
         </button>
       </div>

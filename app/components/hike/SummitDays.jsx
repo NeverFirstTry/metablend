@@ -11,7 +11,7 @@ export default function SummitDays({ days, todayLocal, lang, fmt }) {
         <div key={d.date} className="flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm border-t border-zinc-800 first:border-0">
           <span className="w-12 sm:w-16 shrink-0">{d.date === todayLocal ? t(lang, 'todayLabel') : formatCalendarDate(d.date, lang, { weekday: 'short' })}</span>
           <span className="w-6 shrink-0 text-center text-lg" aria-hidden>{d.icon ?? '·'}</span>
-          <span className="w-20 shrink-0 tabular-nums"><span className="text-zinc-500">{fmt.fmtTemp(d.tempMin)}</span> / {fmt.fmtTemp(d.tempMax)}</span>
+          <span className="w-24 shrink-0 tabular-nums"><span className="text-zinc-500">{fmt.fmtTemp(d.tempMin)}</span> / {fmt.fmtTemp(d.tempMax)}</span>
           <span className="flex-1 min-w-0 truncate text-zinc-400 text-xs tabular-nums">
             {d.windMax != null ? `${d.windMax} km/h` : '–'} · {d.freezingMin != null ? `${d.freezingMin}–${d.freezingMax} m` : '–'}
           </span>
