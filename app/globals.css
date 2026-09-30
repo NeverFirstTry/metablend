@@ -60,6 +60,14 @@ html {
   scroll-behavior: smooth;
 }
 
+/* native controls (the language list, scrollbars) follow the theme; the
+   options get explicit colours too, since some browsers ignore the scheme
+   in the open list and would show light text on a white popup */
+:root { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+select option { background-color: #101d45; color: #f6f8fc; }
+:root[data-theme="light"] select option { background-color: #ffffff; color: #0f1b33; }
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -479,23 +487,29 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 /* ── Loader: a cloud drifting past the sun ──────────────────────────────────
    components/SkyLoader.jsx. The clouds drift against each other so the sun
    keeps peeking through; the source ticker below fades each name in and out
-   in step with its 0.9 s interval. */
+   in step with its 0.9 s interval. Only transform and opacity animate, each
+   on its own layer, so it all runs on the compositor at full frame rate. */
 :root { --loader-sun: #ffd98a; --loader-glow: #ffe3a3; --loader-cloud: #ffffff; --loader-shade: 0.5; }
 :root[data-theme="light"] { --loader-sun: #f5b43a; --loader-glow: #fff8dc; --loader-cloud: #ffffff; --loader-shade: 0.85; }
-@keyframes mb-drift { from { transform: translateX(-7px); } to { transform: translateX(7px); } }
+@keyframes mb-drift { from { transform: translate3d(-7px, 0, 0); } to { transform: translate3d(7px, 0, 0); } }
 @keyframes mb-glow { from { opacity: 0.55; transform: scale(0.88); } to { opacity: 1; transform: scale(1.12); } }
-@keyframes mb-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes mb-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -3px, 0); } }
 @keyframes mb-name {
   0% { opacity: 0; transform: translateY(5px); }
   22%, 78% { opacity: 1; transform: none; }
   100% { opacity: 0; transform: translateY(-5px); }
 }
-.mb-loader svg { overflow: visible; }
-.mb-loader .cloud-front { animation: mb-drift 3.4s ease-in-out infinite alternate; filter: drop-shadow(0 8px 14px rgb(15 27 51 / 0.14)); }
-.mb-loader .cloud-back { animation: mb-drift 5.2s ease-in-out infinite alternate-reverse; }
-.mb-loader .sun-rays { transform-box: view-box; transform-origin: 100px 42px; animation: mb-spin 16s linear infinite; }
-.mb-loader .sun-glow { transform-box: view-box; transform-origin: 100px 42px; animation: mb-glow 2.4s ease-in-out infinite alternate; }
-.mb-loader .scene { animation: mb-bob 4s ease-in-out infinite; }
+/* 176 × 121 px = the 160 × 110 view scaled 1.1; the sun's centre is at 62.5% / 38.18% */
+.mb-loader .scene { position: relative; width: 176px; height: 121px; animation: mb-bob 4s ease-in-out infinite; will-change: transform; }
+.mb-loader .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; }
+.mb-loader .glow {
+  position: absolute; left: calc(62.5% - 42px); top: calc(38.18% - 42px); width: 84px; height: 84px; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--loader-glow) 75%, transparent), transparent);
+  animation: mb-glow 2.4s ease-in-out infinite alternate; will-change: transform, opacity;
+}
+.mb-loader .rays { transform-origin: 62.5% 38.18%; animation: mb-spin 16s linear infinite; }
+.mb-loader .cloud-back { opacity: var(--loader-shade); animation: mb-drift 5.2s ease-in-out infinite alternate-reverse; }
+.mb-loader .cloud-front { filter: drop-shadow(0 8px 14px rgb(15 27 51 / 0.14)); animation: mb-drift 3.4s ease-in-out infinite alternate; }
 .mb-loader .ticker { animation: mb-name 0.9s ease both; }
 @media (prefers-reduced-motion: reduce) {
   .mb-loader .ticker, main .rounded-2xl.bg-zinc-900 { animation: none !important; }

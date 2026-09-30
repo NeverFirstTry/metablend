@@ -14,6 +14,12 @@ All notable changes to MetaBlend. Format loosely follows
   with "Gathering the forecast" and the sources being asked ticking by,
   instead of grey skeletons. Used for city search, compare, the outlook, the
   summit forecast (its 10 models), the leaderboard and the planner.
+- The loader's parts are separate layers that only move or fade, so it runs
+  on the compositor: 8 paints in 3 s instead of 118 (it stuttered at ~10 fps).
+- Headlines read as sentences in German, French, Spanish and Italian
+  ("Heute Nacht bleibt es trocken", "Morgen bleibt es trocken").
+- Native controls follow the theme (`color-scheme`); the language list no
+  longer shows light text on a white popup.
 - Hour icons turn to the moon after sunset and before sunrise, from the
   city's (or summit's) real sun times; the hero's clear-sky icon uses them
   too instead of a fixed 21:00–06:00 guess.
