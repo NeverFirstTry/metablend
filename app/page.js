@@ -640,7 +640,7 @@ export default function Home() {
               onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             />
             {showSuggestions && suggestions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
+              <div className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
                 {suggestions.map(s => (
                   <button
                     key={s.id}

@@ -15,7 +15,13 @@ All notable changes to MetaBlend. Format loosely follows
   instead of grey skeletons. Used for city search, compare, the outlook, the
   summit forecast (its 10 models), the leaderboard and the planner.
 - The loader's parts are separate layers that only move or fade, so it runs
-  on the compositor: 8 paints in 3 s instead of 118 (it stuttered at ~10 fps).
+  on the compositor: 8 paints in 3 s instead of 118. No filters on moving
+  layers (the cloud's shadow is drawn in), a wider sway, no 3 px bob, and a
+  calmer 1.6 s source ticker.
+- Panels are a tint over the sky instead of a live backdrop blur (the sky
+  behind them is a smooth gradient, so the blur was invisible but cost every
+  frame on weaker GPUs); only the fixed bars and the suggestion list blur.
+  The entrance no longer animates a blur either.
 - Headlines read as sentences in German, French, Spanish and Italian
   ("Heute Nacht bleibt es trocken", "Morgen bleibt es trocken").
 - Native controls follow the theme (`color-scheme`); the language list no

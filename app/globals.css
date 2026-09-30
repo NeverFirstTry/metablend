@@ -344,14 +344,13 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 }
 :root:not([data-theme="light"]) {
   & .bg-\[\#0e0e12\] { background-color: transparent; }
-  /* glass: blur only on the top-level panels, nested ones are just translucent */
-  & .bg-zinc-900 {
-    background-color: var(--glass);
-    -webkit-backdrop-filter: blur(22px) saturate(150%);
-    backdrop-filter: blur(22px) saturate(150%);
-  }
-  & .bg-zinc-900 .bg-zinc-900 { -webkit-backdrop-filter: none; backdrop-filter: none; }
-  & .bg-zinc-900\/60, & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
+  /* glass: a tint, no backdrop blur — behind the panels there is only the
+     smooth sky, where a blur is invisible but costs every frame (it halved
+     the frame rate while anything animated). Only the fixed bars (tab bar,
+     consent notice) and the suggestion list blur, as content slides under. */
+  & .bg-zinc-900 { background-color: var(--glass); }
+  & .bg-zinc-900\/60 { background-color: var(--glass-strong); }
+  & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
     background-color: var(--glass-strong);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
     backdrop-filter: blur(24px) saturate(160%);
@@ -403,14 +402,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --map-bg: rgb(255 255 255 / 0.5);
 
   & .bg-\[\#0e0e12\] { background-color: transparent; }
-  & .bg-zinc-900 {
-    background-color: var(--glass);
-    box-shadow: var(--lift);
-    -webkit-backdrop-filter: blur(22px) saturate(160%);
-    backdrop-filter: blur(22px) saturate(160%);
-  }
-  & .bg-zinc-900 .bg-zinc-900 { -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: none; }
-  & .bg-zinc-900\/60, & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
+  & .bg-zinc-900 { background-color: var(--glass); box-shadow: var(--lift); }
+  & .bg-zinc-900 .bg-zinc-900 { box-shadow: none; }
+  & .bg-zinc-900\/60 { background-color: var(--glass-strong); }
+  & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
     background-color: var(--glass-strong);
     -webkit-backdrop-filter: blur(24px) saturate(170%);
     backdrop-filter: blur(24px) saturate(170%);
@@ -444,7 +439,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .bg-amber-400\/10 { background-color: rgb(255 255 255 / 0.5); }
   & .bg-zinc-800\/60.border-zinc-700 { background-color: var(--glass); }
   /* the beta notice: frosted glass like the rest */
-  & .bg-amber-900\/20 { background-color: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  & .bg-amber-900\/20 { background-color: var(--glass); }
   & .border-amber-500\/30 { border-color: var(--hairline); }
   & .text-amber-300\/90 { color: #7a4a00; }
 }
@@ -455,8 +450,8 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    of a soft blur), and gentle scroll-linked reveals for the panels below —
    both off under prefers-reduced-motion (handled above). */
 @keyframes mb-rise {
-  from { opacity: 0; transform: translateY(18px) scale(0.985); filter: blur(10px); }
-  to   { opacity: 1; transform: none; filter: none; }
+  from { opacity: 0; transform: translateY(18px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
 }
 .mb-rise { animation: mb-rise 0.9s var(--ease-out) both; }
 .mb-rise-2 { animation: mb-rise 0.9s var(--ease-out) 0.12s both; }
@@ -472,14 +467,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
     animation-range: entry 0% entry 60%;
   }
 }
-/* coloured glass (headline tones) gets the same blur as the panels */
-:root .mb-glass {
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
-  backdrop-filter: blur(22px) saturate(150%);
-}
 /* the beta notice: a quiet line of glass, not a warning box */
 :root:not([data-theme="light"]) {
-  & .bg-amber-900\/20 { background-color: var(--glass); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
+  & .bg-amber-900\/20 { background-color: var(--glass); }
   & .border-amber-500\/30 { border-color: var(--hairline); }
   & .text-amber-300\/90 { color: rgb(255 231 179 / 0.85); }
 }
@@ -487,20 +477,15 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 /* ── Loader: a cloud drifting past the sun ──────────────────────────────────
    components/SkyLoader.jsx. The clouds drift against each other so the sun
    keeps peeking through; the source ticker below fades each name in and out
-   in step with its 0.9 s interval. Only transform and opacity animate, each
+   in step with its 1.6 s interval. Only transform and opacity animate, each
    on its own layer, so it all runs on the compositor at full frame rate. */
 :root { --loader-sun: #ffd98a; --loader-glow: #ffe3a3; --loader-cloud: #ffffff; --loader-shade: 0.5; }
 :root[data-theme="light"] { --loader-sun: #f5b43a; --loader-glow: #fff8dc; --loader-cloud: #ffffff; --loader-shade: 0.85; }
-@keyframes mb-drift { from { transform: translate3d(-7px, 0, 0); } to { transform: translate3d(7px, 0, 0); } }
+@keyframes mb-drift { from { transform: translate3d(calc(var(--sway) * -1), 0, 0); } to { transform: translate3d(var(--sway), 0, 0); } }
 @keyframes mb-glow { from { opacity: 0.55; transform: scale(0.88); } to { opacity: 1; transform: scale(1.12); } }
-@keyframes mb-bob { 0%, 100% { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(0, -3px, 0); } }
-@keyframes mb-name {
-  0% { opacity: 0; transform: translateY(5px); }
-  22%, 78% { opacity: 1; transform: none; }
-  100% { opacity: 0; transform: translateY(-5px); }
-}
+@keyframes mb-name { 0% { opacity: 0; } 14%, 86% { opacity: 1; } 100% { opacity: 0; } }
 /* 176 × 121 px = the 160 × 110 view scaled 1.1; the sun's centre is at 62.5% / 38.18% */
-.mb-loader .scene { position: relative; width: 176px; height: 121px; animation: mb-bob 4s ease-in-out infinite; will-change: transform; }
+.mb-loader .scene { position: relative; width: 176px; height: 121px; }
 .mb-loader .layer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; will-change: transform; }
 .mb-loader .glow {
   position: absolute; left: calc(62.5% - 42px); top: calc(38.18% - 42px); width: 84px; height: 84px; border-radius: 50%;
@@ -508,9 +493,17 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   animation: mb-glow 2.4s ease-in-out infinite alternate; will-change: transform, opacity;
 }
 .mb-loader .rays { transform-origin: 62.5% 38.18%; animation: mb-spin 16s linear infinite; }
-.mb-loader .cloud-back { opacity: var(--loader-shade); animation: mb-drift 5.2s ease-in-out infinite alternate-reverse; }
-.mb-loader .cloud-front { filter: drop-shadow(0 8px 14px rgb(15 27 51 / 0.14)); animation: mb-drift 3.4s ease-in-out infinite alternate; }
-.mb-loader .ticker { animation: mb-name 0.9s ease both; }
+.mb-loader .cloud-back { --sway: 10px; opacity: var(--loader-shade); animation: mb-drift 4.6s ease-in-out infinite alternate-reverse; }
+.mb-loader .cloud-front { --sway: 14px; animation: mb-drift 3.2s ease-in-out infinite alternate; }
+.mb-loader .ticker { animation: mb-name 1.6s ease both; }
 @media (prefers-reduced-motion: reduce) {
   .mb-loader .ticker, main .rounded-2xl.bg-zinc-900 { animation: none !important; }
+}
+
+/* lists that float over the page (city suggestions): content slides under
+   them, so these keep a real blur and a stronger tint */
+:root .mb-overlay.bg-zinc-900 {
+  background-color: var(--glass-strong);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
 }
