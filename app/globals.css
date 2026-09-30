@@ -248,3 +248,17 @@ body {
   & .bg-orange-400\/80 { background-color: rgba(194, 66, 12, 0.75); }
   & .text-cyan-400     { color: #0e7490; }
 }
+
+/* ── App mode (Capacitor shell, <html data-app>) ─────────────────────────── */
+/* SystemBars injects --safe-area-inset-* on Android (older WebViews report
+   wrong env() values); env() covers iOS. */
+:root {
+  --sa-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+  --sa-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+}
+html[data-app] body { padding-top: var(--sa-top); padding-bottom: calc(64px + var(--sa-bottom)); }
+html[data-app] .web-only { display: none !important; }
+.app-tabbar { padding-bottom: var(--sa-bottom); }
+:root[data-theme="light"] .app-tabbar { background: rgba(255, 255, 255, 0.95); }
+/* fixed bottom overlays (toast, consent notice) sit above the tab bar */
+html[data-app] .app-lift { margin-bottom: calc(64px + var(--sa-bottom)); }

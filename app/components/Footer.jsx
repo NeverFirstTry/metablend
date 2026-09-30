@@ -16,7 +16,7 @@ function GithubIcon({ size = 14 }) {
 // Defaults to English; pages with a known language pass it in.
 export default function Footer({ lang = 'en', className = '' }) {
   return (
-    <footer className={`mt-16 pt-6 border-t border-zinc-800/70 text-xs text-zinc-500 ${className}`}>
+    <footer className={`web-only mt-16 pt-6 border-t border-zinc-800/70 text-xs text-zinc-500 ${className}`}>
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex items-center gap-4 flex-wrap">
           <a

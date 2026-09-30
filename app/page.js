@@ -591,7 +591,7 @@ export default function Home() {
             {installPrompt && (
               <button
                 onClick={installApp}
-                className="press text-emerald-400 text-xs border border-emerald-400/40 rounded-lg px-2 py-1 hover:bg-emerald-400/10 tracking-widest uppercase inline-flex items-center gap-1.5"
+                className="web-only press text-emerald-400 text-xs border border-emerald-400/40 rounded-lg px-2 py-1 hover:bg-emerald-400/10 tracking-widest uppercase inline-flex items-center gap-1.5"
               >
                 <Download size={13} aria-hidden /> {t(lang, 'installApp')}
               </button>
@@ -603,7 +603,7 @@ export default function Home() {
         </p>
 
         {/* In-development disclaimer */}
-        <BetaBanner lang={lang} className="mb-8" />
+        <BetaBanner lang={lang} className="mb-8 web-only" />
 
         {/* Search */}
         <div className="relative flex gap-2 mb-8">
@@ -903,14 +903,14 @@ export default function Home() {
 
       {/* Toast */}
       {toast && (
-        <div role="status" aria-live="polite" className="animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-2">
+        <div role="status" aria-live="polite" className="app-lift animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-bold px-4 py-2 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-2">
           <CheckCircle2 size={15} aria-hidden /> {toast}
         </div>
       )}
 
       {/* Cookie consent banner */}
       {!consentGiven && (
-        <div className="animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
+        <div className="app-lift animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
           <p className="text-zinc-400 text-xs">{t(lang, 'cookieText')}</p>
           <button
             onClick={giveConsent}

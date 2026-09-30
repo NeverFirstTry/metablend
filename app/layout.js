@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
+import AppChrome from './components/AppChrome'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
@@ -64,6 +65,7 @@ export const metadata = {
 
 export const viewport = {
   themeColor: '#0e0e12',
+  viewportFit: 'cover', // safe-area insets for the app shell (notch, home indicator)
 }
 
 export default function RootLayout({ children }) {
@@ -107,6 +109,7 @@ export default function RootLayout({ children }) {
           }}
         />
         {children}
+        <AppChrome />
         <Script
           defer
           data-domain="metablend.app"
