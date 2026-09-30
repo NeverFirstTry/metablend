@@ -18,7 +18,7 @@ const A = ({ href, children }) => (
 // across languages — change all five together.
 const CONTENT = {
   en: {
-    updated: 'Last updated September 2026',
+    updated: 'Last updated October 2026',
     t1: 'Privacy', t2: 'Notice',
     intro: <>MetaBlend is a free, in-development weather app with <strong>no accounts and no sign-up</strong>. We keep data collection to the minimum needed to run the service and to measure how accurate each weather source is. This is a plain-language summary, not legal advice.</>,
     sections: [
@@ -38,6 +38,7 @@ const CONTENT = {
         </ul>
         <p className="mt-2">The app is hosted on <strong>Vercel</strong> and its database runs on <strong>Supabase</strong> (EU region, Frankfurt). Each provider handles the data it receives under its own privacy policy.</p>
       </> },
+      { title: 'Notifications (app)', body: <>If you turn on notifications in the app, we store your phone’s push token (from Apple or Google), a hash of a random key the app creates, your home city, which alerts you switched on and your briefing hour, planned peaks and dates, your language and unit, and a log of what we sent in the last 14 days. There is no account and no location. Phones that haven’t opened the app for 90 days are deleted automatically, planned hikes after their day. Turning notifications off in the app or deleting the app stops them.</> },
       { title: 'How long we keep it', body: <>Stored forecasts and internal bookkeeping rows are automatically deleted by a daily cleanup job (typically within about 48 hours); consensus snapshots and server error logs are deleted after 30 days. Community feedback reports are kept for as long as they power the public accuracy heatmap and the long-term source rankings — or until you ask us to remove them (see below). Aggregate accuracy weights are anonymous and kept indefinitely.</> },
       { title: 'Your choices', body: <>You can use the app without sharing your location, clear your locally stored preferences anytime, and request removal of feedback data by opening an issue on our <A href={ISSUES}>GitHub repository</A>.</> },
       { title: 'Contact', body: <>Questions about privacy? Email <A href="mailto:info@metablend.app">info@metablend.app</A> or open an issue at <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. As MetaBlend evolves, this notice may change; the “last updated” date above will always reflect the current version.</> },
@@ -45,7 +46,7 @@ const CONTENT = {
   },
 
   de: {
-    updated: 'Zuletzt aktualisiert September 2026',
+    updated: 'Zuletzt aktualisiert Oktober 2026',
     t1: 'Datenschutz', t2: 'Erklärung',
     intro: <>MetaBlend ist eine kostenlose Wetter-App in Entwicklung — <strong>ohne Konten und ohne Registrierung</strong>. Wir sammeln nur so wenige Daten, wie für den Betrieb und die Genauigkeitsmessung der Wetterquellen nötig sind. Dies ist eine Zusammenfassung in einfacher Sprache, keine Rechtsberatung.</>,
     sections: [
@@ -65,6 +66,7 @@ const CONTENT = {
         </ul>
         <p className="mt-2">Die App läuft auf <strong>Vercel</strong>, die Datenbank auf <strong>Supabase</strong> (EU-Region, Frankfurt). Jeder Anbieter verarbeitet die erhaltenen Daten nach seiner eigenen Datenschutzerklärung.</p>
       </> },
+      { title: 'Benachrichtigungen (App)', body: <>Wenn du in der App Benachrichtigungen einschaltest, speichern wir den Push-Token deines Telefons (von Apple oder Google), einen Hash eines zufälligen Schlüssels, den die App erzeugt, deine Heimatstadt, welche Hinweise du eingeschaltet hast und die Uhrzeit deines Morgenberichts, geplante Gipfel und Tage, Sprache und Einheit sowie ein Protokoll dessen, was wir in den letzten 14 Tagen gesendet haben. Es gibt kein Konto und keinen Standort. Telefone, die die App 90 Tage nicht geöffnet haben, werden automatisch gelöscht, geplante Touren nach ihrem Tag. Benachrichtigungen in der App ausschalten oder die App löschen beendet sie.</> },
       { title: 'Wie lange wir Daten aufbewahren', body: <>Gespeicherte Vorhersagen und interne Verwaltungseinträge werden von einem täglichen Aufräumjob automatisch gelöscht (in der Regel innerhalb von etwa 48 Stunden); Konsens-Snapshots und Server-Fehlerprotokolle nach 30 Tagen. Community-Feedback bleibt länger erhalten — es speist die öffentliche Heatmap und die langfristigen Ranglisten — bis du um Löschung bittest (siehe unten). Aggregierte Genauigkeitsgewichte sind anonym und werden unbegrenzt aufbewahrt.</> },
       { title: 'Deine Möglichkeiten', body: <>Du kannst die App ohne Standortfreigabe nutzen, deine lokal gespeicherten Einstellungen jederzeit löschen und die Entfernung von Feedback-Daten über ein Issue in unserem <A href={ISSUES}>GitHub-Repository</A> beantragen.</> },
       { title: 'Kontakt', body: <>Fragen zum Datenschutz? Schreib an <A href="mailto:info@metablend.app">info@metablend.app</A> oder öffne ein Issue unter <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend entwickelt sich weiter; das Datum „zuletzt aktualisiert“ oben zeigt immer die aktuelle Fassung.</> },
@@ -72,7 +74,7 @@ const CONTENT = {
   },
 
   fr: {
-    updated: 'Dernière mise à jour : septembre 2026',
+    updated: 'Dernière mise à jour : octobre 2026',
     t1: 'Politique', t2: 'Confidentialité',
     intro: <>MetaBlend est une application météo gratuite, en cours de développement, <strong>sans compte ni inscription</strong>. Nous limitons la collecte de données au strict nécessaire pour faire fonctionner le service et mesurer la précision de chaque source météo. Ceci est un résumé en langage clair, pas un avis juridique.</>,
     sections: [
@@ -92,6 +94,7 @@ const CONTENT = {
         </ul>
         <p className="mt-2">L’application est hébergée sur <strong>Vercel</strong> et sa base de données sur <strong>Supabase</strong> (région UE, Francfort). Chaque fournisseur traite les données reçues selon sa propre politique de confidentialité.</p>
       </> },
+      { title: 'Notifications (app)', body: <>Si vous activez les notifications dans l’app, nous enregistrons le jeton push de votre téléphone (d’Apple ou de Google), l’empreinte d’une clé aléatoire créée par l’app, votre ville principale, les alertes activées et l’heure de votre point du matin, les sommets et dates prévus, votre langue et votre unité, ainsi qu’un journal de ce que nous avons envoyé ces 14 derniers jours. Aucun compte, aucune position. Les téléphones qui n’ont pas ouvert l’app depuis 90 jours sont supprimés automatiquement, les randonnées prévues après leur jour. Désactiver les notifications dans l’app ou supprimer l’app les arrête.</> },
       { title: 'Durée de conservation', body: <>Les prévisions stockées et les entrées internes de gestion sont supprimées automatiquement par un nettoyage quotidien (généralement sous 48 heures environ) ; les instantanés du consensus et les journaux d’erreurs du serveur sont supprimés après 30 jours. Les signalements de la communauté sont conservés plus longtemps — ils alimentent la carte de précision publique et les classements à long terme — ou jusqu’à ce que vous en demandiez la suppression (voir ci-dessous). Les pondérations agrégées de précision sont anonymes et conservées indéfiniment.</> },
       { title: 'Vos choix', body: <>Vous pouvez utiliser l’application sans partager votre position, effacer vos préférences locales à tout moment et demander la suppression de vos signalements en ouvrant un ticket sur notre <A href={ISSUES}>dépôt GitHub</A>.</> },
       { title: 'Contact', body: <>Des questions sur la confidentialité ? Écrivez à <A href="mailto:info@metablend.app">info@metablend.app</A> ou ouvrez un ticket sur <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend évolue ; la date de « dernière mise à jour » ci-dessus reflète toujours la version en vigueur.</> },
@@ -99,7 +102,7 @@ const CONTENT = {
   },
 
   es: {
-    updated: 'Última actualización: septiembre de 2026',
+    updated: 'Última actualización: octubre de 2026',
     t1: 'Aviso', t2: 'Privacidad',
     intro: <>MetaBlend es una app del tiempo gratuita y en desarrollo, <strong>sin cuentas ni registro</strong>. Recogemos los datos mínimos necesarios para operar el servicio y medir la precisión de cada fuente meteorológica. Esto es un resumen en lenguaje claro, no asesoramiento legal.</>,
     sections: [
@@ -119,6 +122,7 @@ const CONTENT = {
         </ul>
         <p className="mt-2">La app se aloja en <strong>Vercel</strong> y su base de datos en <strong>Supabase</strong> (región UE, Fráncfort). Cada proveedor trata los datos que recibe según su propia política de privacidad.</p>
       </> },
+      { title: 'Notificaciones (app)', body: <>Si activas las notificaciones en la app, guardamos el token push de tu teléfono (de Apple o Google), un hash de una clave aleatoria que crea la app, tu ciudad principal, qué avisos activaste y la hora de tu resumen matinal, las cumbres y fechas planificadas, tu idioma y unidad, y un registro de lo que enviamos en los últimos 14 días. No hay cuenta ni ubicación. Los teléfonos que no abren la app en 90 días se borran automáticamente, las excursiones planificadas después de su día. Desactivar las notificaciones en la app o borrar la app las detiene.</> },
       { title: 'Cuánto tiempo lo conservamos', body: <>Las previsiones almacenadas y los registros internos se eliminan automáticamente con una limpieza diaria (normalmente en unas 48 horas); las instantáneas del consenso y los registros de errores del servidor, a los 30 días. Los informes de la comunidad se conservan más tiempo — alimentan el mapa público de precisión y las clasificaciones a largo plazo — o hasta que pidas que los eliminemos (ver abajo). Las ponderaciones agregadas de precisión son anónimas y se conservan indefinidamente.</> },
       { title: 'Tus opciones', body: <>Puedes usar la app sin compartir tu ubicación, borrar tus preferencias locales cuando quieras y solicitar la eliminación de tus datos de feedback abriendo una incidencia en nuestro <A href={ISSUES}>repositorio de GitHub</A>.</> },
       { title: 'Contacto', body: <>¿Preguntas sobre privacidad? Escribe a <A href="mailto:info@metablend.app">info@metablend.app</A> o abre una incidencia en <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend sigue evolucionando; la fecha de «última actualización» de arriba refleja siempre la versión vigente.</> },
@@ -126,7 +130,7 @@ const CONTENT = {
   },
 
   it: {
-    updated: 'Ultimo aggiornamento: settembre 2026',
+    updated: 'Ultimo aggiornamento: ottobre 2026',
     t1: 'Informativa', t2: 'Privacy',
     intro: <>MetaBlend è un’app meteo gratuita e in sviluppo, <strong>senza account e senza registrazione</strong>. Raccogliamo il minimo di dati necessario per far funzionare il servizio e misurare la precisione di ogni fonte meteo. Questo è un riepilogo in linguaggio semplice, non una consulenza legale.</>,
     sections: [
@@ -146,6 +150,7 @@ const CONTENT = {
         </ul>
         <p className="mt-2">L’app è ospitata su <strong>Vercel</strong> e il database su <strong>Supabase</strong> (regione UE, Francoforte). Ogni fornitore tratta i dati che riceve secondo la propria informativa sulla privacy.</p>
       </> },
+      { title: 'Notifiche (app)', body: <>Se attivi le notifiche nell’app, salviamo il token push del tuo telefono (di Apple o Google), l’hash di una chiave casuale creata dall’app, la tua città principale, quali avvisi hai attivato e l’ora del tuo riepilogo mattutino, le vette e le date pianificate, lingua e unità, e un registro di ciò che abbiamo inviato negli ultimi 14 giorni. Nessun account, nessuna posizione. I telefoni che non aprono l’app da 90 giorni vengono eliminati automaticamente, le escursioni pianificate dopo il loro giorno. Disattivare le notifiche nell’app o eliminare l’app le interrompe.</> },
       { title: 'Per quanto tempo li conserviamo', body: <>Le previsioni salvate e le righe interne di gestione vengono eliminate automaticamente da una pulizia giornaliera (di norma entro circa 48 ore); gli snapshot del consenso e i log degli errori del server dopo 30 giorni. Le segnalazioni della community restano più a lungo — alimentano la mappa pubblica della precisione e le classifiche a lungo termine — o finché non ne chiedi la rimozione (vedi sotto). I pesi aggregati di precisione sono anonimi e conservati a tempo indeterminato.</> },
       { title: 'Le tue scelte', body: <>Puoi usare l’app senza condividere la posizione, cancellare le preferenze locali in qualsiasi momento e chiedere la rimozione dei tuoi dati di feedback aprendo una issue sul nostro <A href={ISSUES}>repository GitHub</A>.</> },
       { title: 'Contatti', body: <>Domande sulla privacy? Scrivi a <A href="mailto:info@metablend.app">info@metablend.app</A> o apri una issue su <A href={ISSUES}>github.com/NeverFirstTry/metablend</A>. MetaBlend continua a evolvere; la data di «ultimo aggiornamento» in alto riflette sempre la versione corrente.</> },

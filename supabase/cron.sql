@@ -41,3 +41,20 @@ select cron.schedule(
 --   order by start_time desc limit 10;
 --   select created, status_code, left(content, 200) from net._http_response
 --   order by created desc limit 10;
+
+-- Push notifications: weather alerts, briefings and hike alerts, hourly at :05.
+-- Same Vault secret as the station calibration.
+select cron.schedule(
+  'push-dispatch-hourly',
+  '5 * * * *',
+  $job$
+  select net.http_get(
+    url := 'https://metablend.app/api/push/dispatch',
+    headers := jsonb_build_object(
+      'x-calibrate-key',
+      (select decrypted_secret from vault.decrypted_secrets where name = 'calibrate_secret')
+    ),
+    timeout_milliseconds := 300000
+  );
+  $job$
+);

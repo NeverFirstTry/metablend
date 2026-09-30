@@ -152,6 +152,10 @@ export async function GET(request) {
       .in('actual_cond', ['__calibrate__', '__meteostat__']),
     supabase.from('consensus_history').delete().lt('created_at', retentionCutoff),
     supabase.from('error_log').delete().lt('created_at', retentionCutoff),
+    // push: phones unseen for 90 days, hikes after their day, the 14-day send log
+    supabase.from('push_devices').delete().lt('last_seen', new Date(Date.now() - 90 * 86_400_000).toISOString()),
+    supabase.from('hike_plans').delete().lt('date', new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10)),
+    supabase.from('push_log').delete().lt('sent_at', new Date(Date.now() - 14 * 86_400_000).toISOString()),
   ])
 
   const validation = await runMeteostatValidation()
