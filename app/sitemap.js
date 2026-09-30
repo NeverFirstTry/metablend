@@ -7,7 +7,7 @@ export default function sitemap() {
   // Search engines learn to distrust lastModified when everything always
   // claims "just now" — only genuinely live pages carry the current time.
   const legalUpdated = new Date('2026-07-07')
-  const privacyUpdated = new Date('2026-09-29') // also the saved forecast range (outlook)
+  const privacyUpdated = new Date('2026-09-30') // + peak search providers (hiking)
   return [
     { url: `${BASE}/`, lastModified: now, changeFrequency: 'daily', priority: 1 },
     { url: `${BASE}/leaderboard`, lastModified: now, changeFrequency: 'daily', priority: 0.8 },
@@ -17,6 +17,7 @@ export default function sitemap() {
     { url: `${BASE}/privacy`, lastModified: privacyUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/terms`, lastModified: legalUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/aviation`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${BASE}/hike`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
     ...['loww', 'lowi', 'lows', 'eddm', 'eddf', 'egll', 'lfpg', 'eham', 'lirf', 'lszh', 'kjfk', 'klax', 'kord', 'rjtt', 'yssy', 'omdb'].map(icao => ({
       url: `${BASE}/aviation/${icao}`,
       lastModified: now,

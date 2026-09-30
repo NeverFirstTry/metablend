@@ -7,7 +7,7 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
-  Sparkles, Copy, Plane,
+  Sparkles, Copy, Plane, MountainSnow,
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
@@ -591,6 +591,9 @@ export default function Home() {
             </Link>
             <Link href="/planner" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
               <CalendarDays size={13} aria-hidden /> {t(lang, 'planner')}
+            </Link>
+            <Link href="/hike" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
+              <MountainSnow size={13} aria-hidden /> {t(lang, 'hiking')}
             </Link>
             <Link href="/aviation" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
               <Plane size={13} aria-hidden /> {t(lang, 'aviation')}

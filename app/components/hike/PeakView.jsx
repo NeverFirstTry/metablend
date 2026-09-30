@@ -7,6 +7,7 @@ import { fill, tempFormatter, deltaFormatter, spanFormatter } from '@/lib/outloo
 import { addDays } from '@/lib/localtime'
 import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
+import { worstStorm } from '@/lib/hike/blend'
 import RangeTabs from '../outlook/RangeTabs'
 import Headline from '../outlook/Headline'
 import HourlyChart from '../outlook/HourlyChart'
@@ -14,8 +15,6 @@ import { MetricCard, SectionTitle } from '../ui'
 import SummitStrip, { StormLegend, STORM_COLOR } from './SummitStrip'
 import SummitDays from './SummitDays'
 import HikeNotes from './HikeNotes'
-
-const RANK = { low: 0, moderate: 1, high: 2 }
 
 // One peak's summit forecast: Today / Tomorrow / Week, like the city outlook.
 // Mounted with key={peak.id}, so a new peak starts from a clean state.
@@ -39,7 +38,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
   const w = d?.windows?.[tab]
   const nums = k => hours.map(h => h[k]).filter(v => typeof v === 'number')
   const fz = nums('freezingLevel'), winds = nums('windKmh')
-  const worst = hours.map(h => h.storm).filter(Boolean).reduce((a, b) => (RANK[b] > RANK[a] ? b : a), null)
+  const worst = worstStorm(hours.map(h => h.storm))
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -75,8 +74,9 @@ export default function PeakView({ peak, lang, unit, onBack }) {
             </div>
           )}
           <div className="flex flex-wrap gap-3">
-            {winds.length > 0 && <MetricCard icon={Wind} label={t(lang, 'summitWind')} value={`${Math.max(...winds)} km/h`} />}
-            {fz.length > 0 && <MetricCard icon={Snowflake} label={t(lang, 'freezingLevel')} value={`${Math.min(...fz)}–${Math.max(...fz)} m`} />}
+            {/* units in the sub-line: three cards side by side on a phone leave no room */}
+            {winds.length > 0 && <MetricCard icon={Wind} label={t(lang, 'summitWind')} value={Math.max(...winds)} sub="km/h" />}
+            {fz.length > 0 && <MetricCard icon={Snowflake} label={t(lang, 'freezingLevel')} value={Math.min(...fz)} sub={`– ${Math.max(...fz)} m`} />}
             {worst && <MetricCard icon={Zap} label={t(lang, 'stormRisk')} value={t(lang, `storm${worst[0].toUpperCase()}${worst.slice(1)}`)} color={STORM_COLOR[worst]} />}
           </div>
         </>
