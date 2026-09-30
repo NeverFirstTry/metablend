@@ -9,6 +9,7 @@ import { fill } from '@/lib/outlook/text'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
+import SkyLoader from '../components/SkyLoader'
 
 const REGION_KEYS = {
   global:        'regionGlobal',
@@ -154,11 +155,7 @@ export default function Leaderboard() {
           )}
         </div>
 
-        {loading && (
-          <div className="text-zinc-500 text-sm flex items-center gap-2">
-            <Loader2 size={15} className="animate-spin-slow" aria-hidden /> {t(lang, 'lbLoading')}
-          </div>
-        )}
+        {loading && <SkyLoader lang={lang} title={t(lang, 'lbLoading')} names={[]} />}
 
         {error && (
           <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm flex items-center gap-2">

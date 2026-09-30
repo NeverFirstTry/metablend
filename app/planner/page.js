@@ -7,6 +7,7 @@ import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
+import SkyLoader from '../components/SkyLoader'
 
 // localized short month name (any non-leap year works as the anchor)
 const monthName = (lang, m) => new Date(2001, m - 1, 1).toLocaleDateString(lang, { month: 'short' })
@@ -85,7 +86,9 @@ export default function Planner() {
           <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</div>
         )}
 
-        {data && (
+        {loading && <SkyLoader lang={lang} title={t(lang, 'loadingClimate')} names={[]} />}
+
+        {data && !loading && (
           <div className="animate-fade-in-up">
             <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
               {data.city}{data.country ? `, ${data.country}` : ''}

@@ -1,15 +1,6 @@
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { t } from '@/lib/i18n'
 
-export function OutlookSkeleton() {
-  return (
-    <div className="space-y-4" aria-hidden>
-      <div className="skeleton h-20 rounded-2xl" />
-      <div className="skeleton h-56 rounded-2xl" />
-    </div>
-  )
-}
-
 export function OutlookError({ lang, onRetry }) {
   return (
     <div className="bg-red-900/30 border border-red-500/30 rounded-2xl p-4 text-red-300 text-sm flex items-center justify-between gap-3">

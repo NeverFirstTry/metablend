@@ -12,7 +12,7 @@ const visColor = v => (v == null ? MUTED : v >= 10 ? GREEN : v >= 4 ? YELLOW : R
 
 // "Right now", reduced to one line — the future tabs below are the main
 // event. Tapping it opens everything the old hero showed.
-export default function NowLine({ data, unit, lang, showT, showDelta }) {
+export default function NowLine({ data, unit, lang, showT, showDelta, dark = null }) {
   const [open, setOpen] = useState(false)
   const c = data.consensus
   const condition = heroCondition(data)
@@ -34,7 +34,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta }) {
           <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
             {condition && (
               <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
-                <span aria-hidden>{conditionIcon(condition, data.lon)}</span>
+                <span aria-hidden>{conditionIcon(condition, data.lon, dark)}</span>
                 <span className="truncate">{translateCondition(lang, condition)}</span>
               </span>
             )}

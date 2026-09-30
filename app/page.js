@@ -13,7 +13,7 @@ import { t, LANGUAGES, detectLang } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
 import { nativeShare } from '@/lib/native'
 import { startCity } from '@/lib/app-client'
-import { skyFor } from '@/lib/sky'
+import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import BetaBanner from './components/BetaBanner'
@@ -26,7 +26,8 @@ import TabTomorrow from './components/outlook/TabTomorrow'
 import Tab7d from './components/outlook/Tab7d'
 import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
-import { OutlookSkeleton, OutlookError } from './components/outlook/Status'
+import { OutlookError } from './components/outlook/Status'
+import SkyLoader from './components/SkyLoader'
 import { heroCondition } from './components/outlook/icons'
 
 // ── Offline cache (localStorage, per city): the last "right now" payload and
@@ -88,23 +89,6 @@ const cToF = c => c * 9 / 5 + 32
 // shares one CDN copy.
 const cityKey = q => encodeURIComponent(q.trim().toLowerCase())
 const TAB_KEY = 'mb_tab'
-
-// ── Skeleton ─────────────────────────────────────────────────────────────────
-// Uses the shared `.skeleton` shimmer (globals.css): now line, tabs, headline,
-// chart — the shapes of the real layout, so nothing jumps when data lands.
-function Sk({ className }) {
-  return <div className={`skeleton ${className}`} />
-}
-function ForecastSkeleton() {
-  return (
-    <div className="space-y-4 animate-fade-in">
-      <Sk className="h-14 w-full rounded-2xl" />
-      <Sk className="h-11 w-full rounded-xl" />
-      <Sk className="h-20 w-full rounded-2xl" />
-      <Sk className="h-56 w-full rounded-2xl" />
-    </div>
-  )
-}
 
 // ── Welcome / empty state ────────────────────────────────────────────────────
 // Shown before any city is searched, so a first-time visitor sees a real
@@ -191,6 +175,7 @@ export default function Home() {
   const [compareMode, setCompareMode] = useState(false)
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
+  const [compareLoading, setCompareLoading] = useState(false)
   // Refresh / auto-refresh
   const [refreshing, setRefreshing] = useState(false)      // silent background re-fetch
   const [nextRefreshAt, setNextRefreshAt] = useState(null) // ms timestamp of next auto-refresh
@@ -509,6 +494,7 @@ export default function Home() {
   async function loadCompare(targetCity) {
     const q = targetCity ?? compareCity
     if (!q.trim()) return
+    setCompareLoading(true)
     try {
       const res = await fetch(`/api/forecast?city=${encodeURIComponent(q)}&lang=${lang}`)
       const json = await res.json()
@@ -516,6 +502,8 @@ export default function Home() {
       setCompareData(json)
     } catch (e) {
       setError(e.message)
+    } finally {
+      setCompareLoading(false)
     }
   }
 
@@ -753,7 +741,8 @@ export default function Home() {
         )}
 
         {/* Side-by-side comparison */}
-        {compareMode && data && compareData && (
+        {compareMode && compareLoading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} compact />}
+        {compareMode && data && compareData && !compareLoading && (
           <div className="grid grid-cols-2 gap-3 mb-6">
             {[data, compareData].map((d, i) => (
               <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5">
@@ -776,8 +765,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Skeleton */}
-        {loading && !data && <ForecastSkeleton />}
+        {/* A search in flight: the loader takes the stage, the answer rises in after */}
+        {loading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} />}
 
         {/* Welcome / empty state — before any city has been searched */}
         {!data && !loading && !error && !compareMode && (
@@ -792,7 +781,7 @@ export default function Home() {
         )}
 
         {/* Results — "right now" shrinks to one line; the future tabs are the page */}
-        {data && (
+        {data && !loading && (
           <div className="space-y-4 animate-fade-in-up">
 
             {/* Severe-weather warning */}
@@ -888,7 +877,7 @@ export default function Home() {
               </div>
             )}
 
-            <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
+            <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
 
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
@@ -899,7 +888,7 @@ export default function Home() {
             ) : outlookError ? (
               <OutlookError lang={lang} onRetry={retryOutlook} />
             ) : (
-              <OutlookSkeleton />
+              <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
             )}
 
             <Fold icon={Layers} title={t(lang, 'sourcesFold')}>

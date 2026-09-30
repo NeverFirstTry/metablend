@@ -1,17 +1,18 @@
 import { t } from '@/lib/i18n'
+import { isDark, nightIcon } from '@/lib/sky'
 
 export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'var(--bad)' }
 
 // Hour-by-hour summit row: time, icon, summit temperature, summit wind,
-// freezing level, rain chance and a storm-risk bar.
-export default function SummitStrip({ hours, fmtTemp }) {
+// freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip.
+export default function SummitStrip({ hours, fmtTemp, sun }) {
   return (
     <div className="overflow-x-auto -mx-1 px-1">
       <div className="flex gap-1.5 min-w-max pb-1">
         {hours.map(h => (
           <div key={h.t} className="w-16 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
             <div className="text-zinc-500 tabular-nums">{h.t.slice(11, 16)}</div>
-            <div className="text-lg leading-tight" aria-hidden>{h.icon ?? '·'}</div>
+            <div className="text-lg leading-tight" aria-hidden>{(isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon) ?? '·'}</div>
             <div className="font-bold tabular-nums">{fmtTemp(h.temp)}</div>
             <div className="tabular-nums text-zinc-400">{h.windKmh != null ? `${h.windKmh} km/h` : '–'}</div>
             <div className="tabular-nums text-zinc-500">{h.freezingLevel != null ? `${h.freezingLevel} m` : '–'}</div>

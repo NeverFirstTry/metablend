@@ -8,6 +8,8 @@ import { addDays } from '@/lib/localtime'
 import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { worstStorm } from '@/lib/hike/blend'
+import { OM_MODELS } from '@/lib/outlook/models'
+import { sourceName } from '@/lib/sources'
 import { skyFor } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import RangeTabs from '../outlook/RangeTabs'
@@ -17,6 +19,10 @@ import { MetricCard, SectionTitle } from '../ui'
 import SummitStrip, { StormLegend, STORM_COLOR } from './SummitStrip'
 import SummitDays from './SummitDays'
 import HikeNotes from './HikeNotes'
+import SkyLoader from '../SkyLoader'
+
+// the models a summit request asks, for the loader's ticker
+const SUMMIT_MODELS = OM_MODELS.map(m => sourceName(m.id))
 
 // One peak's summit forecast: Today / Tomorrow / Week, like the city outlook.
 // Mounted with key={peak.id}, so a new peak starts from a clean state.
@@ -69,7 +75,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
           </button>
         </div>
       ) : !d ? (
-        <div className="h-64 rounded-2xl skeleton" />
+        <SkyLoader lang={lang} title={t(lang, 'loadingSummit')} names={SUMMIT_MODELS} />
       ) : tab === 'd7' ? (
         <SummitDays days={d.days} todayLocal={todayLocal} lang={lang} fmt={fmt} />
       ) : (
@@ -79,7 +85,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <HourlyChart hours={hours} unit={unit} lang={lang} />
               <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
-              <SummitStrip hours={hours} fmtTemp={fmt.fmtTemp} />
+              <SummitStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={d.sunByDate?.[date] ?? d.sun} />
               <StormLegend lang={lang} />
             </div>
           )}

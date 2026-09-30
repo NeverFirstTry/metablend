@@ -5,6 +5,19 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Changed — daylight sky, loader, night icons
+- **The light theme wears the sky too** — the same eight skies as pale
+  daylight (zenith colour on top, bright horizon below), navy ink, frosted
+  white glass, a deep-sky blue accent and navy pill buttons. Switching theme
+  fades one sky into the other.
+- **Loader** (`components/SkyLoader.jsx`) — a cloud drifting past the sun
+  with "Gathering the forecast" and the sources being asked ticking by,
+  instead of grey skeletons. Used for city search, compare, the outlook, the
+  summit forecast (its 10 models), the leaderboard and the planner.
+- Hour icons turn to the moon after sunset and before sunrise, from the
+  city's (or summit's) real sun times; the hero's clear-sky icon uses them
+  too instead of a fixed 21:00–06:00 guess.
+
 ### Changed — living sky design
 - **The page wears the sky** of the city (or summit) on screen: night, dawn,
   day, cloudy, rain, storm, snow or dusk, from the current weather code and

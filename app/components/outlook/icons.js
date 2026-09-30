@@ -1,8 +1,9 @@
 import { isNightAt } from '@/lib/localtime'
 
 // Consensus condition → icon. Sources report English condition strings;
-// night only swaps the clear-sky icon, judged by the city's clock.
-export function conditionIcon(condition, lon) {
+// night only swaps the clear-sky icon: `dark` from the city's sun times when
+// known, else a rough guess from its longitude.
+export function conditionIcon(condition, lon, dark = null) {
   const c = (condition ?? '').toLowerCase()
   if (/thunder|storm/.test(c)) return '⛈'
   if (/snow|sleet|ice|freez/.test(c)) return '🌨'
@@ -12,7 +13,7 @@ export function conditionIcon(condition, lon) {
   if (/overcast/.test(c)) return '☁️'
   if (/partly|broken|scattered|few/.test(c)) return '⛅'
   if (/cloud/.test(c)) return '☁️'
-  if (/clear|sunny|fair/.test(c)) return isNightAt(lon) ? '🌙' : '☀️'
+  if (/clear|sunny|fair/.test(c)) return (dark ?? isNightAt(lon)) ? '🌙' : '☀️'
   return '🌤'
 }
 
