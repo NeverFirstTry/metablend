@@ -1,6 +1,7 @@
 import { Geist_Mono, Hanken_Grotesk } from 'next/font/google'
 import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
 import ThemeSync from './components/ThemeSync'
@@ -124,6 +125,7 @@ export default function RootLayout({ children }) {
         />
         {/* Cookieless Core Web Vitals (disclosed in the privacy notice) */}
         <SpeedInsights />
+        <Analytics />
       </body>
     </html>
   )
