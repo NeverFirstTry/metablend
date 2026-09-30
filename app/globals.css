@@ -518,3 +518,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   backdrop-filter: blur(24px) saturate(160%);
 }
 :root[data-theme="light"] .mb-overlay.bg-zinc-900 { background-color: rgb(255 255 255 / 0.95); }
+
+/* iOS zooms into any field with text under 16 px when it's focused — and
+   stays zoomed. On touch screens fields get 16 px, so there is nothing to
+   zoom into; desktop keeps the compact sizes. */
+@media (hover: none) and (pointer: coarse) {
+  input, select, textarea { font-size: 16px !important; }
+}

@@ -1,9 +1,11 @@
+import { Suspense } from 'react'
 import { Geist_Mono, Hanken_Grotesk } from 'next/font/google'
 import Script from 'next/script'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
 import ThemeSync from './components/ThemeSync'
+import ScrollReset from './components/ScrollReset'
 import { APP_BOOT_SCRIPT } from '@/lib/app-client'
 import { THEME_BOOT_SCRIPT } from '@/lib/theme'
 
@@ -117,6 +119,8 @@ export default function RootLayout({ children }) {
         {children}
         <AppChrome />
         <ThemeSync />
+        {/* reads the query, so it gets its own boundary: pages stay prerendered */}
+        <Suspense fallback={null}><ScrollReset /></Suspense>
         <Script
           defer
           data-domain="metablend.app"
