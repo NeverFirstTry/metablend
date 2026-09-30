@@ -9,6 +9,8 @@ import { useUnit } from '@/lib/useUnit'
 import { getCookie, setCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
+import NotificationSettings from '../components/push/NotificationSettings'
+import { isNative } from '@/lib/native'
 
 const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms']]
 const label = s => s.replace(/\s*→$/, '')
@@ -21,9 +23,11 @@ export default function MoreClient() {
   const cookieUnit = useUnit()
   const [unit, setUnit] = useState(null)
   const [theme, setTheme] = useState('system')
+  const [native, setNative] = useState(false)
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration cookie sync
     setTheme(readThemePref(getCookie(THEME_COOKIE)))
+    setNative(isNative())
   }, [])
   const u = unit ?? cookieUnit
 
@@ -70,6 +74,7 @@ export default function MoreClient() {
           </div>
         </div>
       </section>
+      {native && <NotificationSettings lang={lang} unit={u} />}
       <section className="space-y-3">
         <SectionTitle icon={Compass}>{t(lang, 'moreLinks')}</SectionTitle>
         <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">
