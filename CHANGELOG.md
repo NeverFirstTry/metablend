@@ -13,9 +13,16 @@ All notable changes to MetaBlend. Format loosely follows
   Europe); the summit window for today and tomorrow and what ends it
   ("storms from 14:00"); 7 summit days. Weights borrowed from the region's
   outlook learning. CDN-cached per peak for 30 min.
-- **`/api/peaks`** — worldwide peak and hut search (OpenStreetMap via Photon
-  + elevation service, GeoNames fallback), 41 featured Alps peaks first,
-  umlaut- and alias-tolerant ("glockner", "Raxalpe", "Oetscher").
+- **`/api/peaks`** — worldwide peak and hut search (OpenStreetMap via Photon,
+  GeoNames fallback), 41 featured Alps peaks first, umlaut- and
+  alias-tolerant ("glockner", "Raxalpe", "Oetscher"). Heights are
+  OpenStreetMap's surveyed `ele` (Ben Nevis 1345 m, Mount Whitney 4420 m);
+  the 90 m terrain model — which reads sharp summits 50–200 m low — is only
+  the fallback and flagged `elevApprox`. A search answered while a source was
+  down is cached for 5 minutes instead of a day.
+- Summit windows end at sunset, use each day's own sun times (DST-safe), and
+  never run across the night; peaks above 4200 m use the 500 / 300 hPa winds;
+  models without upper-air wind sit the summit-wind vote out.
 - The outlook's daylight rule is shared (`inDaylight`) so best-time-out and
   the summit window agree on what daylight is.
 
