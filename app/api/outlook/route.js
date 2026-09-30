@@ -1,7 +1,8 @@
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
-import { geocodeCity, getRegion } from '@/lib/weather'
+import { geocodeCity, englishPlaceName, getRegion } from '@/lib/weather'
+import { pickLang } from '@/lib/share'
 import { fetchOpenMeteoMultiRaw, fetchClimateRaw } from '@/lib/outlook/sources'
 import { fetchNationalRaw, fetchMetNorwayRaw } from '@/lib/outlook/national'
 import { buildOutlook } from '@/lib/outlook/build'
@@ -18,20 +19,25 @@ const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('outlook', async (request) => {
-  const q = new URL(request.url).searchParams.get('city')?.trim()
+  const sp = new URL(request.url).searchParams
+  const q = sp.get('city')?.trim()
   if (!q) return noStore({ error: 'No city specified' }, 400)
+  // the place is looked up in the visitor's language, like /api/forecast does —
+  // in English, "Wien" is a town in Missouri, not Vienna
+  const lang = pickLang(sp.get('lang'))
   // only cache misses reach this point — CDN hits never invoke the function
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
-  const geo = await geocodeCity(q, 'en')
+  const geo = await geocodeCity(q, lang)
   if (!geo) return noStore({ error: `"${q}" was not found.` }, 404)
   const region = getRegion(geo.lat, geo.lon)
 
-  const [multi, climate, national, weights] = await Promise.all([
+  const [multi, climate, national, weights, learnName] = await Promise.all([
     fetchOpenMeteoMultiRaw(geo.lat, geo.lon),
     fetchClimateRaw(geo.lat, geo.lon),
     fetchNationalRaw(geo.lat, geo.lon),
     loadOutlookWeights(region),
+    lang === 'en' ? geo.name : englishPlaceName(geo.id),
   ])
   // MET Norway only as the fallback when the model request failed
   const met = multi ? null : await fetchMetNorwayRaw(geo.lat, geo.lon)
@@ -41,11 +47,13 @@ export const GET = withErrorLog('outlook', async (request) => {
     return noStore({ error: 'Forecast unavailable right now — please try again shortly.' }, 502)
   }
 
-  // Learning must never break the forecast itself
+  // Learning must never break the forecast itself. Snapshots are keyed by the
+  // English name; without one (lookup failed) this round is skipped rather
+  // than filed under a second name for the same city.
   try {
-    await saveSnapshots({ city: geo.name, lat: geo.lat, lon: geo.lon, region, series, utcOffsetSec, todayLocal })
+    if (learnName) await saveSnapshots({ city: learnName, lat: geo.lat, lon: geo.lon, region, series, utcOffsetSec, todayLocal })
   } catch (e) {
-    await logError('outlook.snapshot', e, { city: geo.name })
+    await logError('outlook.snapshot', e, { city: learnName })
   }
 
   return Response.json(payload, {

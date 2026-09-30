@@ -5,6 +5,27 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-09-30
 
+### Changed — share and embed
+- **Share** sends a link to that city (`/city/<name>`) with a line in the
+  sharer's language and unit ("Wien · 18° · Klar / 10 Wetterquellen, 90 %
+  Einigkeit"); the link shows a live preview card of the city's weather on its
+  sky (`/api/og/city`, CDN-cached) and forwards to the forecast. Desktop copies
+  text + link; cancelling the share sheet no longer copies anyway.
+- **Embed** — the widget is rebuilt on the living sky: city, thin temperature,
+  condition, high / low, sources, in 5 languages, °C/°F, auto / dark / light,
+  compact 300×200 or wide 480×180, tapping opens the forecast. The panel
+  picks size and look with a true-size live preview and a working copy button
+  (it used to read "Copied" before anything was copied). `lib/share.js`, tested.
+
+### Fixed
+- **The outlook looked cities up in English**: "Wien" in German showed Vienna's
+  weather now but Wien, Missouri's Today / Tomorrow / Week. It now uses the
+  visitor's language like the live forecast; its learning snapshots stay keyed
+  by the English place name (GeoNames id lookup), so "Wien" and "Vienna" remain
+  one city.
+- A shared or restored city loaded in English on first visit (the language
+  wasn't read yet), which also picked the wrong place for such names.
+
 ### Changed — system theme, iPhone safe areas
 - **Appearance follows the device by default** (dark or light, live when the
   device switches); More → Appearance offers System / Dark / Light, and the

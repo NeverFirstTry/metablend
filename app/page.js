@@ -7,9 +7,9 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
-  Sparkles, Copy, Plane, MountainSnow,
+  Sparkles, Plane, MountainSnow,
 } from 'lucide-react'
-import { t, LANGUAGES, detectLang } from '@/lib/i18n'
+import { t, LANGUAGES, detectLang, translateCondition } from '@/lib/i18n'
 import { getCookie, setCookie } from '@/lib/prefs'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
@@ -30,6 +30,8 @@ import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
+import EmbedPanel from './components/EmbedPanel'
+import { cityShareUrl, shareText } from '@/lib/share'
 import { heroCondition } from './components/outlook/icons'
 
 // ── Offline cache (localStorage, per city): the last "right now" payload and
@@ -215,7 +217,7 @@ export default function Home() {
     })
     if (first) {
       setCity(first)
-      loadForecast(first)
+      loadForecast(first, { lang: detectedLang })
     }
     /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -336,7 +338,10 @@ export default function Home() {
   // `silent` = background auto-refresh / manual refresh of the city already on
   // screen: keep the current data visible (no skeleton), just spin the icon and
   // flash "Updated just now" on success.
-  async function loadForecast(targetCity, { silent = false } = {}) {
+  // `lang` defaults to the current language; the first load passes the detected
+  // one, since the state still holds the server default ('en') at that moment —
+  // and the language decides the place ("Wien" in English is a town in Missouri)
+  async function loadForecast(targetCity, { silent = false, lang: asLang = lang } = {}) {
     const q = targetCity ?? city
     if (!q.trim()) return
     if (silent) setRefreshing(true)
@@ -349,8 +354,8 @@ export default function Home() {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(q)}&lang=${lang}`).then(r => r.json()),
-        fetch(`/api/outlook?city=${cityKey(q)}`).then(r => r.json()),
+        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
+        fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
       ])
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: nowRes.reason?.message ?? 'Network error' }
       if (json.error) throw new Error(json.error)
@@ -409,7 +414,7 @@ export default function Home() {
     if (!data) return
     setOutlookError(null)
     try {
-      const out = await fetch(`/api/outlook?city=${cityKey(data.city)}`).then(r => r.json())
+      const out = await fetch(`/api/outlook?city=${cityKey(data.city)}&lang=${lang}`).then(r => r.json())
       if (out.error) throw new Error(out.error)
       setOutlook(out)
     } catch (e) {
@@ -466,31 +471,27 @@ export default function Home() {
     setTimeout(() => setToast(null), 2000)
   }
 
-  // Native share on mobile, clipboard copy on desktop
+  // The share sheet on phones (and in the app), the link on the clipboard on
+  // desktop. The link opens a page with a live preview card of this city.
   async function shareForecast() {
     if (!data) return
-    const condition = heroCondition(data) ?? ''
-    const text = `Weather in ${data.city} via MetaBlend: ${data.consensus.temp}°C, ${condition}, ${data.consensus.confidencePct}% consensus across ${data.sources.length} APIs - metablend.app`
-    // inside the app: the native share sheet
-    if (await nativeShare({ title: 'MetaBlend', text })) return // the text already carries the link
+    const url = cityShareUrl({ city: data.city, lang, unit })
+    const title = fill(t(lang, 'shareTitle'), { city: data.city })
+    const text = shareText(lang, {
+      city: data.city,
+      temp: fmt.fmtTemp(data.consensus.temp),
+      condition: translateCondition(lang, heroCondition(data) ?? ''),
+      sources: data.sources.filter(s => !s.down).length,
+      agree: data.consensus.confidencePct,
+    })
+    if (await nativeShare({ title, text, url })) return
     if (navigator.share) {
-      try { await navigator.share({ title: 'MetaBlend', text }); return } catch { /* cancelled → fall through */ }
+      try { await navigator.share({ title, text, url }); return } catch (e) { if (e?.name === 'AbortError') return } // cancelled: nothing to copy
     }
     try {
-      await navigator.clipboard.writeText(text)
-      flashToast(t(lang, 'copied'))
-    } catch {
-      flashToast(t(lang, 'copyFailed'))
-    }
-  }
-
-  async function copyEmbed() {
-    if (!data) return
-    const src = `https://metablend.app/widget/${encodeURIComponent(data.city)}`
-    const code = `<iframe src="${src}" width="300" height="200" frameborder="0" title="MetaBlend ${data.city}"></iframe>`
-    try {
-      await navigator.clipboard.writeText(code)
-      flashToast(t(lang, 'copied'))
+      await navigator.clipboard.writeText(`${text}
+${url}`)
+      flashToast(t(lang, 'linkCopied'))
     } catch {
       flashToast(t(lang, 'copyFailed'))
     }
@@ -856,31 +857,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Embed code box */}
-            {showEmbed && (
-              <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3">
-                <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2">{t(lang, 'embedTitle')}</div>
-                <div className="flex justify-center mb-3">
-                  <iframe
-                    src={`/widget/${encodeURIComponent(data.city)}`}
-                    width="300"
-                    height="200"
-                    title="MetaBlend widget preview"
-                    className="rounded-lg border border-zinc-800"
-                    style={{ border: 0 }}
-                  />
-                </div>
-                <code className="block text-xs text-emerald-300 break-all mb-2">
-                  {`<iframe src="https://metablend.app/widget/${encodeURIComponent(data.city)}" width="300" height="200" frameborder="0"></iframe>`}
-                </code>
-                <button
-                  onClick={copyEmbed}
-                  className="press inline-flex items-center gap-1.5 bg-emerald-400 text-black text-xs font-bold px-3 py-1 rounded hover:bg-emerald-300"
-                >
-                  <Copy size={13} aria-hidden /> {t(lang, 'copied').replace('!', '')}
-                </button>
-              </div>
-            )}
+            {showEmbed && <EmbedPanel city={data.city} lang={lang} unit={unit} />}
 
             <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
 

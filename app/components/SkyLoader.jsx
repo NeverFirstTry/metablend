@@ -19,7 +19,8 @@ const VIEW = '0 0 160 110' // every layer shares one coordinate space; the sun s
 // compositor in every engine; SVG elements can fall back to the main thread
 // in Firefox.
 // No filters on moving layers: some GPUs re-render filtered layers as they move.
-export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = false }) {
+// `compact` = less padding; `mini` = scaled down for the 200 px-tall embed widget.
+export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = false, mini = false }) {
   const [i, setI] = useState(0)
   const shade = `shade${useId().replace(/[^\w-]/g, '')}` // url(#…) chokes on useId's punctuation
   useEffect(() => {
@@ -28,8 +29,8 @@ export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = 
     return () => clearInterval(id)
   }, [names.length])
   return (
-    <div className={`mb-loader flex flex-col items-center text-center animate-fade-in ${compact ? 'py-6' : 'py-10 sm:py-14'}`}>
-      <div className="scene" aria-hidden>
+    <div className={`mb-loader flex flex-col items-center text-center animate-fade-in ${mini ? '' : compact ? 'py-6' : 'py-10 sm:py-14'}`}>
+      <div className={`scene ${mini ? 'scale-[0.6] -my-6' : ''}`} aria-hidden>
         <div className="glow" />
         <div className="layer rays">
           <svg viewBox={VIEW}>
@@ -60,7 +61,7 @@ export default function SkyLoader({ lang, title, names = ALL_SOURCES, compact = 
           <rect x="32" y="70" width="88" height="22" rx="11" />
         </svg></div>
       </div>
-      <p role="status" className="mt-6 text-lg sm:text-xl font-semibold tracking-tight">{title}</p>
+      <p role="status" className={mini ? 'mt-1 text-sm font-semibold' : 'mt-6 text-lg sm:text-xl font-semibold tracking-tight'}>{title}</p>
       {names.length > 0 && (
         <p key={i} aria-hidden className="ticker mt-1.5 text-sm text-zinc-400 tabular-nums">
           {fill(t(lang, 'loadingAsking'), { name: names[i % names.length] })}
