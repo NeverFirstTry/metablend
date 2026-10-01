@@ -10,6 +10,7 @@ import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
 import NotificationSettings from '../components/push/NotificationSettings'
+import AppIconPicker from '../components/AppIconPicker'
 import { isNative } from '@/lib/native'
 
 const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms']]
@@ -78,6 +79,7 @@ export default function MoreClient() {
           </div>
         </div>
       </section>
+      {native && <AppIconPicker lang={lang} />}
       {native && <NotificationSettings lang={lang} unit={u} />}
       <section className="space-y-3">
         <SectionTitle icon={Compass}>{t(lang, 'moreLinks')}</SectionTitle>

@@ -73,5 +73,39 @@ public class WidgetBridgePlugin: CAPPlugin, CAPBridgedPlugin {
 class MainViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(WidgetBridgePlugin())
+        bridge?.registerPluginInstance(AppIconPlugin())
+    }
+}
+
+// More → App icon: "auto" is the primary icon (follows light / dark /
+// tinted); the others are the alternate icon sets in Assets.xcassets.
+@objc(AppIconPlugin)
+public class AppIconPlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "AppIconPlugin"
+    public let jsName = "AppIcon"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "get", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "set", returnType: CAPPluginReturnPromise),
+    ]
+    private let sets = ["light": "AppIcon-Light", "dark": "AppIcon-Dark", "sky": "AppIcon-Sky"]
+
+    @objc func get(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            let current = UIApplication.shared.alternateIconName
+            let name = self.sets.first(where: { $0.value == current })?.key ?? "auto"
+            call.resolve(["name": name, "platform": "ios"])
+        }
+    }
+
+    @objc func set(_ call: CAPPluginCall) {
+        let name = call.getString("name") ?? "auto"
+        let iconSet = name == "auto" ? nil : sets[name]
+        if name != "auto" && iconSet == nil { return call.reject("unknown icon: " + name) }
+        DispatchQueue.main.async {
+            guard UIApplication.shared.supportsAlternateIcons else { return call.reject("alternate icons not supported") }
+            UIApplication.shared.setAlternateIconName(iconSet) { error in
+                if let error = error { call.reject(error.localizedDescription) } else { call.resolve() }
+            }
+        }
     }
 }

@@ -53,8 +53,10 @@ for (const [q, d] of Object.entries(D)) {
   await render(iconSVG(variant, DEFAULT, { id: id(), size: f, inset: 0.1667, bg: false }), path.join(dir, 'ic_launcher_foreground.png'), f)
   await render(monoSVG(variant, { id: id(), size: f, inset: 0.1667 }), path.join(dir, 'ic_launcher_monochrome.png'), f)
 }
-const stops = T.bg.map((c, i) => `<item android:offset="${(i / (T.bg.length - 1)).toFixed(2)}" android:color="${c}"/>`).join('\n                ')
-fs.writeFileSync(path.join(AR, 'drawable/ic_launcher_background.xml'), `<?xml version="1.0" encoding="utf-8"?>
+// adaptive-icon background (the theme's sky as a vector gradient) and the icon XML
+const backgroundXML = theme => {
+  const stops = THEMES[theme].bg.map((c, i, all) => `<item android:offset="${(i / (all.length - 1)).toFixed(2)}" android:color="${c}"/>`).join('\n                ')
+  return `<?xml version="1.0" encoding="utf-8"?>
 <!-- Adaptive-icon background: the icon's sky, top to bottom -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -70,16 +72,18 @@ fs.writeFileSync(path.join(AR, 'drawable/ic_launcher_background.xml'), `<?xml ve
         </aapt:attr>
     </path>
 </vector>
-`)
-const adaptive = `<?xml version="1.0" encoding="utf-8"?>
+`
+}
+const adaptiveXML = suffix => `<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background"/>
-    <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
+    <background android:drawable="@drawable/ic_launcher_background${suffix}"/>
+    <foreground android:drawable="@mipmap/ic_launcher_foreground${suffix}"/>
     <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>
 </adaptive-icon>
 `
-fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher.xml'), adaptive)
-fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher_round.xml'), adaptive)
+fs.writeFileSync(path.join(AR, 'drawable/ic_launcher_background.xml'), backgroundXML(DEFAULT))
+fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher.xml'), adaptiveXML(''))
+fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher_round.xml'), adaptiveXML(''))
 fs.rmSync(path.join(AR, 'drawable-v24/ic_launcher_foreground.xml'), { force: true })
 
 // splash: the icon's sky with the mark in the middle
@@ -127,4 +131,33 @@ fs.writeFileSync(path.join(icon, 'Contents.json'), JSON.stringify({
 for (const f of fs.readdirSync(path.join(IOS, 'Splash.imageset')).filter(f => f.endsWith('.png'))) {
   await render(splash(2732, 2732, 0.16), path.join(IOS, 'Splash.imageset', f), 2732)
 }
+
+// ---- alternate icons for More → App icon
+fs.mkdirSync(P('public/app-icons'), { recursive: true })
+for (const theme of Object.keys(THEMES)) {
+  const Name = theme[0].toUpperCase() + theme.slice(1)
+  // iOS: one app icon set per theme (named in ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES)
+  const set = path.join(IOS, `AppIcon-${Name}.appiconset`)
+  fs.mkdirSync(set, { recursive: true })
+  await render(iconSVG(variant, theme, { id: id(), size: 1024 }), path.join(set, 'icon.png'), 1024)
+  fs.writeFileSync(path.join(set, 'Contents.json'), JSON.stringify({ images: [{ filename: 'icon.png', idiom: 'universal', platform: 'ios', size: '1024x1024' }], info: { author: 'xcode', version: 1 } }, null, 2) + '\n')
+  // the picker's previews
+  await render(clipped(iconSVG(variant, theme, { id: id(), size: 168 }), 168, 'square'), P(`public/app-icons/${theme}.png`), 168)
+  if (theme === DEFAULT) continue // Android's main launcher icon already is this one
+  // Android: launcher icons for the activity-alias of this theme
+  for (const [q, d] of Object.entries(D)) {
+    const dir = path.join(AR, `mipmap-${q}`)
+    const s = Math.round(48 * d), f = Math.round(108 * d)
+    await render(clipped(iconSVG(variant, theme, { id: id(), size: s }), s, 'square'), path.join(dir, `ic_launcher_${theme}.png`), s)
+    await render(clipped(iconSVG(variant, theme, { id: id(), size: s }), s, 'circle'), path.join(dir, `ic_launcher_${theme}_round.png`), s)
+    await render(iconSVG(variant, theme, { id: id(), size: f, inset: 0.1667, bg: false }), path.join(dir, `ic_launcher_foreground_${theme}.png`), f)
+  }
+  fs.writeFileSync(path.join(AR, `drawable/ic_launcher_background_${theme}.xml`), backgroundXML(theme))
+  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher_${theme}.xml`), adaptiveXML(`_${theme}`))
+  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher_${theme}_round.xml`), adaptiveXML(`_${theme}`))
+}
+// "Automatic" preview: the light icon top left, the dark one bottom right
+const half = (points, svg) => `<g clip-path="url(#${points})">${nest(svg, 0, 0, 168)}</g>`
+const auto = `<svg xmlns="http://www.w3.org/2000/svg" width="168" height="168" viewBox="0 0 168 168"><defs><clipPath id="tl"><polygon points="0,0 168,0 0,168"/></clipPath><clipPath id="br"><polygon points="168,0 168,168 0,168"/></clipPath></defs>${half('tl', iconSVG(variant, 'light', { id: id(), size: 168 }))}${half('br', iconSVG(variant, 'dark', { id: id(), size: 168 }))}</svg>`
+await render(clipped(auto, 168, 'square'), P('public/app-icons/auto.png'), 168)
 console.log('done', variant, DEFAULT)
