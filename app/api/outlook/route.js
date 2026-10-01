@@ -13,7 +13,7 @@ import { lastUpstreamFailure } from '@/lib/outlook/http'
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
 // for 30 minutes, so 1 or 1,000 viewers cost the same upstream calls.
-export const maxDuration = 30
+export const maxDuration = 60 // all models (twice), the core three, then MET Norway
 
 const TTL = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
@@ -40,6 +40,8 @@ export const GET = withErrorLog('outlook', async (request) => {
     loadOutlookWeights(region),
     lang === 'en' ? geo.name : englishPlaceName(geo.id),
   ])
+  // Open-Meteo hangs now and then on the full request: note how often
+  if (!multi || multi.fallback) await logError('outlook.upstream', new Error(multi ? 'fell back to the core models' : 'model request failed'), { upstream: lastUpstreamFailure() })
   // MET Norway only as the fallback when the model request failed
   const met = multi ? null : await fetchMetNorwayRaw(geo.lat, geo.lon)
 

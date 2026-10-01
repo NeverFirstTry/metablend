@@ -1,4 +1,4 @@
-import { withErrorLog } from '@/lib/log'
+import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { getRegion } from '@/lib/weather'
@@ -27,6 +27,8 @@ export const GET = withErrorLog('hike', async (request) => {
     fetchSummitRaw(peak.lat, peak.lon, peak.elev),
     loadOutlookWeights(region),
   ])
+  // Open-Meteo hangs now and then on the full request: note how often
+  if (!multi || multi.fallback) await logError('hike.upstream', new Error(multi ? 'fell back to the core models' : 'no summit forecast'), { upstream: lastUpstreamFailure() })
   const payload = buildHike({ peak, region, multi, weights })
   if (!payload.hourly.length) return noStore({ error: 'Summit forecast unavailable right now — please try again shortly.', upstream: lastUpstreamFailure() }, 502)
 
