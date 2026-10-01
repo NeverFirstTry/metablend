@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Status-bar icon for push notifications: the logo's sun and cloud as a
-     white silhouette (Android shows only the alpha, tinted with
-     notification_accent). Same coordinates as public/icon.svg, centred. -->
+<!-- Status-bar icon for push notifications: the M and B of the logo as a
+     white silhouette (Android shows only the alpha, tinted with notification_accent). -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
-    android:viewportWidth="384"
-    android:viewportHeight="384">
-    <group android:translateX="-98.75" android:translateY="-45">
-        <path android:fillColor="#FFFFFF" android:pathData="M300,196a52,52 0,1 0,104 0a52,52 0,1 0,-104 0z" />
-        <path android:strokeColor="#FFFFFF" android:strokeWidth="12" android:strokeLineCap="round"
-            android:pathData="M386,137.1L398,116.3M405.6,154.1L424.5,139.4M417.4,177.3L440.4,170.6M419.6,203.1L443.5,205.6" />
-        <path android:fillColor="#FFFFFF" android:pathData="M171,286h170a39,39 0,0 1,0 78h-170a39,39 0,0 1,0 -78z" />
-        <path android:fillColor="#FFFFFF" android:pathData="M148,300a54,54 0,1 0,108 0a54,54 0,1 0,-108 0z" />
-        <path android:fillColor="#FFFFFF" android:pathData="M198,262a74,74 0,1 0,148 0a74,74 0,1 0,-148 0z" />
-        <path android:fillColor="#FFFFFF" android:pathData="M288,300a56,56 0,1 0,112 0a56,56 0,1 0,-112 0z" />
-    </group>
+    android:viewportWidth="100"
+    android:viewportHeight="100">
+    <path android:fillColor="#FFFFFF" android:pathData="M21.38 70L13.17 70L13.17 30L25.17 30L34.29 56.05L43.42 30L55.41 30L55.41 70L47.21 70L47.21 41.82L38.31 66.44L30.33 66.44L21.38 41.82" />
+    <path android:fillColor="#FFFFFF" android:pathData="M73.68 70L57.21 70L57.21 30L71.73 30Q77.76 30 81.20 32.70Q84.64 35.39 84.64 40.10Q84.64 42.86 83.55 44.95Q82.46 47.04 80.51 48.31Q83.73 49.63 85.28 52.09Q86.83 54.56 86.83 58.12Q86.83 63.69 83.32 66.84Q79.82 70 73.68 70M65.42 53.07L65.42 62.48L72.99 62.48Q78.62 62.48 78.62 57.78Q78.62 55.54 77.21 54.30Q75.81 53.07 73.22 53.07L65.42 53.07M65.42 37.52L65.42 45.72L71.85 45.72Q74.03 45.72 75.23 44.58Q76.44 43.43 76.44 41.42Q76.44 39.58 75.20 38.55Q73.97 37.52 71.73 37.52" />
 </vector>

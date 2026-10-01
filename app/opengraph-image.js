@@ -17,7 +17,7 @@ export default function OpengraphImage() {
           flexDirection: 'column',
           justifyContent: 'space-between',
           padding: '72px 80px',
-          background: '#0e0e12',
+          background: '#0b1022',
           color: '#ffffff',
           fontFamily: 'sans-serif',
         }}
@@ -28,7 +28,7 @@ export default function OpengraphImage() {
             fontSize: 26,
             letterSpacing: 8,
             textTransform: 'uppercase',
-            color: '#34d399',
+            color: '#ffd98a',
           }}
         >
           Weather · Consensus
@@ -37,7 +37,7 @@ export default function OpengraphImage() {
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', fontSize: 128, letterSpacing: -3 }}>
             <span>Meta</span>
-            <span style={{ color: '#34d399' }}>Blend</span>
+            <span style={{ color: '#ffd98a' }}>Blend</span>
           </div>
           <div style={{ display: 'flex', fontSize: 46, color: '#a1a1aa', marginTop: 18 }}>
             Weather truth through consensus.
@@ -54,7 +54,7 @@ export default function OpengraphImage() {
           }}
         >
           <div style={{ display: 'flex' }}>16 forecasts, weighted by accuracy</div>
-          <div style={{ display: 'flex', color: '#34d399' }}>metablend.app</div>
+          <div style={{ display: 'flex', color: '#ffd98a' }}>metablend.app</div>
         </div>
       </div>
     ),
