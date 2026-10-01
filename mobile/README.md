@@ -39,8 +39,17 @@ store release); only native changes need a new build.
 One-time setup (owner — keys never go through chat):
 1. Firebase console → new project → add Android app `app.metablend` → download
    `google-services.json` into `mobile/android/app/`.
-2. Firebase → Project settings → Service accounts → Generate new private key →
-   paste the whole JSON into Vercel env `FIREBASE_SERVICE_ACCOUNT` (Production).
+2. Firebase → Project settings → Service accounts → Generate new private key.
+   From the downloaded JSON, copy three values into Vercel env (Production) —
+   Vercel's form takes `NAME=value` lines, so this pastes in one go:
+   ```
+   FIREBASE_PROJECT_ID=<project_id>
+   FIREBASE_CLIENT_EMAIL=<client_email>
+   FIREBASE_PRIVATE_KEY="<private_key, exactly as in the file, 
+ and all>"
+   ```
+   (`private_key_id` isn't needed. The whole JSON in `FIREBASE_SERVICE_ACCOUNT`
+   still works too.)
 3. Apple Developer → Certificates, IDs & Profiles → Keys → + → Apple Push
    Notifications service (APNs) → download the .p8 once. Vercel env:
    `APNS_KEY` (the file's contents), `APNS_KEY_ID` (the key's ID),
