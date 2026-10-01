@@ -24,8 +24,9 @@ import java.util.Map;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-// Payload → RemoteViews. A small and a medium layout per widget: Android 12+
-// picks between them by size itself, older launchers by the reported width.
+// Payload → RemoteViews. Small, medium (and for the weather, large) layouts:
+// Android 12+ picks between them by size itself, older launchers by the
+// reported width and height.
 public final class WidgetRenderer {
     private WidgetRenderer() {}
 
@@ -45,27 +46,31 @@ public final class WidgetRenderer {
         }
     }
 
+    static final int SMALL = 0, MEDIUM = 1, LARGE = 2;
+
     interface Maker {
-        RemoteViews make(boolean medium);
+        RemoteViews make(int size);
     }
 
-    static RemoteViews sized(Context c, int id, Maker maker) {
+    static RemoteViews sized(Context c, int id, boolean large, Maker maker) {
         if (Build.VERSION.SDK_INT >= 31) {
             Map<SizeF, RemoteViews> map = new HashMap<>();
-            map.put(new SizeF(100f, 100f), maker.make(false));
-            map.put(new SizeF(250f, 100f), maker.make(true));
+            map.put(new SizeF(100f, 100f), maker.make(SMALL));
+            map.put(new SizeF(250f, 100f), maker.make(MEDIUM));
+            if (large) map.put(new SizeF(250f, 230f), maker.make(LARGE));
             return new RemoteViews(map);
         }
         Bundle o = AppWidgetManager.getInstance(c).getAppWidgetOptions(id);
-        return maker.make(o.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110) >= 250);
+        int w = o.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 110), h = o.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT, 110);
+        return maker.make(w < 250 ? SMALL : large && h >= 230 ? LARGE : MEDIUM);
     }
 
     public static RemoteViews weather(Context c, int id, JSONObject p, Look look) {
-        return sized(c, id, medium -> weatherViews(c, id, p, look, medium));
+        return sized(c, id, true, size -> weatherViews(c, id, p, look, size));
     }
 
     public static RemoteViews hike(Context c, int id, JSONObject p, Look look) {
-        return sized(c, id, medium -> hikeViews(c, id, p, look, medium));
+        return sized(c, id, false, size -> hikeViews(c, id, p, look, size != SMALL));
     }
 
     public static RemoteViews message(Context c, int id, String text) {
@@ -75,36 +80,46 @@ public final class WidgetRenderer {
         return v;
     }
 
-    private static RemoteViews weatherViews(Context c, int id, JSONObject p, Look look, boolean medium) {
-        RemoteViews v = new RemoteViews(c.getPackageName(), medium ? R.layout.widget_weather_medium : R.layout.widget_weather_small);
+    private static RemoteViews weatherViews(Context c, int id, JSONObject p, Look look, int size) {
+        int layout = size == LARGE ? R.layout.widget_weather_large : size == MEDIUM ? R.layout.widget_weather_medium : R.layout.widget_weather_small;
+        RemoteViews v = new RemoteViews(c.getPackageName(), layout);
         JSONObject now = obj(p, "now"), today = obj(p, "today");
         v.setTextViewText(R.id.city, p.optString("city"));
         v.setTextViewText(R.id.temp, now.optString("temp"));
         v.setTextViewText(R.id.icon, now.optString("icon"));
         v.setTextViewText(R.id.text, now.optString("text"));
         v.setTextViewText(R.id.hilo, "↑ " + today.optString("hi") + "   ↓ " + today.optString("lo"));
-        if (medium) {
-            v.removeAllViews(R.id.strip);
-            boolean days = "days".equals(look.show);
-            JSONArray list = p.optJSONArray(days ? "days" : "hours");
-            int n = list == null ? 0 : Math.min(list.length(), days ? 5 : 6);
-            for (int i = 0; i < n; i++) {
-                JSONObject it = list.optJSONObject(i);
-                if (it == null) continue;
-                RemoteViews cell = new RemoteViews(c.getPackageName(), R.layout.widget_cell);
-                cell.setTextViewText(R.id.cell_top, it.optString(days ? "day" : "t"));
-                cell.setTextViewText(R.id.cell_icon, it.optString("icon"));
-                cell.setTextViewText(R.id.cell_main, it.optString(days ? "hi" : "temp"));
-                cell.setTextViewText(R.id.cell_sub, it.optString(days ? "lo" : "rain"));
-                if (look.sky) {
-                    tint(cell, WHITE, R.id.cell_main);
-                    tint(cell, WHITE_DIM, R.id.cell_top, R.id.cell_sub);
-                }
-                v.addView(R.id.strip, cell);
-            }
+        if (size == MEDIUM) {
+            strip(c, v, R.id.strip, p, "days".equals(look.show), look);
+        } else if (size == LARGE) {
+            strip(c, v, R.id.strip, p, false, look);
+            strip(c, v, R.id.strip_days, p, true, look);
         }
-        finish(c, v, id, p, look, now.optString("sky"), new int[] { R.id.city, R.id.temp }, new int[] { R.id.text, R.id.hilo, R.id.updated });
+        if (size != SMALL) v.setTextViewText(R.id.detail, now.optString("detail"));
+        int[] dim = size == SMALL ? new int[] { R.id.text, R.id.hilo, R.id.updated } : new int[] { R.id.text, R.id.hilo, R.id.detail, R.id.updated };
+        finish(c, v, id, p, look, now.optString("sky"), new int[] { R.id.city, R.id.temp }, dim);
         return v;
+    }
+
+    // a row of cells: the next hours (time, icon, temperature, rain) or days (weekday, icon, high, low)
+    private static void strip(Context c, RemoteViews v, int stripId, JSONObject p, boolean days, Look look) {
+        v.removeAllViews(stripId);
+        JSONArray list = p.optJSONArray(days ? "days" : "hours");
+        int n = list == null ? 0 : Math.min(list.length(), days ? 5 : 6);
+        for (int i = 0; i < n; i++) {
+            JSONObject it = list.optJSONObject(i);
+            if (it == null) continue;
+            RemoteViews cell = new RemoteViews(c.getPackageName(), R.layout.widget_cell);
+            cell.setTextViewText(R.id.cell_top, it.optString(days ? "day" : "t"));
+            cell.setTextViewText(R.id.cell_icon, it.optString("icon"));
+            cell.setTextViewText(R.id.cell_main, it.optString(days ? "hi" : "temp"));
+            cell.setTextViewText(R.id.cell_sub, it.optString(days ? "lo" : "rain"));
+            if (look.sky) {
+                tint(cell, WHITE, R.id.cell_main);
+                tint(cell, WHITE_DIM, R.id.cell_top, R.id.cell_sub);
+            }
+            v.addView(stripId, cell);
+        }
     }
 
     private static RemoteViews hikeViews(Context c, int id, JSONObject p, Look look, boolean medium) {

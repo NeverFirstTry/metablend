@@ -47,6 +47,7 @@
 
             <TextView android:id="@+id/text" style="@style/WidgetBody" />
             <TextView android:id="@+id/hilo" style="@style/WidgetBody" android:layout_marginTop="2dp" />
+            <TextView android:id="@+id/detail" style="@style/WidgetBody" android:layout_marginTop="2dp" />
             <TextView android:id="@+id/updated" style="@style/WidgetSmall" android:layout_marginTop="2dp" android:visibility="gone" />
         </LinearLayout>
 
