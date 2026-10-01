@@ -74,8 +74,9 @@ Verified 2026-10-01 against the live API and the repo:
 - **Medium:** the small content on the left; on the right either the next
   6 hours (time, icon, temperature, rain %) or the next 5 days (weekday,
   icon, high / low).
-- **Settings** (iOS: long-press → Edit Widget; Android: a screen when the
-  widget is added, again via long-press → reconfigure on Android 12+):
+- **Settings** (iOS: long-press → Edit Widget; Android: long-press →
+  reconfigure on Android 12+ — adding works without it there, defaults
+  home / hours / sky; Android 11 and older show the screen when adding):
   - **City:** "Home city" (default) or one of the recent cities.
   - **Show:** Next hours (default) / Next days — affects medium only.
   - **Style:** Living sky (default) / System.
@@ -110,12 +111,12 @@ Verified 2026-10-01 against the live API and the repo:
             iOS App Group / Android SharedPreferences "widget"
                                          │ read by
                                          ▼
-      iOS widget extension / Android widget providers ──GET──▶ /api/widget
+      iOS widget extension / Android widget providers ──GET──▶ /api/app-widget
                                                                   │ CDN 15 min
                                                     forecast + outlook / hike
 ```
 
-### 4.1 Server: `GET /api/widget`
+### 4.1 Server: `GET /api/app-widget`
 
 Public, no device key. Two kinds:
 
@@ -130,7 +131,8 @@ Public, no device key. Two kinds:
   ```
   `hours` = next 6 (city time, `HH:MM`, night icons via `nightIcon`);
   `days` = next 5 starting tomorrow; `skies` = only the palettes this payload
-  uses. Temperatures rounded in the requested unit.
+  uses. Hours also carry `ts` (epoch seconds) for iOS's hourly entries. All values
+are display strings ("13°", "60%").
 - **Hike** `?kind=hike&name=&lat=&lon=&elev=&date=&lang=&unit=` →
   ```json
   { "kind": "hike", "peak": "Hochstadel", "date": "2026-10-02", "day": "Morgen",
@@ -143,17 +145,23 @@ Public, no device key. Two kinds:
   null, noWindow: false` (no verdict yet — the day summary is shown). A date in the past or
   beyond the hike forecast → 400.
 
-**Data source:** the route calls the same library functions the forecast,
-outlook and hike routes use (moved out of the route files where they are
-inline today), so the numbers equal the app's. It does **not** fetch its own
-API over HTTP — the forecast route's per-IP throttle would treat every
-widget miss as one client.
+**Data source:** the route reads `/api/forecast`, `/api/outlook` and
+`/api/hike` through the public domain — the same CDN copies the app shows,
+the way `/api/og/city` and the push dispatcher already do — so the numbers
+equal the app's and a busy city costs nothing extra. Those self-fetches
+carry the calibrate secret (`x-calibrate-key`); the three routes skip
+their per-IP limiter for it (`isInternal()` in `lib/auth.js`), because all
+widget misses share Vercel's few egress IPs. (Named `app-widget`: the
+website's embeddable `/widget/[city]` already uses "widget".)
+
+**Display-ready:** every value arrives as text in the requested language and
+unit ("13°", "60%", "Fr.", "7 km/h"), so Swift and Java only lay it out.
 
 **Caching:** response `Cache-Control: public, s-maxage=900,
 stale-while-revalidate=1800` keyed by the full query; errors `no-store`.
 Cache misses go through the same per-IP limiter as `/api/forecast`.
 
-**Pure, tested core:** `lib/widget.js` — `weatherPayload({forecast, outlook,
+**Pure, tested core:** `lib/app-widget.js` — `weatherPayload({forecast, outlook,
 lang, unit})`, `hikePayload({hike, plan, lang, unit, today})`,
 `parseWidgetQuery(searchParams)`. The route only wires them up.
 
@@ -163,7 +171,9 @@ A local Capacitor plugin `WidgetBridge` compiled into the app (no npm
 package):
 - iOS: `WidgetBridgePlugin.swift` in the App target, registered from a
   `CAPBridgeViewController` subclass (`capacitorDidLoad` →
-  `registerPluginInstance`), the storyboard pointing at that subclass.
+  `registerPluginInstance`) that `SceneDelegate` creates instead of the
+  plain one. Both classes live in `AppDelegate.swift` (no new files in the
+  hand-made App target).
 - Android: `WidgetBridgePlugin.java`, registered in `MainActivity.onCreate`
   before `super.onCreate`.
 - One method, `sync(payload)`: stores the JSON string under `widget_settings`
@@ -172,7 +182,7 @@ package):
   (`WidgetCenter.shared.reloadAllTimelines()` /
   `AppWidgetManager` update broadcast).
 
-Payload (built by pure `lib/widget-sync.js` → `widgetSettings({...})`):
+Payload (built by pure `lib/app-widget-sync.js` → `widgetSettings({...})`):
 ```json
 { "v": 1, "lang": "de", "unit": "C", "base": "https://metablend.app",
   "home": "Lienz", "recent": ["Lienz", "Wien", "Innsbruck"],
@@ -197,7 +207,7 @@ at 15.0; on 15–16 the widgets just don't appear).
   `home` + `recent`; nil = home), `show: ShowEnum` (hours/days), `style:
   StyleEnum` (sky/system).
 - `HikeWidget` (`.systemSmall`, `.systemMedium`) with `HikeConfig {style}`.
-- **Timeline:** fetch `/api/widget` (10 s timeout); build one entry now plus
+- **Timeline:** fetch `/api/app-widget` (10 s timeout); build one entry now plus
   one per upcoming hour from `hours` (temperature, icon and sky of that hour;
   the left side's "today" stays); policy `.after(now + 30 min)`. Last good
   payload per configuration cached in the App Group; on failure use it with
@@ -257,11 +267,11 @@ Java, `RemoteViews` layouts (no Kotlin / Compose — the build stays as is).
 
 ## 6. Testing
 
-- `node --test`: `lib/widget.js` (payload shaping, rounding, unit switch,
+- `node --test`: `lib/app-widget.js` (payload shaping, rounding, unit switch,
   night icons, sky per hour, hike window vs. day summary, query parsing),
-  `lib/widget-sync.js` (home / recent / hikes selection, ordering, limits,
+  `lib/app-widget-sync.js` (home / recent / hikes selection, ordering, limits,
   no-op equality), `lib/deep-link.js` (accepted and rejected URLs).
-- Route smoke: `/api/widget?city=Lienz` and `?kind=hike…` on the deployment.
+- Route smoke: `/api/app-widget?city=Lienz` and `?kind=hike…` on the deployment.
 - Android: `gradlew assembleDebug` here; on the emulator when adb reaches it.
 - iOS: owner builds on the Mac.
 - Device checklist added to `mobile/README.md` (add each widget, both
@@ -271,7 +281,7 @@ Java, `RemoteViews` layouts (no Kotlin / Compose — the build stays as is).
 ## 7. Build order
 
 One plan, three stages, each shippable:
-1. **Web side** — `/api/widget`, `lib/widget.js`, `lib/widget-sync.js` + the
+1. **Web side** — `/api/app-widget`, `lib/app-widget.js`, `lib/app-widget-sync.js` + the
    sync calls, `lib/deep-link.js` + `appUrlOpen` routing. Live immediately;
    inert until the native parts exist.
 2. **Android** — bridge plugin, deep-link intent filter, providers, layouts,
