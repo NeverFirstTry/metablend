@@ -9,8 +9,8 @@ import {
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
   Sparkles, Plane, MountainSnow,
 } from 'lucide-react'
-import { t, LANGUAGES, detectLang, translateCondition } from '@/lib/i18n'
-import { getCookie, setCookie } from '@/lib/prefs'
+import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition } from '@/lib/i18n'
+import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare } from '@/lib/native'
@@ -170,6 +170,7 @@ export default function Home() {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [lang, setLang] = useState('en')
+  const [langPick, setLangPick] = useState(LANG_SYSTEM) // what the picker shows: a language, or follow the phone
   const [unit, setUnit] = useState('C')
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
@@ -199,8 +200,9 @@ export default function Home() {
     // would make the client's first render differ from the server HTML.
     /* eslint-disable react-hooks/set-state-in-effect */
     const savedLang = getCookie('metablend_lang')
-    const detectedLang = savedLang ?? detectLang(navigator.language)
+    const detectedLang = preferredLang(savedLang, navigator.language)
     setLang(detectedLang)
+    setLangPick(langChoice(savedLang))
     setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
@@ -265,8 +267,14 @@ export default function Home() {
   }
 
   function changeLang(code) {
-    setLang(code)
-    setCookie('metablend_lang', code)
+    setLangPick(code)
+    if (code === LANG_SYSTEM) {
+      clearCookie('metablend_lang')
+      setLang(detectLang(navigator.language))
+    } else {
+      setLang(code)
+      setCookie('metablend_lang', code)
+    }
   }
 
   function changeUnit(u) {
@@ -586,11 +594,12 @@ ${url}`)
             </button>
             {/* Language switcher */}
             <select
-              value={lang}
+              value={langPick}
               onChange={e => changeLang(e.target.value)}
               aria-label={t(lang, 'langLabel')}
               className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-400 outline-none focus:border-emerald-400 transition-colors cursor-pointer"
             >
+              <option value={LANG_SYSTEM}>{t(lang, 'themeSystemName')}</option>
               {LANGUAGES.map(l => (
                 <option key={l.code} value={l.code}>{l.label}</option>
               ))}

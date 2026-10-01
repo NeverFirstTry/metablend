@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Settings, Compass, ChevronRight, ArrowLeft } from 'lucide-react'
-import { t, LANGUAGES } from '@/lib/i18n'
+import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
-import { getCookie, setCookie } from '@/lib/prefs'
+import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
 import NotificationSettings from '../components/push/NotificationSettings'
@@ -20,6 +20,9 @@ const label = s => s.replace(/\s*→$/, '')
 // and the sections that have no tab of their own.
 export default function MoreClient() {
   const lang = useLang()
+  const [langPick, setLangPick] = useState(LANG_SYSTEM)
+  // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration cookie sync, like useLang
+  useEffect(() => { setLangPick(langChoice(getCookie('metablend_lang'))) }, [])
   const cookieUnit = useUnit()
   const [unit, setUnit] = useState(null)
   const [theme, setTheme] = useState('system')
@@ -56,8 +59,9 @@ export default function MoreClient() {
         <SectionTitle icon={Settings}>{t(lang, 'settingsTitle')}</SectionTitle>
         <label className={`${box} block`}>
           <span className={caption}>{t(lang, 'langLabel')}</span>
-          <select value={lang} onChange={e => { setCookie('metablend_lang', e.target.value); location.reload() }}
+          <select value={langPick} onChange={e => { if (e.target.value === LANG_SYSTEM) clearCookie('metablend_lang'); else setCookie('metablend_lang', e.target.value); location.reload() }}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm">
+            <option value={LANG_SYSTEM}>{t(lang, 'themeSystemName')}</option>
             {LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
           </select>
         </label>
