@@ -51,7 +51,9 @@ One-time setup (owner — keys never go through chat):
    (`private_key_id` isn't needed. The whole JSON in `FIREBASE_SERVICE_ACCOUNT`
    still works too.)
 3. Apple Developer → Certificates, IDs & Profiles → Keys → + → Apple Push
-   Notifications service (APNs) → download the .p8 once. Vercel env:
+   Notifications service (APNs), environment **Sandbox & Production** (Xcode
+   builds use the sandbox, App Store builds production) → download the .p8
+   once. Vercel env:
    `APNS_KEY` (the file's contents), `APNS_KEY_ID` (the key's ID),
    `APNS_TEAM_ID` (Membership → Team ID). Redeploy.
 4. Xcode (Mac): `git pull && cd mobile && npm install && npx cap sync ios`,
