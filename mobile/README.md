@@ -67,7 +67,9 @@ Check on a device / emulator / simulator:
 - [ ] Home city shows the city you look at most; Change → pick another → saved.
 - [ ] A peak → Plan a hike → Tomorrow → shows up under Hike alerts.
 - [ ] Android: Settings → Apps → MetaBlend → Notifications lists Weather
-      alerts, Morning briefing, Hike alerts.
+      alerts, Morning briefing, Hike alerts (in the app's language).
+- [ ] Android: the status bar shows the white sun-and-cloud icon, not a grey
+      square.
 - [ ] With the phone set to German (or another non-English language): turn on,
       restart the app twice — More still shows the alerts in that language and
       the home city unchanged.
@@ -77,4 +79,6 @@ Check on a device / emulator / simulator:
       the soft prompt still appears after 3 forecasts.
 
 Build order matters: without `google-services.json` in `android/app/`, tapping
-"Turn on" on Android crashes the app (Firebase isn't initialised).
+"Turn on" on Android crashes the app (Firebase isn't initialised). An Android
+emulator only gets pushes with a "Google Play" system image (Device Manager
+shows the Play Store logo next to it).

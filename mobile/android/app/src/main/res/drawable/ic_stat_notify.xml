@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status-bar icon for push notifications: the logo's sun and cloud as a
+     white silhouette (Android shows only the alpha, tinted with
+     notification_accent). Same coordinates as public/icon.svg, centred. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="384"
+    android:viewportHeight="384">
+    <group android:translateX="-98.75" android:translateY="-45">
+        <path android:fillColor="#FFFFFF" android:pathData="M300,196a52,52 0,1 0,104 0a52,52 0,1 0,-104 0z" />
+        <path android:strokeColor="#FFFFFF" android:strokeWidth="12" android:strokeLineCap="round"
+            android:pathData="M386,137.1L398,116.3M405.6,154.1L424.5,139.4M417.4,177.3L440.4,170.6M419.6,203.1L443.5,205.6" />
+        <path android:fillColor="#FFFFFF" android:pathData="M171,286h170a39,39 0,0 1,0 78h-170a39,39 0,0 1,0 -78z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M148,300a54,54 0,1 0,108 0a54,54 0,1 0,-108 0z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M198,262a74,74 0,1 0,148 0a74,74 0,1 0,-148 0z" />
+        <path android:fillColor="#FFFFFF" android:pathData="M288,300a56,56 0,1 0,112 0a56,56 0,1 0,-112 0z" />
+    </group>
+</vector>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tint of the push icon and app name in the notification shade (logo green) -->
+    <color name="notification_accent">#34D399</color>
+</resources>
