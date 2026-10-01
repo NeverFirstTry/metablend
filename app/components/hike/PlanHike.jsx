@@ -15,7 +15,7 @@ export default function PlanHike({ peak, lang, unit, todayLocal }) {
   async function plan(date) {
     if ((await permission()) !== 'granted') {
       const r = await enablePush({ lang, unit })
-      if (!r.ok) { setMsg(t(lang, r.reason === 'denied' ? 'notifBlocked' : 'notifError')); return }
+      if (!r.ok) { setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); return }
     }
     const r = await pushApi('plans', { method: 'POST', body: { name: peak.name, lat: peak.lat, lon: peak.lon, elev: peak.elev, date } })
     setMsg(r.status === 200 ? t(lang, 'planSaved') : r.json.error ?? t(lang, 'notifError'))

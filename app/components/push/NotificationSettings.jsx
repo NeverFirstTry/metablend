@@ -42,7 +42,7 @@ export default function NotificationSettings({ lang, unit }) {
 
   async function turnOn() {
     const r = await enablePush({ lang, unit })
-    if (!r.ok) { setMsg(r.reason === 'denied' ? null : t(lang, 'notifError')); await load(); return }
+    if (!r.ok) { setMsg(r.reason === 'denied' ? null : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); await load(); return }
     const { topCity } = await promptState()
     await pushApi('settings', { method: 'PUT', body: { home_name: topCity ?? null, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
     await load()
