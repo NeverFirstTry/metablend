@@ -1,5 +1,5 @@
 import { withErrorLog } from '@/lib/log'
-import { clientIp } from '@/lib/auth'
+import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { getRegion } from '@/lib/weather'
 import { loadOutlookWeights } from '@/lib/outlook/weights'
@@ -19,7 +19,7 @@ export const GET = withErrorLog('hike', async (request) => {
   const peak = parsePeakQuery(new URL(request.url).searchParams)
   if (!peak) return noStore({ error: 'lat, lon and elev are required' }, 400)
   // only cache misses reach this point — CDN hits never invoke the function
-  if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
+  if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const region = getRegion(peak.lat, peak.lon)
   const [multi, weights] = await Promise.all([

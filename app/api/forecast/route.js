@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
-import { clientIp } from '@/lib/auth'
+import { clientIp, isInternal } from '@/lib/auth'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
@@ -60,7 +60,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   // Cache miss → this request will hit the metered upstream APIs, so throttle.
-  if (limiter.limited(clientIp(request))) {
+  if (!isInternal(request) && limiter.limited(clientIp(request))) {
     return noStore({ error: 'Too many requests — please slow down.' }, 429)
   }
 

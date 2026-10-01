@@ -1,5 +1,5 @@
 import { withErrorLog, logError } from '@/lib/log'
-import { clientIp } from '@/lib/auth'
+import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { geocodeCity, englishPlaceName, getRegion } from '@/lib/weather'
 import { pickLang } from '@/lib/share'
@@ -26,7 +26,7 @@ export const GET = withErrorLog('outlook', async (request) => {
   // in English, "Wien" is a town in Missouri, not Vienna
   const lang = pickLang(sp.get('lang'))
   // only cache misses reach this point — CDN hits never invoke the function
-  if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
+  if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const geo = await geocodeCity(q, lang)
   if (!geo) return noStore({ error: `"${q}" was not found.` }, 404)
