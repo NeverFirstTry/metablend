@@ -8,6 +8,7 @@ import { fetchNationalRaw, fetchMetNorwayRaw } from '@/lib/outlook/national'
 import { buildOutlook } from '@/lib/outlook/build'
 import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { saveSnapshots } from '@/lib/outlook/snapshots'
+import { lastUpstreamFailure } from '@/lib/outlook/http'
 
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
@@ -44,7 +45,7 @@ export const GET = withErrorLog('outlook', async (request) => {
 
   const { payload, series, utcOffsetSec, todayLocal } = buildOutlook({ geo, region, multi, climate, national, met, weights })
   if (!payload.hourly.length && !payload.days.length) {
-    return noStore({ error: 'Forecast unavailable right now — please try again shortly.' }, 502)
+    return noStore({ error: 'Forecast unavailable right now — please try again shortly.', upstream: lastUpstreamFailure() }, 502)
   }
 
   // Learning must never break the forecast itself. Snapshots are keyed by the

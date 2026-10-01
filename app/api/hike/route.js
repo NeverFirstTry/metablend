@@ -6,6 +6,7 @@ import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { parsePeakQuery } from '@/lib/hike/params'
 import { fetchSummitRaw } from '@/lib/hike/sources'
 import { buildHike } from '@/lib/hike/build'
+import { lastUpstreamFailure } from '@/lib/outlook/http'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
 // height. Language-neutral and CDN-cached per peak for 30 minutes.
@@ -27,7 +28,7 @@ export const GET = withErrorLog('hike', async (request) => {
     loadOutlookWeights(region),
   ])
   const payload = buildHike({ peak, region, multi, weights })
-  if (!payload.hourly.length) return noStore({ error: 'Summit forecast unavailable right now — please try again shortly.' }, 502)
+  if (!payload.hourly.length) return noStore({ error: 'Summit forecast unavailable right now — please try again shortly.', upstream: lastUpstreamFailure() }, 502)
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` },
