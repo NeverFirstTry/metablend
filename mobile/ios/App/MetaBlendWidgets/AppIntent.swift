@@ -22,7 +22,7 @@ struct CityEntity: AppEntity {
     var displayRepresentation: DisplayRepresentation {
         guard id.isEmpty else { return DisplayRepresentation(title: "\(id)") }
         let s = WidgetSettings.load()
-        let home = Texts.t(s?.lang, .home)
+        let home = Texts.t(nil, .home) // Edit Widget speaks the phone's language, like the rest of it
         let title = s?.home.map { "\(home) (\($0))" } ?? home
         return DisplayRepresentation(title: "\(title)")
     }
