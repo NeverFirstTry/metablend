@@ -118,7 +118,8 @@ other routes; bodies validated in a pure `lib/push/validate.js`):
   briefing_hour?, lang?, unit? }`.
 - `POST /api/push/plans` `{ name, lat, lon, elev, date }`;
   `DELETE /api/push/plans?id=`.
-- `POST /api/push/test` — one test message, at most once a minute.
+- `POST /api/push/test-send` — one test message, at most once a minute
+  (renamed from `/test`: `node --test` runs any `.js` under a `test` folder).
 - `GET /api/push/dispatch` — hourly job only (Vault key header, like
   `station-calibrate`); `?dry=1` returns what would be sent without sending.
 

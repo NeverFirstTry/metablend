@@ -39,6 +39,7 @@ export default function NotificationSettings({ lang, unit }) {
     const { topCity } = await promptState()
     await pushApi('settings', { method: 'PUT', body: { home_name: topCity ?? null, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
     await load()
+    if (!topCity) setEditHome(true) // no city viewed yet: pick one, or the alerts have nowhere to look
   }
 
   function search(v) {
@@ -95,6 +96,7 @@ export default function NotificationSettings({ lang, unit }) {
               <div><div className={caption}>{t(lang, 'notifHome')}</div><div className="text-sm mt-0.5">{s.home_name ?? '–'}</div></div>
               <button onClick={() => setEditHome(v => !v)} className="press text-sm text-emerald-400">{t(lang, 'notifChange')}</button>
             </div>
+            {!s.home_name && !editHome && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'notifPickHome')}</p>}
             {editHome && (
               <div className="space-y-1">
                 <input value={query} onChange={e => search(e.target.value)} maxLength={80} autoFocus

@@ -1,7 +1,7 @@
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
-import { parseSettings } from '@/lib/push/validate'
+import { parseSettings, withHomeLang } from '@/lib/push/validate'
 import { authDevice, updateSettings, listPlans, SETTINGS_COLS } from '@/lib/push/store'
 
 const limiter = createRateLimiter({ max: 60, windowMs: 60e3 })
@@ -19,5 +19,5 @@ export const PUT = withErrorLog('push.settings', async (request) => {
   if (!device) return Response.json({ error: 'Unknown device' }, { status: 404 })
   const parsed = parseSettings(await request.json().catch(() => null))
   if (!parsed.ok) return Response.json({ error: parsed.error }, { status: parsed.status })
-  return Response.json({ settings: pick(await updateSettings(device.id, parsed.value)) })
+  return Response.json({ settings: pick(await updateSettings(device.id, withHomeLang(parsed.value, device.lang))) })
 })

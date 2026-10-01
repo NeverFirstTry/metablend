@@ -50,3 +50,7 @@ create index if not exists push_log_device_sent on public.push_log (device_id, s
 alter table public.push_devices enable row level security;
 alter table public.hike_plans enable row level security;
 alter table public.push_log enable row level security;
+
+-- home_lang (migration push_home_lang): the language the home city was picked
+-- in; the hourly job looks the city up in it, texts use lang.
+alter table public.push_devices add column if not exists home_lang text;

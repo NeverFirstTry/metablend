@@ -57,3 +57,13 @@ Check on a device / emulator / simulator:
 - [ ] A peak → Plan a hike → Tomorrow → shows up under Hike alerts.
 - [ ] Android: Settings → Apps → MetaBlend → Notifications lists Weather
       alerts, Morning briefing, Hike alerts.
+- [ ] With the phone set to German (or another non-English language): turn on,
+      restart the app twice — More still shows the alerts in that language and
+      the home city unchanged.
+- [ ] Open another city, then tap a weather alert (or a dry-run briefing) —
+      the app switches to the alert's city.
+- [ ] Android 12 or older (emulator image): no registration before "Turn on";
+      the soft prompt still appears after 3 forecasts.
+
+Build order matters: without `google-services.json` in `android/app/`, tapping
+"Turn on" on Android crashes the app (Firebase isn't initialised).

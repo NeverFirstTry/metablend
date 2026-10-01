@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import { isNative } from '@/lib/native'
 import { enablePush, pushApi, promptState, dismissPrompt, permission } from '@/lib/push-client'
+import { shouldPrompt } from '@/lib/push-ui'
 
 // "Get a heads-up before rain in Vienna?" — app only, from the 3rd forecast
 // view, never again once dismissed or once notifications are on.
@@ -14,9 +15,8 @@ export default function PushPrompt({ lang, unit }) {
   useEffect(() => {
     if (!isNative()) return
     let off = false
-    Promise.all([promptState(), permission(), pushApi('settings')]).then(([st, perm, r]) => {
-      const registered = r.status === 200 && r.json.registered
-      if (!off && st.views >= 3 && !st.dismissed && perm !== 'denied' && !registered && st.topCity) setShow({ city: st.topCity })
+    Promise.all([promptState(), permission()]).then(([st, perm]) => {
+      if (!off && shouldPrompt({ ...st, perm })) setShow({ city: st.topCity })
     }).catch(() => {})
     return () => { off = true }
   }, [])
