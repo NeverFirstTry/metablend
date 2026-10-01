@@ -10,6 +10,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // native projects: Gradle / Xcode output and the shell's own dependencies
+    "mobile/**/build/**",
+    "mobile/node_modules/**",
+    "mobile/ios/App/App/public/**",
+    "mobile/android/app/src/main/assets/**",
   ]),
 ]);
 
