@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import WidgetKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -49,5 +50,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+    }
+}
+
+// The website hands the home-screen widgets their settings (language, unit,
+// home city, recent cities, planned hikes) through the App Group.
+@objc(WidgetBridgePlugin)
+public class WidgetBridgePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "WidgetBridgePlugin"
+    public let jsName = "WidgetBridge"
+    public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "sync", returnType: CAPPluginReturnPromise)]
+
+    @objc func sync(_ call: CAPPluginCall) {
+        guard let json = call.getString("json") else { return call.reject("json missing") }
+        UserDefaults(suiteName: "group.app.metablend")?.set(json, forKey: "widget_settings")
+        WidgetCenter.shared.reloadAllTimelines()
+        call.resolve()
+    }
+}
+
+// The app's web view controller with the in-app plugins registered.
+class MainViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        bridge?.registerPluginInstance(WidgetBridgePlugin())
     }
 }
