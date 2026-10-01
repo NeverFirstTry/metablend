@@ -525,3 +525,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 @media (hover: none) and (pointer: coarse) {
   input, select, textarea { font-size: 16px !important; }
 }
+
+/* The prerendered page is English / °C. For visitors who get another language
+   or °F, lib/locale-boot.js marks <html data-localizing> before first paint;
+   the content stays hidden until LocaleReady clears it, and shows after 1.2 s
+   regardless, so a failed script never leaves a blank page. */
+html[data-localizing] :is(main, .app-tabbar) { visibility: hidden; animation: locale-reveal 0s linear 1.2s forwards; }
+@keyframes locale-reveal { to { visibility: visible; } }

@@ -604,27 +604,29 @@ ${url}`)
                 <option key={l.code} value={l.code}>{l.label}</option>
               ))}
             </select>
-            <Link href="/leaderboard" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
-              <Trophy size={13} aria-hidden /> {t(lang, 'leaderboard')}
+            <Link href="/leaderboard" aria-label={t(lang, 'leaderboard')} title={t(lang, 'leaderboard')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
+              <Trophy size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'leaderboard')}</span>
             </Link>
-            <Link href="/heatmap" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
-              <MapIcon size={13} aria-hidden /> {t(lang, 'heatmap')}
+            <Link href="/heatmap" aria-label={t(lang, 'heatmap')} title={t(lang, 'heatmap')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
+              <MapIcon size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'heatmap')}</span>
             </Link>
-            <Link href="/planner" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
-              <CalendarDays size={13} aria-hidden /> {t(lang, 'planner')}
+            <Link href="/planner" aria-label={t(lang, 'planner')} title={t(lang, 'planner')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
+              <CalendarDays size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'planner')}</span>
             </Link>
-            <Link href="/hike" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
-              <MountainSnow size={13} aria-hidden /> {t(lang, 'hiking')}
+            <Link href="/hike" aria-label={t(lang, 'hiking')} title={t(lang, 'hiking')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
+              <MountainSnow size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'hiking')}</span>
             </Link>
-            <Link href="/aviation" className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5">
-              <Plane size={13} aria-hidden /> {t(lang, 'aviation')}
+            <Link href="/aviation" aria-label={t(lang, 'aviation')} title={t(lang, 'aviation')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
+              <Plane size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'aviation')}</span>
             </Link>
             {installPrompt && (
               <button
                 onClick={installApp}
+                aria-label={t(lang, 'installApp')}
+                title={t(lang, 'installApp')}
                 className="web-only press text-emerald-400 text-xs border border-emerald-400/40 rounded-lg px-2 py-1 hover:bg-emerald-400/10 tracking-widest uppercase inline-flex items-center gap-1.5"
               >
-                <Download size={13} aria-hidden /> {t(lang, 'installApp')}
+                <Download size={14} aria-hidden /><span className="hidden sm:inline">{t(lang, 'installApp')}</span>
               </button>
             )}
           </div>

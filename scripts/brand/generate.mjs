@@ -38,6 +38,8 @@ const tabCloud = `M6.5,16.5 L25.5,16.5 a5.5,5.5 0 0,1 0,11 L6.5,27.5 a5.5,5.5 0 
 fs.writeFileSync(P('public/favicon.svg'), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><style>path{fill:#0f1b33}@media (prefers-color-scheme:dark){path{fill:#f6f8fc}}</style><path d="${tabCloud}"/></svg>\n`)
 // favicon.ico (browsers without SVG icons): the cloud in a mid blue that reads on light and dark tabs
 const icoCloud = s => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="${s}" height="${s}"><path d="${tabCloud}" fill="#5b7bb8"/></svg>`
+// large PNG versions for search engines and bookmarks (Google prefers 48 px multiples)
+for (const s of [192, 512]) await render(icoCloud(s), P(`public/favicon-${s}.png`), s)
 const icoSizes = [16, 32, 48]
 const pngs = await Promise.all(icoSizes.map(s => sharp(Buffer.from(icoCloud(s))).resize(s, s).png().toBuffer()))
 const head = Buffer.alloc(6 + 16 * pngs.length)

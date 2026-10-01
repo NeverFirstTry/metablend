@@ -9,6 +9,8 @@ import ThemeSync from './components/ThemeSync'
 import ScrollReset from './components/ScrollReset'
 import { APP_BOOT_SCRIPT } from '@/lib/app-client'
 import { THEME_BOOT_SCRIPT } from '@/lib/theme'
+import { LOCALE_BOOT_SCRIPT } from '@/lib/locale-boot'
+import LocaleReady from './components/LocaleReady'
 
 // UI face behind the Apple system font (SF Pro) — see --font-ui in globals.css
 const hanken = Hanken_Grotesk({ variable: '--font-hanken', subsets: ['latin', 'latin-ext'] })
@@ -65,8 +67,8 @@ export const metadata = {
     // the tab icon: a plain cloud that follows the browser's light/dark theme
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+      { url: '/favicon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/favicon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: '/apple-touch-icon.png',
   },
@@ -91,6 +93,8 @@ export default function RootLayout({ children }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
         {/* Inside the app: <html data-app> before first paint (no layout jump) */}
         <script dangerouslySetInnerHTML={{ __html: APP_BOOT_SCRIPT }} />
+        {/* Not English or °F: content waits for the swap instead of flashing English (LocaleReady) */}
+        <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOT_SCRIPT }} />
         {/* Structured data so search engines understand what MetaBlend is */}
         <script
           type="application/ld+json"
@@ -122,6 +126,7 @@ export default function RootLayout({ children }) {
         {children}
         <AppChrome />
         <ThemeSync />
+        <LocaleReady />
         {/* reads the query, so it gets its own boundary: pages stay prerendered */}
         <Suspense fallback={null}><ScrollReset /></Suspense>
         <Script

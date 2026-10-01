@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { ArrowLeft, Clock, Wind, Snowflake, Zap, CloudOff, RotateCcw } from 'lucide-react'
-import { t } from '@/lib/i18n'
-import { fill, tempFormatter, deltaFormatter, spanFormatter } from '@/lib/outlook/text'
+import { t, tn } from '@/lib/i18n'
+import { tempFormatter, deltaFormatter, spanFormatter } from '@/lib/outlook/text'
 import { addDays } from '@/lib/localtime'
 import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
@@ -68,7 +68,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
           <span title={peak.elevApprox ? t(lang, 'elevApprox') : undefined}>{peak.elevApprox ? '≈' : ''}{peak.elev} m</span>
           {peak.country ? ` · ${peak.country}` : ''}
-          {d ? ` · ${fill(t(lang, 'hikeModels'), { n: d.sources.length })}` : ''}
+          {d ? ` · ${tn(lang, 'hikeModels', d.sources.length)}` : ''}
         </p>
       </div>
       <RangeTabs value={tab} onChange={setTab} lang={lang} />

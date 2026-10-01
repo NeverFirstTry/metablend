@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
-import { t } from '@/lib/i18n'
+import { t, tn } from '@/lib/i18n'
 import { sourceName } from '@/lib/sources'
-import { fill } from '@/lib/outlook/text'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
@@ -133,7 +132,7 @@ export default function Leaderboard() {
         {horizon !== 'now' && (
           <p className="text-zinc-500 text-xs mb-6">
             {t(lang, 'lbHorizonHint')}
-            {checks < LEARNING_BELOW && list?.length > 0 && <span className="block mt-1" style={{ color: 'var(--warn)' }}>{fill(t(lang, 'lbLearning'), { n: checks })}</span>}
+            {checks < LEARNING_BELOW && list?.length > 0 && <span className="block mt-1" style={{ color: 'var(--warn)' }}>{tn(lang, 'lbLearning', checks)}</span>}
           </p>
         )}
 
@@ -257,7 +256,7 @@ export default function Leaderboard() {
         )}
 
         {list && list.length === 0 && !error && !loading && (
-          <p className="text-zinc-500 text-sm">{horizon === 'now' ? t(lang, 'lbNoData') : fill(t(lang, 'lbLearning'), { n: 0 })}</p>
+          <p className="text-zinc-500 text-sm">{horizon === 'now' ? t(lang, 'lbNoData') : tn(lang, 'lbLearning', 0)}</p>
         )}
 
         <Footer lang={lang} />
