@@ -33,3 +33,27 @@ store release); only native changes need a new build.
 - [ ] Android back button goes back; on the first screen it closes the app.
 - [ ] More: switching °C/°F, dark/light and the language applies everywhere.
 - [ ] Airplane mode at launch shows the "No connection" screen; Retry loads the app once online.
+
+## Push notifications
+
+One-time setup (owner — keys never go through chat):
+1. Firebase console → new project → add Android app `app.metablend` → download
+   `google-services.json` into `mobile/android/app/`.
+2. Firebase → Project settings → Service accounts → Generate new private key →
+   paste the whole JSON into Vercel env `FIREBASE_SERVICE_ACCOUNT` (Production).
+3. Apple Developer → Certificates, IDs & Profiles → Keys → + → Apple Push
+   Notifications service (APNs) → download the .p8 once. Vercel env:
+   `APNS_KEY` (the file's contents), `APNS_KEY_ID` (the key's ID),
+   `APNS_TEAM_ID` (Membership → Team ID). Redeploy.
+4. Xcode (Mac): `git pull && cd mobile && npm install && npx cap sync ios`,
+   open the project, target App → Signing & Capabilities → + Capability →
+   Push Notifications.
+
+Check on a device / emulator / simulator:
+- [ ] More → Notifications → Turn on → the system asks → Allow.
+- [ ] "Send a test notification" arrives within seconds.
+- [ ] Tapping it opens the app on More.
+- [ ] Home city shows the city you look at most; Change → pick another → saved.
+- [ ] A peak → Plan a hike → Tomorrow → shows up under Hike alerts.
+- [ ] Android: Settings → Apps → MetaBlend → Notifications lists Weather
+      alerts, Morning briefing, Hike alerts.

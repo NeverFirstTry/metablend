@@ -3,6 +3,24 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-01
+
+### Added — push notifications (phase 4 of the app)
+- **Weather alerts** for one home city: rain soon (30 min–2 h ahead), thunderstorms,
+  severe weather (heavy rain / snow, freezing rain, strong wind) and heat. Quiet
+  hours 22:00–07:00 (severe weather still comes through), at most 3 a day.
+- **Morning briefing** at an hour you pick (05–11): the day's range, rain and the
+  best time outside, in your language and unit.
+- **Hike alerts**: 🔔 Plan a hike on a peak → the summit window the evening before
+  at 18:00, and a morning update only if it moved.
+- **More → Notifications** (home city, switches, briefing hour, planned hikes, test
+  button) and a one-time "Get a heads-up before rain?" card after the 3rd forecast.
+- Sending straight to FCM (Android) and APNs (iOS) with self-signed JWTs — no SDKs;
+  an hourly pg_cron job (`push-dispatch-hourly`) reads each home city's cached
+  outlook once. `lib/push/*` (rules, texts, validation, senders, dispatcher) tested.
+- Privacy notice updated; phones unseen for 90 days, past hikes and the 14-day send
+  log are cleaned up nightly.
+
 ## 2026-09-30
 
 ### Changed — share and embed

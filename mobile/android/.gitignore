@@ -102,3 +102,6 @@ app/src/main/res/xml/config.xml
 
 # Android Studio project state (machine-local)
 .idea/
+
+# Firebase config for push (the owner keeps it locally)
+app/google-services.json
