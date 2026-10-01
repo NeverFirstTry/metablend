@@ -15,6 +15,7 @@ import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare } from '@/lib/native'
 import { bumpCityView } from '@/lib/push-client'
+import { syncWidgets } from '@/lib/app-widget-client'
 import { startCity } from '@/lib/app-client'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
@@ -372,7 +373,7 @@ export default function Home() {
       setError(null)
       cacheForecast(json.city ?? q, json, out)
       setRecent(pushRecent(json.city ?? q))
-      if (!silent) bumpCityView(json.city ?? q) // app only: the soft prompt and the home-city preset
+      if (!silent) bumpCityView(json.city ?? q).then(() => syncWidgets()) // app only: the soft prompt, the home-city preset, the widgets' recent cities
       // Reset the auto-refresh clock on every successful load (manual, search,
       // or auto), so the countdown always restarts from a full 15 minutes.
       setNextRefreshAt(Date.now() + AUTO_REFRESH_MS)

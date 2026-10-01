@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import { isNative } from '@/lib/native'
 import { enablePush, pushApi, promptState, dismissPrompt, permission } from '@/lib/push-client'
+import { syncWidgets } from '@/lib/app-widget-client'
 import { shouldPrompt } from '@/lib/push-ui'
 
 // "Get a heads-up before rain in Vienna?" — app only, from the 3rd forecast
@@ -27,6 +28,7 @@ export default function PushPrompt({ lang, unit }) {
     const r = await enablePush({ lang, unit })
     if (r.ok) {
       await pushApi('settings', { method: 'PUT', body: { home_name: show.city, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+      syncWidgets({ refresh: true })
       setShow('done')
     } else {
       await dismissPrompt(); setShow(null)

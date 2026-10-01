@@ -5,6 +5,7 @@ import { BellRing } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { planDays } from '@/lib/push-days'
 import { enablePush, pushApi, permission } from '@/lib/push-client'
+import { syncWidgets } from '@/lib/app-widget-client'
 
 // 🔔 Plan a hike (app only): pick a day, get the summit window the evening
 // before at 18:00 and a morning update if it moves.
@@ -18,6 +19,7 @@ export default function PlanHike({ peak, lang, unit, todayLocal }) {
       if (!r.ok) { setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); return }
     }
     const r = await pushApi('plans', { method: 'POST', body: { name: peak.name, lat: peak.lat, lon: peak.lon, elev: peak.elev, date } })
+    if (r.status === 200) syncWidgets({ refresh: true })
     setMsg(r.status === 200 ? t(lang, 'planSaved') : r.json.error ?? t(lang, 'notifError'))
     setOpen(false)
   }

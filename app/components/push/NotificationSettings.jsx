@@ -5,6 +5,7 @@ import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { SectionTitle } from '../ui'
 import { pushApi, permission, enablePush, promptState, openSystemSettings } from '@/lib/push-client'
+import { syncWidgets } from '@/lib/app-widget-client'
 
 const ALERTS = [['alert_rain', 'notifRain'], ['alert_storm', 'notifStorm'], ['alert_severe', 'notifSevere'], ['alert_heat', 'notifHeat']]
 const HOURS = [5, 6, 7, 8, 9, 10, 11]
@@ -36,7 +37,7 @@ export default function NotificationSettings({ lang, unit }) {
 
   async function save(patch) {
     const r = await pushApi('settings', { method: 'PUT', body: { ...patch, lang, unit } })
-    if (r.status === 200) setState(s => ({ ...s, settings: r.json.settings }))
+    if (r.status === 200) { setState(s => ({ ...s, settings: r.json.settings })); syncWidgets({ refresh: true }) }
     else setMsg(t(lang, 'notifError'))
   }
 
@@ -45,6 +46,7 @@ export default function NotificationSettings({ lang, unit }) {
     if (!r.ok) { setMsg(r.reason === 'denied' ? null : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); await load(); return }
     const { topCity } = await promptState()
     await pushApi('settings', { method: 'PUT', body: { home_name: topCity ?? null, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+    syncWidgets({ refresh: true })
     await load()
     if (!topCity) setEditHome(true) // no city viewed yet: pick one, or the alerts have nowhere to look
   }
@@ -68,6 +70,7 @@ export default function NotificationSettings({ lang, unit }) {
 
   async function removePlan(id) {
     await pushApi(`plans?id=${id}`, { method: 'DELETE' })
+    syncWidgets({ refresh: true })
     setState(s => ({ ...s, plans: s.plans.filter(p => p.id !== id) }))
   }
 

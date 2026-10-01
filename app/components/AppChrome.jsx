@@ -6,10 +6,12 @@ import { usePathname, useRouter } from 'next/navigation'
 import { CloudSun, MountainSnow, Menu } from 'lucide-react'
 import { t, preferredLang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
-import { onBackButton, tapHaptic, setStatusBarStyle } from '@/lib/native'
+import { onBackButton, tapHaptic, setStatusBarStyle, onAppHidden, onAppUrl } from '@/lib/native'
 import { initPush } from '@/lib/push-client'
 import { opensByReload } from '@/lib/push-ui'
 import { getCookie } from '@/lib/prefs'
+import { syncWidgets } from '@/lib/app-widget-client'
+import { pathFromAppUrl } from '@/lib/deep-link'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -37,11 +39,17 @@ export default function AppChrome() {
     let off = () => {}
     let gone = false
     onBackButton(({ canGoBack, exit }) => (canGoBack ? router.back() : exit())).then(fn => { if (gone) fn(); else off = fn })
-    // push: a fresh token at every start, and a tapped notification opens its screen
-    let offPush = () => {}
-    initPush({ lang: preferredLang(getCookie('metablend_lang'), navigator.language), unit: getCookie('metablend_unit') === 'F' ? 'F' : 'C', onOpen: url => (opensByReload(url) ? window.location.assign(url) : router.push(url)) })
+    // push: a fresh token at every start; a tapped notification or widget opens its screen
+    const open = url => (opensByReload(url) ? window.location.assign(url) : router.push(url))
+    let offPush = () => {}, offUrl = () => {}, offHidden = () => {}
+    initPush({ lang: preferredLang(getCookie('metablend_lang'), navigator.language), unit: getCookie('metablend_unit') === 'F' ? 'F' : 'C', onOpen: open })
       .then(fn => { if (gone) fn(); else offPush = fn })
-    return () => { gone = true; off(); offPush(); themeWatch.disconnect() }
+    onAppUrl(raw => { const path = pathFromAppUrl(raw); if (path) open(path) })
+      .then(fn => { if (gone) fn(); else offUrl = fn })
+    // widgets: settings at start, and fresh again whenever the app is left
+    syncWidgets({ refresh: true })
+    onAppHidden(() => syncWidgets()).then(fn => { if (gone) fn(); else offHidden = fn })
+    return () => { gone = true; off(); offPush(); offUrl(); offHidden(); themeWatch.disconnect() }
   }, [router])
 
   if (!app) return null
