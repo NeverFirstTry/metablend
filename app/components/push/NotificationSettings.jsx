@@ -19,10 +19,17 @@ export default function NotificationSettings({ lang, unit }) {
   const [hits, setHits] = useState([])
   const timer = useRef(null)
 
+  // An app build without the push / storage plugins (older than this
+  // feature) can't do any of this: say so instead of showing nothing.
   async function load() {
-    const perm = await permission()
-    const r = await pushApi('settings')
-    setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [] })
+    try {
+      const perm = await permission()
+      if (perm === 'unavailable') { setState({ loading: false, unavailable: true }); return }
+      const r = await pushApi('settings')
+      setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [] })
+    } catch {
+      setState({ loading: false, unavailable: true })
+    }
   }
   // eslint-disable-next-line react-hooks/set-state-in-effect -- loads once after mount
   useEffect(() => { load() }, [])
@@ -78,6 +85,8 @@ export default function NotificationSettings({ lang, unit }) {
   return (
     <section className="space-y-3">
       <SectionTitle icon={Bell}>{t(lang, 'notifTitle')}</SectionTitle>
+      {state.unavailable ? <div className={box}><p className="text-sm">{t(lang, 'notifUpdateApp')}</p></div> : null}
+      {state.unavailable ? null : <>
       {state.perm === 'denied' ? (
         <div className={box}>
           <p className="text-sm">{t(lang, 'notifBlocked')}</p>
@@ -141,6 +150,7 @@ export default function NotificationSettings({ lang, unit }) {
         </>
       )}
       {msg && <p className="text-xs text-zinc-400" role="status">{msg}</p>}
+      </>}
     </section>
   )
 }
