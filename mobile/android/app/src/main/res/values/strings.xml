@@ -4,4 +4,8 @@
     <string name="title_activity_main">MetaBlend</string>
     <string name="package_name">app.metablend</string>
     <string name="custom_url_scheme">app.metablend</string>
+    <string name="widget_weather_name">Weather</string>
+    <string name="widget_weather_desc">Now, the next hours or the next days for a city</string>
+    <string name="widget_hike_name">Next hike</string>
+    <string name="widget_hike_desc">The summit window of your next planned hike</string>
 </resources>

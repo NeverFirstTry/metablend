@@ -82,3 +82,22 @@ Build order matters: without `google-services.json` in `android/app/`, tapping
 "Turn on" on Android crashes the app (Firebase isn't initialised). An Android
 emulator only gets pushes with a "Google Play" system image (Device Manager
 shows the Play Store logo next to it).
+
+## Home-screen widgets
+
+Build order: the website side is live with the deploy; the widgets need a
+new app build (Android Studio ▶ Run / Xcode ▶ Run). Open the app once after
+installing — it hands the widgets their settings.
+
+Check on a device / emulator / simulator:
+- [ ] Add "Weather" small: city, temperature, icon, condition, ↑/↓ — same temperature as the app.
+- [ ] Resize / add medium: the next 6 hours; settings → Show: Next days → 5 days.
+- [ ] Settings → City: the home city and the recent cities are listed; pick another → it shows that city.
+- [ ] Two weather widgets with two different cities side by side.
+- [ ] Style: System → plain background in light and dark mode; Living sky → the app's sky.
+- [ ] "Next hike" with a hike planned for tomorrow → summit window (green) or "No safe window"; without a plan → "Plan a hike in the app".
+- [ ] Tap a weather widget → the app opens on that city; tap the hike widget → that peak.
+- [ ] Airplane mode, wait for a refresh → the last data stays with its time.
+- [ ] App language German + °F → widgets follow after leaving the app.
+- [ ] iOS: tinted / clear home screen (long-press home screen → Edit → Customize) → readable, no sky.
+- [ ] Android: `adb shell am start -a android.intent.action.VIEW -d "metablend://open?path=%2Fmore"` → the app opens on More.

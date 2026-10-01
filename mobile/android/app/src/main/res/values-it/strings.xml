@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Meteo</string>
+    <string name="widget_weather_desc">Ora, le prossime ore o i prossimi giorni per una città</string>
+    <string name="widget_hike_name">Prossima escursione</string>
+    <string name="widget_hike_desc">La finestra in vetta della tua prossima escursione pianificata</string>
+</resources>

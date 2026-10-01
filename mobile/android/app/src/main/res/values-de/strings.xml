@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Wetter</string>
+    <string name="widget_weather_desc">Jetzt, die nächsten Stunden oder Tage für einen Ort</string>
+    <string name="widget_hike_name">Nächste Tour</string>
+    <string name="widget_hike_desc">Das Gipfelfenster deiner nächsten geplanten Tour</string>
+</resources>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="WidgetText">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/widget_text</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+    <style name="WidgetCaption" parent="WidgetText">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="WidgetTemp" parent="WidgetText">
+        <item name="android:textSize">34sp</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+    </style>
+    <style name="WidgetIcon" parent="WidgetText">
+        <item name="android:textSize">24sp</item>
+        <item name="android:layout_marginStart">6dp</item>
+    </style>
+    <style name="WidgetBody" parent="WidgetText">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/widget_text_dim</item>
+    </style>
+    <style name="WidgetSmall" parent="WidgetText">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/widget_text_dim</item>
+    </style>
+</resources>

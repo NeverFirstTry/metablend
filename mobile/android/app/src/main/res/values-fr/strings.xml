@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Météo</string>
+    <string name="widget_weather_desc">Maintenant, les prochaines heures ou les prochains jours pour une ville</string>
+    <string name="widget_hike_name">Prochaine randonnée</string>
+    <string name="widget_hike_desc">Le créneau au sommet de votre prochaine randonnée prévue</string>
+</resources>

@@ -2,4 +2,9 @@
 <resources>
     <!-- Tint of the push icon and app name in the notification shade (logo green) -->
     <color name="notification_accent">#34D399</color>
+
+    <!-- Home-screen widgets, system style (night variants in values-night) -->
+    <color name="widget_bg">#F4F6F9</color>
+    <color name="widget_text">#1B1F24</color>
+    <color name="widget_text_dim">#5B6470</color>
 </resources>
