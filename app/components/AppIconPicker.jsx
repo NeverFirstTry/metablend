@@ -45,7 +45,7 @@ export default function AppIconPicker({ lang }) {
               <button key={name} type="button" onClick={() => choose(name)} aria-pressed={state.name === name} disabled={busy}
                 className="press flex flex-col items-center gap-1.5 text-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element -- 56-px static previews, nothing to optimise */}
-                <img src={`/app-icons/${name}.png`} alt="" width="56" height="56" className="rounded-[22%]"
+                <img src={`/app-icons/${name}.png?v=1`} alt="" width="56" height="56" className="rounded-[22%]"
                   style={{ outline: on ? '2px solid var(--accent)' : 'none', outlineOffset: 3 }} />
                 <span style={{ color: on ? 'var(--accent)' : 'var(--muted)' }}>{t(lang, LABEL[name])}</span>
               </button>
