@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { logError } from '@/lib/log'
 import { HORIZONS } from '@/lib/outlook/weights'
 
 const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
@@ -33,7 +34,10 @@ export async function GET() {
       .from('api_weights')
       .select('id, name, weight, score, reports, updated_at')
       .order('weight', { ascending: false }))
-    if (error) return Response.json({ error: error.message }, { status: 500 })
+    if (error) {
+      await logError('leaderboard', error)
+      return Response.json({ error: 'Leaderboard unavailable right now' }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
+    }
   }
 
   // response time + uptime per API (optional table)
@@ -64,5 +68,6 @@ export async function GET() {
     HORIZONS.map(h => [h, groupByRegion((ow ?? []).filter(r => r.horizon === h), {})])
   )
 
-  return Response.json({ regions, apis, horizons })
+  // weights change with the hourly calibration: one copy per 5 minutes
+  return Response.json({ regions, apis, horizons }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } })
 }

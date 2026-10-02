@@ -1,22 +1,33 @@
 import { geocodeCity } from '@/lib/weather'
+import { withErrorLog } from '@/lib/log'
+import { clientIp } from '@/lib/auth'
+import { createRateLimiter } from '@/lib/ratelimit'
 
 // Per-month climate normals (avg temp + rainy days) from ~10 years of ERA5 data.
-export async function GET(request) {
-  const { searchParams } = new URL(request.url)
-  const city = searchParams.get('city')
-  if (!city) return Response.json({ error: 'No city specified' }, { status: 400 })
+// Climate doesn't change within a day: the CDN keeps each city's answer for a
+// day and Next's fetch cache keeps the archive response, because a 10-year
+// request counts as many calls against Open-Meteo's quota.
+const DAY = 86400
+const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
+const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
+
+export const GET = withErrorLog('planner', async (request) => {
+  const city = (new URL(request.url).searchParams.get('city') ?? '').trim()
+  if (!city || city.length > 100) return noStore({ error: 'No city specified' }, 400)
+  // only cache misses reach this point — CDN hits never invoke the function
+  if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const geo = await geocodeCity(city)
-  if (!geo) return Response.json({ error: `"${city}" was not found.` }, { status: 404 })
+  if (!geo) return noStore({ error: `"${city}" was not found.` }, 404)
 
   const endYear = new Date().getFullYear() - 1
   const startYear = endYear - 9
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${geo.lat}&longitude=${geo.lon}&start_date=${startYear}-01-01&end_date=${endYear}-12-31&daily=temperature_2m_mean,precipitation_sum&timezone=auto`
 
-  const res = await fetch(url)
-  if (!res.ok) return Response.json({ error: 'Historical data unavailable' }, { status: 502 })
+  const res = await fetch(url, { next: { revalidate: DAY }, signal: AbortSignal.timeout(20000) })
+  if (!res.ok) return noStore({ error: 'Historical data unavailable' }, 502)
   const day = (await res.json()).daily
-  if (!day?.time) return Response.json({ error: 'No historical data' }, { status: 502 })
+  if (!day?.time) return noStore({ error: 'No historical data' }, 502)
 
   // accumulate per calendar month
   const tSum = Array(12).fill(0), tN = Array(12).fill(0), rainy = Array(12).fill(0)
@@ -38,5 +49,7 @@ export async function GET(request) {
     avgRainDays: yearsPerMonth[m].size ? Math.round(rainy[m] / yearsPerMonth[m].size) : null,
   }))
 
-  return Response.json({ city: geo.name, country: geo.country, months })
-}
+  return Response.json({ city: geo.name, country: geo.country, months }, {
+    headers: { 'Cache-Control': `public, s-maxage=${DAY}, stale-while-revalidate=${DAY * 7}` },
+  })
+})

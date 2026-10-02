@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { logError } from '@/lib/log'
 
 // Feedback points with coords, each tagged with how accurate the consensus was.
 export async function GET() {
@@ -13,7 +14,8 @@ export async function GET() {
 
   if (error) {
     // probably the lat/lon columns aren't there yet — just hand back nothing
-    return Response.json({ points: [], note: error.message })
+    await logError('heatmap', error)
+    return Response.json({ points: [] }, { headers: { 'Cache-Control': 'no-store' } })
   }
 
   const points = (data ?? [])
@@ -26,5 +28,6 @@ export async function GET() {
       temp: r.actual_temp,
     }))
 
-  return Response.json({ points })
+  // the map changes with new reports, not by the second: one copy per 10 minutes
+  return Response.json({ points }, { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200' } })
 }
