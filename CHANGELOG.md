@@ -3,6 +3,60 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-02
+
+### Added — home-screen widgets (app)
+- **Weather widget** on iPhone and Android: city, temperature, condition, high /
+  low; medium adds the next 6 hours or the next 5 days (a setting), large shows
+  both plus rain and wind. City = the home city or one of the recent ones; style
+  = living sky or plain system. Refreshes about every 30 minutes, keeps the last
+  data with its time when offline, taps open that city.
+- **Next hike widget**: the next planned hike's summit window (or its day
+  summary), tapping opens the peak.
+- `/api/app-widget` boils forecast / outlook / summit forecast down to
+  display-ready text (CDN-cached); the app hands the widgets their settings
+  through a native `WidgetBridge`; `metablend://` links route widget taps. iOS:
+  WidgetKit extension (iOS 17+, App Group); Android: RemoteViews providers with
+  a settings screen. Gallery and Edit Widget texts in the phone's language.
+
+### Added — new logo, app icon picker
+- **New mark**: the M (white / navy) and the B (sunlight gold) from the brand
+  typeface, centred, with two clouds; Light, Dark and Sky versions. The iPhone
+  icon follows light / dark / tinted, Android and the web use Sky, themed /
+  tinted icons and the notification icon show the letters alone; new splash
+  screens. The website's tab icon is a plain cloud that follows the browser
+  theme. `scripts/brand/` regenerates every icon file.
+- **More → App icon**: Automatic / Light / Dark / Sky on iPhone (alternate
+  icons), Sky / Light / Dark on Android (launcher aliases; warns that the home
+  screen may lose the icon).
+
+### Changed
+- **Language**: a "System" choice (the default) follows the phone's language,
+  English when we don't have it; picking a language pins it. The iPhone location
+  prompt is translated.
+- No more English / °C flash for other languages: the content waits for the
+  swap (at most 1.2 s). The website header fits one row on phones (icon links),
+  "1 weather model" / "1 check" read right.
+- Push: an APNs key limited to one environment switches to the other server;
+  Android gets a proper status-bar icon, the notification permission and
+  channel names in the app language; turning push on says why it failed.
+
+### Fixed
+- **Mountain and city forecasts sometimes didn't load**: Open-Meteo requests
+  from Vercel occasionally hang past 10 s. They now retry once, then fall back
+  to the three core models (ECMWF, ICON, GFS) before the single-source backup;
+  every fallback is logged and a 502 names the upstream reason.
+- The planner downloaded 10 years of climate data on every request: cached a
+  day and rate-limited. Heatmap and leaderboard are CDN-cached and no longer
+  send raw database errors; the map loader and the notification prompt fail
+  soft instead of throwing.
+- Widgets read cached data against the real clock (no "Friday" as the next day
+  after midnight).
+
+### Security
+- Next.js 16.3.8 and patched dependencies (`npm audit`: 0); the two batch
+  database functions got a fixed `search_path` (Supabase advisor).
+
 ## 2026-10-01
 
 ### Added — push notifications (phase 4 of the app)
