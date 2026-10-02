@@ -62,6 +62,11 @@ All notable changes to MetaBlend. Format loosely follows
   channel names in the app language; turning push on says why it failed.
 
 ### Fixed
+- **Short city names landing on the wrong place**: the place lookup also
+  matches airport codes, so "Kos" showed Sihanoukville, Cambodia (airport KOS)
+  and put it into Recent. A short search whose top match doesn't start with it
+  now goes to the town of exactly that name (Kos, Greece); "Vie" → Vienna and
+  "Gra" → Graz stay as they were.
 - **Mountain and city forecasts sometimes didn't load**: Open-Meteo requests
   from Vercel occasionally hang past 10 s. They now retry once, then fall back
   to the three core models (ECMWF, ICON, GFS) before the single-source backup;
