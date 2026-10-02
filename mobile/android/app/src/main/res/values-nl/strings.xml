@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Weer</string>
+    <string name="widget_weather_desc">Nu, de komende uren of dagen voor een stad</string>
+    <string name="widget_hike_name">Volgende tocht</string>
+    <string name="widget_hike_desc">Het topvenster van je volgende geplande tocht</string>
+</resources>

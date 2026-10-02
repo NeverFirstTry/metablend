@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Počasí</string>
+    <string name="widget_weather_desc">Teď, příští hodiny nebo dny pro jedno město</string>
+    <string name="widget_hike_name">Příští túra</string>
+    <string name="widget_hike_desc">Okno na vrcholu vaší příští plánované túry</string>
+</resources>

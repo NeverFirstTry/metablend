@@ -34,6 +34,54 @@
             "state": "translated",
             "value": "Serve a trovare le vette vicino a te."
           }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt gebruikt om bergtoppen bij jou in de buurt te vinden."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Służy do znajdowania szczytów w twojej okolicy."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slouží k nalezení horských vrcholů ve vašem okolí."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uporablja se za iskanje gorskih vrhov v tvoji bližini."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usada para encontrar picos de montanha perto de você."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近くの山頂を探すために使用します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于查找你附近的山峰。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주변의 산 정상을 찾는 데 사용돼요."
+          }
         }
       }
     }

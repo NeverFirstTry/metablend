@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">날씨</string>
+    <string name="widget_weather_desc">한 도시의 지금, 앞으로 몇 시간 또는 며칠</string>
+    <string name="widget_hike_name">다음 등산</string>
+    <string name="widget_hike_desc">다음에 계획한 등산의 정상 시간대</string>
+</resources>

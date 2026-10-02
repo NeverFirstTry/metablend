@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">天气</string>
+    <string name="widget_weather_desc">一个城市的现在、未来几小时或未来几天</string>
+    <string name="widget_hike_name">下次徒步</string>
+    <string name="widget_hike_desc">你下一次计划徒步的登顶时段</string>
+</resources>

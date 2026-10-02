@@ -532,3 +532,11 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    regardless, so a failed script never leaves a blank page. */
 html[data-localizing] :is(main, .app-tabbar) { visibility: hidden; animation: locale-reveal 0s linear 1.2s forwards; }
 @keyframes locale-reveal { to { visibility: visible; } }
+
+/* Long compounds (Polish, Czech, Dutch …) break instead of pushing a chip or
+   button wider than the phone; break-word only kicks in when a word would
+   overflow, so short labels never split. Korean wraps at spaces, never inside
+   a word; Japanese and Chinese use the stricter line-break rules. */
+button, a, summary, h1, h2, h3 { overflow-wrap: break-word; }
+:lang(ko) { word-break: keep-all; }
+:lang(ja), :lang(zh) { line-break: strict; }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">天気</string>
+    <string name="widget_weather_desc">都市の現在、この先の数時間、または数日間</string>
+    <string name="widget_hike_name">次の登山</string>
+    <string name="widget_hike_desc">次に計画している登山の山頂時間帯</string>
+</resources>

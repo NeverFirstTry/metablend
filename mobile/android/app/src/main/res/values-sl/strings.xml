@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Vreme</string>
+    <string name="widget_weather_desc">Zdaj, naslednje ure ali dnevi za en kraj</string>
+    <string name="widget_hike_name">Naslednja tura</string>
+    <string name="widget_hike_desc">Okno za vrh tvoje naslednje načrtovane ture</string>
+</resources>

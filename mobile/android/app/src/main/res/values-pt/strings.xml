@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_weather_name">Tempo</string>
+    <string name="widget_weather_desc">Agora, as próximas horas ou dias de uma cidade</string>
+    <string name="widget_hike_name">Próxima trilha</string>
+    <string name="widget_hike_desc">A janela de cume da sua próxima trilha planejada</string>
+</resources>
