@@ -105,3 +105,8 @@ app/src/main/res/xml/config.xml
 
 # Firebase config for push (the owner keeps it locally)
 app/google-services.json
+
+# Release signing (never in git)
+keystore.properties
+*.jks
+*.keystore
