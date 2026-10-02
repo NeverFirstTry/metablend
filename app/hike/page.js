@@ -9,7 +9,7 @@ import { t, detectLang, LANGUAGES } from '@/lib/i18n'
 import { addDays } from '@/lib/localtime'
 import Footer from '../components/Footer'
 import Headline from '../components/outlook/Headline'
-import FeaturedList from '../components/hike/FeaturedList'
+import PeakDirectory from '../components/hike/PeakDirectory'
 import StoreBadges from '../components/hike/StoreBadges'
 import HikeNotes from '../components/hike/HikeNotes'
 import HikeApp from '../components/hike/HikeApp'
@@ -83,9 +83,8 @@ export default async function HikePage({ searchParams }) {
           : <p className="text-sm text-zinc-500">{t(lang, 'hikeLiveNone')}</p>}
       </section>
 
-      <section className="mt-8 space-y-3">
-        <div className="text-emerald-400 text-xs tracking-widest uppercase">{t(lang, 'hikeFeatured')}</div>
-        <FeaturedList peaks={featured} />
+      <section className="mt-8">
+        <PeakDirectory peaks={featured} lang={lang} />
       </section>
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>

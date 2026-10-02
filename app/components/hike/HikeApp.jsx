@@ -6,16 +6,14 @@ import { MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
-import { haversineKm } from '@/lib/geo'
 import { peakFromParams, peakHref } from '@/lib/hike/params'
 import { recordVisit, backAction } from '@/lib/hike/nav'
-import { SectionTitle } from '../ui'
-import FeaturedList from './FeaturedList'
 import PeakSearch from './PeakSearch'
 import PeakView from './PeakView'
 import HikeNotes from './HikeNotes'
 import RouteScreen from './RouteScreen'
 import MyRoutes from './MyRoutes'
+import PeakDirectory from './PeakDirectory'
 
 // The app-only hiking section: search + featured peaks, then one peak's
 // summit forecast. The peak lives in the URL so the phone's back button and
@@ -31,9 +29,6 @@ function HikeAppInner({ featured }) {
   const [pos, setPos] = useState(null)
   const ids = useMemo(() => new Set(featured.map(p => p.id)), [featured])
   const hrefFor = p => peakHref(p, ids)
-  const list = useMemo(() => (pos
-    ? [...featured].sort((a, b) => haversineKm(pos.lat, pos.lon, a.lat, a.lon) - haversineKm(pos.lat, pos.lon, b.lat, b.lon))
-    : featured), [featured, pos])
 
   const qs = sp.toString()
   const href = `/hike${qs ? `?${qs}` : ''}`
@@ -56,10 +51,7 @@ function HikeAppInner({ featured }) {
       </h1>
       <PeakSearch lang={lang} hrefFor={hrefFor} onLocate={setPos} />
       <MyRoutes lang={lang} />
-      <section className="space-y-3">
-        <SectionTitle icon={MountainSnow}>{t(lang, 'hikeFeatured')}</SectionTitle>
-        <FeaturedList peaks={list} hrefFor={hrefFor} />
-      </section>
+      <PeakDirectory peaks={featured} lang={lang} hrefFor={hrefFor} pos={pos} />
       <HikeNotes lang={lang} />
     </div>
   )

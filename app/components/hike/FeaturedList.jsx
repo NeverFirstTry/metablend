@@ -13,7 +13,9 @@ export default function FeaturedList({ peaks, hrefFor = null }) {
               <Icon size={14} className="shrink-0 text-zinc-500" aria-hidden />
               <span className="truncate">{p.name}</span>
             </span>
-            <span className="text-zinc-500 text-xs tabular-nums shrink-0">{p.elev} m · {p.country}</span>
+            <span className="text-zinc-500 text-xs tabular-nums shrink-0">
+              {[p.km != null ? `${Math.round(p.km)} km` : null, `${p.elev} m`, p.grade, p.country].filter(Boolean).join(' · ')}
+            </span>
           </>
         )
         const cls = 'flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm'

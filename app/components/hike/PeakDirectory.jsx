@@ -1,0 +1,63 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import { MapPin, MountainSnow, ChevronDown } from 'lucide-react'
+import { t } from '@/lib/i18n'
+import { nearest, byRegion, lastCityPos } from '@/lib/hike/featured-list'
+import { SectionTitle } from '../ui'
+import FeaturedList from './FeaturedList'
+
+// The featured peaks: the 10 nearest (the position when already allowed or
+// after "Near me", else the last city looked at), then every peak by region
+// in collapsible groups — the nearest peak's region open. Without hrefFor
+// (the website teaser) plain cards and no Near you block.
+export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null }) {
+  const linked = !!hrefFor // hrefFor is a new function every render: depend on this
+  const [autoPos, setAutoPos] = useState(null)
+
+  useEffect(() => {
+    if (!linked) return
+    let off = false
+    const set = p => { if (!off) setAutoPos(p) }
+    const fromCity = () => set(lastCityPos(k => localStorage.getItem(k)))
+    const geo = navigator.geolocation
+    if (!geo || !navigator.permissions?.query) { fromCity(); return () => { off = true } }
+    navigator.permissions.query({ name: 'geolocation' }).then(s => {
+      if (s.state !== 'granted') return fromCity()
+      geo.getCurrentPosition(p => set({ lat: p.coords.latitude, lon: p.coords.longitude }), fromCity, { maximumAge: 600000, timeout: 10000 })
+    }, fromCity)
+    return () => { off = true }
+  }, [linked])
+
+  const here = pos ?? autoPos
+  const near = useMemo(() => (linked ? nearest(peaks, here, 10) : []), [linked, peaks, here])
+  const groups = useMemo(() => byRegion(peaks), [peaks])
+  const openRegion = near[0]?.region ?? null
+
+  return (
+    <div className="space-y-6">
+      {near.length > 0 && (
+        <section className="space-y-3">
+          <SectionTitle icon={MapPin}>{t(lang, 'hikeNearYou')}</SectionTitle>
+          <FeaturedList peaks={near} hrefFor={hrefFor} />
+        </section>
+      )}
+      <section className="space-y-2">
+        <SectionTitle icon={MountainSnow}>{t(lang, 'hikeAllPeaks')}</SectionTitle>
+        {groups.map(g => (
+          <details key={g.region} open={g.region === openRegion} className="group border-b border-zinc-800 last:border-b-0">
+            <summary className="press flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm [&::-webkit-details-marker]:hidden">
+              <span className="font-medium min-w-0 truncate">{t(lang, `region_${g.region}`)}</span>
+              <span className="inline-flex items-center gap-2 text-xs text-zinc-500 tabular-nums shrink-0">
+                {g.peaks.length}
+                <ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden />
+              </span>
+            </summary>
+            <div className="pb-3"><FeaturedList peaks={g.peaks} hrefFor={hrefFor} /></div>
+          </details>
+        ))}
+        <p className="text-xs text-zinc-500 pt-1">{t(lang, 'gradeNote')}</p>
+      </section>
+    </div>
+  )
+}
