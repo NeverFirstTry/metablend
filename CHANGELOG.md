@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-02
 
+### Added — more mountains (app)
+- **200 featured peaks** instead of 41: more Alps (Dolomites, Swiss and French
+  4000ers, easy day-hike summits), the rest of Europe (Pyrenees, Tatras,
+  Scandinavia, British Isles, Balkans, Etna …) and world classics (Kilimanjaro,
+  Rockies, Andes, Himalaya trekking peaks, Fuji, New Zealand).
+- **SAC grade** of the usual route on every featured peak (T1–T6, or L / WS /
+  ZS / S over glaciers and with climbing), in the list and on the peak page.
+- **Near you**: the 10 featured peaks nearest to you (or to the last city you
+  looked at); **All peaks** grouped by region, folded, yours open. The website
+  teaser lists the regions too.
+
 ### Added — hiking routes (app)
 - **Routes to a peak**: each peak page lists the marked OpenStreetMap routes
   that reach it (number / name, SAC grade T1–T6, length, climb, walking time), walked
