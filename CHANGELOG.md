@@ -62,6 +62,10 @@ All notable changes to MetaBlend. Format loosely follows
   channel names in the app language; turning push on says why it failed.
 
 ### Fixed
+- **Hiking back buttons**: "All peaks" and the route's back go back instead of
+  adding a step, so the phone's back button no longer returns to the peak just
+  left; a peak or route opened from a notification or link still goes to its
+  list.
 - **Recent** lists only cities you searched for or tapped: notification and
   widget taps and shared / city-page links no longer add to it (inside the app
   the Forecast tab still reopens the city you last looked at).

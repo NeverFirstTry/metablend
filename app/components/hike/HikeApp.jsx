@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useMemo, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
@@ -8,6 +8,7 @@ import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { haversineKm } from '@/lib/geo'
 import { peakFromParams, peakHref } from '@/lib/hike/params'
+import { recordVisit, backAction } from '@/lib/hike/nav'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
 import PeakSearch from './PeakSearch'
@@ -19,6 +20,9 @@ import MyRoutes from './MyRoutes'
 // The app-only hiking section: search + featured peaks, then one peak's
 // summit forecast. The peak lives in the URL so the phone's back button and
 // deep links work; an unknown peak falls back to the list.
+// the hike screens visited while this page is open (lib/hike/nav.js)
+const TRAIL = []
+
 function HikeAppInner({ featured }) {
   const lang = useLang()
   const unit = useUnit()
@@ -31,13 +35,19 @@ function HikeAppInner({ featured }) {
     ? [...featured].sort((a, b) => haversineKm(pos.lat, pos.lon, a.lat, a.lon) - haversineKm(pos.lat, pos.lon, b.lat, b.lon))
     : featured), [featured, pos])
 
+  const qs = sp.toString()
+  const href = `/hike${qs ? `?${qs}` : ''}`
+  useEffect(() => { recordVisit(TRAIL, href) }, [href])
+  useEffect(() => () => { TRAIL.length = 0 }, [])
+  const goBack = parent => (backAction(TRAIL, parent) === 'back' ? router.back() : router.replace(parent))
+
   const peak = peakFromParams(sp, featured)
   const routeId = sp.get('route')
   if (routeId) {
-    const back = () => { const q = new URLSearchParams(sp); q.delete('route'); const qs = q.toString(); router.push(`/hike${qs ? `?${qs}` : ''}`) }
+    const back = () => { const q = new URLSearchParams(sp); q.delete('route'); const rest = q.toString(); goBack(`/hike${rest ? `?${rest}` : ''}`) }
     return <RouteScreen key={routeId} routeId={routeId} peak={peak} lang={lang} unit={unit} onBack={back} />
   }
-  if (peak) return <PeakView key={peak.id} peak={peak} lang={lang} unit={unit} onBack={() => router.push('/hike')} />
+  if (peak) return <PeakView key={peak.id} peak={peak} lang={lang} unit={unit} onBack={() => goBack('/hike')} />
 
   return (
     <div className="space-y-6">
