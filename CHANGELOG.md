@@ -5,6 +5,23 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-03
 
+### Added — store prep
+- Store listings in 13 languages (App Store: 12 — no Slovenian there) in the
+  fastlane layout, captioned screenshots for iPhone and Android made by
+  `scripts/store-shots.mjs`, the Play feature graphic, and copy-paste answers
+  for Apple's App Privacy, Google's Data safety, content rating and export
+  compliance (`store/compliance.md`).
+- iPhone only (iPads run the iPhone version); no export-compliance question
+  per build; Android release signing from a git-ignored key file.
+- `mobile/README.md`: the steps to TestFlight and a Google Play closed test.
+
+### Changed
+- **Hour strips** (forecast and summit): drag them with the mouse; our own
+  scroll bar sits centred in the gap below the cards and is easy to see —
+  press or drag it to scroll. The native bar overlaid the cards and faded out.
+- Week headline reads **"Best day of the week: …"** in every language ("Best
+  day outside: today" sounded off).
+
 ### Added — more languages
 - **13 languages**: Dutch, Polish, Czech, Slovenian, Portuguese (Brazil),
   Japanese, Chinese (Simplified) and Korean join English, German, French,

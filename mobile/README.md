@@ -114,3 +114,45 @@ a route and the alert tap need the app).
 - [ ] A broken / huge file shows the message, nothing crashes.
 - [ ] Plan this hike on a route (pace Slow) → the route appears under My routes; More → Notifications lists the plan by the route's name.
 - [ ] The evening before at 18:00 the alert reads "Start by … — summit ~…"; tapping it opens the route.
+
+## Store release (testers first)
+
+Everything you paste or upload is in the repo: listings in
+`fastlane/metadata/`, screenshots in `fastlane/screenshots/` (iPhone) and
+`fastlane/metadata/android/<locale>/images/` (Android), form answers in
+`store/compliance.md`.
+
+### Google Play — closed test (needed before public release)
+
+- [ ] Sign up at play.google.com/console — personal account, $25 once, ID check (can take a few days).
+- [ ] **Create app**: name MetaBlend, app, free, default language English (United States).
+- [ ] **Upload key** (once, keep it forever — losing it means a key reset through Google support). In `mobile/android/`:
+      `keytool -genkeypair -v -keystore metablend-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload`
+- [ ] Create `mobile/android/keystore.properties` (git ignores it):
+      ```
+      storeFile=metablend-upload.jks
+      storePassword=…
+      keyAlias=upload
+      keyPassword=…
+      ```
+      Back up the `.jks` file and both passwords outside the repo (password manager).
+- [ ] Android Studio → Build → Generate Signed App Bundle or APK → Android App Bundle → release → `mobile/android/app/release/app-release.aab`.
+- [ ] Play Console → Test and release → Testing → **Closed testing** → create a track → upload the `.aab` (accept Play App Signing).
+- [ ] **Store listing** (Grow → Store presence → Main store listing): paste `title`, `short_description`, `full_description` from `fastlane/metadata/android/en-US/`; app icon `images/icon.png`; feature graphic `images/featureGraphic.png`; phone screenshots `images/phoneScreenshots/1–5.png`. Then Translations → add the other 12 languages from their folders.
+- [ ] **App content** (Policy → App content), answers in `store/compliance.md`: privacy policy https://metablend.app/privacy, app access, ads, content rating, target audience, data safety.
+- [ ] Testers: a Google Group or a list of 12+ Google account emails; send for review; share the opt-in link.
+- [ ] Keep 12+ testers opted in for 14 days in a row, then Dashboard → **Apply for production**.
+
+### Apple — TestFlight
+
+- [ ] App Store Connect → Apps → + → New App: iOS, name **MetaBlend** (if taken: "MetaBlend Weather"), primary language English (U.S.), bundle ID `app.metablend`, SKU `metablend`.
+- [ ] Xcode: scheme App, destination Any iOS Device → Product → Archive → Distribute App → App Store Connect → Upload.
+- [ ] TestFlight → **Internal testing**: add yourself and up to 100 App Store Connect users — installs at once, no review.
+- [ ] **External testing** (friends without an Apple developer role): Test Information from `fastlane/metadata/review/` (beta description, what to test, feedback email) → submit for Beta App Review → share the public link.
+- [ ] For the later public release: App Store tab → listing from `fastlane/metadata/<locale>/`, screenshots from `fastlane/screenshots/<locale>/`, App Privacy from `store/compliance.md`, then Submit for Review.
+
+### Every later update
+
+- [ ] Raise `versionCode` (+1) and `versionName` in `mobile/android/app/build.gradle`, and Version + Build in Xcode (target App → General).
+- [ ] Screens changed? Regenerate screenshots: `npx next build`, `npx next start -p 3123`, then `node scripts/store-shots.mjs`.
+- [ ] Changelog: `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` and `release_notes.txt` for iOS.
