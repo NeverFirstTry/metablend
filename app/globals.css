@@ -541,8 +541,11 @@ button, a, summary, h1, h2, h3 { overflow-wrap: break-word; }
 :lang(ko) { word-break: keep-all; }
 :lang(ja), :lang(zh) { line-break: strict; }
 
-/* Hour strips: a mouse drags them (lib/drag-scroll.js) and the scrollbar is
-   visible on the dark sky — phones and trackpads scroll them natively. */
-.scroll-x { cursor: grab; scrollbar-color: var(--muted) transparent; }
+/* Hour strips (ScrollStrip): a mouse drags them, the native scrollbar is
+   hidden and our own bar sits centred in the gap below — visible on every
+   theme, not overlaid on the cards. */
+.scroll-x { cursor: grab; scrollbar-width: none; }
+.scroll-x::-webkit-scrollbar { display: none; }
 .scroll-x[data-dragging] { cursor: grabbing; user-select: none; }
-.scroll-x::-webkit-scrollbar-thumb { background: var(--muted); }
+.scroll-track { background: color-mix(in srgb, var(--muted) 28%, transparent); }
+.scroll-thumb { background: var(--muted); }

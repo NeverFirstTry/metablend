@@ -1,15 +1,14 @@
 'use client'
 
 import { isDark, nightIcon } from '@/lib/sky'
-import { useDragScroll } from '@/lib/useDragScroll'
+import ScrollStrip from '../ScrollStrip'
 
 // Scrollable hour-by-hour row: time, icon, temperature, rain chance.
 // `sun` { sunrise, sunset } turns the icons of dark hours to the moon.
 export default function HourStrip({ hours, fmtTemp, sun }) {
-  const strip = useDragScroll()
   return (
-    <div ref={strip} className="scroll-x overflow-x-auto -mx-1 px-1">
-      <div className="flex gap-1.5 min-w-max pb-3">
+    <ScrollStrip>
+      <div className="flex gap-1.5 min-w-max">
         {hours.map(h => (
           <div key={h.t} className="w-14 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
             <div className="text-zinc-500 tabular-nums">{h.t.slice(11, 16)}</div>
@@ -19,6 +18,6 @@ export default function HourStrip({ hours, fmtTemp, sun }) {
           </div>
         ))}
       </div>
-    </div>
+    </ScrollStrip>
   )
 }
