@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Route as RouteIcon, ChevronRight } from 'lucide-react'
 import { t } from '@/lib/i18n'
-import { routeLabel } from '@/lib/route/osm'
+import { routeLabel, sacGrade } from '@/lib/route/osm'
 import { SectionTitle } from '../ui'
 
 const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, '0')}`
@@ -46,7 +46,7 @@ export default function RouteList({ peak, lang }) {
                 <span className="flex-1 min-w-0">
                   <span className="block font-medium truncate">{routeLabel(r) ?? t(lang, 'routeUnnamed')}</span>
                   <span className="block text-xs text-zinc-500">
-                    {r.distanceKm} km · ↑{r.ascentM} m · ~{duration(r.minutes)}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
+                    {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · ↑{r.ascentM} m · ~{duration(r.minutes)}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>
                 </span>
                 <ChevronRight size={16} className="text-zinc-500" aria-hidden />

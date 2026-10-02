@@ -110,7 +110,7 @@ Verified 2026-10-02:
 | `timing.js` | `legMinutes(distM, upM, downM)` = DIN 33466: horizontal at 4 km/h, vertical at 300 m/h up and 500 m/h down, total = max + min/2; `etas(points, { start, pace })` → minutes from start per point; `PACE = { slow: 1.25, normal: 1, fast: 0.8 }` |
 | `samples.js` | `pickSamples(points)` → indexes of 6–10 points: start, end, highest, and a point every ~1.5 km or 300 m of climb, whichever comes first |
 | `verdict.js` | `stageHour(series, eta)` (the blended hour for an arrival time), `stageBlocker(hour)` = `blocker()` from window.js; `suggestStart({ samples, hoursByPoint, day, sun, pace })` → earliest start (15-min steps, from first light) with no blocker on any stage between first light and sunset, or `{ none, reason, firstBad }` |
-| `osm.js` | `routesNear(mapJson, summit, radiusM = 300)` → relation ids + tags whose member ways pass within the radius; `stitch(relationFullJson)` → one ordered polyline (member ways joined end-to-end, reversed where needed) + `{ ref, name, from, to, symbol, difficulty }` (hardest `sac_scale` on the member ways) |
+| `osm.js` | `routesNear(mapJson, summit, radiusM = 1000)` → relation ids + tags whose member ways pass within the radius; `stitch(relationFullJson)` → one ordered polyline (member ways joined end-to-end, reversed where needed) + `{ ref, name, from, to, symbol, difficulty }` (hardest `sac_scale` on the member ways) |
 
 ### 4.2 Server
 

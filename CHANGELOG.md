@@ -7,7 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added — hiking routes (app)
 - **Routes to a peak**: each peak page lists the marked OpenStreetMap routes
-  that reach it (number / name, length, climb, walking time, difficulty), walked
+  that reach it (number / name, SAC grade T1–T6, length, climb, walking time), walked
   up to the summit and back.
 - **Import a GPX** from the phone; routes are saved on the phone under
   **My routes** (up to 30).
