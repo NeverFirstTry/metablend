@@ -60,6 +60,9 @@ function readCachedForecast(city) {
 }
 
 // ── Recent cities (cookie, last 5, deduped) ───────────────────────────────────
+// Only what the user searched or tapped; links, notifications and refreshes
+// don't add to it. The last city viewed (any way) is kept per session apart.
+const LAST_KEY = 'metablend_last'
 function getRecent() {
   try { return JSON.parse(getCookie('metablend_recent') ?? '[]') } catch { return [] }
 }
@@ -218,11 +221,12 @@ export default function Home() {
     const first = startCity({
       deepLink: new URLSearchParams(window.location.search).get('city'),
       inApp: document.documentElement.dataset.app === '1',
+      last: (() => { try { return sessionStorage.getItem(LAST_KEY) } catch { return null } })(),
       recent: getRecent(),
     })
     if (first) {
       setCity(first)
-      loadForecast(first, { lang: detectedLang })
+      loadForecast(first, { lang: detectedLang, remember: false })
     }
     /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -349,10 +353,12 @@ export default function Home() {
   // `silent` = background auto-refresh / manual refresh of the city already on
   // screen: keep the current data visible (no skeleton), just spin the icon and
   // flash "Updated just now" on success.
+  // `remember` = put it into Recent: what the user searched or tapped, not a
+  // ?city= link (notification, widget, shared link) or the app's start city.
   // `lang` defaults to the current language; the first load passes the detected
   // one, since the state still holds the server default ('en') at that moment —
   // and the language decides the place ("Wien" in English is a town in Missouri)
-  async function loadForecast(targetCity, { silent = false, lang: asLang = lang } = {}) {
+  async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang } = {}) {
     const q = targetCity ?? city
     if (!q.trim()) return
     if (silent) setRefreshing(true)
@@ -380,7 +386,8 @@ export default function Home() {
       setOffline(false)
       setError(null)
       cacheForecast(json.city ?? q, json, out)
-      setRecent(pushRecent(json.city ?? q))
+      if (remember) setRecent(pushRecent(json.city ?? q))
+      try { sessionStorage.setItem(LAST_KEY, json.city ?? q) } catch { /* private mode */ }
       if (!silent) bumpCityView(json.city ?? q).then(() => syncWidgets()) // app only: the soft prompt, the home-city preset, the widgets' recent cities
       // Reset the auto-refresh clock on every successful load (manual, search,
       // or auto), so the countdown always restarts from a full 15 minutes.

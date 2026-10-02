@@ -62,6 +62,9 @@ All notable changes to MetaBlend. Format loosely follows
   channel names in the app language; turning push on says why it failed.
 
 ### Fixed
+- **Recent** lists only cities you searched for or tapped: notification and
+  widget taps and shared / city-page links no longer add to it (inside the app
+  the Forecast tab still reopens the city you last looked at).
 - **Short city names landing on the wrong place**: the place lookup also
   matches airport codes, so "Kos" showed Sihanoukville, Cambodia (airport KOS)
   and put it into Recent. A short search whose top match doesn't start with it
