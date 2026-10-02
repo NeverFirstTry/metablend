@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Search, LocateFixed, Loader2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { isNative, nativePosition } from '@/lib/native'
+import { applyLocation } from '@/lib/hike/search'
 
 // Debounced peak search. The query is trimmed + lower-cased and the location
 // bias rounded to 0.1° so equal searches share one CDN entry. "Near me" also
@@ -37,11 +38,7 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
   // Inside the app only the native location — falling back to the browser API
   // there would show Android's permission prompt a second time after a denial.
   async function nearMe() {
-    const done = c => {
-      const p = { lat: Math.round(c.lat * 10) / 10, lon: Math.round(c.lon * 10) / 10 }
-      setBias(p)
-      onLocate?.(p)
-    }
+    const done = c => applyLocation(c, { setBias, onLocate })
     if (isNative()) {
       const native = await nativePosition()
       if (native) done(native)
