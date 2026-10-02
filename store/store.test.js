@@ -44,3 +44,11 @@ test('TestFlight review texts exist', () => {
   assert.equal(read('fastlane/metadata/review/feedback_email.txt'), 'info@metablend.app')
   for (const f of ['beta_description.txt', 'what_to_test.txt']) assert.ok(len(read(`fastlane/metadata/review/${f}`)) > 50, f)
 })
+
+test('captions — 5 per app language, short enough for two lines', () => {
+  const c = JSON.parse(read('store/captions.json'))
+  for (const { lang } of LOCALES) {
+    assert.equal(c[lang]?.length, 5, lang)
+    for (const s of c[lang]) assert.ok(s && len(s) <= 48, `${lang}: ${s}`)
+  }
+})

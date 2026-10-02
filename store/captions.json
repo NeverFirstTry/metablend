@@ -1,0 +1,15 @@
+{
+  "en": ["One forecast from 16 weather sources", "The week ahead, and how sure it is", "200 peaks worldwide, nearest first", "Know when the summit is safe", "Your route, timed against the weather"],
+  "de": ["Eine Vorhersage aus 16 Wetterquellen", "Die Woche voraus – und wie sicher sie ist", "200 Gipfel weltweit, die nächsten zuerst", "Wissen, wann der Gipfel sicher ist", "Deine Route, abgestimmt aufs Wetter"],
+  "fr": ["Une prévision issue de 16 sources météo", "La semaine à venir, et sa fiabilité", "200 sommets dans le monde, les plus proches", "Savoir quand le sommet est sûr", "Votre itinéraire, calé sur la météo"],
+  "es": ["Una previsión de 16 fuentes meteorológicas", "La semana que viene, y cuán segura es", "200 cumbres del mundo, las más cercanas", "Sabe cuándo la cumbre es segura", "Tu ruta, ajustada al tiempo"],
+  "it": ["Una previsione da 16 fonti meteo", "La settimana in arrivo, e quanto è sicura", "200 vette nel mondo, prima le più vicine", "Sai quando la vetta è sicura", "Il tuo percorso, a tempo con il meteo"],
+  "nl": ["Eén verwachting uit 16 weerbronnen", "De week vooruit, en hoe zeker die is", "200 toppen wereldwijd, dichtstbij eerst", "Weet wanneer de top veilig is", "Je route, afgestemd op het weer"],
+  "pl": ["Jedna prognoza z 16 źródeł pogody", "Najbliższy tydzień i jego pewność", "200 szczytów świata, najbliższe najpierw", "Wiedz, kiedy szczyt jest bezpieczny", "Twoja trasa zgrana z pogodą"],
+  "cs": ["Jedna předpověď ze 16 zdrojů počasí", "Týden dopředu a jak jistý je", "200 vrcholů světa, nejbližší první", "Vězte, kdy je vrchol bezpečný", "Vaše trasa sladěná s počasím"],
+  "sl": ["Ena napoved iz 16 vremenskih virov", "Teden vnaprej in kako zanesljiv je", "200 vrhov po svetu, najbližji najprej", "Vedi, kdaj je vrh varen", "Tvoja pot, usklajena z vremenom"],
+  "pt": ["Uma previsão de 16 fontes meteorológicas", "A semana que vem, e quão certa ela é", "200 picos no mundo, os mais próximos antes", "Saiba quando o cume é seguro", "Sua rota, no ritmo do tempo"],
+  "ja": ["16の気象ソースをひとつの予報に", "この先1週間と、その確かさ", "世界の200座、近い山から", "山頂が安全な時間がわかる", "天気に合わせたルートの時間配分"],
+  "zh": ["16 个天气来源，汇成一份预报", "未来一周，以及它有多可靠", "全球 200 座山峰，最近的在前", "知道何时登顶最安全", "你的路线，按天气安排时间"],
+  "ko": ["16개 기상 출처를 하나의 예보로", "다음 한 주, 그리고 그 확실성", "전 세계 200개 산, 가까운 순으로", "정상이 안전한 때를 알려 줘요", "날씨에 맞춘 내 경로 시간표"]
+}
