@@ -27,11 +27,13 @@ match nearest the hint, within 3 km). Each entry gains two fields:
 ```
 
 - `region` — one of a fixed, ordered list:
-  `eastern-alps`, `western-alps`, `dolomites`, `pyrenees-iberia`,
-  `british-isles`, `scandinavia`, `carpathians`, `balkans-greece`,
-  `mediterranean-islands`, `africa`, `north-america`, `south-america`,
-  `asia`, `oceania`. Dolomites wins over Eastern Alps for peaks in the
-  Dolomites.
+  `eastern-alps`, `western-alps`, `dolomites`, `central-europe`,
+  `pyrenees-iberia`, `british-isles`, `scandinavia`, `carpathians`,
+  `balkans-greece`, `mediterranean`, `africa`, `north-america`,
+  `south-america`, `asia`, `oceania`. Dolomites wins over Eastern Alps for
+  peaks in the Dolomites. Central Europe holds the uplands (Brocken, Feldberg,
+  Sněžka …); Mediterranean holds the Apennines and the islands; Teide and Pico
+  Ruivo go under Pyrenees & Iberia.
 - `grade` — the usual route in good summer conditions on the SAC scales:
   hiking `T1`–`T6`; for routes over glaciers or with climbing the
   mountaineering grade `L`, `WS`, `ZS` or `S`. Huts: the usual way to the
