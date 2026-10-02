@@ -11,6 +11,7 @@ import { APP_BOOT_SCRIPT } from '@/lib/app-client'
 import { THEME_BOOT_SCRIPT } from '@/lib/theme'
 import { LOCALE_BOOT_SCRIPT } from '@/lib/locale-boot'
 import LocaleReady from './components/LocaleReady'
+import { LANGUAGES } from '@/lib/i18n'
 
 // UI face behind the Apple system font (SF Pro) — see --font-ui in globals.css
 const hanken = Hanken_Grotesk({ variable: '--font-hanken', subsets: ['latin', 'latin-ext'] })
@@ -119,7 +120,7 @@ export default function RootLayout({ children }) {
                 'UV index, air quality and pollen',
                 'Travel planner from 10 years of climate data',
               ],
-              inLanguage: ['en', 'de', 'fr', 'es', 'it'],
+              inLanguage: LANGUAGES.map(l => l.code),
             }),
           }}
         />
