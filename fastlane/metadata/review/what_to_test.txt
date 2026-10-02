@@ -1,0 +1,7 @@
+Thanks for testing!
+• Search your city and compare the forecast with the weather outside.
+• Hiking: open a peak near you, check its summit window, open a route and look at the suggested start.
+• Turn on notifications (More → Notifications) and plan a hike on a peak.
+• Add a MetaBlend widget to your home screen.
+• Switch the language in More and look for texts that read oddly.
+Send anything odd to info@metablend.app.

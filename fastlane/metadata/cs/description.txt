@@ -1,0 +1,20 @@
+Žádný jednotlivý model počasí se netrefí každý den. MetaBlend porovnává až 16 zdrojů počasí — ECMWF, GFS, ICON, MET Norway, NWS a další — a spojuje je do jedné předpovědi. Zdroje, které se ve vašem regionu opakovaně trefují, mají větší váhu, ověřenou skutečnými měřeními z letišť.
+
+Předpověď
+• Dnes, zítra a celý týden, hodinu po hodině
+• Jak moc se zdroje shodují
+• Nejlepší čas ven, srážkový radar, UV, kvalita ovzduší a pyl
+
+Hory a turistika
+• Předpovědi pro vrchol jakékoli hory: vítr nahoře, nulová izoterma, riziko bouřek
+• Bezpečné okno na vrcholu
+• 200 vybraných vrcholů světa s obtížností SAC, nejbližší jako první
+• Značené trasy a import GPX s navrženým časem startu
+
+Vždy aktuální
+• Upozornění na déšť, bouřky, nebezpečné počasí a horko, ranní přehled a upozornění na túry
+• Widgety pro vaše město a příští túru
+
+Bez účtu, bez reklam, zdarma. Ve 13 jazycích.
+
+Počasí v horách se rychle mění: MetaBlend je předpověď, ne záruka bezpečí. Sledujte oficiální horské předpovědi a v případě pochybností se vraťte.

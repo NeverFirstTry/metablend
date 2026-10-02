@@ -1,0 +1,1 @@
+MetaBlend blends up to 16 weather sources into one forecast and learns which sources are right where you are. The app adds summit forecasts, hiking routes with a suggested start time, notifications and home-screen widgets.

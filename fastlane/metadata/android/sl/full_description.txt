@@ -1,0 +1,20 @@
+Noben posamezen vremenski model ne zadene vsak dan. MetaBlend primerja do 16 vremenskih virov — ECMWF, GFS, ICON, MET Norway, NWS in druge — in jih združi v eno napoved. Viri, ki v tvoji regiji redno zadenejo, štejejo več, preverjeno z resničnimi meritvami letališč.
+
+Napoved
+• Danes, jutri in ves teden, uro za uro
+• Kako zelo se viri strinjajo
+• Najboljši čas za ven, radar padavin, UV, kakovost zraka in cvetni prah
+
+Gore in pohodništvo
+• Napovedi za vrhove vseh gora: veter na vrhu, ničta izoterma, nevarnost neviht
+• Varno okno za vrh
+• 200 izbranih vrhov po svetu s težavnostjo SAC, najbližji najprej
+• Označene poti in uvoz GPX s predlaganim časom odhoda
+
+Vedno na tekočem
+• Opozorila za dež, nevihte, neurja in vročino, jutranji pregled in obvestila o turah
+• Pripomočki za tvoj kraj in naslednjo turo
+
+Brez računa, brez oglasov, brezplačno. V 13 jezikih.
+
+Vreme v gorah se hitro spreminja: MetaBlend je napoved, ne zagotovilo varnosti. Preveri uradne gorske napovedi in se ob dvomu obrni.

@@ -1,0 +1,20 @@
+Kein einzelnes Wettermodell liegt jeden Tag richtig. MetaBlend vergleicht bis zu 16 Wetterquellen — ECMWF, GFS, ICON, MET Norway, den NWS und mehr — und verbindet sie zu einer Vorhersage. Quellen, die in deiner Region immer wieder richtig liegen, zählen mehr, geprüft an echten Messungen von Flughäfen.
+
+Die Vorhersage
+• Heute, morgen und die Woche, Stunde für Stunde
+• Wie einig sich die Quellen sind
+• Die beste Zeit für draußen, Regenradar, UV, Luftqualität und Pollen
+
+Berge und Wandern
+• Gipfelprognosen für jeden Berg: Wind oben, Nullgradgrenze, Gewitterrisiko
+• Das sichere Zeitfenster am Gipfel
+• 200 ausgewählte Gipfel weltweit mit SAC-Skala, die nächsten zuerst
+• Markierte Routen und GPX-Import mit vorgeschlagener Startzeit
+
+Immer auf dem Laufenden
+• Hinweise bei Regen, Gewitter, Unwetter und Hitze, Morgenbericht und Tourenhinweise
+• Widgets für deinen Ort und deine nächste Tour
+
+Kein Konto, keine Werbung, kostenlos. In 13 Sprachen.
+
+Bergwetter ändert sich schnell: MetaBlend ist eine Vorhersage, keine Sicherheitsgarantie. Prüfe offizielle Bergwetterberichte und kehre im Zweifel um.

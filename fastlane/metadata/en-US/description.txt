@@ -1,0 +1,20 @@
+No single weather model gets every day right. MetaBlend compares up to 16 weather sources — ECMWF, GFS, ICON, MET Norway, the NWS and more — and blends them into one forecast. Sources that keep getting your region right count for more, checked against real airport measurements.
+
+The forecast
+• Today, tomorrow and the week, hour by hour
+• How strongly the sources agree
+• The best time to be outside, rain radar, UV, air quality and pollen
+
+Mountains and hiking
+• Summit forecasts for any peak: wind on top, freezing level, storm risk
+• The safe window to be on the summit
+• 200 featured peaks worldwide with SAC grades, the nearest first
+• Marked routes and GPX import with a suggested start time
+
+Always up to date
+• Alerts for rain, storms, severe weather and heat, a morning briefing and hike alerts
+• Home-screen widgets for your city and your next hike
+
+No account, no ads, free. In 13 languages.
+
+Mountain weather changes fast: MetaBlend is a forecast, not a safety guarantee. Check official mountain forecasts and turn back when in doubt.

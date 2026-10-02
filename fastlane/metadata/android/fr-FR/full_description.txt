@@ -1,0 +1,20 @@
+Aucun modèle météo n’a raison tous les jours. MetaBlend compare jusqu’à 16 sources météo — ECMWF, GFS, ICON, MET Norway, le NWS et d’autres — et les fusionne en une seule prévision. Les sources qui voient juste dans votre région pèsent davantage, vérifiées avec de vraies mesures d’aéroports.
+
+La prévision
+• Aujourd’hui, demain et la semaine, heure par heure
+• À quel point les sources sont d’accord
+• Le meilleur moment pour sortir, radar de pluie, UV, qualité de l’air et pollen
+
+Montagne et randonnée
+• Prévisions au sommet pour n’importe quelle montagne : vent, isotherme 0 °C, risque d’orage
+• Le créneau sûr pour être au sommet
+• 200 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
+• Itinéraires balisés et import GPX avec une heure de départ conseillée
+
+Toujours à jour
+• Alertes pluie, orages, intempéries et chaleur, bulletin du matin et alertes de randonnée
+• Widgets pour votre ville et votre prochaine randonnée
+
+Sans compte, sans publicité, gratuit. En 13 langues.
+
+La météo en montagne change vite : MetaBlend est une prévision, pas une garantie de sécurité. Consultez les bulletins officiels et faites demi-tour en cas de doute.

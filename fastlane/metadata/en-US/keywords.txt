@@ -1,0 +1,1 @@
+weather,forecast,consensus,mountain,hiking,summit,radar,rain,alerts,widget,ECMWF,alps

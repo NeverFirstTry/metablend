@@ -1,0 +1,20 @@
+Żaden pojedynczy model pogody nie trafia każdego dnia. MetaBlend porównuje do 16 źródeł pogody — ECMWF, GFS, ICON, MET Norway, NWS i inne — i łączy je w jedną prognozę. Źródła, które często trafiają w twoim regionie, liczą się bardziej, sprawdzane z prawdziwymi pomiarami z lotnisk.
+
+Prognoza
+• Dziś, jutro i cały tydzień, godzina po godzinie
+• Jak bardzo zgodne są źródła
+• Najlepsza pora na dwór, radar opadów, UV, jakość powietrza i pyłki
+
+Góry i wędrówki
+• Prognozy na szczytach dowolnej góry: wiatr na górze, granica zamarzania, ryzyko burzy
+• Bezpieczne okno na pobyt na szczycie
+• 200 wybranych szczytów na świecie ze skalą SAC, najbliższe najpierw
+• Oznakowane trasy i import GPX z proponowaną godziną wyjścia
+
+Zawsze na bieżąco
+• Ostrzeżenia o deszczu, burzach, groźnej pogodzie i upale, poranny przegląd i powiadomienia o wędrówkach
+• Widżety dla twojego miasta i następnej wędrówki
+
+Bez konta, bez reklam, za darmo. W 13 językach.
+
+Pogoda w górach zmienia się szybko: MetaBlend to prognoza, a nie gwarancja bezpieczeństwa. Sprawdzaj oficjalne prognozy górskie i zawracaj w razie wątpliwości.

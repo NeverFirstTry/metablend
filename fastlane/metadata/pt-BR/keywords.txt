@@ -1,0 +1,1 @@
+tempo,previsão,consenso,montanha,trilha,cume,radar,chuva,alertas,widget,ECMWF,alpes
