@@ -540,3 +540,9 @@ html[data-localizing] :is(main, .app-tabbar) { visibility: hidden; animation: lo
 button, a, summary, h1, h2, h3 { overflow-wrap: break-word; }
 :lang(ko) { word-break: keep-all; }
 :lang(ja), :lang(zh) { line-break: strict; }
+
+/* Hour strips: a mouse drags them (lib/drag-scroll.js) and the scrollbar is
+   visible on the dark sky — phones and trackpads scroll them natively. */
+.scroll-x { cursor: grab; scrollbar-color: var(--muted) transparent; }
+.scroll-x[data-dragging] { cursor: grabbing; user-select: none; }
+.scroll-x::-webkit-scrollbar-thumb { background: var(--muted); }

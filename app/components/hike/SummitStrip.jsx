@@ -1,14 +1,18 @@
+'use client'
+
 import { t } from '@/lib/i18n'
 import { isDark, nightIcon } from '@/lib/sky'
+import { useDragScroll } from '@/lib/useDragScroll'
 
 export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'var(--bad)' }
 
 // Hour-by-hour summit row: time, icon, summit temperature, summit wind,
 // freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip.
 export default function SummitStrip({ hours, fmtTemp, sun }) {
+  const strip = useDragScroll()
   return (
-    <div className="overflow-x-auto -mx-1 px-1">
-      <div className="flex gap-1.5 min-w-max pb-1">
+    <div ref={strip} className="scroll-x overflow-x-auto -mx-1 px-1">
+      <div className="flex gap-1.5 min-w-max pb-3">
         {hours.map(h => (
           <div key={h.t} className="w-16 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
             <div className="text-zinc-500 tabular-nums">{h.t.slice(11, 16)}</div>
