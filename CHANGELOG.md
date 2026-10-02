@@ -3,6 +3,17 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-03
+
+### Added — more languages
+- **13 languages**: Dutch, Polish, Czech, Slovenian, Portuguese (Brazil),
+  Japanese, Chinese (Simplified) and Korean join English, German, French,
+  Spanish and Italian — website, app, notifications, widgets and the privacy
+  notice. "System" picks the phone's language (Traditional Chinese phones get
+  English); Polish, Czech and Slovenian counts use their own plural forms.
+- Texts live in one file per language (`lib/i18n/`); a test makes sure every
+  language has every text with the same placeholders.
+
 ## 2026-10-02
 
 ### Added — more mountains (app)
