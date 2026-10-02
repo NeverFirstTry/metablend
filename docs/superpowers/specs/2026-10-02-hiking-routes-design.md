@@ -66,7 +66,9 @@ Verified 2026-10-02:
 
 ### Finding a route
 - **Peak page → "Routes"** (under the summit window): marked routes whose
-  ways reach within ~300 m of the summit, each as `ref name · difficulty ·
+  ways reach within 1 km of the summit (Alpine club routes usually end at the
+  last hut — the 712 stops at the Erzherzog-Johann-Hütte, 660 m short; the
+  route is walked on from its point nearest the summit to the summit), each as `ref name · difficulty ·
   distance · ↑climb · ~time` (time at normal pace). None: "No marked routes
   found — import a GPX".
 - **Hiking tab → "Import GPX"**: the system file picker; tracks (`<trk>`)

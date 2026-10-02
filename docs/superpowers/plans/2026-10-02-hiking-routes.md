@@ -397,7 +397,7 @@ export function pickSamples(points, { everyM = 1500, everyUpM = 300, min = 6, ma
 
 **Interfaces:**
 - Consumes: `haversineM` (Task 1).
-- Produces: `routesNear(mapJson, summit, radiusM = 300) → [{ id, ref, name }]`; `stitch(relationFullJson) → { id, ref, name, from, to, symbol, difficulty, points } | null`; `SAC` (difficulty order). Fixtures `osm-glockner-map.json`, `osm-712-full.json`, `om-route-3pt.json`.
+- Produces: `routesNear(mapJson, summit, radiusM = 1000) → [{ id, ref, name }]`; `stitch(relationFullJson) → { id, ref, name, from, to, symbol, difficulty, points } | null`; `SAC` (difficulty order). Fixtures `osm-glockner-map.json`, `osm-712-full.json`, `om-route-3pt.json`.
 
 - [ ] **Step 1: Record fixtures**
 
@@ -488,7 +488,9 @@ import { haversineM } from './geometry.js'
 export const SAC = ['hiking', 'mountain_hiking', 'demanding_mountain_hiking', 'alpine_hiking', 'demanding_alpine_hiking', 'difficult_alpine_hiking']
 const ROUTE = /^(hiking|foot|mountain_hiking)$/
 
-export function routesNear(map, summit, radiusM = 300) {
+// 1 km: Alpine club routes usually end at the last hut below the summit (the
+// 712 on the Großglockner stops 660 m short); findRoutes walks on from there
+export function routesNear(map, summit, radiusM = 1000) {
   const els = map?.elements ?? []
   const nodes = new Map(els.filter(e => e.type === 'node').map(n => [n.id, n]))
   const ways = new Map(els.filter(e => e.type === 'way').map(w => [w.id, w]))
@@ -693,6 +695,7 @@ test('findRoutes — the 712 from the OSM API: uphill, timed there and back, sim
   assert.equal(r.ref, '712')
   assert.ok(r.points.length <= 300)
   assert.ok(r.points[0][2] < r.points.at(-1)[2], 'starts low')
+  assert.deepEqual(r.points.at(-1), [47.0745, 12.6941, 3798], 'walks on to the summit')
   assert.equal(r.roundTrip, true)
   assert.ok(r.distanceKm > 2 && r.minutes > 60 && r.ascentM > 500)
 })
@@ -793,7 +796,7 @@ test('parseRouteBody — rejects what the engine cannot use', () => {
 // through the injected getJson / getElevations — unit tested with recorded
 // responses). Not Overpass: it timed out where this API answered in < 1 s.
 import { routesNear, stitch } from './osm.js'
-import { simplify, cumulative, highestIndex, withReturn } from './geometry.js'
+import { simplify, haversineM, withReturn } from './geometry.js'
 import { routeStats } from './timing.js'
 
 const OSM = 'https://api.openstreetmap.org/api/0.6'
@@ -822,11 +825,16 @@ export async function findRoutes(peak, { getJson, getElevations, max = 8 }) {
     let points = simplify(s.points, 300)
     const eles = await elevationsFor(points, getElevations)
     if (eles) points = points.map((p, i) => ({ ...p, ele: eles[i] }))
-    if ((points[0].ele ?? 0) > (points.at(-1).ele ?? 0)) points = points.slice().reverse() // walk it uphill
-    // ends at the top (the usual way up): timed there and back
-    const dist = cumulative(points)
-    const roundTrip = dist.at(-1) - dist[highestIndex(points)] < 300
-    const stats = routeStats(roundTrip ? withReturn(points) : points, 'normal')
+    // the end nearer the summit goes last; up to the point nearest the summit,
+    // then on to the summit itself (routes usually stop at the last hut)
+    if (haversineM(points[0], peak) < haversineM(points.at(-1), peak)) points = points.slice().reverse()
+    let near = 0
+    points.forEach((p, i) => { if (haversineM(p, peak) < haversineM(points[near], peak)) near = i })
+    points = points.slice(0, near + 1)
+    if (haversineM(points.at(-1), peak) > 100) points.push({ lat: peak.lat, lon: peak.lon, ele: peak.elev })
+    // up and back down the same way
+    const roundTrip = true
+    const stats = routeStats(withReturn(points), 'normal')
     routes.push({
       id: s.id, ref: s.ref, name: s.name, from: s.from, to: s.to, difficulty: s.difficulty, roundTrip, ...stats,
       points: points.map(p => [r5(p.lat), r5(p.lon), p.ele == null ? null : Math.round(p.ele)]),
