@@ -828,9 +828,9 @@ export async function findRoutes(peak, { getJson, getElevations, max = 8 }) {
     // the end nearer the summit goes last; up to the point nearest the summit,
     // then on to the summit itself (routes usually stop at the last hut)
     if (haversineM(points[0], peak) < haversineM(points.at(-1), peak)) points = points.slice().reverse()
-    let near = 0
-    points.forEach((p, i) => { if (haversineM(p, peak) < haversineM(points[near], peak)) near = i })
-    points = points.slice(0, near + 1)
+    let closest = 0
+    points.forEach((p, i) => { if (haversineM(p, peak) < haversineM(points[closest], peak)) closest = i })
+    points = points.slice(0, closest + 1)
     if (haversineM(points.at(-1), peak) > 100) points.push({ lat: peak.lat, lon: peak.lon, ele: peak.elev })
     // up and back down the same way
     const roundTrip = true
