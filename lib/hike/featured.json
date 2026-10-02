@@ -9,7 +9,9 @@
   "lon": 12.69388,
   "elev": 3798,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
  },
  {
   "id": "wildspitze",
@@ -18,7 +20,9 @@
   "lon": 10.86728,
   "elev": 3768,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
  },
  {
   "id": "grossvenediger",
@@ -30,7 +34,9 @@
   "lon": 12.34534,
   "elev": 3657,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "L"
  },
  {
   "id": "olperer",
@@ -39,7 +45,9 @@
   "lon": 11.65872,
   "elev": 3476,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
  },
  {
   "id": "kitzsteinhorn",
@@ -48,7 +56,9 @@
   "lon": 12.6875,
   "elev": 3203,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
  },
  {
   "id": "hoher-dachstein",
@@ -60,7 +70,9 @@
   "lon": 13.60567,
   "elev": 2995,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
  },
  {
   "id": "hochkoenig",
@@ -72,7 +84,9 @@
   "lon": 13.06245,
   "elev": 2941,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
  },
  {
   "id": "hafelekarspitze",
@@ -84,7 +98,9 @@
   "lon": 11.38632,
   "elev": 2334,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "hochschwab",
@@ -93,7 +109,9 @@
   "lon": 15.14245,
   "elev": 2277,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
  },
  {
   "id": "patscherkofel",
@@ -102,7 +120,9 @@
   "lon": 11.46061,
   "elev": 2246,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "schneeberg",
@@ -114,7 +134,9 @@
   "lon": 15.8045,
   "elev": 2076,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "rax",
@@ -127,7 +149,9 @@
   "lon": 15.68947,
   "elev": 2007,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "oetscher",
@@ -139,7 +163,9 @@
   "lon": 15.20251,
   "elev": 1893,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
  },
  {
   "id": "schafberg",
@@ -148,7 +174,9 @@
   "lon": 13.43349,
   "elev": 1783,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "traunstein",
@@ -157,7 +185,9 @@
   "lon": 13.8398,
   "elev": 1691,
   "country": "AT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
  },
  {
   "id": "erzherzog-johann-huette",
@@ -170,7 +200,9 @@
   "lon": 12.70158,
   "elev": 3454,
   "country": "AT",
-  "kind": "hut"
+  "kind": "hut",
+  "region": "eastern-alps",
+  "grade": "L"
  },
  {
   "id": "schiestlhaus",
@@ -179,7 +211,279 @@
   "lon": 15.14835,
   "elev": 2153,
   "country": "AT",
-  "kind": "hut"
+  "kind": "hut",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "grosser-priel",
+  "name": "Großer Priel",
+  "aka": [
+   "Grosser Priel"
+  ],
+  "lat": 47.71694,
+  "lon": 14.06325,
+  "elev": 2515,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "hoher-sonnblick",
+  "name": "Hoher Sonnblick",
+  "aka": [
+   "Sonnblick"
+  ],
+  "lat": 47.0541,
+  "lon": 12.95743,
+  "elev": 3106,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "L"
+ },
+ {
+  "id": "ankogel",
+  "name": "Ankogel",
+  "lat": 47.05115,
+  "lon": 13.24868,
+  "elev": 3252,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "L"
+ },
+ {
+  "id": "hochalmspitze",
+  "name": "Hochalmspitze",
+  "lat": 47.01539,
+  "lon": 13.32043,
+  "elev": 3360,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "weisskugel",
+  "name": "Weißkugel",
+  "aka": [
+   "Weisskugel",
+   "Palla Bianca"
+  ],
+  "lat": 46.79783,
+  "lon": 10.72607,
+  "elev": 3739,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "similaun",
+  "name": "Similaun",
+  "lat": 46.76368,
+  "lon": 10.88065,
+  "elev": 3606,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "L"
+ },
+ {
+  "id": "habicht",
+  "name": "Habicht",
+  "lat": 47.04388,
+  "lon": 11.28954,
+  "elev": 3277,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "serles",
+  "name": "Serles",
+  "lat": 47.12396,
+  "lon": 11.38135,
+  "elev": 2717,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "birkkarspitze",
+  "name": "Birkkarspitze",
+  "lat": 47.41132,
+  "lon": 11.43756,
+  "elev": 2749,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "piz-buin",
+  "name": "Piz Buin",
+  "lat": 46.84412,
+  "lon": 10.11888,
+  "elev": 3312,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "schesaplana",
+  "name": "Schesaplana",
+  "lat": 47.05385,
+  "lon": 9.70736,
+  "elev": 2964,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "grimming",
+  "name": "Grimming",
+  "lat": 47.52069,
+  "lon": 14.01711,
+  "elev": 2351,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "gaisberg",
+  "name": "Gaisberg",
+  "lat": 47.80512,
+  "lon": 13.11272,
+  "elev": 1287,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "schoeckl",
+  "name": "Schöckl",
+  "aka": [
+   "Schoeckl"
+  ],
+  "lat": 47.19762,
+  "lon": 15.46253,
+  "elev": 1445,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "gerlitzen",
+  "name": "Gerlitzen",
+  "lat": 46.69476,
+  "lon": 13.91433,
+  "elev": 1911,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "dobratsch",
+  "name": "Dobratsch",
+  "aka": [
+   "Villacher Alpe"
+  ],
+  "lat": 46.60366,
+  "lon": 13.67039,
+  "elev": 2166,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "untersberg",
+  "name": "Untersberg (Salzburger Hochthron)",
+  "aka": [
+   "Untersberg"
+  ],
+  "lat": 47.71802,
+  "lon": 13.00475,
+  "elev": 1853,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "zwoelferhorn",
+  "name": "Zwölferhorn",
+  "aka": [
+   "Zwoelferhorn"
+  ],
+  "lat": 47.74251,
+  "lon": 13.35143,
+  "elev": 1522,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "kitzbueheler-horn",
+  "name": "Kitzbüheler Horn",
+  "aka": [
+   "Kitzbueheler Horn"
+  ],
+  "lat": 47.47612,
+  "lon": 12.42979,
+  "elev": 1996,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "hohe-salve",
+  "name": "Hohe Salve",
+  "lat": 47.46502,
+  "lon": 12.20417,
+  "elev": 1829,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "schmittenhoehe",
+  "name": "Schmittenhöhe",
+  "aka": [
+   "Schmittenhoehe"
+  ],
+  "lat": 47.32936,
+  "lon": 12.73762,
+  "elev": 1965,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "loser",
+  "name": "Loser",
+  "lat": 47.66074,
+  "lon": 13.77103,
+  "elev": 1838,
+  "country": "AT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "zugspitze",
@@ -188,7 +492,9 @@
   "lon": 10.9863,
   "elev": 2962,
   "country": "DE",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
  },
  {
   "id": "watzmann",
@@ -200,7 +506,9 @@
   "lon": 12.92203,
   "elev": 2713,
   "country": "DE",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T5"
  },
  {
   "id": "alpspitze",
@@ -209,7 +517,9 @@
   "lon": 11.04781,
   "elev": 2628,
   "country": "DE",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
  },
  {
   "id": "wendelstein",
@@ -218,7 +528,9 @@
   "lon": 12.01205,
   "elev": 1838,
   "country": "DE",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
  },
  {
   "id": "herzogstand",
@@ -227,7 +539,236 @@
   "lon": 11.30849,
   "elev": 1731,
   "country": "DE",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "hochvogel",
+  "name": "Hochvogel",
+  "lat": 47.38036,
+  "lon": 10.43676,
+  "elev": 2592,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "nebelhorn",
+  "name": "Nebelhorn",
+  "lat": 47.42187,
+  "lon": 10.34235,
+  "elev": 2224,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "hochkalter",
+  "name": "Hochkalter",
+  "lat": 47.56933,
+  "lon": 12.86581,
+  "elev": 2607,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T5"
+ },
+ {
+  "id": "hoher-goell",
+  "name": "Hoher Göll",
+  "aka": [
+   "Hoher Goell"
+  ],
+  "lat": 47.59393,
+  "lon": 13.06714,
+  "elev": 2522,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "benediktenwand",
+  "name": "Benediktenwand",
+  "lat": 47.65317,
+  "lon": 11.46554,
+  "elev": 1801,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "wank",
+  "name": "Wank",
+  "lat": 47.50871,
+  "lon": 11.14303,
+  "elev": 1780,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "wallberg",
+  "name": "Wallberg",
+  "lat": 47.66588,
+  "lon": 11.79675,
+  "elev": 1722,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "jenner",
+  "name": "Jenner",
+  "lat": 47.57568,
+  "lon": 13.02038,
+  "elev": 1874,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "hochfelln",
+  "name": "Hochfelln",
+  "lat": 47.76235,
+  "lon": 12.55922,
+  "elev": 1674,
+  "country": "DE",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "piz-bernina",
+  "name": "Piz Bernina",
+  "lat": 46.38243,
+  "lon": 9.90805,
+  "elev": 4049,
+  "country": "CH",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "ZS"
+ },
+ {
+  "id": "piz-languard",
+  "name": "Piz Languard",
+  "lat": 46.48845,
+  "lon": 9.95653,
+  "elev": 3262,
+  "country": "CH",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "ortler",
+  "name": "Ortler",
+  "aka": [
+   "Ortles"
+  ],
+  "lat": 46.5091,
+  "lon": 10.54493,
+  "elev": 3905,
+  "country": "IT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "hochfeiler",
+  "name": "Hochfeiler",
+  "aka": [
+   "Gran Pilastro"
+  ],
+  "lat": 46.9724,
+  "lon": 11.72759,
+  "elev": 3509,
+  "country": "IT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "L"
+ },
+ {
+  "id": "jof-di-montasio",
+  "name": "Jôf di Montasio",
+  "aka": [
+   "Montasch"
+  ],
+  "lat": 46.43573,
+  "lon": 13.43392,
+  "elev": 2754,
+  "country": "IT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T5"
+ },
+ {
+  "id": "monte-baldo",
+  "name": "Monte Baldo (Cima Valdritta)",
+  "aka": [
+   "Monte Baldo"
+  ],
+  "lat": 45.72639,
+  "lon": 10.84388,
+  "elev": 2218,
+  "country": "IT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "monte-grappa",
+  "name": "Monte Grappa",
+  "lat": 45.87343,
+  "lon": 11.7992,
+  "elev": 1775,
+  "country": "IT",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "triglav",
+  "name": "Triglav",
+  "lat": 46.3783,
+  "lon": 13.83658,
+  "elev": 2864,
+  "country": "SI",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T5"
+ },
+ {
+  "id": "mangart",
+  "name": "Mangart",
+  "aka": [
+   "Mangrt"
+  ],
+  "lat": 46.44521,
+  "lon": 13.65067,
+  "elev": 2679,
+  "country": "SI",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T4"
+ },
+ {
+  "id": "krn",
+  "name": "Krn",
+  "lat": 46.26628,
+  "lon": 13.65892,
+  "elev": 2244,
+  "country": "SI",
+  "kind": "peak",
+  "region": "eastern-alps",
+  "grade": "T3"
  },
  {
   "id": "dufourspitze",
@@ -239,7 +780,9 @@
   "lon": 7.86676,
   "elev": 4634,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "ZS"
  },
  {
   "id": "matterhorn",
@@ -251,7 +794,9 @@
   "lon": 7.6586,
   "elev": 4478,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "ZS"
  },
  {
   "id": "jungfrau",
@@ -260,16 +805,9 @@
   "lon": 7.96259,
   "elev": 4158,
   "country": "CH",
-  "kind": "peak"
- },
- {
-  "id": "piz-bernina",
-  "name": "Piz Bernina",
-  "lat": 46.38243,
-  "lon": 9.90805,
-  "elev": 4049,
-  "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "ZS"
  },
  {
   "id": "eiger",
@@ -278,7 +816,9 @@
   "lon": 8.00547,
   "elev": 3967,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "ZS"
  },
  {
   "id": "titlis",
@@ -287,7 +827,9 @@
   "lon": 8.43781,
   "elev": 3238,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "L"
  },
  {
   "id": "saentis",
@@ -299,7 +841,9 @@
   "lon": 9.34324,
   "elev": 2502,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T3"
  },
  {
   "id": "pilatus",
@@ -311,7 +855,9 @@
   "lon": 8.24122,
   "elev": 2128,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
  },
  {
   "id": "rigi",
@@ -323,7 +869,9 @@
   "lon": 8.48526,
   "elev": 1798,
   "country": "CH",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
  },
  {
   "id": "hoernlihuette",
@@ -336,7 +884,227 @@
   "lon": 7.67701,
   "elev": 3260,
   "country": "CH",
-  "kind": "hut"
+  "kind": "hut",
+  "region": "western-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "weissmies",
+  "name": "Weissmies",
+  "lat": 46.12768,
+  "lon": 8.01198,
+  "elev": 4017,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "L"
+ },
+ {
+  "id": "allalinhorn",
+  "name": "Allalinhorn",
+  "lat": 46.04609,
+  "lon": 7.89459,
+  "elev": 4027,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "L"
+ },
+ {
+  "id": "breithorn",
+  "name": "Breithorn",
+  "lat": 45.94101,
+  "lon": 7.74773,
+  "elev": 4164,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "L"
+ },
+ {
+  "id": "lagginhorn",
+  "name": "Lagginhorn",
+  "lat": 46.15706,
+  "lon": 8.0031,
+  "elev": 4010,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "dom",
+  "name": "Dom",
+  "lat": 46.09391,
+  "lon": 7.85887,
+  "elev": 4545,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "weisshorn",
+  "name": "Weisshorn",
+  "lat": 46.10125,
+  "lon": 7.71607,
+  "elev": 4506,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "ZS"
+ },
+ {
+  "id": "finsteraarhorn",
+  "name": "Finsteraarhorn",
+  "lat": 46.53735,
+  "lon": 8.12611,
+  "elev": 4274,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "moench",
+  "name": "Mönch",
+  "aka": [
+   "Moench"
+  ],
+  "lat": 46.55851,
+  "lon": 7.99727,
+  "elev": 4107,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "toedi",
+  "name": "Tödi",
+  "aka": [
+   "Toedi"
+  ],
+  "lat": 46.81115,
+  "lon": 8.91486,
+  "elev": 3614,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "grand-combin",
+  "name": "Grand Combin",
+  "lat": 45.93758,
+  "lon": 7.29922,
+  "elev": 4314,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "schilthorn",
+  "name": "Schilthorn",
+  "lat": 46.55728,
+  "lon": 7.83517,
+  "elev": 2970,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "grosser-mythen",
+  "name": "Grosser Mythen",
+  "lat": 47.02988,
+  "lon": 8.68853,
+  "elev": 1899,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "niesen",
+  "name": "Niesen",
+  "lat": 46.64619,
+  "lon": 7.65237,
+  "elev": 2362,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "stanserhorn",
+  "name": "Stanserhorn",
+  "lat": 46.92976,
+  "lon": 8.34037,
+  "elev": 1898,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "maennlichen",
+  "name": "Männlichen",
+  "aka": [
+   "Maennlichen"
+  ],
+  "lat": 46.61814,
+  "lon": 7.93804,
+  "elev": 2343,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "faulhorn",
+  "name": "Faulhorn",
+  "lat": 46.67493,
+  "lon": 7.99932,
+  "elev": 2681,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "brienzer-rothorn",
+  "name": "Brienzer Rothorn",
+  "lat": 46.7871,
+  "lon": 8.04687,
+  "elev": 2350,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "gornergrat",
+  "name": "Gornergrat",
+  "lat": 45.98334,
+  "lon": 7.78499,
+  "elev": 3135,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "monte-generoso",
+  "name": "Monte Generoso",
+  "lat": 45.93128,
+  "lon": 9.01995,
+  "elev": 1701,
+  "country": "CH",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
  },
  {
   "id": "gran-paradiso",
@@ -345,19 +1113,123 @@
   "lon": 7.2672,
   "elev": 4061,
   "country": "IT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "L"
  },
  {
-  "id": "ortler",
-  "name": "Ortler",
+  "id": "monviso",
+  "name": "Monviso",
   "aka": [
-   "Ortles"
+   "Monte Viso"
   ],
-  "lat": 46.5091,
-  "lon": 10.54493,
-  "elev": 3905,
+  "lat": 44.66744,
+  "lon": 7.08999,
+  "elev": 3841,
   "country": "IT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "mont-blanc",
+  "name": "Mont Blanc",
+  "aka": [
+   "Monte Bianco"
+  ],
+  "lat": 45.83271,
+  "lon": 6.86517,
+  "elev": 4806,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "aiguille-du-midi",
+  "name": "Aiguille du Midi",
+  "lat": 45.87864,
+  "lon": 6.88735,
+  "elev": 3842,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
+ },
+ {
+  "id": "refuge-du-gouter",
+  "name": "Refuge du Goûter",
+  "aka": [
+   "Gouter"
+  ],
+  "lat": 45.85108,
+  "lon": 6.83059,
+  "elev": 3835,
+  "country": "FR",
+  "kind": "hut",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "barre-des-ecrins",
+  "name": "Barre des Écrins",
+  "aka": [
+   "Barre des Ecrins"
+  ],
+  "lat": 44.92216,
+  "lon": 6.35955,
+  "elev": 4102,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "grande-casse",
+  "name": "Grande Casse",
+  "lat": 45.40514,
+  "lon": 6.82756,
+  "elev": 3855,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "WS"
+ },
+ {
+  "id": "mont-buet",
+  "name": "Mont Buet",
+  "lat": 46.02483,
+  "lon": 6.85253,
+  "elev": 3096,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T3"
+ },
+ {
+  "id": "le-brevent",
+  "name": "Le Brévent",
+  "aka": [
+   "Brevent"
+  ],
+  "lat": 45.93391,
+  "lon": 6.83783,
+  "elev": 2525,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T2"
+ },
+ {
+  "id": "mont-ventoux",
+  "name": "Mont Ventoux",
+  "lat": 44.17396,
+  "lon": 5.2784,
+  "elev": 1909,
+  "country": "FR",
+  "kind": "peak",
+  "region": "western-alps",
+  "grade": "T1"
  },
  {
   "id": "marmolada",
@@ -369,7 +1241,9 @@
   "lon": 11.85135,
   "elev": 3343,
   "country": "IT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "L"
  },
  {
   "id": "tre-cime",
@@ -383,7 +1257,9 @@
   "lon": 12.30254,
   "elev": 2999,
   "country": "IT",
-  "kind": "peak"
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "ZS"
  },
  {
   "id": "rifugio-auronzo",
@@ -392,48 +1268,1219 @@
   "lon": 12.2961,
   "elev": 2320,
   "country": "IT",
-  "kind": "hut"
+  "kind": "hut",
+  "region": "dolomites",
+  "grade": "T1"
  },
  {
-  "id": "mont-blanc",
-  "name": "Mont Blanc",
+  "id": "piz-boe",
+  "name": "Piz Boè",
   "aka": [
-   "Monte Bianco"
+   "Piz Boe"
   ],
-  "lat": 45.83271,
-  "lon": 6.86517,
-  "elev": 4806,
-  "country": "FR",
-  "kind": "peak"
+  "lat": 46.50892,
+  "lon": 11.8283,
+  "elev": 3152,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T3"
  },
  {
-  "id": "aiguille-du-midi",
-  "name": "Aiguille du Midi",
-  "lat": 45.87864,
-  "lon": 6.88735,
-  "elev": 3842,
-  "country": "FR",
-  "kind": "peak"
- },
- {
-  "id": "refuge-du-gouter",
-  "name": "Refuge du Goûter",
+  "id": "langkofel",
+  "name": "Langkofel",
   "aka": [
-   "Gouter"
+   "Sassolungo"
   ],
-  "lat": 45.85108,
-  "lon": 6.83059,
-  "elev": 3835,
-  "country": "FR",
-  "kind": "hut"
+  "lat": 46.52494,
+  "lon": 11.73531,
+  "elev": 3181,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "ZS"
  },
  {
-  "id": "triglav",
-  "name": "Triglav",
-  "lat": 46.3783,
-  "lon": 13.83658,
-  "elev": 2864,
-  "country": "SI",
-  "kind": "peak"
+  "id": "seceda",
+  "name": "Seceda",
+  "lat": 46.60059,
+  "lon": 11.72578,
+  "elev": 2519,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T2"
+ },
+ {
+  "id": "sass-pordoi",
+  "name": "Sass Pordoi",
+  "aka": [
+   "Sas de Pordoi"
+  ],
+  "lat": 46.50073,
+  "lon": 11.80799,
+  "elev": 2952,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T3"
+ },
+ {
+  "id": "piccolo-lagazuoi",
+  "name": "Lagazuoi",
+  "aka": [
+   "Piccolo Lagazuoi"
+  ],
+  "lat": 46.5296,
+  "lon": 12.00334,
+  "elev": 2778,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T3"
+ },
+ {
+  "id": "tofana-di-rozes",
+  "name": "Tofana di Rozes",
+  "lat": 46.53701,
+  "lon": 12.05105,
+  "elev": 3225,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T5"
+ },
+ {
+  "id": "antelao",
+  "name": "Antelao",
+  "lat": 46.45189,
+  "lon": 12.2618,
+  "elev": 3264,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "WS"
+ },
+ {
+  "id": "civetta",
+  "name": "Civetta",
+  "lat": 46.38013,
+  "lon": 12.05335,
+  "elev": 3220,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "WS"
+ },
+ {
+  "id": "pelmo",
+  "name": "Monte Pelmo",
+  "aka": [
+   "Pelmo"
+  ],
+  "lat": 46.41998,
+  "lon": 12.13473,
+  "elev": 3168,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "WS"
+ },
+ {
+  "id": "schlern",
+  "name": "Schlern (Petz)",
+  "aka": [
+   "Schlern",
+   "Sciliar"
+  ],
+  "lat": 46.51183,
+  "lon": 11.57489,
+  "elev": 2563,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T2"
+ },
+ {
+  "id": "peitlerkofel",
+  "name": "Peitlerkofel",
+  "aka": [
+   "Sass de Putia"
+  ],
+  "lat": 46.65788,
+  "lon": 11.81596,
+  "elev": 2875,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T4"
+ },
+ {
+  "id": "nuvolau",
+  "name": "Nuvolau",
+  "lat": 46.49528,
+  "lon": 12.04557,
+  "elev": 2575,
+  "country": "IT",
+  "kind": "peak",
+  "region": "dolomites",
+  "grade": "T2"
+ },
+ {
+  "id": "brocken",
+  "name": "Brocken",
+  "lat": 51.79913,
+  "lon": 10.61564,
+  "elev": 1141,
+  "country": "DE",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "feldberg",
+  "name": "Feldberg (Schwarzwald)",
+  "lat": 47.87399,
+  "lon": 8.00467,
+  "elev": 1493,
+  "country": "DE",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "grosser-arber",
+  "name": "Großer Arber",
+  "aka": [
+   "Grosser Arber"
+  ],
+  "lat": 49.11247,
+  "lon": 13.13619,
+  "elev": 1456,
+  "country": "DE",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "fichtelberg",
+  "name": "Fichtelberg",
+  "lat": 50.42914,
+  "lon": 12.95473,
+  "elev": 1215,
+  "country": "DE",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "wasserkuppe",
+  "name": "Wasserkuppe",
+  "lat": 50.49765,
+  "lon": 9.93629,
+  "elev": 950,
+  "country": "DE",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "grand-ballon",
+  "name": "Grand Ballon",
+  "lat": 47.90084,
+  "lon": 7.0984,
+  "elev": 1424,
+  "country": "FR",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "snezka",
+  "name": "Sněžka",
+  "aka": [
+   "Snezka",
+   "Schneekoppe",
+   "Śnieżka"
+  ],
+  "lat": 50.73603,
+  "lon": 15.73961,
+  "elev": 1603,
+  "country": "CZ",
+  "kind": "peak",
+  "region": "central-europe",
+  "grade": "T1"
+ },
+ {
+  "id": "aneto",
+  "name": "Aneto",
+  "lat": 42.63115,
+  "lon": 0.65665,
+  "elev": 3404,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "L"
+ },
+ {
+  "id": "monte-perdido",
+  "name": "Monte Perdido",
+  "aka": [
+   "Mont Perdu"
+  ],
+  "lat": 42.67555,
+  "lon": 0.03436,
+  "elev": 3355,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T5"
+ },
+ {
+  "id": "vignemale",
+  "name": "Vignemale (Pique Longue)",
+  "aka": [
+   "Vignemale"
+  ],
+  "lat": 42.77394,
+  "lon": -0.14734,
+  "elev": 3298,
+  "country": "FR",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "L"
+ },
+ {
+  "id": "pic-du-midi-de-bigorre",
+  "name": "Pic du Midi de Bigorre",
+  "lat": 42.93678,
+  "lon": 0.14161,
+  "elev": 2877,
+  "country": "FR",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T2"
+ },
+ {
+  "id": "canigou",
+  "name": "Canigou",
+  "aka": [
+   "Canigó"
+  ],
+  "lat": 42.5189,
+  "lon": 2.45656,
+  "elev": 2784,
+  "country": "FR",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T3"
+ },
+ {
+  "id": "pica-d-estats",
+  "name": "Pica d'Estats",
+  "lat": 42.66695,
+  "lon": 1.3979,
+  "elev": 3143,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T3"
+ },
+ {
+  "id": "mulhacen",
+  "name": "Mulhacén",
+  "aka": [
+   "Mulhacen"
+  ],
+  "lat": 37.05338,
+  "lon": -3.31156,
+  "elev": 3479,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T2"
+ },
+ {
+  "id": "penalara",
+  "name": "Peñalara",
+  "aka": [
+   "Penalara"
+  ],
+  "lat": 40.85004,
+  "lon": -3.95607,
+  "elev": 2428,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T2"
+ },
+ {
+  "id": "montserrat",
+  "name": "Montserrat (Sant Jeroni)",
+  "aka": [
+   "Montserrat"
+  ],
+  "lat": 41.60537,
+  "lon": 1.8115,
+  "elev": 1236,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T2"
+ },
+ {
+  "id": "torre-de-cerredo",
+  "name": "Torre de Cerredo",
+  "lat": 43.19776,
+  "lon": -4.85287,
+  "elev": 2650,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T4"
+ },
+ {
+  "id": "teide",
+  "name": "Teide",
+  "aka": [
+   "Pico del Teide"
+  ],
+  "lat": 28.27269,
+  "lon": -16.64227,
+  "elev": 3715,
+  "country": "ES",
+  "kind": "peak",
+  "region": "pyrenees-iberia",
+  "grade": "T2"
+ },
+ {
+  "id": "ben-nevis",
+  "name": "Ben Nevis",
+  "lat": 56.79686,
+  "lon": -5.00353,
+  "elev": 1345,
+  "country": "GB",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T2"
+ },
+ {
+  "id": "yr-wyddfa",
+  "name": "Yr Wyddfa (Snowdon)",
+  "aka": [
+   "Snowdon"
+  ],
+  "lat": 53.06849,
+  "lon": -4.07623,
+  "elev": 1085,
+  "country": "GB",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T2"
+ },
+ {
+  "id": "scafell-pike",
+  "name": "Scafell Pike",
+  "lat": 54.45426,
+  "lon": -3.21165,
+  "elev": 978,
+  "country": "GB",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T3"
+ },
+ {
+  "id": "helvellyn",
+  "name": "Helvellyn",
+  "lat": 54.52697,
+  "lon": -3.01754,
+  "elev": 950,
+  "country": "GB",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T3"
+ },
+ {
+  "id": "pen-y-fan",
+  "name": "Pen y Fan",
+  "lat": 51.88404,
+  "lon": -3.43701,
+  "elev": 886,
+  "country": "GB",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T1"
+ },
+ {
+  "id": "carrauntoohil",
+  "name": "Carrauntoohil",
+  "lat": 51.99945,
+  "lon": -9.74269,
+  "elev": 1039,
+  "country": "IE",
+  "kind": "peak",
+  "region": "british-isles",
+  "grade": "T3"
+ },
+ {
+  "id": "galdhoepiggen",
+  "name": "Galdhøpiggen",
+  "aka": [
+   "Galdhopiggen"
+  ],
+  "lat": 61.63647,
+  "lon": 8.31244,
+  "elev": 2469,
+  "country": "NO",
+  "kind": "peak",
+  "region": "scandinavia",
+  "grade": "T3"
+ },
+ {
+  "id": "snoehetta",
+  "name": "Snøhetta",
+  "aka": [
+   "Snohetta"
+  ],
+  "lat": 62.31986,
+  "lon": 9.26783,
+  "elev": 2286,
+  "country": "NO",
+  "kind": "peak",
+  "region": "scandinavia",
+  "grade": "T3"
+ },
+ {
+  "id": "besseggen",
+  "name": "Besseggen (Veslfjellet)",
+  "aka": [
+   "Besseggen"
+  ],
+  "lat": 61.50578,
+  "lon": 8.75284,
+  "elev": 1743,
+  "country": "NO",
+  "kind": "peak",
+  "region": "scandinavia",
+  "grade": "T3"
+ },
+ {
+  "id": "kebnekaise",
+  "name": "Kebnekaise",
+  "lat": 67.90078,
+  "lon": 18.5169,
+  "elev": 2097,
+  "country": "SE",
+  "kind": "peak",
+  "region": "scandinavia",
+  "grade": "T3"
+ },
+ {
+  "id": "hvannadalshnukur",
+  "name": "Hvannadalshnúkur",
+  "aka": [
+   "Hvannadalshnukur"
+  ],
+  "lat": 64.01415,
+  "lon": -16.67696,
+  "elev": 2110,
+  "country": "IS",
+  "kind": "peak",
+  "region": "scandinavia",
+  "grade": "L"
+ },
+ {
+  "id": "gerlachovsky-stit",
+  "name": "Gerlachovský štít",
+  "aka": [
+   "Gerlach"
+  ],
+  "lat": 49.16403,
+  "lon": 20.13406,
+  "elev": 2655,
+  "country": "SK",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "WS"
+ },
+ {
+  "id": "rysy",
+  "name": "Rysy",
+  "lat": 49.17932,
+  "lon": 20.08846,
+  "elev": 2501,
+  "country": "SK",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T4"
+ },
+ {
+  "id": "krivan",
+  "name": "Kriváň",
+  "aka": [
+   "Krivan"
+  ],
+  "lat": 49.16283,
+  "lon": 20.00005,
+  "elev": 2494,
+  "country": "SK",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T4"
+ },
+ {
+  "id": "kasprowy-wierch",
+  "name": "Kasprowy Wierch",
+  "lat": 49.2318,
+  "lon": 19.98156,
+  "elev": 1987,
+  "country": "PL",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T2"
+ },
+ {
+  "id": "giewont",
+  "name": "Giewont",
+  "lat": 49.25095,
+  "lon": 19.9341,
+  "elev": 1895,
+  "country": "PL",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T3"
+ },
+ {
+  "id": "moldoveanu",
+  "name": "Moldoveanu",
+  "lat": 45.59956,
+  "lon": 24.73617,
+  "elev": 2544,
+  "country": "RO",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T3"
+ },
+ {
+  "id": "hoverla",
+  "name": "Hoverla",
+  "aka": [
+   "Goverla"
+  ],
+  "lat": 48.16021,
+  "lon": 24.49994,
+  "elev": 2061,
+  "country": "UA",
+  "kind": "peak",
+  "region": "carpathians",
+  "grade": "T2"
+ },
+ {
+  "id": "mytikas",
+  "name": "Olympus (Mytikas)",
+  "aka": [
+   "Olympus",
+   "Olymp"
+  ],
+  "lat": 40.08624,
+  "lon": 22.35855,
+  "elev": 2918,
+  "country": "GR",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T5"
+ },
+ {
+  "id": "musala",
+  "name": "Musala",
+  "lat": 42.17919,
+  "lon": 23.58528,
+  "elev": 2925,
+  "country": "BG",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T2"
+ },
+ {
+  "id": "vihren",
+  "name": "Vihren",
+  "lat": 41.76733,
+  "lon": 23.39884,
+  "elev": 2914,
+  "country": "BG",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T3"
+ },
+ {
+  "id": "bobotov-kuk",
+  "name": "Bobotov Kuk (Durmitor)",
+  "aka": [
+   "Durmitor"
+  ],
+  "lat": 43.12812,
+  "lon": 19.03466,
+  "elev": 2523,
+  "country": "ME",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T3"
+ },
+ {
+  "id": "korab",
+  "name": "Korab",
+  "lat": 41.79034,
+  "lon": 20.54686,
+  "elev": 2764,
+  "country": "MK",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T3"
+ },
+ {
+  "id": "parnassus",
+  "name": "Parnassus (Liakoura)",
+  "aka": [
+   "Parnassus",
+   "Parnassos"
+  ],
+  "lat": 38.53489,
+  "lon": 22.62222,
+  "elev": 2457,
+  "country": "GR",
+  "kind": "peak",
+  "region": "balkans-greece",
+  "grade": "T2"
+ },
+ {
+  "id": "etna",
+  "name": "Etna",
+  "lat": 37.75103,
+  "lon": 14.99403,
+  "elev": 3357,
+  "country": "IT",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T3"
+ },
+ {
+  "id": "vesuvius",
+  "name": "Vesuvius",
+  "aka": [
+   "Vesuvio",
+   "Vesuv"
+  ],
+  "lat": 40.8214,
+  "lon": 14.4262,
+  "elev": 1281,
+  "country": "IT",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T1"
+ },
+ {
+  "id": "corno-grande",
+  "name": "Gran Sasso (Corno Grande)",
+  "aka": [
+   "Gran Sasso"
+  ],
+  "lat": 42.4693,
+  "lon": 13.5655,
+  "elev": 2912,
+  "country": "IT",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T4"
+ },
+ {
+  "id": "stromboli",
+  "name": "Stromboli",
+  "lat": 38.79303,
+  "lon": 15.21085,
+  "elev": 924,
+  "country": "IT",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T2"
+ },
+ {
+  "id": "monte-cinto",
+  "name": "Monte Cinto",
+  "lat": 42.37971,
+  "lon": 8.94569,
+  "elev": 2706,
+  "country": "FR",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T4"
+ },
+ {
+  "id": "psiloritis",
+  "name": "Psiloritis (Mount Ida)",
+  "aka": [
+   "Mount Ida",
+   "Ida"
+  ],
+  "lat": 35.22631,
+  "lon": 24.7708,
+  "elev": 2456,
+  "country": "GR",
+  "kind": "peak",
+  "region": "mediterranean",
+  "grade": "T2"
+ },
+ {
+  "id": "kilimanjaro",
+  "name": "Kilimanjaro (Uhuru Peak)",
+  "aka": [
+   "Kilimanjaro",
+   "Kibo"
+  ],
+  "lat": -3.07641,
+  "lon": 37.354,
+  "elev": 5895,
+  "country": "TZ",
+  "kind": "peak",
+  "region": "africa",
+  "grade": "T3"
+ },
+ {
+  "id": "mount-meru",
+  "name": "Mount Meru",
+  "lat": -3.24343,
+  "lon": 36.74979,
+  "elev": 4562,
+  "country": "TZ",
+  "kind": "peak",
+  "region": "africa",
+  "grade": "T3"
+ },
+ {
+  "id": "point-lenana",
+  "name": "Mount Kenya (Point Lenana)",
+  "aka": [
+   "Mount Kenya"
+  ],
+  "lat": -0.15516,
+  "lon": 37.31776,
+  "elev": 4985,
+  "country": "KE",
+  "kind": "peak",
+  "region": "africa",
+  "grade": "T3"
+ },
+ {
+  "id": "toubkal",
+  "name": "Toubkal",
+  "aka": [
+   "Jbel Toubkal"
+  ],
+  "lat": 31.05983,
+  "lon": -7.91494,
+  "elev": 4167,
+  "country": "MA",
+  "kind": "peak",
+  "region": "africa",
+  "grade": "T3"
+ },
+ {
+  "id": "table-mountain",
+  "name": "Table Mountain (Maclear's Beacon)",
+  "aka": [
+   "Table Mountain"
+  ],
+  "lat": -33.96683,
+  "lon": 18.42556,
+  "elev": 1086,
+  "country": "ZA",
+  "kind": "peak",
+  "region": "africa",
+  "grade": "T2"
+ },
+ {
+  "id": "denali",
+  "name": "Denali",
+  "aka": [
+   "Mount McKinley"
+  ],
+  "lat": 63.06912,
+  "lon": -151.00624,
+  "elev": 6190,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "WS"
+ },
+ {
+  "id": "mount-whitney",
+  "name": "Mount Whitney",
+  "lat": 36.57859,
+  "lon": -118.29214,
+  "elev": 4421,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T3"
+ },
+ {
+  "id": "mount-rainier",
+  "name": "Mount Rainier",
+  "lat": 46.8522,
+  "lon": -121.75752,
+  "elev": 4392,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "WS"
+ },
+ {
+  "id": "mount-elbert",
+  "name": "Mount Elbert",
+  "lat": 39.11775,
+  "lon": -106.44538,
+  "elev": 4401,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T2"
+ },
+ {
+  "id": "longs-peak",
+  "name": "Longs Peak",
+  "lat": 40.25489,
+  "lon": -105.61523,
+  "elev": 4346,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T5"
+ },
+ {
+  "id": "pikes-peak",
+  "name": "Pikes Peak",
+  "lat": 38.8404,
+  "lon": -105.04395,
+  "elev": 4302,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T2"
+ },
+ {
+  "id": "half-dome",
+  "name": "Half Dome",
+  "lat": 37.746,
+  "lon": -119.53325,
+  "elev": 2695,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T4"
+ },
+ {
+  "id": "mount-st-helens",
+  "name": "Mount St. Helens",
+  "aka": [
+   "Mount St Helens"
+  ],
+  "lat": 46.19139,
+  "lon": -122.19553,
+  "elev": 2549,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T3"
+ },
+ {
+  "id": "mount-washington",
+  "name": "Mount Washington",
+  "lat": 44.27049,
+  "lon": -71.3033,
+  "elev": 1917,
+  "country": "US",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T3"
+ },
+ {
+  "id": "mount-temple",
+  "name": "Mount Temple",
+  "lat": 51.35109,
+  "lon": -116.20653,
+  "elev": 3543,
+  "country": "CA",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "T5"
+ },
+ {
+  "id": "pico-de-orizaba",
+  "name": "Pico de Orizaba",
+  "aka": [
+   "Citlaltépetl"
+  ],
+  "lat": 19.03033,
+  "lon": -97.26982,
+  "elev": 5636,
+  "country": "MX",
+  "kind": "peak",
+  "region": "north-america",
+  "grade": "L"
+ },
+ {
+  "id": "aconcagua",
+  "name": "Aconcagua",
+  "lat": -32.65315,
+  "lon": -70.01196,
+  "elev": 6961,
+  "country": "AR",
+  "kind": "peak",
+  "region": "south-america",
+  "grade": "T4"
+ },
+ {
+  "id": "chimborazo",
+  "name": "Chimborazo",
+  "lat": -1.46908,
+  "lon": -78.81595,
+  "elev": 6263,
+  "country": "EC",
+  "kind": "peak",
+  "region": "south-america",
+  "grade": "WS"
+ },
+ {
+  "id": "cotopaxi",
+  "name": "Cotopaxi",
+  "lat": -0.68056,
+  "lon": -78.43777,
+  "elev": 5897,
+  "country": "EC",
+  "kind": "peak",
+  "region": "south-america",
+  "grade": "L"
+ },
+ {
+  "id": "huayna-potosi",
+  "name": "Huayna Potosí",
+  "aka": [
+   "Huayna Potosi"
+  ],
+  "lat": -16.26244,
+  "lon": -68.15413,
+  "elev": 6088,
+  "country": "BO",
+  "kind": "peak",
+  "region": "south-america",
+  "grade": "WS"
+ },
+ {
+  "id": "villarrica",
+  "name": "Villarrica",
+  "lat": -39.42103,
+  "lon": -71.93956,
+  "elev": 2847,
+  "country": "CL",
+  "kind": "peak",
+  "region": "south-america",
+  "grade": "L"
+ },
+ {
+  "id": "everest",
+  "name": "Mount Everest",
+  "aka": [
+   "Everest",
+   "Sagarmatha",
+   "Chomolungma"
+  ],
+  "lat": 27.98806,
+  "lon": 86.92521,
+  "elev": 8849,
+  "country": "NP",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "ZS"
+ },
+ {
+  "id": "kala-patthar",
+  "name": "Kala Patthar",
+  "lat": 27.9958,
+  "lon": 86.82844,
+  "elev": 5644,
+  "country": "NP",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "T3"
+ },
+ {
+  "id": "gokyo-ri",
+  "name": "Gokyo Ri",
+  "lat": 27.96154,
+  "lon": 86.68313,
+  "elev": 5357,
+  "country": "NP",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "T3"
+ },
+ {
+  "id": "island-peak",
+  "name": "Island Peak (Imja Tse)",
+  "aka": [
+   "Island Peak"
+  ],
+  "lat": 27.92001,
+  "lon": 86.93465,
+  "elev": 6189,
+  "country": "NP",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "WS"
+ },
+ {
+  "id": "fuji",
+  "name": "Mount Fuji",
+  "aka": [
+   "Fuji",
+   "Fujisan"
+  ],
+  "lat": 35.36284,
+  "lon": 138.73077,
+  "elev": 3776,
+  "country": "JP",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "T3"
+ },
+ {
+  "id": "kinabalu",
+  "name": "Mount Kinabalu",
+  "aka": [
+   "Kinabalu"
+  ],
+  "lat": 6.07507,
+  "lon": 116.5587,
+  "elev": 4095,
+  "country": "MY",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "T3"
+ },
+ {
+  "id": "rinjani",
+  "name": "Mount Rinjani",
+  "aka": [
+   "Gunung Rinjani"
+  ],
+  "lat": -8.41173,
+  "lon": 116.45811,
+  "elev": 3726,
+  "country": "ID",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "T3"
+ },
+ {
+  "id": "elbrus",
+  "name": "Elbrus",
+  "lat": 43.35241,
+  "lon": 42.43784,
+  "elev": 5642,
+  "country": "RU",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "L"
+ },
+ {
+  "id": "ararat",
+  "name": "Mount Ararat",
+  "aka": [
+   "Ararat",
+   "Agri Dagi"
+  ],
+  "lat": 39.70193,
+  "lon": 44.2984,
+  "elev": 5137,
+  "country": "TR",
+  "kind": "peak",
+  "region": "asia",
+  "grade": "L"
+ },
+ {
+  "id": "aoraki",
+  "name": "Aoraki / Mount Cook",
+  "aka": [
+   "Mount Cook",
+   "Aoraki"
+  ],
+  "lat": -43.595,
+  "lon": 170.14217,
+  "elev": 3724,
+  "country": "NZ",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "ZS"
+ },
+ {
+  "id": "ngauruhoe",
+  "name": "Mount Ngauruhoe",
+  "lat": -39.15679,
+  "lon": 175.63195,
+  "elev": 2291,
+  "country": "NZ",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "T4"
+ },
+ {
+  "id": "taranaki",
+  "name": "Mount Taranaki",
+  "aka": [
+   "Mount Egmont",
+   "Taranaki"
+  ],
+  "lat": -39.29608,
+  "lon": 174.06389,
+  "elev": 2518,
+  "country": "NZ",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "T4"
+ },
+ {
+  "id": "roys-peak",
+  "name": "Roys Peak",
+  "lat": -44.694,
+  "lon": 169.04873,
+  "elev": 1578,
+  "country": "NZ",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "T2"
+ },
+ {
+  "id": "kosciuszko",
+  "name": "Mount Kosciuszko",
+  "aka": [
+   "Kosciuszko"
+  ],
+  "lat": -36.45583,
+  "lon": 148.26351,
+  "elev": 2228,
+  "country": "AU",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "T1"
+ },
+ {
+  "id": "mauna-kea",
+  "name": "Mauna Kea",
+  "lat": 19.82067,
+  "lon": -155.46807,
+  "elev": 4207,
+  "country": "US",
+  "kind": "peak",
+  "region": "oceania",
+  "grade": "T2"
  }
 ]
