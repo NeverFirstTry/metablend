@@ -5,6 +5,20 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-02
 
+### Added — hiking routes (app)
+- **Routes to a peak**: each peak page lists the marked OpenStreetMap routes
+  that reach it (number / name, length, climb, walking time, difficulty), walked
+  up to the summit and back.
+- **Import a GPX** from the phone; routes are saved on the phone under
+  **My routes** (up to 30).
+- **Route view**: topo map, elevation profile, day and pace (slow / normal /
+  fast) — then a suggested start window that keeps every part of the walk
+  clear of rain, strong wind, deep cold and darkness, the time you reach each
+  stage, and the next safe day when today or tomorrow doesn't work.
+- `/api/routes` (OSM routes near a summit, cached 7 days) and
+  `/api/route-weather` (blended forecast at 6–10 points along the route, walking
+  times by DIN 33466).
+
 ### Added — home-screen widgets (app)
 - **Weather widget** on iPhone and Android: city, temperature, condition, high /
   low; medium adds the next 6 hours or the next 5 days (a setting), large shows
