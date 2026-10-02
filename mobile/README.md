@@ -101,3 +101,16 @@ Check on a device / emulator / simulator:
 - [ ] App language German + °F → widgets follow after leaving the app.
 - [ ] iOS: tinted / clear home screen (long-press home screen → Edit → Customize) → readable, no sky.
 - [ ] Android: `adb shell am start -a android.intent.action.VIEW -d "metablend://open?path=%2Fmore"` → the app opens on More.
+
+## Routes (hiking v2)
+
+New app build needed (the route screens ship with the website, Plan a hike on
+a route and the alert tap need the app).
+
+- [ ] Großglockner → Routes lists "Alter Kalser Weg 712" (there and back); opening it shows the map, the profile and a suggestion or "No safe start".
+- [ ] Pace Slow / Fast changes the walking time and the suggestion; another day re-checks.
+- [ ] Own start time (15-min steps) moves the stages; "Use the suggestion" goes back.
+- [ ] Hiking → Import GPX with a Komoot / Outdooractive / Strava file opens it and lists it under My routes; a file without elevations still shows a climb.
+- [ ] A broken / huge file shows the message, nothing crashes.
+- [ ] Plan this hike on a route (pace Slow) → the route appears under My routes; More → Notifications lists the plan by the route's name.
+- [ ] The evening before at 18:00 the alert reads "Start by … — summit ~…"; tapping it opens the route.

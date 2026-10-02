@@ -15,6 +15,12 @@ All notable changes to MetaBlend. Format loosely follows
   fast) — then a suggested start window that keeps every part of the walk
   clear of rain, strong wind, deep cold and darkness, the time you reach each
   stage, and the next safe day when today or tomorrow doesn't work.
+- **Plan a hike on a route**: the evening before at 18:00 the alert gives the
+  start ("Start by 07:30 — summit ~10:45"), the morning brings an update only if
+  the start moved by 30 minutes or more or the day turned unsafe; tapping opens
+  the route. The plan keeps the chosen pace and a simplified copy of the route
+  (deleted with the plan); the route is kept under My routes.
+- Privacy notice: routes, OpenTopoMap tiles, the summit-only OSM lookup.
 - `/api/routes` (OSM routes near a summit, cached 7 days) and
   `/api/route-weather` (blended forecast at 6–10 points along the route, walking
   times by DIN 33466).

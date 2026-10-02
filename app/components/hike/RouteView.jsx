@@ -20,6 +20,7 @@ const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padS
 
 // One route: map, profile, stats, day / pace / start, the suggestion and the
 // stages along the way. route = { id, name, source, roundTrip, points }.
+// children may be a function of { pace } (Plan a hike keeps the chosen pace).
 export default function RouteView({ route, lang, unit, onBack, onSave, saved, children }) {
   const today = localToday()
   const [date, setDate] = useState(today)
@@ -154,7 +155,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
             {saved ? <Check size={14} aria-hidden /> : <Save size={14} aria-hidden />} {t(lang, saved ? 'routeSaved' : 'routeSave')}
           </button>
         )}
-        {children}
+        {typeof children === 'function' ? children({ pace }) : children}
       </div>
     </div>
   )
