@@ -1514,24 +1514,26 @@ import RouteView from './RouteView'
 // cached), anything else from the phone's saved routes.
 export default function RouteScreen({ routeId, peak, lang, unit, onBack }) {
   const [state, setState] = useState({ route: null, missing: false, saved: false })
+  // plain values: a peak from URL parameters is a new object on every render
+  const lat = peak?.lat, lon = peak?.lon, elev = peak?.elev, peakName = peak?.name ?? ''
 
   useEffect(() => {
     let off = false
     const done = (route, saved) => { if (!off) setState({ route, missing: !route, saved }) }
-    if (routeId.startsWith('osm-') && peak) {
+    if (routeId.startsWith('osm-') && lat != null) {
       const id = Number(routeId.slice(4))
-      fetch(`/api/routes?lat=${peak.lat}&lon=${peak.lon}&elev=${Math.round(peak.elev)}&name=${encodeURIComponent(peak.name ?? '')}`)
+      fetch(`/api/routes?lat=${lat}&lon=${lon}&elev=${Math.round(elev)}&name=${encodeURIComponent(peakName)}`)
         .then(r => (r.ok ? r.json() : { routes: [] }))
         .then(async ({ routes }) => {
           const r = (routes ?? []).find(x => x.id === id)
-          const route = r && { id: routeId, name: [r.ref, r.name].filter(Boolean).join(' '), source: 'osm', roundTrip: r.roundTrip, points: r.points }
+          const route = r && { id: routeId, name: [r.ref, r.name].filter(Boolean).join(' ') || t(lang, 'routeUnnamed'), source: 'osm', roundTrip: r.roundTrip, points: r.points }
           done(route, !!(route && (await getRoute(routeId))))
         }, () => done(null, false))
     } else {
       getRoute(routeId).then(r => done(r, !!r), () => done(null, false))
     }
     return () => { off = true }
-  }, [routeId, peak])
+  }, [routeId, lat, lon, elev, peakName, lang])
 
   if (state.missing) return <p className="text-sm text-zinc-500">{t(lang, 'routesUnavailable')}</p>
   if (!state.route) return <p className="text-sm text-zinc-500">{t(lang, 'routesLoading')}</p>
@@ -1590,7 +1592,7 @@ export default function RouteList({ peak, lang }) {
             <li key={r.id}>
               <button onClick={() => open(r.id)} className="press w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-zinc-800/50">
                 <span className="flex-1 min-w-0">
-                  <span className="block font-medium truncate">{[r.ref, r.name].filter(Boolean).join(' ') || '–'}</span>
+                  <span className="block font-medium truncate">{[r.ref, r.name].filter(Boolean).join(' ') || t(lang, 'routeUnnamed')}</span>
                   <span className="block text-xs text-zinc-500">
                     {r.distanceKm} km · ↑{r.ascentM} m · ~{duration(r.minutes)}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>

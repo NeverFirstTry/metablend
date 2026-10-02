@@ -13,6 +13,8 @@ import FeaturedList from './FeaturedList'
 import PeakSearch from './PeakSearch'
 import PeakView from './PeakView'
 import HikeNotes from './HikeNotes'
+import RouteScreen from './RouteScreen'
+import MyRoutes from './MyRoutes'
 
 // The app-only hiking section: search + featured peaks, then one peak's
 // summit forecast. The peak lives in the URL so the phone's back button and
@@ -30,6 +32,11 @@ function HikeAppInner({ featured }) {
     : featured), [featured, pos])
 
   const peak = peakFromParams(sp, featured)
+  const routeId = sp.get('route')
+  if (routeId) {
+    const back = () => { const q = new URLSearchParams(sp); q.delete('route'); const qs = q.toString(); router.push(`/hike${qs ? `?${qs}` : ''}`) }
+    return <RouteScreen key={routeId} routeId={routeId} peak={peak} lang={lang} unit={unit} onBack={back} />
+  }
   if (peak) return <PeakView key={peak.id} peak={peak} lang={lang} unit={unit} onBack={() => router.push('/hike')} />
 
   return (
@@ -38,6 +45,7 @@ function HikeAppInner({ featured }) {
         <MountainSnow size={28} className="text-emerald-400" aria-hidden /> {t(lang, 'hikeTitle')}
       </h1>
       <PeakSearch lang={lang} hrefFor={hrefFor} onLocate={setPos} />
+      <MyRoutes lang={lang} />
       <section className="space-y-3">
         <SectionTitle icon={MountainSnow}>{t(lang, 'hikeFeatured')}</SectionTitle>
         <FeaturedList peaks={list} hrefFor={hrefFor} />

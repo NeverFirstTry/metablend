@@ -21,6 +21,7 @@ import SummitDays from './SummitDays'
 import HikeNotes from './HikeNotes'
 import SkyLoader from '../SkyLoader'
 import PlanHike from './PlanHike'
+import RouteList from './RouteList'
 import { isNative } from '@/lib/native'
 
 // the models a summit request asks, for the loader's ticker
@@ -105,6 +106,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
       )}
       {/* Today / Tomorrow carry this in the headline; the Week list has none */}
       {stormUnknown && tab === 'd7' && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'hikeNoStorm')}</p>}
+      <RouteList peak={peak} lang={lang} />
       <HikeNotes lang={lang} borrowed />
     </div>
   )
