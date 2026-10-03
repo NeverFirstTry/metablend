@@ -47,10 +47,12 @@ for (const [theme, sky] of VARIANTS) {
   for (const [path, tab] of PAGES) {
     await send('Page.navigate', { url: BASE + path })
     await sleep(4500)
+    // the sky loader's names fade in and out — check the page it gives way to
+    for (let i = 0; i < 20 && await ev(`!!document.querySelector('.mb-loader')`); i++) await sleep(500)
     if (tab) { await ev(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === ${JSON.stringify(tab)})?.click()`); await sleep(1200) }
     // pin the sky so the check covers that background whatever today's weather is
     await ev(`(() => { const h = document.documentElement; h.dataset.sky = ${JSON.stringify(sky)}; new MutationObserver(() => { if (h.dataset.sky !== ${JSON.stringify(sky)}) h.dataset.sky = ${JSON.stringify(sky)} }).observe(h, { attributes: true, attributeFilter: ['data-sky'] }) })()`)
-    await sleep(300)
+    await sleep(2100) // the sky colours ease over 1.8 s
     await ev(AXE)
     const v = await ev(`axe.run(document, { resultTypes: ['violations'] }).then(r => r.violations.filter(x => x.impact === 'serious' || x.impact === 'critical').map(x => ({ id: x.id, nodes: x.nodes.map(n => n.target.join(' ') + ' — ' + (n.any[0]?.message ?? '').slice(0, 110)) })))`)
     const n = v.reduce((s, x) => s + x.nodes.length, 0)

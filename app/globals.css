@@ -309,30 +309,30 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --sky-a: #060a1c; --sky-b: #101d45; --sky-c: #27366b;
   transition: --sky-a 1.8s var(--ease-out), --sky-b 1.8s var(--ease-out), --sky-c 1.8s var(--ease-out);
 }
-:root[data-sky="dawn"]   { --sky-a: #1a2553; --sky-b: #6a5890; --sky-c: #f19f7b; }
-:root[data-sky="day"]    { --sky-a: #1a5aa6; --sky-b: #3b83cf; --sky-c: #8cc0ea; }
-:root[data-sky="cloudy"] { --sky-a: #34465e; --sky-b: #5b6d86; --sky-c: #93a2b6; }
-:root[data-sky="rain"]   { --sky-a: #18222e; --sky-b: #2c3c4f; --sky-c: #4f6479; }
-:root[data-sky="storm"]  { --sky-a: #110f1b; --sky-b: #27213d; --sky-c: #473c61; }
-:root[data-sky="snow"]   { --sky-a: #40526c; --sky-b: #7789a3; --sky-c: #c1cddb; }
-:root[data-sky="dusk"]   { --sky-a: #141c3d; --sky-b: #583d6d; --sky-c: #df866d; }
+:root[data-sky="dawn"]   { --sky-a: #1a2553; --sky-b: #3e3256; --sky-c: #4f3124; }
+:root[data-sky="day"]    { --sky-a: #0e3a6e; --sky-b: #173b61; --sky-c: #283a49; }
+:root[data-sky="cloudy"] { --sky-a: #2a3a4e; --sky-b: #2e3947; --sky-c: #323840; }
+:root[data-sky="rain"]   { --sky-a: #18222e; --sky-b: #2a3a4c; --sky-c: #2d3a47; }
+:root[data-sky="storm"]  { --sky-a: #110f1b; --sky-b: #27213d; --sky-c: #3d3354; }
+:root[data-sky="snow"]   { --sky-a: #2c394d; --sky-b: #303844; --sky-c: #34383d; }
+:root[data-sky="dusk"]   { --sky-a: #141c3d; --sky-b: #462f57; --sky-c: #542f25; }
 /* no sky yet (start page) = a calm clear morning */
-:root[data-theme="light"]                    { --sky-a: #86b6ec; --sky-b: #bcd9f6; --sky-c: #eef5fc; }
-:root[data-theme="light"][data-sky="night"]  { --sky-a: #98a4d6; --sky-b: #c2caeb; --sky-c: #e9ecf8; }
+:root[data-theme="light"]                    { --sky-a: #8ebaed; --sky-b: #bcd9f6; --sky-c: #eef5fc; }
+:root[data-theme="light"][data-sky="night"]  { --sky-a: #abb4dc; --sky-b: #c2caeb; --sky-c: #e9ecf8; }
 :root[data-theme="light"][data-sky="dawn"]   { --sky-a: #b3b3e6; --sky-b: #efc3d0; --sky-c: #ffe4cf; }
-:root[data-theme="light"][data-sky="day"]    { --sky-a: #6ea8ea; --sky-b: #a6cdf5; --sky-c: #e8f3fd; }
-:root[data-theme="light"][data-sky="cloudy"] { --sky-a: #a3b1c5; --sky-b: #c8d1dd; --sky-c: #eef1f5; }
-:root[data-theme="light"][data-sky="rain"]   { --sky-a: #8a9eb6; --sky-b: #b6c3d2; --sky-c: #e1e7ee; }
-:root[data-theme="light"][data-sky="storm"]  { --sky-a: #978fb6; --sky-b: #bfb9d4; --sky-c: #e4e1ed; }
+:root[data-theme="light"][data-sky="day"]    { --sky-a: #91b9ed; --sky-b: #a6cdf5; --sky-c: #e8f3fd; }
+:root[data-theme="light"][data-sky="cloudy"] { --sky-a: #aab6c9; --sky-b: #c8d1dd; --sky-c: #eef1f5; }
+:root[data-theme="light"][data-sky="rain"]   { --sky-a: #aab6c7; --sky-b: #b6c3d2; --sky-c: #e1e7ee; }
+:root[data-theme="light"][data-sky="storm"]  { --sky-a: #b7b2ca; --sky-b: #bfb9d4; --sky-c: #e4e1ed; }
 :root[data-theme="light"][data-sky="snow"]   { --sky-a: #bfcde6; --sky-b: #dde6f4; --sky-c: #f8fbff; }
-:root[data-theme="light"][data-sky="dusk"]   { --sky-a: #a19fd8; --sky-b: #e7b3c1; --sky-c: #ffd4b9; }
+:root[data-theme="light"][data-sky="dusk"]   { --sky-a: #b3b1de; --sky-b: #e7b3c1; --sky-c: #ffd4b9; }
 
 :root:not([data-theme="light"]) {
   --foreground: #f6f8fc;
-  --muted: rgb(226 234 247 / 0.62);
+  --muted: rgb(226 234 247 / 0.78);
   --accent: #ffd98a;          /* sunlight */
   --accent-strong: #ffe7b3;
-  --ok: #8eecc4; --warn: #ffd166; --bad: #ff9a9a; --info: #a9d1ff; --hot: #ffb48f; --neutral: rgb(226 234 247 / 0.7);
+  --ok: #8eecc4; --warn: #ffd166; --bad: #ffb8b8; --info: #a9d1ff; --hot: #ffbb99; --neutral: rgb(226 234 247 / 0.7);
   --surface-2: rgb(255 255 255 / 0.08); --surface-3: rgb(255 255 255 / 0.15);
   --glass: rgb(255 255 255 / 0.075);
   --glass-strong: rgb(9 14 32 / 0.55);
@@ -368,12 +368,17 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .border-zinc-700 { border-color: rgb(255 255 255 / 0.2); }
   & .divide-zinc-800 > :not(:last-child) { border-color: var(--hairline); }
   & .text-zinc-300 { color: rgb(240 245 252 / 0.9); }
-  & .text-zinc-400 { color: rgb(232 239 250 / 0.74); }
+  & .text-zinc-400 { color: rgb(232 239 250 / 0.84); }
   & .text-zinc-500 { color: var(--muted); }
-  & .text-zinc-600 { color: rgb(226 234 247 / 0.45); }
+  & .text-zinc-600 { color: var(--muted); }
   /* accent: sunlight instead of the old acid green */
-  & .text-emerald-400, & .hover\:text-emerald-400:hover { color: var(--accent); }
+  & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
   & .text-emerald-300 { color: var(--accent-strong); }
+  /* status text in the sky's own (AA) colours rather than the stock palette */
+  & .text-red-300, & .text-red-400 { color: var(--bad); }
+  & .text-yellow-400, & .text-amber-500\/70 { color: var(--warn); }
+  & .text-orange-300, & .text-orange-400, & .text-amber-600 { color: var(--hot); }
+  & .text-blue-400 { color: var(--info); }
   & .border-emerald-400, & .hover\:border-emerald-400:hover,
   & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(255 217 138 / 0.7); }
   & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(255 217 138 / 0.35); }
@@ -395,10 +400,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    :root raises these above the paper remaps of the light-theme block. */
 :root[data-theme="light"] {
   --foreground: #0f1b33;
-  --muted: rgb(15 27 51 / 0.66);
-  --accent: #2350c8;
-  --accent-strong: #173c9e;
-  --ok: #0a7a50; --warn: #9a5b00; --bad: #c0262d; --info: #1f5fd6; --hot: #c2410c; --neutral: rgb(15 27 51 / 0.7);
+  --muted: rgb(15 27 51 / 0.72);
+  --accent: #1c3f9e;
+  --accent-strong: #132f78;
+  --ok: #064f34; --warn: #663c00; --bad: #861b1f; --info: #154192; --hot: #7e2a08; --neutral: rgb(15 27 51 / 0.7);
   --surface-2: rgb(15 27 51 / 0.07); --surface-3: rgb(15 27 51 / 0.13);
   --glass: rgb(255 255 255 / 0.56);
   --glass-strong: rgb(255 255 255 / 0.74);
@@ -425,13 +430,19 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .divide-zinc-800 > :not(:last-child) { border-color: var(--hairline); }
   & .text-white { color: var(--foreground); }
   & .text-zinc-300 { color: rgb(15 27 51 / 0.88); }
-  & .text-zinc-400 { color: rgb(15 27 51 / 0.74); }
+  & .text-zinc-400 { color: rgb(15 27 51 / 0.8); }
   & .text-zinc-500 { color: var(--muted); }
-  & .text-zinc-600 { color: rgb(15 27 51 / 0.5); }
-  & .text-emerald-400, & .hover\:text-emerald-400:hover { color: var(--accent); }
+  & .text-zinc-600 { color: var(--muted); }
+  & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
   & .text-emerald-300 { color: var(--accent-strong); }
+  /* status text: the deep daylight set, readable straight on the sky */
+  & .text-red-300, & .text-red-400 { color: var(--bad); }
+  & .text-yellow-400, & .text-amber-200, & .text-amber-200\/90, & .text-amber-300,
+  & .text-amber-400, & .text-amber-500\/70 { color: var(--warn); }
+  & .text-orange-300, & .text-orange-400, & .text-amber-600 { color: var(--hot); }
+  & .text-blue-400 { color: var(--info); }
   & .border-emerald-400, & .hover\:border-emerald-400:hover,
-  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(35 80 200 / 0.6); }
+  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(28 63 158 / 0.6); }
   & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(35 80 200 / 0.28); }
   & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(255 255 255 / 0.5); }
   & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(35 80 200 / 0.1); }
