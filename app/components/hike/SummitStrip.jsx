@@ -1,25 +1,28 @@
 'use client'
 
 import { t } from '@/lib/i18n'
+import { summitHourLabel } from '@/lib/a11y-text'
 import { isDark, nightIcon } from '@/lib/sky'
 import ScrollStrip from '../ScrollStrip'
 
 export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'var(--bad)' }
 
 // Hour-by-hour summit row: time, icon, summit temperature, summit wind,
-// freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip.
+// freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip;
+// screen readers get one sentence per card.
 export default function SummitStrip({ hours, fmtTemp, sun, lang }) {
   return (
     <ScrollStrip label={t(lang, 'hourByHour')}>
-      <div className="flex gap-1.5 min-w-max">
+      <div role="list" className="flex gap-1.5 min-w-max">
         {hours.map(h => (
-          <div key={h.t} className="w-16 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
-            <div className="text-zinc-500 tabular-nums">{h.t.slice(11, 16)}</div>
+          <div key={h.t} role="listitem" className="w-16 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
+            <span className="sr-only">{summitHourLabel(lang, h, fmtTemp)}</span>
+            <div className="text-zinc-500 tabular-nums" aria-hidden>{h.t.slice(11, 16)}</div>
             <div className="text-lg leading-tight" aria-hidden>{(isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon) ?? '·'}</div>
-            <div className="font-bold tabular-nums">{fmtTemp(h.temp)}</div>
-            <div className="tabular-nums text-zinc-400">{h.windKmh != null ? `${h.windKmh} km/h` : '–'}</div>
-            <div className="tabular-nums text-zinc-500">{h.freezingLevel != null ? `${h.freezingLevel} m` : '–'}</div>
-            <div className="tabular-nums" style={{ color: 'var(--info)' }}>{h.rainPct != null ? `${h.rainPct}%` : '–'}</div>
+            <div className="font-bold tabular-nums" aria-hidden>{fmtTemp(h.temp)}</div>
+            <div className="tabular-nums text-zinc-400" aria-hidden>{h.windKmh != null ? `${h.windKmh} km/h` : '–'}</div>
+            <div className="tabular-nums text-zinc-500" aria-hidden>{h.freezingLevel != null ? `${h.freezingLevel} m` : '–'}</div>
+            <div className="tabular-nums" style={{ color: 'var(--info)' }} aria-hidden>{h.rainPct != null ? `${h.rainPct}%` : '–'}</div>
             <div className="mx-auto mt-1 h-1.5 w-8 rounded-full" style={{ background: STORM_COLOR[h.storm] ?? 'var(--muted)', opacity: h.storm ? 1 : 0.3 }} />
           </div>
         ))}

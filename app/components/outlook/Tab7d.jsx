@@ -14,7 +14,7 @@ function Agree({ level, lang }) {
   if (level == null) return <span className="w-8 shrink-0" />
   const color = level >= 2 ? 'var(--ok)' : 'var(--warn)'
   return (
-    <span className="w-8 shrink-0 text-xs tracking-tighter" title={t(lang, `agree${level}`)} aria-label={t(lang, `agree${level}`)}>
+    <span role="img" className="w-8 shrink-0 text-xs tracking-tighter" title={t(lang, `agree${level}`)} aria-label={t(lang, `agree${level}`)}>
       <span style={{ color }}>{'●'.repeat(level)}</span>
       <span className="text-zinc-600">{'○'.repeat(3 - level)}</span>
     </span>

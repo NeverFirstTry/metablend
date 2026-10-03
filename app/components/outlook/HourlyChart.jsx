@@ -1,6 +1,8 @@
 'use client'
 
 import { formatCalendarDate } from '@/lib/localtime'
+import { chartSummary } from '@/lib/a11y-text'
+import { tempFormatter } from '@/lib/outlook/text'
 import useWidth from './useWidth'
 
 // Consensus temperature over the hours shown, the sources' spread as a band
@@ -28,7 +30,7 @@ export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 1
   const clampX = v => Math.min(Math.max(v, 16), W - 16)
   return (
     <div ref={ref} className="w-full">
-      <svg width={W} height={H} role="img" aria-label={`${Math.round(Math.min(...mid))}–${Math.round(Math.max(...mid))}°${unit}`}>
+      <svg width={W} height={H} role="img" aria-label={chartSummary(lang, hours, tempFormatter(unit))}>
         <polygon points={band} style={{ fill: 'var(--accent)', fillOpacity: 0.14 }} />
         {ticks.filter(tk => tk.hr === 0).map(tk => (
           <line key={`d${tk.h.t}`} x1={x(tk.i)} x2={x(tk.i)} y1={top - 8} y2={bottom} strokeDasharray="2 3" style={{ stroke: 'var(--muted)', strokeOpacity: 0.35 }} />

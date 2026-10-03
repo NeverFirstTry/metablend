@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { t, tn } from '@/lib/i18n'
+import { sparkLabel } from '@/lib/a11y-text'
 import { sourceName } from '@/lib/sources'
 import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
@@ -31,13 +32,14 @@ const HORIZONS = [['now', 'lbRightNow'], ['h48', 'lbTodayTomorrow'], ['d7', 'tab
 const LEARNING_BELOW = 200 // checks per region before a range stops saying "still learning"
 
 // Tiny bar sparkline of recent scoring deltas (−2…+2): green = the source was
-// close to the truth that report, red = it was off.
-function Sparkline({ data }) {
+// close to the truth that report, red = it was off. Up / down carries the
+// same without colour; screen readers get the counts.
+function Sparkline({ data, lang }) {
   if (!Array.isArray(data) || data.length < 2) return null
   const recent = data.slice(-24)
   const bw = 4, gap = 1, h = 18, mid = h / 2
   return (
-    <svg width={recent.length * (bw + gap)} height={h} className="block">
+    <svg width={recent.length * (bw + gap)} height={h} className="block" role="img" aria-label={sparkLabel(lang, data)}>
       {recent.map((d, i) => {
         const c = Math.max(-2, Math.min(2, d))
         const barH = Math.max(1, (Math.abs(c) / 2) * (mid - 1))
@@ -227,7 +229,7 @@ export default function Leaderboard() {
                       {api.delta_history?.length > 1 && (
                         <div className="mt-3 pt-3 border-t border-zinc-800">
                           <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1.5">{t(lang, 'lbRecent')}</div>
-                          <Sparkline data={api.delta_history} />
+                          <Sparkline data={api.delta_history} lang={lang} />
                         </div>
                       )}
 
