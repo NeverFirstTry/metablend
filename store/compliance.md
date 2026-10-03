@@ -35,7 +35,7 @@ Facts behind every answer:
 - **Is all of the user data collected by your app encrypted in transit?** Yes.
 - **Do you provide a way for users to request that their data is deleted?** Yes — email info@metablend.app or a GitHub issue; turning notifications off in the app deletes the push record.
 - **Data types collected** (none shared — transfers to service providers are not "sharing"; none optional-to-required: all optional features):
-  - Location → **Approximate location** — collected, not shared, processed ephemerally: no; purpose: App functionality.
+  - Location → **Approximate location** — collected, not shared, processed ephemerally: yes (used for the peak search, never stored); purpose: App functionality.
   - Device or other IDs → **Device or other IDs** — collected, not shared; purpose: App functionality (push notifications).
   - App activity → **Other user-generated content** — collected, not shared; purpose: App functionality (weather feedback).
   - App activity → **App interactions** — collected, not shared; purpose: Analytics.
