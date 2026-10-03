@@ -532,10 +532,17 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 
 /* iOS zooms into any field with text under 16 px when it's focused — and
    stays zoomed. On touch screens fields get 16 px, so there is nothing to
-   zoom into; desktop keeps the compact sizes. */
+   zoom into; desktop keeps the compact sizes. Larger Text grows them on. */
 @media (hover: none) and (pointer: coarse) {
-  input, select, textarea { font-size: 16px !important; }
+  input, select, textarea { font-size: max(16px, 1rem) !important; }
 }
+/* Larger Text in the app (lib/text-scale.js): a one-line text that would be
+   cut off with an ellipsis wraps instead, so no words go missing. */
+:root[data-text-large] .truncate {
+  overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: break-word;
+  min-width: min(6rem, 100%); /* never squeezed to a letter per line … */
+}
+:root[data-text-large] :has(> .truncate) { flex-wrap: wrap; } /* … its neighbours wrap instead */
 
 /* The prerendered page is English / °C. For visitors who get another language
    or °F, lib/locale-boot.js marks <html data-localizing> before first paint;

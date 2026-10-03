@@ -64,7 +64,7 @@ export default function EmbedPanel({ city, lang, unit }) {
           title={`MetaBlend · ${city}`} loading="lazy"
           style={{ border: 0, borderRadius: 16, transform: `scale(${scale})`, transformOrigin: 'top center', flexShrink: 0, boxShadow: '0 12px 32px -16px rgb(0 0 0 / 0.5)' }} />
       </div>
-      <pre className="font-mono text-[11px] leading-relaxed bg-zinc-950 border border-zinc-800 rounded-xl p-3 whitespace-pre-wrap break-all text-zinc-300 select-all">{code}</pre>
+      <pre className="font-mono text-[0.6875rem] leading-relaxed bg-zinc-950 border border-zinc-800 rounded-xl p-3 whitespace-pre-wrap break-all text-zinc-300 select-all">{code}</pre>
       <button onClick={copy} className="press inline-flex items-center gap-1.5 bg-emerald-400 text-black text-sm font-semibold px-4 py-2 rounded-full hover:bg-emerald-300">
         {copied ? <Check size={15} aria-hidden /> : <Copy size={15} aria-hidden />} {copied ? t(lang, 'copied') : t(lang, 'embedCopy')}
       </button>

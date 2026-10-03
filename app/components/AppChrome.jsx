@@ -12,6 +12,7 @@ import { opensByReload } from '@/lib/push-ui'
 import { getCookie } from '@/lib/prefs'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
+import { watchTextScale } from '@/lib/text-scale'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -49,7 +50,10 @@ export default function AppChrome() {
     // widgets: settings at start, and fresh again whenever the app is left
     syncWidgets({ refresh: true })
     onAppHidden(() => syncWidgets()).then(fn => { if (gone) fn(); else offHidden = fn })
-    return () => { gone = true; off(); offPush(); offUrl(); offHidden(); themeWatch.disconnect() }
+    // Larger Text: the phone's text size scales the page
+    let offScale = () => {}
+    watchTextScale().then(fn => { if (gone) fn(); else offScale = fn })
+    return () => { gone = true; off(); offPush(); offUrl(); offHidden(); offScale(); themeWatch.disconnect() }
   }, [router])
 
   if (!app) return null
@@ -63,7 +67,7 @@ export default function AppChrome() {
             href={href}
             onClick={() => tapHaptic()}
             aria-current={active(href) ? 'page' : undefined}
-            className={`flex flex-col items-center gap-1 py-2 text-[11px] ${active(href) ? 'text-emerald-400' : 'text-zinc-500'}`}
+            className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${active(href) ? 'text-emerald-400' : 'text-zinc-500'}`}
           >
             <Icon size={20} aria-hidden /> {t(lang, key)}
           </Link>

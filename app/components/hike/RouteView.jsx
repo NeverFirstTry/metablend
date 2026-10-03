@@ -130,18 +130,18 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
       {d && !loading && (
         <section className="space-y-2">
           <SectionTitle>{t(lang, 'routeStages')}</SectionTitle>
-          <ol className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
+          <ol className="@container bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
             {d.stages.map((st, k) => (
-              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm" style={st.blocker ? { background: 'color-mix(in srgb, var(--bad) 12%, transparent)' } : undefined}>
-                <span className="w-12 font-semibold tabular-nums">{st.eta}</span>
-                <span className="flex-1 min-w-0">
-                  <span className="block truncate">{label(st, k)}</span>
+              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm @max-[19rem]:flex-wrap @max-[19rem]:gap-x-2" style={st.blocker ? { background: 'color-mix(in srgb, var(--bad) 12%, transparent)' } : undefined}>
+                <span className="w-12 font-semibold tabular-nums @max-[19rem]:w-auto">{st.eta}</span>
+                <span className="flex-1 min-w-0 @max-[19rem]:basis-full @max-[19rem]:order-first">
+                  <span className="block truncate @max-[19rem]:whitespace-normal">{label(st, k)}</span>
                   <span className="block text-xs text-zinc-500">{st.ele != null ? `${st.ele} m` : ''}{st.blocker ? ` · ${t(lang, REASON_KEY[st.blocker])}` : ''}</span>
                 </span>
                 <span aria-hidden>{st.icon ?? ''}</span>
-                <span className="w-24 text-right tabular-nums">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
-                <span className="w-16 text-right text-xs text-zinc-400 tabular-nums">{st.wind ?? '–'} km/h</span>
-                <span className="w-10 text-right text-xs text-zinc-400 tabular-nums">{st.rain ?? '–'}%</span>
+                <span className="w-24 text-right tabular-nums @max-[19rem]:w-auto">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
+                <span className="w-16 text-right text-xs text-zinc-400 tabular-nums @max-[19rem]:w-auto">{st.wind ?? '–'} km/h</span>
+                <span className="w-10 text-right text-xs text-zinc-400 tabular-nums @max-[19rem]:w-auto">{st.rain ?? '–'}%</span>
                 <StormBar storm={st.storm} compact lang={lang} className="shrink-0" />
               </li>
             ))}

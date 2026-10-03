@@ -3,10 +3,10 @@ import { MountainSnow, House } from 'lucide-react'
 
 // Featured peaks as compact cards: linked in the app, plain on the teaser.
 // Long names wrap instead of being cut off (the details column is wide on
-// a phone: km · m · grade · country).
+// a phone: km · m · grade · country); with large text the details drop below.
 export default function FeaturedList({ peaks, hrefFor = null }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+    <div className="@container grid grid-cols-1 sm:grid-cols-2 gap-2">
       {peaks.map(p => {
         const Icon = p.kind === 'hut' ? House : MountainSnow
         const body = (
@@ -20,7 +20,7 @@ export default function FeaturedList({ peaks, hrefFor = null }) {
             </span>
           </>
         )
-        const cls = 'flex items-center justify-between gap-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm'
+        const cls = 'flex items-center justify-between gap-3 @max-[18rem]:flex-wrap @max-[18rem]:gap-y-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm'
         return hrefFor
           ? <Link key={p.id} href={hrefFor(p)} className={`${cls} hover:border-emerald-400 transition-colors`}>{body}</Link>
           : <div key={p.id} className={cls}>{body}</div>

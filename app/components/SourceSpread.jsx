@@ -48,7 +48,7 @@ export default function SourceSpread({ sources, consensusC, unit = 'C', title, h
         {ticks.map(tc => (
           <div key={tc} aria-hidden>
             <div className="absolute bottom-2.5 h-1.5 w-px bg-zinc-800 -translate-x-1/2" style={{ left: `${x(tc)}%` }} />
-            <div className="absolute bottom-0 -translate-x-1/2 text-[10px] text-zinc-600 tabular-nums" style={{ left: `${x(tc)}%` }}>
+            <div className="absolute bottom-0 -translate-x-1/2 text-[0.625rem] text-zinc-600 tabular-nums" style={{ left: `${x(tc)}%` }}>
               {Math.round(show(tc))}°
             </div>
           </div>

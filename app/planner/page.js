@@ -120,12 +120,12 @@ export default function Planner() {
                   const isBest = best.includes(m.month)
                   return (
                     <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${m.avgTemp}°C · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
-                      <div className="text-[10px] text-orange-300 tabular-nums">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
+                      <div className="text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
                       <div className="w-full flex gap-px items-end h-full">
                         <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
                         <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
                       </div>
-                      <div className={`text-[10px] uppercase ${isBest ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
+                      <div className={`text-[0.625rem] uppercase ${isBest ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
                         {monthName(lang, m.month)}
                       </div>
                     </div>

@@ -13,7 +13,7 @@ export default function HourStrip({ hours, fmtTemp, sun, lang }) {
     <ScrollStrip label={t(lang, 'hourByHour')}>
       <div role="list" className="flex gap-1.5 min-w-max">
         {hours.map(h => (
-          <div key={h.t} role="listitem" className="w-14 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
+          <div key={h.t} role="listitem" className="min-w-14 px-1 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
             <span className="sr-only">{hourLabel(lang, h, fmtTemp)}</span>
             <div className="text-zinc-500 tabular-nums" aria-hidden>{h.t.slice(11, 16)}</div>
             <div className="text-lg leading-tight" aria-hidden>{(isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon) ?? '·'}</div>

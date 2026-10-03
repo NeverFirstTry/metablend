@@ -48,12 +48,12 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold">{src.displayName ?? src.apiId}</span>
                   {isLocal && (
-                    <span className="text-[10px] bg-emerald-400/15 text-emerald-400 border border-emerald-400/30 rounded px-1.5 py-0.5 tracking-wider">
+                    <span className="text-[0.625rem] bg-emerald-400/15 text-emerald-400 border border-emerald-400/30 rounded px-1.5 py-0.5 tracking-wider">
                       {t(lang, 'localBadge')}
                     </span>
                   )}
                   {src.responseMs != null && (
-                    <span className="text-[10px] bg-zinc-800 text-zinc-400 rounded px-1.5 py-0.5">{src.responseMs}ms</span>
+                    <span className="text-[0.625rem] bg-zinc-800 text-zinc-400 rounded px-1.5 py-0.5">{src.responseMs}ms</span>
                   )}
                 </div>
                 <div className={`text-xs ${diffColor}`}>

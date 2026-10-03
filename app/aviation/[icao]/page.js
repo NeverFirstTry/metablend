@@ -137,7 +137,7 @@ export default async function AirportPage({ params }) {
             </span>
           )}
           {flags.map(f => (
-            <span key={f} className="text-[10px] tracking-widest border border-zinc-700 text-zinc-400 rounded px-1.5 py-0.5">
+            <span key={f} className="text-[0.625rem] tracking-widest border border-zinc-700 text-zinc-400 rounded px-1.5 py-0.5">
               {f}
             </span>
           ))}

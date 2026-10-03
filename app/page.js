@@ -560,7 +560,7 @@ ${url}`)
 
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex flex-wrap items-center gap-2">
             <button
               onClick={resetToStart}
               title={t(lang, 'backToStart')}
@@ -568,7 +568,7 @@ ${url}`)
             >
               Meta<span className="text-emerald-400">Blend</span>
             </button>
-            <span className="text-[10px] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
+            <span className="text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
               Beta
             </span>
           </h1>
@@ -646,20 +646,20 @@ ${url}`)
         {/* In-development disclaimer */}
         <BetaBanner lang={lang} className="mb-8 web-only" />
 
-        {/* Search */}
-        <div className="relative flex gap-2 mb-8">
+        {/* Search (large text: the field on its own line above the buttons) */}
+        <div className="@container relative flex flex-wrap gap-2 mb-8">
           <button
             onClick={handleLocation}
             disabled={locating || loading}
             title="Use current location"
             aria-label="Use current location"
-            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0"
+            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {locating
               ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow" aria-hidden />
               : <Navigation size={18} className="text-zinc-300" aria-hidden />}
           </button>
-          <div className="relative flex-1">
+          <div className="relative flex-1 @max-[18rem]:basis-full @max-[18rem]:order-first">
             <input
               className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
               placeholder={t(lang, 'placeholder')}
@@ -687,7 +687,7 @@ ${url}`)
             onClick={() => { setShowSuggestions(false); loadForecast() }}
             disabled={loading}
             aria-label="Search"
-            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center"
+            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {loading
               ? <Loader2 size={18} className="animate-spin-slow" aria-hidden />
@@ -696,7 +696,7 @@ ${url}`)
           <button
             onClick={() => { setCompareMode(m => !m); setCompareData(null) }}
             title="Compare two cities"
-            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center gap-1.5 ${
+            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
               compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
             }`}
           >
@@ -706,7 +706,7 @@ ${url}`)
             <button
               onClick={() => setFavorites(toggleFavorite(data.city))}
               title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
-              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center ${
+              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
                 isFavorite(favorites, data.city)
                   ? 'bg-amber-400 text-black border-amber-400'
                   : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-amber-400'
@@ -854,13 +854,13 @@ ${url}`)
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
                   {!offline && nextRefreshAt && (
-                    <span className="text-zinc-500 text-[11px] tabular-nums">
+                    <span className="text-zinc-500 text-[0.6875rem] tabular-nums">
                       {t(lang, 'refreshesIn')} {countdownStr}
                     </span>
                   )}
                 </div>
                 {ageMin != null && (
-                  <div className="text-[11px] mt-1 tabular-nums">
+                  <div className="text-[0.6875rem] mt-1 tabular-nums">
                     {justUpdated ? (
                       <span className="text-emerald-400 inline-flex items-center gap-1 animate-fade-in">
                         <CheckCircle2 size={12} aria-hidden /> {t(lang, 'updatedJustNow')}

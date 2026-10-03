@@ -32,7 +32,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'd7', h, { todayLocal, ...fmt })} tone={headlineTone('d7', h)} />
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-2 sm:p-4">
+      <div className="@container bg-zinc-900 border border-zinc-800 rounded-2xl p-2 sm:p-4">
         {days.map(d => {
           const open = openDay === d.date
           const dayHours = outlook.hourly.filter(x => x.t.startsWith(d.date))
@@ -42,12 +42,12 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                 onClick={() => setOpenDay(open ? null : d.date)}
                 aria-expanded={open}
                 disabled={!dayHours.length}
-                className="w-full flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm text-left rounded-xl hover:bg-zinc-800/40 disabled:cursor-default"
+                className="w-full flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm text-left rounded-xl hover:bg-zinc-800/40 disabled:cursor-default @max-[19rem]:flex-wrap"
               >
                 <span className="w-12 sm:w-16 shrink-0">{d.date === todayLocal ? t(lang, 'todayLabel') : formatCalendarDate(d.date, lang, { weekday: 'short' })}</span>
                 <span className="w-6 shrink-0 text-center text-lg" aria-hidden>{d.icon ?? '·'}</span>
                 <span className="w-9 shrink-0 text-right text-zinc-500 tabular-nums">{fmt.fmtTemp(d.tempMin)}</span>
-                <span className="relative flex-1 h-1.5 bg-zinc-800 rounded-full">
+                <span className="relative flex-1 h-1.5 bg-zinc-800 rounded-full @max-[19rem]:basis-full @max-[19rem]:order-last">
                   <span
                     className="absolute h-1.5 rounded-full"
                     style={{

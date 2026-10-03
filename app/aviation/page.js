@@ -80,11 +80,11 @@ export default async function AviationHub() {
 
         <div className="flex items-baseline justify-between mb-3">
           <h2 className="text-zinc-500 text-xs tracking-widest uppercase">Flight categories now</h2>
-          <span className="text-zinc-600 text-[10px] tracking-wider">live METAR · refreshes ~10 min</span>
+          <span className="text-zinc-600 text-[0.625rem] tracking-wider">live METAR · refreshes ~10 min</span>
         </div>
         {BOARD.map(([region, ids]) => (
           <div key={region} className="mb-5">
-            <h3 className="text-zinc-600 text-[10px] tracking-widest uppercase mb-2">{region}</h3>
+            <h3 className="text-zinc-600 text-[0.625rem] tracking-widest uppercase mb-2">{region}</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {ids.map(icao => {
                 const cat = cats[icao] ?? null
@@ -96,9 +96,9 @@ export default async function AviationHub() {
                   >
                     <span className="tracking-widest text-zinc-200">{icao}</span>
                     {cat ? (
-                      <span className="text-[10px] font-bold tracking-wider" style={{ color: RULES_COLOR[cat] }}>● {cat}</span>
+                      <span className="text-[0.625rem] font-bold tracking-wider" style={{ color: RULES_COLOR[cat] }}>● {cat}</span>
                     ) : (
-                      <span className="text-[10px] text-zinc-600 tracking-wider">–</span>
+                      <span className="text-[0.625rem] text-zinc-600 tracking-wider">–</span>
                     )}
                   </Link>
                 )
@@ -106,7 +106,7 @@ export default async function AviationHub() {
             </div>
           </div>
         ))}
-        <p className="text-zinc-600 text-[10px] mb-10">
+        <p className="text-zinc-600 text-[0.625rem] mb-10">
           VFR <span style={{ color: RULES_COLOR.VFR }}>●</span> · MVFR <span style={{ color: RULES_COLOR.MVFR }}>●</span> ·
           IFR <span style={{ color: RULES_COLOR.IFR }}>●</span> · LIFR <span style={{ color: RULES_COLOR.LIFR }}>●</span> ·
           – means the METAR didn’t report enough to classify

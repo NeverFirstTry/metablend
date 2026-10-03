@@ -8,7 +8,7 @@ import { ChevronDown } from 'lucide-react'
 export function MetricCard({ icon: Icon, label, value, sub, color }) {
   return (
     <div className="bg-zinc-800/60 border border-zinc-800 rounded-xl px-4 py-3 flex-1 min-w-[90px] transition-colors duration-200 hover:border-zinc-700">
-      <div className="text-zinc-500 text-[11px] uppercase tracking-wider mb-1.5 flex items-center gap-1.5 min-w-0">
+      <div className="text-zinc-500 text-[0.6875rem] uppercase tracking-wider mb-1.5 flex items-center gap-1.5 min-w-0">
         {Icon && <Icon size={13} className="shrink-0" aria-hidden />}
         {/* long compounds (Nullgradgrenze) hyphenate in narrow cards; break-words catches the rest */}
         <span className="min-w-0 break-words hyphens-auto">{label}</span>

@@ -50,7 +50,7 @@ export default function NowcastCard({ lat, lon, lang }) {
           }} />
         ))}
       </div>
-      <div className="flex text-[11px] text-zinc-500 tabular-nums" aria-hidden>
+      <div className="flex text-[0.6875rem] text-zinc-500 tabular-nums" aria-hidden>
         {steps.map((x, i) => <span key={x.t} className="flex-1">{i % 2 === 0 ? x.t.slice(11, 16) : ''}</span>)}
       </div>
       {state.nc.precision === 'rough'

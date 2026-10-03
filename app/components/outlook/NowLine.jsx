@@ -23,10 +23,11 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
     ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
   return (
-    <div>
-      {/* the hero: the temperature as a big light numeral, straight on the sky */}
+    <div className="@container">
+      {/* the hero: the temperature as a big light numeral, straight on the sky
+          (large text: the details drop below the numeral) */}
       <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-end justify-between gap-4 text-left group">
-        <span className="flex items-end gap-4 min-w-0">
+        <span className="flex items-end gap-4 min-w-0 @max-[18rem]:flex-wrap">
           {/* whole degrees in the hero — the tenths live in the details */}
           <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
             {Math.round(Number(showT(c.temp)))}°
@@ -41,7 +42,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
             {c.feelsLike != null && (
               <span className="block text-zinc-400 tabular-nums">{t(lang, 'feelsLike')} {Math.round(Number(showT(c.feelsLike)))}°</span>
             )}
-            <span className="block tabular-nums whitespace-nowrap">
+            <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
               <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
               {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · 🌧 {c.rainPct}%</span>}
             </span>

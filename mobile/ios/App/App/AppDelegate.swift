@@ -74,6 +74,33 @@ class MainViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(WidgetBridgePlugin())
         bridge?.registerPluginInstance(AppIconPlugin())
+        bridge?.registerPluginInstance(TextScalePlugin())
+    }
+}
+
+// Larger Text: the phone's text size as a factor of the default (body 17 pt),
+// and a "change" event when it changes — the web view scales its root font
+// size with it (lib/text-scale.js).
+@objc(TextScalePlugin)
+public class TextScalePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "TextScalePlugin"
+    public let jsName = "TextScale"
+    public let pluginMethods: [CAPPluginMethod] = [CAPPluginMethod(name: "get", returnType: CAPPluginReturnPromise)]
+    private var observer: NSObjectProtocol?
+
+    private func scale() -> Double { Double(UIFont.preferredFont(forTextStyle: .body).pointSize / 17.0) }
+
+    public override func load() {
+        observer = NotificationCenter.default.addObserver(forName: UIContentSizeCategory.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            guard let self = self else { return }
+            self.notifyListeners("change", data: ["scale": self.scale()])
+        }
+    }
+
+    deinit { if let observer = observer { NotificationCenter.default.removeObserver(observer) } }
+
+    @objc func get(_ call: CAPPluginCall) {
+        DispatchQueue.main.async { call.resolve(["scale": self.scale()]) }
     }
 }
 

@@ -70,7 +70,7 @@ export default function Widget() {
           </div>
           {icon && <div className="text-2xl leading-none min-[440px]:hidden" aria-hidden>{icon}</div>}
         </div>
-        <div className="hidden min-[440px]:flex flex-col gap-1 mt-3 text-[11px] text-zinc-400">{sourcesLine}{brand}</div>
+        <div className="hidden min-[440px]:flex flex-col gap-1 mt-3 text-[0.6875rem] text-zinc-400">{sourcesLine}{brand}</div>
       </div>
       <div className="flex items-end gap-3 min-[440px]:items-center">
         <span className="text-6xl font-extralight tabular-nums leading-[0.85] tracking-tight">{fmt(now.consensus.temp)}</span>
@@ -79,7 +79,7 @@ export default function Widget() {
           {day && <div className="text-zinc-400 tabular-nums whitespace-nowrap">↑ {fmt(day.tempMax)}  ↓ {fmt(day.tempMin)}</div>}
         </div>
       </div>
-      <div className="flex items-center justify-between text-[11px] text-zinc-400 min-[440px]:hidden">
+      <div className="flex items-center justify-between text-[0.6875rem] text-zinc-400 min-[440px]:hidden">
         <span className="truncate">{sourcesLine}</span>
         {brand}
       </div>
