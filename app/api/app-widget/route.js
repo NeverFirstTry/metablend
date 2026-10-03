@@ -50,7 +50,8 @@ export const GET = withErrorLog('app-widget', async (request) => {
     ])
     if (forecast.status === 404 || outlook.status === 404) return noStore({ error: 'City not found' }, 404)
     if (!forecast.json || !outlook.json?.nowLocal) return noStore({ error: 'Forecast unavailable' }, 502)
-    body = weatherPayload({ forecast: forecast.json, outlook: outlook.json, lang: q.lang, unit: q.unit })
+    const nc = await getJson(`${base}/api/nowcast?lat=${forecast.json.lat}&lon=${forecast.json.lon}`) // failing: json null, text unchanged
+    body = weatherPayload({ forecast: forecast.json, outlook: outlook.json, lang: q.lang, unit: q.unit, nowcast: nc.json })
   }
   return Response.json(body, { headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` } })
 })

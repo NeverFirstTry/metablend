@@ -10,6 +10,7 @@ import Headline from './Headline'
 import HourlyChart from './HourlyChart'
 import HourStrip from './HourStrip'
 import Notes from './Notes'
+import NowcastCard from './NowcastCard'
 
 const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
 const uvColor = v => (v == null ? MUTED : v < 3 ? GREEN : v < 6 ? YELLOW : RED)
@@ -26,6 +27,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'today', h, { todayLocal, ...fmt })} tone={headlineTone('today', h)} />
+      {now?.lat != null && now?.lon != null && <NowcastCard lat={now.lat} lon={now.lon} lang={lang} />}
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
           <HourlyChart hours={hours} unit={unit} lang={lang} />
