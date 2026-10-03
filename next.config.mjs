@@ -9,6 +9,12 @@ const securityHeaders = [
 ]
 
 const nextConfig = {
+  experimental: {
+    // Vercel restores Turbopack's on-disk build cache between deploys; on
+    // 2026-10-03 that shipped a stale globals.css (new utility classes, old
+    // theme colours). Fresh CSS on every deploy is worth the extra build time.
+    turbopackFileSystemCacheForBuild: false,
+  },
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }]
   },
