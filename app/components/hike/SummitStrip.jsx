@@ -8,9 +8,9 @@ export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'v
 
 // Hour-by-hour summit row: time, icon, summit temperature, summit wind,
 // freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip.
-export default function SummitStrip({ hours, fmtTemp, sun }) {
+export default function SummitStrip({ hours, fmtTemp, sun, lang }) {
   return (
-    <ScrollStrip>
+    <ScrollStrip label={t(lang, 'hourByHour')}>
       <div className="flex gap-1.5 min-w-max">
         {hours.map(h => (
           <div key={h.t} className="w-16 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">

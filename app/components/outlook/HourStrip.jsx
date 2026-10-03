@@ -1,13 +1,14 @@
 'use client'
 
+import { t } from '@/lib/i18n'
 import { isDark, nightIcon } from '@/lib/sky'
 import ScrollStrip from '../ScrollStrip'
 
 // Scrollable hour-by-hour row: time, icon, temperature, rain chance.
 // `sun` { sunrise, sunset } turns the icons of dark hours to the moon.
-export default function HourStrip({ hours, fmtTemp, sun }) {
+export default function HourStrip({ hours, fmtTemp, sun, lang }) {
   return (
-    <ScrollStrip>
+    <ScrollStrip label={t(lang, 'hourByHour')}>
       <div className="flex gap-1.5 min-w-max">
         {hours.map(h => (
           <div key={h.t} className="w-14 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">

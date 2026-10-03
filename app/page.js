@@ -874,12 +874,14 @@ ${url}`)
               <div className="flex gap-2 shrink-0">
                 <button
                   onClick={shareForecast}
+                  aria-label={t(lang, 'shareBtn')}
                   className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
                 >
                   <Share2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'shareBtn')}</span>
                 </button>
                 <button
                   onClick={() => setShowEmbed(s => !s)}
+                  aria-label={t(lang, 'embedBtn')} aria-expanded={showEmbed}
                   className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
                 >
                   <Code2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'embedBtn')}</span>

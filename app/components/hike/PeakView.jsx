@@ -94,7 +94,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <HourlyChart hours={hours} unit={unit} lang={lang} />
               <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
-              <SummitStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={d.sunByDate?.[date] ?? d.sun} />
+              <SummitStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={d.sunByDate?.[date] ?? d.sun} lang={lang} />
               <StormLegend lang={lang} />
             </div>
           )}

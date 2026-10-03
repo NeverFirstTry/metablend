@@ -7,8 +7,9 @@ import { barGeometry, seekTo } from '@/lib/drag-scroll'
 // A horizontal strip a mouse can drag, with our own scroll bar centred in
 // the gap below it (native bars overlay the cards and fade out). The bar
 // follows the scroll position; pressing or dragging on it scrolls there.
-// Without anything to scroll there is no bar.
-export default function ScrollStrip({ children }) {
+// Without anything to scroll there is no bar. The strip is a named region
+// the keyboard can focus, so the arrow keys scroll it.
+export default function ScrollStrip({ children, label }) {
   const strip = useDragScroll()
   const [bar, setBar] = useState(null)
 
@@ -29,7 +30,7 @@ export default function ScrollStrip({ children }) {
 
   return (
     <div>
-      <div ref={strip} className="scroll-x overflow-x-auto -mx-1 px-1">{children}</div>
+      <div ref={strip} tabIndex={0} role="region" aria-label={label} className="scroll-x overflow-x-auto -mx-1 px-1">{children}</div>
       {bar && (
         <div aria-hidden className="scroll-track relative mt-6 h-1.5 rounded-full cursor-pointer touch-none"
           onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); seek(e) }}
