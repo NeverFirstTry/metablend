@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react'
 import Link from 'next/link'
+import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
-  Sparkles, Plane, MountainSnow,
+  Sparkles, Plane, MountainSnow, Smartphone,
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -746,6 +747,13 @@ ${url}`)
               </button>
             ))}
           </div>
+        )}
+
+        {/* website only, until the store listings exist: point people at the beta */}
+        {!(STORES.ios && STORES.android) && !compareMode && (
+          <Link href="/testers" className="web-only -mt-2 mb-6 inline-flex items-center gap-1.5 text-sm text-emerald-400 hover:underline">
+            <Smartphone size={15} aria-hidden /> {t(lang, 'testersTryApp')}
+          </Link>
         )}
 
         {/* Compare second city */}
