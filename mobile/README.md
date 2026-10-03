@@ -158,3 +158,13 @@ Everything you paste or upload is in the repo: listings in
 - [ ] Raise `versionCode` (+1) and `versionName` in `mobile/android/app/build.gradle`, and Version + Build in Xcode (target App → General).
 - [ ] Screens changed? Regenerate screenshots: `npx next build`, `npx next start -p 3123`, then `node scripts/store-shots.mjs`.
 - [ ] Changelog: `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` and `release_notes.txt` for iOS.
+
+## Accessibility (before ticking the App Store labels)
+
+New app build needed (Larger Text uses the new TextScale plugin).
+
+- [ ] iPhone: Settings → Accessibility → Display & Text Size → Larger Text → largest size: open MetaBlend — text is larger, nothing cut off on the forecast, a peak page and More; change the size while the app is open → it follows.
+- [ ] Android: Settings → Display → Font size → largest: same check (it updates when you return to the app).
+- [ ] VoiceOver (iPhone: triple-click the side button if set up, or Settings → Accessibility → VoiceOver): search a city and hear the forecast, the chart summary and an hour card as one sentence; open Hiking → a peak → its summit window and a route; plan a hike; change the language in More. Every button says what it does.
+- [ ] TalkBack (Android): the same four tasks.
+- [ ] Then App Store Connect → App Accessibility: tick VoiceOver, Larger Text, Dark Interface, Differentiate Without Color Alone, Sufficient Contrast, Reduced Motion (Voice Control if the VoiceOver walk went smoothly).

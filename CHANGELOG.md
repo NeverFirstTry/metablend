@@ -5,6 +5,20 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-03
 
+### Added — accessibility
+- **Larger Text** in the app: text follows the phone's text-size setting (up to
+  double) and updates live; small labels and hour cards grow with it, and rows
+  that would run off the screen rearrange instead of cutting words.
+- **VoiceOver / TalkBack**: every button is named; the temperature chart, each
+  hour card, the agreement dots and the leaderboard sparklines are read as one
+  sentence each; the hour strips can be focused and scrolled from a keyboard.
+- **Contrast**: small text on every sky and on the light theme meets WCAG AA —
+  the bright skies (day, dawn, dusk, cloudy, snow) are a few shades deeper and
+  faint labels a little stronger.
+- Storm risk shows 1 / 2 / 3 segments, not just a colour.
+- `npm run a11y` checks the main pages in both themes and the brightest skies;
+  `lib/sky-contrast.test.js` does the sums for text over the sky gradient.
+
 ### Added — rain in the next 2 hours
 - **Next 2 hours** on the forecast: when rain starts or stops, how long and
   how heavy, from a blend of the short-range models that cover the place
