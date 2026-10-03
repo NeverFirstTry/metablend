@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-03
 
+### Added — rain in the next 2 hours
+- **Next 2 hours** on the forecast: when rain starts or stops, how long and
+  how heavy, from a blend of the short-range models that cover the place
+  (ICON-D2, AROME, HARMONIE, MET Nordic, UKMO, HRRR) in 15-minute steps;
+  "rough estimate" where none does.
+- The weather widget shows "Rain ~14:20" / "Rain until ~14:40" when rain is
+  due within 2 hours.
+- **Rain soon** alerts come from the nowcast, checked every 15 minutes: "Rain
+  in Vienna — in ~20 min · light, about 25 min". The hourly rule stays where no
+  short-range model covers the home city.
+
 ### Added — beta testers
 - **metablend.app/testers** in 13 languages: how to join the Android closed test
   (Google Group + opt-in link) and TestFlight, what to try, and the 14 days
