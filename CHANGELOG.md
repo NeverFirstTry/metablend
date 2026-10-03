@@ -35,6 +35,11 @@ All notable changes to MetaBlend. Format loosely follows
 - `mobile/README.md`: the steps to TestFlight and a Google Play closed test.
 
 ### Changed
+- A dry "next 2 hours" is a slim line under the headline instead of a card;
+  the card with bars shows when rain is coming. "Send feedback" in More looks
+  like the other rows.
+- Alert runs ask our own forecast endpoints with the server key, so they never
+  hit the per-visitor limits however many home cities there are.
 - Peak search: at most 5 featured peaks, names starting with what you typed
   first — "mount" no longer fills every result and hides OpenStreetMap hits.
 - Long peak names wrap instead of being cut off in the peak lists; the grade

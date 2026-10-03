@@ -14,9 +14,12 @@ import { routeWeather } from '@/lib/route/weather'
 // ?dry=1 lists what would be sent right now without sending anything.
 export const maxDuration = 300
 
+// our own endpoints, with the server key: outlook / summit / nowcast skip
+// their per-visitor limits for it (one run asks for every home city)
 async function getJson(url) {
+  const key = process.env.CALIBRATE_SECRET
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(20000) })
+    const r = await fetch(url, { signal: AbortSignal.timeout(20000), headers: key ? { 'x-calibrate-key': key } : {} })
     if (!r.ok) return null
     const j = await r.json()
     return j?.error ? null : j

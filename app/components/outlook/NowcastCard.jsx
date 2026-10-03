@@ -9,8 +9,8 @@ import { SectionTitle } from '../ui'
 
 const OPACITY = { light: 0.45, moderate: 0.75, heavy: 1 }
 
-// Rain in the next 2 hours: one sentence, plus eight quarter-hour bars when
-// there is rain to show (a dry forecast is just the sentence). Fetches
+// Rain in the next 2 hours: a card with one sentence and eight quarter-hour
+// bars when rain is coming; a slim line when it stays dry. Fetches
 // /api/nowcast for the city and again every 5 minutes; hidden when it fails.
 export default function NowcastCard({ lat, lon, lang }) {
   const [state, setState] = useState({ nc: null, now: 0 })
@@ -28,11 +28,19 @@ export default function NowcastCard({ lat, lon, lang }) {
   if (!s) return null
   const steps = upcoming(state.nc, state.now)
   const max = Math.max(1, ...steps.map(x => x.mm ?? 0))
+  // dry: a slim line, not a card — the headline above usually says "dry" too
+  if (s.kind === 'dry') {
+    return (
+      <p className="flex items-center gap-2 px-1 text-sm text-zinc-400" aria-label={t(lang, 'ncTitle')}>
+        <CloudRain size={15} className="shrink-0 text-zinc-500" aria-hidden />
+        <span>{nowcastSentence(lang, s)}{state.nc.precision === 'rough' ? ` · ${t(lang, 'ncRough')}` : ''}</span>
+      </p>
+    )
+  }
   return (
     <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3" aria-label={t(lang, 'ncTitle')}>
       <SectionTitle icon={CloudRain}>{t(lang, 'ncTitle')}</SectionTitle>
       <p className="text-base font-semibold">{nowcastSentence(lang, s)}</p>
-      {s.kind !== 'dry' && <>
       <div className="flex items-end gap-1.5 h-12" aria-hidden>
         {steps.map(x => (
           <div key={x.t} className="flex-1 rounded-sm" style={{
@@ -45,7 +53,6 @@ export default function NowcastCard({ lat, lon, lang }) {
       <div className="flex text-[11px] text-zinc-500 tabular-nums" aria-hidden>
         {steps.map((x, i) => <span key={x.t} className="flex-1">{i % 2 === 0 ? x.t.slice(11, 16) : ''}</span>)}
       </div>
-      </>}
       {state.nc.precision === 'rough'
         ? <p className="text-xs text-zinc-500">{t(lang, 'ncRough')}</p>
         : steps.some(x => x.wet && x.agree < 0.66) && <p className="text-xs text-zinc-500">{t(lang, 'ncAgreeHint')}</p>}
