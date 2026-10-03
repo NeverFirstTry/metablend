@@ -58,3 +58,20 @@ select cron.schedule(
   );
   $job$
 );
+
+-- Rain in the next 2 hours: the "Rain soon" alert from the 15-minute
+-- nowcast, every quarter hour (the hourly job above covers everything else).
+select cron.schedule(
+  'push-dispatch-nowcast',
+  '2,17,32,47 * * * *',
+  $job$
+  select net.http_get(
+    url := 'https://metablend.app/api/push/dispatch?only=rain',
+    headers := jsonb_build_object(
+      'x-calibrate-key',
+      (select decrypted_secret from vault.decrypted_secrets where name = 'calibrate_secret')
+    ),
+    timeout_milliseconds := 120000
+  );
+  $job$
+);

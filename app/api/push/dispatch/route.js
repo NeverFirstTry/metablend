@@ -8,8 +8,9 @@ import { getJson as outlookGetJson } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
 import { routeWeather } from '@/lib/route/weather'
 
-// Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), with the
-// calibrate secret from Vault — same gate as /api/station-calibrate.
+// Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), and every
+// 15 minutes with ?only=rain (job push-dispatch-nowcast), with the calibrate
+// secret from Vault — same gate as /api/station-calibrate.
 // ?dry=1 lists what would be sent right now without sending anything.
 export const maxDuration = 300
 
@@ -34,8 +35,10 @@ export const GET = withErrorLog('push.dispatch', async (request) => {
     const provided = request.headers.get('x-calibrate-key') ?? (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
     if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
-  const dry = new URL(request.url).searchParams.get('dry') === '1'
-  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor })
+  const sp = new URL(request.url).searchParams
+  const dry = sp.get('dry') === '1'
+  const only = sp.get('only') === 'rain' ? 'rain' : null
+  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only })
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })
 })
