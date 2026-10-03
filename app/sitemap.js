@@ -18,6 +18,7 @@ export default function sitemap() {
     { url: `${BASE}/terms`, lastModified: legalUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/aviation`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/hike`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${BASE}/testers`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
     ...['loww', 'lowi', 'lows', 'eddm', 'eddf', 'egll', 'lfpg', 'eham', 'lirf', 'lszh', 'kjfk', 'klax', 'kord', 'rjtt', 'yssy', 'omdb'].map(icao => ({
       url: `${BASE}/aviation/${icao}`,
       lastModified: now,

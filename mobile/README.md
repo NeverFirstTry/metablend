@@ -140,7 +140,8 @@ Everything you paste or upload is in the repo: listings in
 - [ ] Play Console → Test and release → Testing → **Closed testing** → create a track → upload the `.aab` (accept Play App Signing).
 - [ ] **Store listing** (Grow → Store presence → Main store listing): paste `title`, `short_description`, `full_description` from `fastlane/metadata/android/en-US/`; app icon `images/icon.png`; feature graphic `images/featureGraphic.png`; phone screenshots `images/phoneScreenshots/1–5.png`. Then Translations → add the other 12 languages from their folders.
 - [ ] **App content** (Policy → App content), answers in `store/compliance.md`: privacy policy https://metablend.app/privacy, app access, ads, content rating, target audience, data safety.
-- [ ] Testers: a Google Group or a list of 12+ Google account emails; send for review; share the opt-in link.
+- [ ] Testers: create a Google Group (groups.google.com, anyone can join) and add it to the closed test; send for review.
+- [ ] Put the group link and the opt-in link (https://play.google.com/apps/testing/app.metablend) into `lib/testers.js` — or send them to Claude — and share **metablend.app/testers**.
 - [ ] Keep 12+ testers opted in for 14 days in a row, then Dashboard → **Apply for production**.
 
 ### Apple — TestFlight
@@ -149,6 +150,7 @@ Everything you paste or upload is in the repo: listings in
 - [ ] Xcode: scheme App, destination Any iOS Device → Product → Archive → Distribute App → App Store Connect → Upload.
 - [ ] TestFlight → **Internal testing**: add yourself and up to 100 App Store Connect users — installs at once, no review.
 - [ ] **External testing** (friends without an Apple developer role): Test Information from `fastlane/metadata/review/` (beta description, what to test, feedback email) → submit for Beta App Review → share the public link.
+- [ ] Put the TestFlight public link into `lib/testers.js` (`testflight`) so metablend.app/testers shows it.
 - [ ] For the later public release: App Store tab → listing from `fastlane/metadata/<locale>/`, screenshots from `fastlane/screenshots/<locale>/`, App Privacy from `store/compliance.md`, then Submit for Review.
 
 ### Every later update

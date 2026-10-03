@@ -11,6 +11,7 @@ import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
 import NotificationSettings from '../components/push/NotificationSettings'
 import AppIconPicker from '../components/AppIconPicker'
+import FeedbackLink from '../components/FeedbackLink'
 import { isNative } from '@/lib/native'
 
 const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms']]
@@ -91,6 +92,7 @@ export default function MoreClient() {
               </Link>
             </li>
           ))}
+          <li><FeedbackLink lang={lang} /></li>
         </ul>
       </section>
       {/* the footer is hidden in the app, but its data attribution (Open-Meteo CC BY, OpenStreetMap) must stay reachable */}

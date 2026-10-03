@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-03
 
+### Added — beta testers
+- **metablend.app/testers** in 13 languages: how to join the Android closed test
+  (Google Group + opt-in link) and TestFlight, what to try, and the 14 days
+  Google asks for; each platform says "opening soon" until its links are set
+  in `lib/testers.js`. The website's hiking page links to it.
+- **More → Send feedback** in the app: an email to info@metablend.app with the
+  app version, phone OS and language filled in.
+
 ### Added — store prep
 - Store listings in 13 languages (App Store: 12 — no Slovenian there) in the
   fastlane layout, captioned screenshots for iPhone and Android made by
