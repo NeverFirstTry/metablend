@@ -1,11 +1,26 @@
 'use client'
 
 import { t } from '@/lib/i18n'
-import { summitHourLabel } from '@/lib/a11y-text'
+import { summitHourLabel, stormSegments } from '@/lib/a11y-text'
 import { isDark, nightIcon } from '@/lib/sky'
 import ScrollStrip from '../ScrollStrip'
 
 export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'var(--bad)' }
+
+// Storm risk as 1 / 2 / 3 filled segments out of three, so it reads without the
+// colour. `compact` for table rows; with `lang` it also says the level aloud.
+export function StormBar({ storm, className = '', compact = false, lang = null }) {
+  const n = stormSegments(storm)
+  return (
+    <span className={`flex gap-0.5 ${className}`}>
+      {lang && storm && <span className="sr-only">{t(lang, 'stormRisk')}: {t(lang, `storm${storm[0].toUpperCase()}${storm.slice(1)}`)}</span>}
+      {[0, 1, 2].map(i => (
+        <span key={i} aria-hidden className={`${compact ? 'h-2.5 w-1' : 'h-1.5 w-2.5'} rounded-full`}
+          style={i < n ? { background: STORM_COLOR[storm] } : { background: 'var(--muted)', opacity: 0.25 }} />
+      ))}
+    </span>
+  )
+}
 
 // Hour-by-hour summit row: time, icon, summit temperature, summit wind,
 // freezing level, rain chance and a storm-risk bar. `sun` as in HourStrip;
@@ -23,7 +38,7 @@ export default function SummitStrip({ hours, fmtTemp, sun, lang }) {
             <div className="tabular-nums text-zinc-400" aria-hidden>{h.windKmh != null ? `${h.windKmh} km/h` : '–'}</div>
             <div className="tabular-nums text-zinc-500" aria-hidden>{h.freezingLevel != null ? `${h.freezingLevel} m` : '–'}</div>
             <div className="tabular-nums" style={{ color: 'var(--info)' }} aria-hidden>{h.rainPct != null ? `${h.rainPct}%` : '–'}</div>
-            <div className="mx-auto mt-1 h-1.5 w-8 rounded-full" style={{ background: STORM_COLOR[h.storm] ?? 'var(--muted)', opacity: h.storm ? 1 : 0.3 }} />
+            <StormBar storm={h.storm} className="mt-1 justify-center" />
           </div>
         ))}
       </div>
@@ -37,7 +52,7 @@ export function StormLegend({ lang }) {
       <span>{t(lang, 'stormRisk')}:</span>
       {['low', 'moderate', 'high'].map(k => (
         <span key={k} className="inline-flex items-center gap-1.5">
-          <span className="h-1.5 w-4 rounded-full" style={{ background: STORM_COLOR[k] }} />
+          <StormBar storm={k} />
           {t(lang, `storm${k[0].toUpperCase()}${k.slice(1)}`)}
         </span>
       ))}

@@ -10,7 +10,7 @@ import { highestIndex, withReturn } from '@/lib/route/geometry'
 import { routeStats } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
 import { SectionTitle } from '../ui'
-import { STORM_COLOR } from './SummitStrip'
+import { StormBar } from './SummitStrip'
 import RouteMap from './RouteMap'
 import RouteProfile from './RouteProfile'
 
@@ -142,7 +142,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
                 <span className="w-24 text-right tabular-nums">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
                 <span className="w-16 text-right text-xs text-zinc-400 tabular-nums">{st.wind ?? '–'} km/h</span>
                 <span className="w-10 text-right text-xs text-zinc-400 tabular-nums">{st.rain ?? '–'}%</span>
-                <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: STORM_COLOR[st.storm] ?? 'var(--muted)' }} />
+                <StormBar storm={st.storm} compact lang={lang} className="shrink-0" />
               </li>
             ))}
           </ol>

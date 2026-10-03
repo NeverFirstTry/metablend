@@ -1,6 +1,6 @@
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
-import { STORM_COLOR } from './SummitStrip'
+import { StormBar } from './SummitStrip'
 
 // The Week tab: per summit day low / high, strongest wind, freezing-level
 // range and the worst storm risk.
@@ -15,7 +15,7 @@ export default function SummitDays({ days, todayLocal, lang, fmt }) {
           <span className="flex-1 min-w-0 truncate text-zinc-400 text-xs tabular-nums">
             {d.windMax != null ? `${d.windMax} km/h` : '–'} · {d.freezingMin != null ? `${d.freezingMin}–${d.freezingMax} m` : '–'}
           </span>
-          <span className="w-2.5 h-2.5 shrink-0 rounded-full" style={{ background: STORM_COLOR[d.storm] ?? 'var(--muted)' }} />
+          <StormBar storm={d.storm} compact lang={lang} className="shrink-0" />
         </div>
       ))}
     </div>
