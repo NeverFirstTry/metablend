@@ -1,0 +1,83 @@
+{
+ "latitude": 48.2,
+ "longitude": 16.38,
+ "generationtime_ms": 0.09334087371826172,
+ "utc_offset_seconds": 7200,
+ "timezone": "Europe/Vienna",
+ "timezone_abbreviation": "GMT+2",
+ "elevation": 194,
+ "minutely_15_units": {
+  "time": "iso8601",
+  "precipitation_best_match": "mm",
+  "precipitation_icon_d2": "mm",
+  "precipitation_knmi_harmonie_arome_europe": "mm",
+  "precipitation_dmi_harmonie_arome_europe": "mm"
+ },
+ "minutely_15": {
+  "time": [
+   "2026-10-03T15:00",
+   "2026-10-03T15:15",
+   "2026-10-03T15:30",
+   "2026-10-03T15:45",
+   "2026-10-03T16:00",
+   "2026-10-03T16:15",
+   "2026-10-03T16:30",
+   "2026-10-03T16:45",
+   "2026-10-03T17:00",
+   "2026-10-03T17:15",
+   "2026-10-03T17:30"
+  ],
+  "precipitation_best_match": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "precipitation_icon_d2": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "precipitation_knmi_harmonie_arome_europe": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "precipitation_dmi_harmonie_arome_europe": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+}
