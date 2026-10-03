@@ -24,6 +24,13 @@ All notable changes to MetaBlend. Format loosely follows
 - `mobile/README.md`: the steps to TestFlight and a Google Play closed test.
 
 ### Changed
+- Peak search: at most 5 featured peaks, names starting with what you typed
+  first — "mount" no longer fills every result and hides OpenStreetMap hits.
+- Long peak names wrap instead of being cut off in the peak lists; the grade
+  reads "CAS" in French and Italian (their name for the SAC scale).
+- Traditional-Chinese phones no longer get a blank first moment on the
+  website (they read the English page, nothing to swap).
+- The website's hiking page sends a quarter less peak data to the browser.
 - **Hour strips** (forecast and summit): drag them with the mouse; our own
   scroll bar sits centred in the gap below the cards and is easy to see —
   press or drag it to scroll. The native bar overlaid the cards and faded out.

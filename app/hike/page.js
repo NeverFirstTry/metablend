@@ -25,6 +25,9 @@ export const metadata = {
 // shares the peak's CDN entry with every app user looking at it.
 const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
 const PEAKS = featured.filter(p => p.kind === 'peak')
+// the teaser lists them without links or distances: only what a row shows
+// goes to the browser (PeakDirectory is a client component)
+const TEASER_PEAKS = featured.map(({ id, name, elev, country, kind, region, grade }) => ({ id, name, elev, country, kind, region, grade }))
 // one featured peak per UTC day, the same for everyone that day
 const peakOfDay = (now = Date.now()) => PEAKS[Math.floor(now / 864e5) % PEAKS.length]
 
@@ -84,7 +87,7 @@ export default async function HikePage({ searchParams }) {
       </section>
 
       <section className="mt-8">
-        <PeakDirectory peaks={featured} lang={lang} />
+        <PeakDirectory peaks={TEASER_PEAKS} lang={lang} />
       </section>
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>

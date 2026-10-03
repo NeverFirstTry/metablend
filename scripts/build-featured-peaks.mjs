@@ -248,8 +248,16 @@ if (bad.length) { console.error(bad.join('\n')); process.exit(1) }
 // 2. exact coordinates: the OpenStreetMap match nearest the hint, within 3 km
 async function resolve(row) {
   const [id, , query, lat, lon, , , kind] = row
-  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&${TAGS[kind]}&limit=10&lat=${lat}&lon=${lon}`, { headers: UA })
-  const features = res.ok ? (await res.json()).features ?? [] : []
+  // Photon down or rate-limiting is not "no match": retry once, then stop the
+  // whole run with that reason (nothing is written)
+  const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&${TAGS[kind]}&limit=10&lat=${lat}&lon=${lon}`
+  let res = null
+  for (let attempt = 1; attempt <= 2 && !res?.ok; attempt++) {
+    res = await fetch(url, { headers: UA, signal: AbortSignal.timeout(10000) }).catch(e => ({ ok: false, status: e.name }))
+    if (!res.ok && attempt === 1) await sleep(3000)
+  }
+  if (!res.ok) { console.error(`Photon is not answering (${res.status}) at ${id} — try again later.`); process.exit(1) }
+  const features = (await res.json()).features ?? []
   const best = features
     .map(f => ({ lat: f.geometry.coordinates[1], lon: f.geometry.coordinates[0] }))
     .map(p => ({ ...p, km: haversineKm(lat, lon, p.lat, p.lon) }))

@@ -68,7 +68,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{peak.name}</h1>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
           <span title={peak.elevApprox ? t(lang, 'elevApprox') : undefined}>{peak.elevApprox ? '≈' : ''}{peak.elev} m</span>
-          {peak.grade ? ` · SAC ${peak.grade}` : ''}
+          {peak.grade ? ` · ${t(lang, 'gradeScale')} ${peak.grade}` : ''}
           {peak.country ? ` · ${peak.country}` : ''}
           {d ? ` · ${tn(lang, 'hikeModels', d.sources.length)}` : ''}
         </p>
