@@ -16,8 +16,9 @@ All notable changes to MetaBlend. Format loosely follows
   the bright skies (day, dawn, dusk, cloudy, snow) are a few shades deeper and
   faint labels a little stronger.
 - Storm risk shows 1 / 2 / 3 segments, not just a colour.
-- `npm run a11y` checks the main pages in both themes and the brightest skies;
-  `lib/sky-contrast.test.js` does the sums for text over the sky gradient.
+- `npm run a11y` checks 12 pages in both themes and the brightest skies, then
+  every main app page at double text size (nothing off screen or under the tab
+  bar); `lib/sky-contrast.test.js` does the sums for text over the sky gradient.
 
 ### Added — rain in the next 2 hours
 - **Next 2 hours** on the forecast: when rain starts or stops, how long and

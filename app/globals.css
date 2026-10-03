@@ -270,7 +270,8 @@ body {
   --sa-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
 }
 body { padding: var(--sa-top) var(--sa-right) var(--sa-bottom) var(--sa-left); }
-html[data-app] body { padding-bottom: calc(64px + var(--sa-bottom)); }
+/* 4rem: the tab bar's room, growing with it under Larger Text */
+html[data-app] body { padding-bottom: calc(4rem + var(--sa-bottom)); }
 html[data-app] .web-only { display: none !important; }
 .app-tabbar { padding-bottom: var(--sa-bottom); }
 :root[data-theme="light"] .app-tabbar {
@@ -280,7 +281,7 @@ html[data-app] .web-only { display: none !important; }
 }
 /* fixed bottom overlays (toast, consent notice): above the tab bar in the
    app, above the home indicator / gesture bar on the web */
-html[data-app] .app-lift { margin-bottom: calc(64px + var(--sa-bottom)); }
+html[data-app] .app-lift { margin-bottom: calc(4rem + var(--sa-bottom)); }
 html:not([data-app]) .app-lift { margin-bottom: var(--sa-bottom); }
 html:not([data-app]) .app-lift.mb-edge { margin-bottom: 0; padding-bottom: calc(0.75rem + var(--sa-bottom)); }
 /* the on-screen keyboard would push the tab bar up over the input */
@@ -428,7 +429,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .border-zinc-700 { border-color: rgb(15 27 51 / 0.16); }
   & .hover\:border-zinc-700:hover { border-color: rgb(15 27 51 / 0.24); }
   & .divide-zinc-800 > :not(:last-child) { border-color: var(--hairline); }
-  & .text-white { color: var(--foreground); }
+  & .text-white, & .text-zinc-200 { color: var(--foreground); }
   & .text-zinc-300 { color: rgb(15 27 51 / 0.88); }
   & .text-zinc-400 { color: rgb(15 27 51 / 0.8); }
   & .text-zinc-500 { color: var(--muted); }

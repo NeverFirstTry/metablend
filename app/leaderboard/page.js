@@ -193,10 +193,10 @@ export default function Leaderboard() {
 
                   return (
                     <div key={api.id} className="animate-fade-in-up bg-zinc-900 border border-zinc-800 rounded-xl p-5" style={{ animationDelay: `${i * 60}ms` }}>
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
+                      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 mb-4">
+                        <div className="flex items-center gap-3 min-w-0">
                           <span className={`text-lg font-bold tabular-nums ${medalColor}`}>{medal}</span>
-                          <div>
+                          <div className="min-w-0 break-words">
                             <div className="font-bold text-base">{name(api.id, api.name)}</div>
                             <div className="text-zinc-500 text-xs">{api.id}</div>
                           </div>

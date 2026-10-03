@@ -651,8 +651,8 @@ ${url}`)
           <button
             onClick={handleLocation}
             disabled={locating || loading}
-            title="Use current location"
-            aria-label="Use current location"
+            title={t(lang, 'a11yLocate')}
+            aria-label={t(lang, 'a11yLocate')}
             className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {locating
@@ -686,7 +686,7 @@ ${url}`)
           <button
             onClick={() => { setShowSuggestions(false); loadForecast() }}
             disabled={loading}
-            aria-label="Search"
+            aria-label={t(lang, 'a11ySearch')}
             className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {loading
@@ -695,7 +695,9 @@ ${url}`)
           </button>
           <button
             onClick={() => { setCompareMode(m => !m); setCompareData(null) }}
-            title="Compare two cities"
+            title={t(lang, 'compareBtn')}
+            aria-label={t(lang, 'compareBtn')}
+            aria-pressed={compareMode}
             className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
               compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
             }`}
@@ -706,6 +708,7 @@ ${url}`)
             <button
               onClick={() => setFavorites(toggleFavorite(data.city))}
               title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
+              aria-label={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
               className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
                 isFavorite(favorites, data.city)
                   ? 'bg-amber-400 text-black border-amber-400'

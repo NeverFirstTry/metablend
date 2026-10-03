@@ -300,7 +300,7 @@ export default async function AirportPage({ params }) {
 
         {/* Crosswind */}
         {ends.length > 0 && (
-          <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
+          <section tabIndex={0} aria-label="Runway wind components" className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
               Runway wind components · wind {String(metar.wdir).padStart(3, '0')}° / {metar.wspd} kt
             </h2>
