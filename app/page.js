@@ -10,7 +10,7 @@ import {
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
   Sparkles, Plane, MountainSnow, Smartphone,
 } from 'lucide-react'
-import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition } from '@/lib/i18n'
+import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
@@ -195,6 +195,12 @@ export default function Home() {
   const [nowTick, setNowTick] = useState(() => Date.now()) // re-renders the countdown each second
   const autoRefreshRef = useRef(() => {})
   const suggestTimer = useRef(null)  // debounce for the geocoding suggestions
+  // a language shows once its texts have loaded; the latest pick wins a race
+  const langWanted = useRef('en')
+  const showLang = code => {
+    langWanted.current = code
+    loadLanguage(code).then(ok => { if (langWanted.current === code) setLang(ok ? code : 'en') })
+  }
   const suggestSeq = useRef(0)       // drops out-of-order suggestion responses
 
   // mount: language, unit, consent, recent cities, service worker, online/offline
@@ -205,7 +211,7 @@ export default function Home() {
     /* eslint-disable react-hooks/set-state-in-effect */
     const savedLang = getCookie('metablend_lang')
     const detectedLang = preferredLang(savedLang, navigator.language)
-    setLang(detectedLang)
+    showLang(detectedLang)
     setLangPick(langChoice(savedLang))
     setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
     setConsentGiven(!!getCookie('metablend_consent'))
@@ -275,9 +281,9 @@ export default function Home() {
     setLangPick(code)
     if (code === LANG_SYSTEM) {
       clearCookie('metablend_lang')
-      setLang(detectLang(navigator.language))
+      showLang(detectLang(navigator.language))
     } else {
-      setLang(code)
+      showLang(code)
       setCookie('metablend_lang', code)
     }
   }

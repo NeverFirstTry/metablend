@@ -14,6 +14,7 @@ import StoreBadges from '../components/hike/StoreBadges'
 import HikeNotes from '../components/hike/HikeNotes'
 import HikeApp from '../components/hike/HikeApp'
 import AppFlag from './AppFlag'
+import LangPack from '../components/LangPack'
 
 export const metadata = {
   title: 'Mountain Weather & Summit Forecasts — MetaBlend App',
@@ -68,6 +69,7 @@ export default async function HikePage({ searchParams }) {
   return shell(
     <>
       <AppFlag value={appParam} />
+      <LangPack lang={lang} />
       <div className="flex items-center justify-between mb-6">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}

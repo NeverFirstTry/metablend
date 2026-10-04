@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-04
 
+### Faster — only your language
+- Pages now ship English plus just the visitor's language (fetched on demand,
+  ~8 KB) instead of all 13: about 70 KB less JavaScript on every page (home
+  290 → 221 KB gzipped), so pages become usable sooner, most of all on slow
+  connections. The server-rendered hiking page carries its language inline.
+
 ### Fixed — accessibility follow-ups
 - The chart is read as "Low 5° at 23:00, high 14° at 14:00" — no false direction
   when the high comes first — and leaves out the rain chance on dry days.
