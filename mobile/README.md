@@ -161,7 +161,7 @@ Everything you paste or upload is in the repo: listings in
 
 ## Accessibility (before ticking the App Store labels)
 
-New app build needed (Larger Text uses the new TextScale plugin).
+New app build needed: Larger Text uses the TextScale plugin, which lives in the app's own code (`AppDelegate.swift`, `TextScalePlugin.java`) — nothing to install, it ships with the build (version 1.0, build 2).
 
 - [ ] iPhone: Settings → Accessibility → Display & Text Size → Larger Text → largest size: open MetaBlend — text is larger, nothing cut off on the forecast, a peak page and More; change the size while the app is open → it follows.
 - [ ] Android: Settings → Display → Font size → largest: same check — back in the app the text has changed without the page reloading (you stay where you were).
