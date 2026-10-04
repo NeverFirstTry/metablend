@@ -4,22 +4,27 @@ import { useEffect, useMemo, useState } from 'react'
 import { MapPin, MountainSnow, ChevronDown } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { nearest, byRegion, lastCityPos, isOpen, toggled } from '@/lib/hike/featured-list'
+import { nearCell } from '@/lib/hike/near'
+import { haversineKm } from '@/lib/geo'
 import { grantedPosition } from '@/lib/native'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
 
-// The featured peaks: the 10 nearest (the position when already allowed or
-// after "Near me", else the last city looked at), then every peak by region
-// in collapsible groups — the nearest peak's region open. Without hrefFor
-// (the website teaser) plain cards and no Near you block.
+// Near you: the notable summits around the position (when already allowed or
+// after "Near me", else the last city looked at) from /api/peaks/near — the
+// nearest featured peaks until that answers, or if it can't. Then every
+// featured peak by region in collapsible groups, the nearest one's region
+// open. Without hrefFor (the website teaser) plain cards and no Near you.
 // Kept while the app runs: a peak page unmounts the list, and coming back
-// must find the same position and the regions the user had open.
-const MEMO = { pos: null, open: null }
+// must find the same position, summits and the regions the user had open.
+const MEMO = { pos: null, open: null, near: null }
+const cellKey = p => { const c = p && nearCell(p.lat, p.lon); return c ? `${c.lat},${c.lon}` : null }
 
 export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null }) {
   const linked = !!hrefFor // hrefFor is a new function every render: depend on this
   const [autoPos, setAutoPos] = useState(() => (linked ? MEMO.pos : null))
   const [open, setOpen] = useState(() => (linked ? MEMO.open : null))
+  const [summits, setSummits] = useState(() => (linked ? MEMO.near : null)) // { key, peaks }
 
   // the last city at once, the device position when it comes (only when
   // location was already allowed — no prompt here)
@@ -33,9 +38,35 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   }, [linked])
 
   const here = pos ?? autoPos
-  const near = useMemo(() => (linked ? nearest(peaks, here, 10) : []), [linked, peaks, here])
+  const key = linked ? cellKey(here) : null
+
+  // the summits for this ~5 km cell (CDN-cached a day); a failure keeps the
+  // featured list
+  useEffect(() => {
+    if (!key || MEMO.near?.key === key) return
+    let off = false
+    const [lat, lon] = key.split(',')
+    fetch(`/api/peaks/near?lat=${lat}&lon=${lon}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(j => {
+        if (off || !j?.peaks?.length) return
+        MEMO.near = { key, peaks: j.peaks }
+        setSummits(MEMO.near)
+      })
+      .catch(() => {})
+    return () => { off = true }
+  }, [key])
+
+  const near = useMemo(() => {
+    if (!linked || !here) return []
+    const got = summits?.key === key ? summits.peaks : null
+    if (!got) return nearest(peaks, here, 10)
+    // distances from where you are, not from the cell's centre
+    return got.map(p => ({ ...p, km: haversineKm(here.lat, here.lon, p.lat, p.lon) })).sort((a, b) => a.km - b.km)
+  }, [linked, peaks, here, key, summits])
   const groups = useMemo(() => byRegion(peaks), [peaks])
-  const openRegion = near[0]?.region ?? null
+  // the region to open: the nearest featured peak's (summits have no group)
+  const openRegion = useMemo(() => (linked ? nearest(peaks, here, 1)[0]?.region ?? null : null), [linked, peaks, here])
   const toggle = (region, nowOpen) => setOpen(prev => {
     const next = toggled(prev, openRegion, region, nowOpen)
     if (linked) MEMO.open = next

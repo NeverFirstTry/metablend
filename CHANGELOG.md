@@ -3,6 +3,27 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-05
+
+### Fixed — Near you
+- Hiking → Near you lists the notable summits around you from OpenStreetMap,
+  not just the nearest of the 200 featured peaks: around Lienz that is now
+  Schleinitz, Große Sandspitze, Hochschober and Petzeck instead of Großglockner
+  and the Drei Zinnen. The highest within about 20 km (50 km in flat country),
+  one per mountain, nearest first; featured peaks in range always included.
+  New `/api/peaks/near`, cached per ~5 km for a day; the featured list stays
+  as the fallback.
+
+### Security — pre-release review
+- Accuracy feedback only from MetaBlend's own pages, and a city moves the
+  source weights at most once per 30 minutes.
+- Job endpoints refuse requests when their secret is missing; keys compared in
+  constant time; secrets never sent to a host taken from a request.
+- The forecast API only accepts known languages; deep links and notification
+  taps only open MetaBlend pages; no other site may frame MetaBlend (except the
+  embeddable /widget); stricter escaping; key files ignored in git; Android no
+  longer backs up the app's device key.
+
 ## 2026-10-04
 
 ### Faster — only your language
