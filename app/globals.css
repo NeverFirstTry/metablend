@@ -543,7 +543,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   overflow: visible; text-overflow: clip; white-space: normal; overflow-wrap: break-word;
   min-width: min(6rem, 100%); /* never squeezed to a letter per line … */
 }
-:root[data-text-large] :has(> .truncate) { flex-wrap: wrap; } /* … its neighbours wrap instead */
+/* … its neighbours wrap instead — in rows only: a column box would grow
+   extra columns, and a deliberate one-line row stays one line */
+:root[data-text-large] :not(.flex-col, .flex-nowrap):has(> .truncate) { flex-wrap: wrap; }
 
 /* The prerendered page is English / °C. For visitors who get another language
    or °F, lib/locale-boot.js marks <html data-localizing> before first paint;
