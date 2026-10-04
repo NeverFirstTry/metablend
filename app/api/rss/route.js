@@ -1,3 +1,4 @@
+import { ilikeExact } from '@/lib/html'
 import { supabase } from '@/lib/supabase'
 
 const SITE = 'https://metablend.app'
@@ -24,7 +25,7 @@ export async function GET(request) {
   const { data, error } = await supabase
     .from('consensus_history')
     .select('temp, rain_pct, wind_kmh, confidence_pct, condition, created_at')
-    .ilike('city', city)
+    .ilike('city', ilikeExact(city))
     .gte('created_at', since)
     .order('created_at', { ascending: false })
 

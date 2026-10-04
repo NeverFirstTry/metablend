@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { jobKeyProblem } from '@/lib/auth'
 import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { localDateForLon } from '@/lib/localtime'
@@ -78,17 +79,8 @@ async function fetchCity(lat, lon) {
 
 async function handle(request) {
   // ── Auth ────────────────────────────────────────────────────────────────
-  const secret = process.env.CALIBRATE_SECRET
-  if (!secret) {
-    return Response.json({ error: 'CALIBRATE_SECRET is not configured on the server.' }, { status: 503 })
-  }
-  // Header-only — a query param would end up in access/proxy logs.
-  const provided =
-    request.headers.get('x-calibrate-key') ??
-    (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
-  if (provided !== secret) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const denied = jobKeyProblem(request)
+  if (denied) return Response.json({ error: denied.error }, { status: denied.status })
 
   // Does this DB have the per-region weights migration? Decides whether we
   // calibrate every region or just a single global bucket.

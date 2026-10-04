@@ -1,4 +1,5 @@
 import { withErrorLog, logError } from '@/lib/log'
+import { jobKeyProblem } from '@/lib/auth'
 import { runDispatch } from '@/lib/push/dispatch'
 import * as store from '@/lib/push/store'
 import { senderFromEnv } from '@/lib/push/send'
@@ -33,11 +34,8 @@ async function routeWeatherFor(q) {
 }
 
 export const GET = withErrorLog('push.dispatch', async (request) => {
-  const secret = process.env.CALIBRATE_SECRET
-  if (secret) {
-    const provided = request.headers.get('x-calibrate-key') ?? (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
-    if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  const denied = jobKeyProblem(request) // no key configured → nobody can trigger sends
+  if (denied) return Response.json({ error: denied.error }, { status: denied.status })
   const sp = new URL(request.url).searchParams
   const dry = sp.get('dry') === '1'
   const only = sp.get('only') === 'rain' ? 'rain' : null

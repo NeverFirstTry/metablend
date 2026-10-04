@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 
-// Defense-in-depth response headers. No X-Frame-Options / frame-ancestors here
-// on purpose — the /widget route is meant to be embedded in other sites.
+// Defense-in-depth response headers for every route. Framing rules are
+// separate below: /widget is meant to be embedded in other sites.
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
@@ -16,7 +16,19 @@ const nextConfig = {
     turbopackFileSystemCacheForBuild: false,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      // nobody else may frame MetaBlend's pages (clickjacking; inside the app
+      // a framed page would sit next to the native bridge) — except /widget,
+      // which exists to be embedded
+      {
+        source: '/((?!widget/).*)',
+        headers: [
+          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'X-Frame-Options', value: 'DENY' },
+        ],
+      },
+    ]
   },
 }
 

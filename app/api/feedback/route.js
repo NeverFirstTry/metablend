@@ -4,7 +4,7 @@ import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
 import { getRegion } from '@/lib/weather'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
-import { parseFeedback } from '@/lib/feedback'
+import { parseFeedback, feedbackOriginProblem, learnsFromReport } from '@/lib/feedback'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 
@@ -33,6 +33,10 @@ const SUNNY_CONDITIONS = new Set(['sunny', 'Sonnig'])
 
 export const POST = withErrorLog('feedback', async (request) => {
   const ip = clientIp(request)
+
+  // ── Only from MetaBlend's own pages (lib/feedback.js) ─────────────────────
+  const foreign = feedbackOriginProblem(request.headers)
+  if (foreign) return Response.json({ error: foreign.error }, { status: foreign.status })
 
   // ── Field validation (lib/feedback.js) ────────────────────────────────────
   // Types, ranges and the condition allowlist. Malformed JSON is a bad
@@ -116,6 +120,20 @@ export const POST = withErrorLog('feedback', async (request) => {
   if (insErr) await supabase.from('feedback').insert(baseRow)
 
   markRateLimit(ip, city)
+
+  // ── One lesson per city per window ────────────────────────────────────────
+  // The report is saved (map, accuracy) either way; only the first one in a
+  // window moves the weights and the city's bias (lib/feedback.js).
+  const { data: lastLearned } = await supabase
+    .from('feedback')
+    .select('created_at')
+    .eq('city', city)
+    .eq('processed', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+  if (!learnsFromReport(lastLearned?.[0]?.created_at ?? null)) {
+    return Response.json({ message: 'Thank you! Feedback saved.' })
+  }
 
   // Teach MetaBlend Local: this report's error vs the consensus moves the
   // city's learned bias (lib/blend.js).

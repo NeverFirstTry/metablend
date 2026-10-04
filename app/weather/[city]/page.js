@@ -1,3 +1,4 @@
+import { jsonForScript } from '@/lib/html'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
@@ -87,7 +88,7 @@ export default async function CityWeather({ params }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonForScript({
               '@context': 'https://schema.org',
               '@type': 'BreadcrumbList',
               itemListElement: [

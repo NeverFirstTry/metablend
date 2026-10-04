@@ -35,3 +35,9 @@ test('location purpose strings — both keys in Info.plist, both translated into
   assert.deepEqual(Object.keys(strings[keys[1]]?.localizations ?? {}).sort(), locales)
   for (const [lang, l] of Object.entries(strings[keys[1]].localizations)) assert.ok(l.stringUnit.value.length >= 10, lang)
 })
+
+test('secrets hygiene — key files ignored at the root, the device key not in Android backups', () => {
+  const ignore = read('.gitignore').split(/\r?\n/)
+  for (const p of ['*.p8', '*.p12', '*.jks', '*.keystore', 'google-services.json', 'GoogleService-Info.plist', '*service-account*.json']) assert.ok(ignore.includes(p), p)
+  assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
+})

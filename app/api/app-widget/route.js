@@ -1,5 +1,5 @@
 import { withErrorLog } from '@/lib/log'
-import { clientIp } from '@/lib/auth'
+import { clientIp, selfBase } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { hikeApiPath } from '@/lib/hike/params'
 import { parseAppWidgetQuery, weatherPayload, hikePayload } from '@/lib/app-widget'
@@ -16,7 +16,7 @@ const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 // the public domain, not the deployment URL (deployment protection 401s
 // server-to-server fetches) — same rule as /api/og/city
-const baseFor = req => (process.env.VERCEL_ENV ? 'https://metablend.app' : new URL(req.url).origin)
+const baseFor = selfBase
 
 async function getJson(url) {
   const key = process.env.CALIBRATE_SECRET

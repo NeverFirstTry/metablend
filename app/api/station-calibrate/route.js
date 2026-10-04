@@ -3,6 +3,7 @@ import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
 import { withErrorLog } from '@/lib/log'
+import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
 
 // Ground-truth calibration from aviation METAR observations (NOAA Aviation
@@ -54,15 +55,9 @@ async function metarObs(lat, lon) {
 
 export const GET = withErrorLog('station-calibrate', async (request) => {
   // Triggered by an external scheduler (GitHub Action / cron-job.org) rather than
-  // a Vercel cron, so gate it behind CALIBRATE_SECRET when one is configured.
-  const secret = process.env.CALIBRATE_SECRET
-  if (secret) {
-    // Header-only — a query param would end up in access/proxy logs.
-    const provided =
-      request.headers.get('x-calibrate-key') ??
-      (request.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
-    if (provided !== secret) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  // a Vercel cron: needs CALIBRATE_SECRET, configured and matching.
+  const denied = jobKeyProblem(request)
+  if (denied) return Response.json({ error: denied.error }, { status: denied.status })
 
   const since = new Date(Date.now() - LOOKBACK_MIN * 60 * 1000).toISOString()
   // Ordered oldest-first so "last row wins" below really is the latest per API.

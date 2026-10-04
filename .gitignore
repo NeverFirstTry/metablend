@@ -48,3 +48,12 @@ _dev.log
 
 # brainstorming companion mockups
 .superpowers/
+
+# signing keys and service credentials (never commit)
+*.p8
+*.p12
+*.jks
+*.keystore
+google-services.json
+GoogleService-Info.plist
+*service-account*.json

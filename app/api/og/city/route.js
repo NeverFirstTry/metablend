@@ -1,3 +1,4 @@
+import { selfBase } from '@/lib/auth'
 import { ImageResponse } from 'next/og'
 import { t, translateCondition } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
@@ -12,7 +13,7 @@ const SIZE = { width: 1200, height: 630 }
 const TTL = 1800
 // through the public domain, not the deployment URL (deployment protection
 // 401s server-to-server fetches) — same rule as /weather/[city]
-const baseFor = req => (process.env.VERCEL_ENV ? 'https://metablend.app' : new URL(req.url).origin)
+const baseFor = selfBase
 
 const svg = body => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160">${body}</svg>`)}`
 const CLOUD = '<g fill="#fff"><circle cx="70" cy="92" r="30"/><circle cx="106" cy="76" r="40"/><circle cx="142" cy="98" r="24"/><rect x="40" y="92" width="126" height="34" rx="17"/></g>'

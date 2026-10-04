@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
-import { clientIp, isInternal } from '@/lib/auth'
+import { clientIp, isInternal, selfBase } from '@/lib/auth'
+import { pickLang } from '@/lib/share'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
@@ -46,7 +47,9 @@ const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 }) // cache-mis
 export const GET = withErrorLog('forecast', async (request) => {
   const { searchParams } = new URL(request.url)
   const city = searchParams.get('city')
-  const lang = searchParams.get('lang') ?? 'en'
+  // a known language or English: anything else would be a fresh cache key (and
+  // 16 upstream calls) per made-up value
+  const lang = pickLang(searchParams.get('lang'))
 
   if (!city) return noStore({ error: 'No city specified' }, 400)
 
@@ -293,7 +296,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // (Cleanup is NOT triggered here anymore — it's a daily cron; running two
   // table-scan deletes per cache-miss search was pure overhead.)
   if (consensus.confidencePct < 40) {
-    const origin = new URL(request.url).origin
+    const origin = selfBase(request)
     const jobHeaders = process.env.CRON_SECRET
       ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
       : undefined
