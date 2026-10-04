@@ -3,6 +3,24 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-04
+
+### Fixed — accessibility follow-ups
+- The chart is read as "Low 5° at 23:00, high 14° at 14:00" — no false direction
+  when the high comes first — and leaves out the rain chance on dry days.
+- The app starts at your text size: the last Larger Text size is applied before
+  the first paint instead of jumping once the phone answers.
+- Android: changing the font size no longer reloads the page; the text follows
+  in place.
+- The large-text wrap rule only touches rows (not column boxes or rows meant to
+  stay on one line); tests now cover °F summaries and older app builds without
+  the text-size plugin.
+
+### Fixed — App Store
+- The location purpose string Apple asks for (ITMS-90683,
+  NSLocationAlwaysAndWhenInUseUsageDescription) in all 13 languages. The app
+  still only asks for location while it is in use.
+
 ## 2026-10-03
 
 ### Added — accessibility

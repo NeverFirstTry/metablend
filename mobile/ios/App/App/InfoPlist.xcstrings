@@ -84,6 +84,90 @@
           }
         }
       }
+    },
+    "NSLocationAlwaysAndWhenInUseUsageDescription": {
+      "comment": "Privacy - Location Always and When In Use Usage Description (required by App Store Connect; the app only asks for while-using)",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Used to find mountain peaks near you, only while you use MetaBlend."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird verwendet, um Berggipfel in deiner Nähe zu finden – nur während du MetaBlend nutzt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sert à trouver les sommets près de vous, uniquement pendant que vous utilisez MetaBlend."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se usa para encontrar cumbres cerca de ti, solo mientras usas MetaBlend."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serve a trovare le vette vicino a te, solo mentre usi MetaBlend."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wordt gebruikt om bergtoppen bij jou in de buurt te vinden, alleen terwijl je MetaBlend gebruikt."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Służy do znajdowania szczytów w twojej okolicy, tylko gdy korzystasz z MetaBlend."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Slouží k nalezení horských vrcholů ve vašem okolí, jen když MetaBlend používáte."
+          }
+        },
+        "sl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uporablja se za iskanje gorskih vrhov v tvoji bližini, le med uporabo aplikacije MetaBlend."
+          }
+        },
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usada para encontrar picos de montanha perto de você, só enquanto você usa o MetaBlend."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "近くの山頂を探すために使用します。MetaBlendの使用中のみです。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "用于查找你附近的山峰，仅在你使用 MetaBlend 时。"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주변의 산 정상을 찾는 데 사용돼요. MetaBlend를 사용하는 동안에만 사용해요."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -21,3 +21,17 @@ test('compliance sheet — every store form has its answers', () => {
   const md = read('store/compliance.md')
   for (const h of ['## App Store — App Privacy', '## Google Play — Data safety', '## Content rating', '## Export compliance', '## Target audience', '## Ads', '## App access']) assert.ok(md.includes(h), h)
 })
+
+// ITMS-90683: the location plugin also references "always" location APIs, so
+// App Store Connect wants that purpose string too, even though the app only
+// ever asks for "while using".
+test('location purpose strings — both keys in Info.plist, both translated into the same languages', () => {
+  const plist = read('mobile/ios/App/App/Info.plist')
+  const keys = ['NSLocationWhenInUseUsageDescription', 'NSLocationAlwaysAndWhenInUseUsageDescription']
+  for (const k of keys) assert.match(plist, new RegExp(`<key>${k}</key>\\s*<string>[^<]{10,}</string>`), k)
+  const strings = JSON.parse(read('mobile/ios/App/App/InfoPlist.xcstrings')).strings
+  const locales = Object.keys(strings[keys[0]].localizations).sort()
+  assert.equal(locales.length, 13)
+  assert.deepEqual(Object.keys(strings[keys[1]]?.localizations ?? {}).sort(), locales)
+  for (const [lang, l] of Object.entries(strings[keys[1]].localizations)) assert.ok(l.stringUnit.value.length >= 10, lang)
+})
