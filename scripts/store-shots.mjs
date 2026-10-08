@@ -28,7 +28,7 @@ const SCREENS = [
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabToday' },
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabWeek' },
   { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && document.body.innerText.includes(${JSON.stringify('§nearYou')})` },
-  { path: '/hike?peak=grossglockner', ready: `document.body.innerText.includes('SAC') && document.querySelectorAll('svg').length > 3` },
+  { path: '/hike?peak=grossglockner', ready: `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` }, // the hour strip, in any language (French says CAS, not SAC)
   // tomorrow: by the afternoon today has no safe start left, whenever the script runs
   { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`, pickTomorrow: true },
 ]
