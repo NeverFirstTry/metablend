@@ -29,7 +29,8 @@ const SCREENS = [
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabWeek' },
   { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && document.body.innerText.includes(${JSON.stringify('§nearYou')})` },
   { path: '/hike?peak=grossglockner', ready: `document.body.innerText.includes('SAC') && document.querySelectorAll('svg').length > 3` },
-  { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')` },
+  // tomorrow: by the afternoon today has no safe start left, whenever the script runs
+  { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`, pickTomorrow: true },
 ]
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
@@ -100,6 +101,11 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
           console.log(`${l.lang} ${d.id} ${i + 1}: not ready (${seen})`)
           if (attempt === 2) throw e
         }
+      }
+      if (s.pickTomorrow) {
+        // the row of 7 day buttons on the route screen, second = tomorrow
+        await ev(`[...document.querySelectorAll('[role=group]')].find(g => g.querySelectorAll('button').length === 7)?.querySelectorAll('button')[1]?.click()`)
+        await sleep(5000) // that day's route weather loads
       }
       if (s.tab) {
         await ev(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === ${JSON.stringify(t(l.lang, s.tab))})?.click()`)
