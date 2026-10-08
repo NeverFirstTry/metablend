@@ -8,9 +8,13 @@ import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { getJson as outlookGetJson } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
 import { routeWeather } from '@/lib/route/weather'
+import { supabase } from '@/lib/supabase'
+import regionData from '@/lib/warnings/regions.json'
+import { regionsAt } from '@/lib/warnings/regions'
+import { warningsIn } from '@/lib/warnings/store'
 
 // Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), and every
-// 15 minutes with ?only=rain (job push-dispatch-nowcast), with the calibrate
+// 15 minutes with ?only=rain (rain and official warnings; job push-dispatch-nowcast), with the calibrate
 // secret from Vault — same gate as /api/station-calibrate.
 // ?dry=1 lists what would be sent right now without sending anything.
 export const maxDuration = 300
@@ -33,13 +37,19 @@ async function routeWeatherFor(q) {
   return routeWeather(q, { getJson: outlookGetJson, getElevations: fetchElevations, weights })
 }
 
+// official warnings at a spot; null outside MeteoAlarm's regions (model-based alerts then)
+const warningsAt = async (lat, lon) => {
+  const ids = regionsAt(regionData, lat, lon)
+  return ids.length ? warningsIn(supabase, ids) : null
+}
+
 export const GET = withErrorLog('push.dispatch', async (request) => {
   const denied = jobKeyProblem(request) // no key configured → nobody can trigger sends
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
   const sp = new URL(request.url).searchParams
   const dry = sp.get('dry') === '1'
   const only = sp.get('only') === 'rain' ? 'rain' : null
-  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only })
+  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only, warningsAt })
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })
 })
