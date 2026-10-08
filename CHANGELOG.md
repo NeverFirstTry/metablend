@@ -3,6 +3,17 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-08
+
+### Added — official weather warnings (Europe)
+- The national weather services' warnings via MeteoAlarm in 35 countries: an
+  "Official warnings" card on the forecast and peak pages (yellow, orange, red —
+  each as a word and ⚠ count — with the issuer's own text and advice), and a
+  slim strip at the top of the forecast for orange and red.
+- "Severe weather" alerts send official orange and red warnings for your home
+  city (red at any hour, orange after 7:00) and name them in planned-hike
+  alerts; outside MeteoAlarm's countries the model-based alerts stay.
+
 ## 2026-10-05
 
 ### Fixed — Near you

@@ -18,6 +18,7 @@ function AttributionList() {
   return (
     <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
       <li><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Open-Meteo</a> (CC BY 4.0) — incl. ECMWF, NOAA GFS &amp; DWD ICON model feeds</li>
+      <li><a href="https://meteoalarm.org" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MeteoAlarm</a> (EUMETNET, CC BY 4.0) — official weather warnings of Europe&apos;s national weather services</li>
       <li><a href="https://www.met.no" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MET Norway</a> (NLOD / CC BY 4.0)</li>
       <li>OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack</li>
       <li><a href="https://power.larc.nasa.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NASA POWER</a> · <a href="https://data.hub.geosphere.at" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoSphere Austria</a></li>
