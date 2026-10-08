@@ -25,6 +25,7 @@ import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
+import WarningStrip from './components/outlook/WarningStrip'
 import RangeTabs, { RANGES } from './components/outlook/RangeTabs'
 import TabToday from './components/outlook/TabToday'
 import TabTomorrow from './components/outlook/TabTomorrow'
@@ -900,6 +901,8 @@ ${url}`)
 
             {showEmbed && <EmbedPanel city={data.city} lang={lang} unit={unit} />}
 
+            {outlook && <WarningStrip lat={data.lat} lon={data.lon} lang={lang} todayLocal={outlook.nowLocal.slice(0, 10)}
+              onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
             <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
 
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />

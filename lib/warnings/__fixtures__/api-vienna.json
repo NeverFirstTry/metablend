@@ -1,0 +1,6 @@
+{ "covered": true, "warnings": [
+  { "id": "demo-o", "level": 3, "type": "thunderstorm", "onset": "2030-01-01T15:00:00+01:00", "expires": "2030-01-01T21:00:00+01:00", "sender": "GeoSphere Austria", "web": "https://warnungen.zamg.at",
+    "text": { "event": "Gewitter", "headline": "Orange warning: thunderstorms", "description": "Thunderstorms with heavy rain and hail are likely.", "instruction": "Stay away from trees and open ground." } },
+  { "id": "demo-y", "level": 2, "type": "wind", "onset": "2030-01-02T06:00:00+01:00", "expires": "2030-01-02T14:00:00+01:00", "sender": "GeoSphere Austria", "web": null,
+    "text": { "event": "Wind", "headline": "Yellow warning: wind", "description": "Gusts around 70 km/h.", "instruction": "" } }
+] }

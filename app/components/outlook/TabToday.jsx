@@ -4,6 +4,7 @@ import { Clock, Sun, Wind, Flower2, CloudRain } from 'lucide-react'
 import { t, uvText, aqiText, pollenText } from '@/lib/i18n'
 import { headlineText, headlineTone } from '@/lib/outlook/text'
 import { todayHours } from '@/lib/outlook/headlines'
+import WarningsCard from './WarningsCard'
 import { MetricCard, SectionTitle, Fold } from '../ui'
 import RainRadar from '../RainRadar'
 import Headline from './Headline'
@@ -27,6 +28,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'today', h, { todayLocal, ...fmt })} tone={headlineTone('today', h)} />
+      {now?.lat != null && now?.lon != null && <WarningsCard lat={now.lat} lon={now.lon} lang={lang} todayLocal={todayLocal} />}
       {now?.lat != null && now?.lon != null && <NowcastCard lat={now.lat} lon={now.lon} lang={lang} />}
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
