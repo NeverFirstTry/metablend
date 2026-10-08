@@ -75,3 +75,20 @@ select cron.schedule(
   );
   $job$
 );
+
+-- Official warnings: every MeteoAlarm country feed, every quarter hour, just
+-- before the quarter-hourly push run (:02/:17/…) reads them.
+select cron.schedule(
+  'warnings-refresh',
+  '0,15,30,45 * * * *',
+  $job$
+  select net.http_get(
+    url := 'https://metablend.app/api/warnings/refresh',
+    headers := jsonb_build_object(
+      'x-calibrate-key',
+      (select decrypted_secret from vault.decrypted_secrets where name = 'calibrate_secret')
+    ),
+    timeout_milliseconds := 120000
+  );
+  $job$
+);
