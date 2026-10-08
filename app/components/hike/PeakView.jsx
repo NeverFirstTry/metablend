@@ -91,7 +91,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
       ) : (
         <>
           <Headline text={windowText(lang, w, { date, todayLocal, stormUnknown })} tone={windowTone(w, { stormUnknown })} />
-          <WarningsCard lat={peak.lat} lon={peak.lon} lang={lang} todayLocal={todayLocal} />
+          <WarningsCard lat={peak.lat} lon={peak.lon} cc={peak.country} lang={lang} todayLocal={todayLocal} />
           {hours.length > 0 && (
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <HourlyChart hours={hours} unit={unit} lang={lang} />

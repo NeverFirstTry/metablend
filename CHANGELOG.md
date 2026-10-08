@@ -6,8 +6,10 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-10-08
 
 ### Added — official weather warnings (Europe)
-- The national weather services' warnings via MeteoAlarm in 35 countries: an
-  "Official warnings" card on the forecast and peak pages (yellow, orange, red —
+- The national weather services' warnings via MeteoAlarm in 17 countries
+  (Austria, Bosnia and Herzegovina, Cyprus, Denmark, Finland, Germany, Greece,
+  Italy, Latvia, Lithuania, Montenegro, the Netherlands, Poland, Portugal,
+  Serbia, Slovakia, Spain): an "Official warnings" card on the forecast and peak pages (yellow, orange, red —
   each as a word and ⚠ count — with the issuer's own text and advice), and a
   slim strip at the top of the forecast for orange and red.
 - "Severe weather" alerts send official orange and red warnings for your home

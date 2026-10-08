@@ -10,7 +10,7 @@ import { fetchElevations } from '@/lib/hike/sources'
 import { routeWeather } from '@/lib/route/weather'
 import { supabase } from '@/lib/supabase'
 import regionData from '@/lib/warnings/regions.json'
-import { regionsAt } from '@/lib/warnings/regions'
+import { regionsFor } from '@/lib/warnings/regions'
 import { warningsIn } from '@/lib/warnings/store'
 
 // Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), and every
@@ -38,8 +38,8 @@ async function routeWeatherFor(q) {
 }
 
 // official warnings at a spot; null outside MeteoAlarm's regions (model-based alerts then)
-const warningsAt = async (lat, lon) => {
-  const ids = regionsAt(regionData, lat, lon)
+const warningsAt = async (lat, lon, cc = null) => {
+  const ids = regionsFor(regionData, lat, lon, cc)
   return ids.length ? warningsIn(supabase, ids) : null
 }
 

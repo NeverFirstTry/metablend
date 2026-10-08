@@ -3,6 +3,7 @@
 -- only the API (service-role key) reads and writes.
 create table if not exists public.warnings (
   id text primary key,
+  thread text, -- the first warning of its Update chain: alerts go out once per thread
   country text not null,
   regions text[] not null,
   level smallint not null check (level between 2 and 4),
@@ -18,4 +19,5 @@ create table if not exists public.warnings (
 create index if not exists warnings_regions_idx on public.warnings using gin (regions);
 create index if not exists warnings_ends_idx on public.warnings (ends_at);
 create index if not exists warnings_country_idx on public.warnings (country, fetched_at);
+alter table public.warnings add column if not exists thread text;
 alter table public.warnings enable row level security;

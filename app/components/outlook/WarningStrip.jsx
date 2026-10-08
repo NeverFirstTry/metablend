@@ -10,8 +10,8 @@ const TONE = { 3: 'var(--hot)', 4: 'var(--bad)' }
 
 // Orange and red only, on every forecast tab, above the temperature: one line
 // that opens the "Official warnings" card (option C of the spec).
-export default function WarningStrip({ lat, lon, lang, todayLocal, onOpen }) {
-  const data = useWarnings(lat, lon, lang)
+export default function WarningStrip({ lat, lon, cc, lang, todayLocal, onOpen }) {
+  const data = useWarnings(lat, lon, lang, cc)
   const w = data ? stripWarning(data.warnings, data.at) : null
   if (!w) return null
   const more = (data.warnings?.length ?? 1) - 1

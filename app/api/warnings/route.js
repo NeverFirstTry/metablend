@@ -4,7 +4,7 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { supabase } from '@/lib/supabase'
 import { pickLang } from '@/lib/share'
 import regionData from '@/lib/warnings/regions.json'
-import { regionsAt } from '@/lib/warnings/regions'
+import { regionsFor } from '@/lib/warnings/regions'
 import { warningsIn } from '@/lib/warnings/store'
 import { sortWarnings, warningText } from '@/lib/warnings/text'
 
@@ -22,7 +22,8 @@ export const GET = withErrorLog('warnings', async (request) => {
   if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) return noStore({ error: 'Needs lat and lon.' }, 400)
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
   const lang = pickLang(sp.get('lang'))
-  const ids = regionsAt(regionData, lat, lon)
+  const cc = /^[a-z]{2}$/i.test(sp.get('cc') ?? '') ? sp.get('cc').toUpperCase() : null // the place's country, when known
+  const ids = regionsFor(regionData, lat, lon, cc)
   const rows = ids.length ? await warningsIn(supabase, ids) : []
   const warnings = sortWarnings(rows).map(w => ({
     id: w.id, level: w.level, type: w.type, onset: w.onset, expires: w.expires,

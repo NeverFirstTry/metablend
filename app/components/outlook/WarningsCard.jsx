@@ -12,8 +12,8 @@ const TONE = { 2: 'var(--warn)', 3: 'var(--hot)', 4: 'var(--bad)' }
 
 // Every official warning for the spot, now and upcoming: level (word + ⚠
 // count), type and time; a row opens the issuer's own text and advice.
-export default function WarningsCard({ lat, lon, lang, todayLocal }) {
-  const data = useWarnings(lat, lon, lang)
+export default function WarningsCard({ lat, lon, cc, lang, todayLocal }) {
+  const data = useWarnings(lat, lon, lang, cc)
   const [open, setOpen] = useState(null)
   const list = data?.warnings ?? []
   if (!list.length) return null
