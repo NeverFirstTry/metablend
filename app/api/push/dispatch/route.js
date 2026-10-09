@@ -51,5 +51,6 @@ export const GET = withErrorLog('push.dispatch', async (request) => {
   const only = sp.get('only') === 'rain' ? 'rain' : null
   const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only, warningsAt })
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
+  if (summary.warningErrors?.length) await logError('push.warnings', new Error(summary.warningErrors[0]), { errors: summary.warningErrors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })
 })

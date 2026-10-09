@@ -4,7 +4,7 @@ import { TriangleAlert } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import { useWarnings } from '@/lib/warnings/useWarnings'
-import { levelWord, levelIcons, typeWord, warningSpan, stripWarning } from '@/lib/warnings/text'
+import { levelWord, levelIcons, typeWord, warningSpan, stripWarning, cardWarnings } from '@/lib/warnings/text'
 
 const TONE = { 3: 'var(--hot)', 4: 'var(--bad)' }
 
@@ -14,7 +14,7 @@ export default function WarningStrip({ lat, lon, cc, lang, todayLocal, onOpen })
   const data = useWarnings(lat, lon, lang, cc)
   const w = data ? stripWarning(data.warnings, data.at) : null
   if (!w) return null
-  const more = (data.warnings?.length ?? 1) - 1
+  const more = cardWarnings(data.warnings, data.at).length - 1 // the others the card lists
   return (
     <button onClick={onOpen}
       className="press w-full text-left mb-4 flex items-center gap-2 rounded-xl border px-3 py-2 text-sm bg-zinc-900"
