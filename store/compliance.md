@@ -29,6 +29,13 @@ Facts behind every answer:
 - **Precise Location:** not collected (the reverse-geocoding call goes from the phone to BigDataCloud; nothing is stored).
 - **Privacy Policy URL:** https://metablend.app/privacy
 
+## Google Play — Store settings
+
+Grow users → Store presence → Store settings.
+- **App category:** Weather
+- **Tags** (up to 5, from Google's list — the closest match if a name differs): Weather, Weather forecast, Hiking, Outdoors, Maps & navigation
+- **Contact email:** info@metablend.app · **Website:** https://metablend.app
+
 ## Google Play — Data safety
 
 **Step 2 — Data collection and security**
