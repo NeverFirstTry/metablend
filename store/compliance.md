@@ -31,18 +31,26 @@ Facts behind every answer:
 
 ## Google Play — Data safety
 
-- **Does your app collect or share any of the required user data types?** Yes.
-- **Is all of the user data collected by your app encrypted in transit?** Yes.
-- **Do you provide a way for users to request that their data is deleted?** Yes — email info@metablend.app or a GitHub issue; turning notifications off in the app deletes the push record.
-- **Data types collected** (none shared — transfers to service providers are not "sharing"; none optional-to-required: all optional features):
-  - Location → **Approximate location** — collected, not shared, processed ephemerally: yes (Near you and the peak search get a position rounded to ~5–10 km, never stored); optional; purpose: App functionality.
-  - Location → **Precise location** — collected, not shared, processed ephemerally: yes ("my location" on the forecast sends the phone's coordinates to BigDataCloud to look up the city name; nothing is stored; the Android app asks for fine location); optional; purpose: App functionality.
-  - Device or other IDs → **Device or other IDs** — collected, not shared; purpose: App functionality (push notifications).
-  - App activity → **Other user-generated content** — collected, not shared; purpose: App functionality (weather feedback).
-  - App activity → **App interactions** — collected, not shared; purpose: Analytics.
-  - App info and performance → **Diagnostics** — collected, not shared; purpose: Analytics.
-- **Account creation:** the app has no accounts (no account-deletion URL needed).
-- **Privacy policy:** https://metablend.app/privacy
+**Step 2 — Data collection and security**
+- Collect or share required data types? **Yes**
+- Encrypted in transit? **Yes**
+- Users can request deletion? **Yes** (email info@metablend.app; turning notifications off deletes the push record)
+- Accounts? **None**
+
+**Step 3 — Data types:** tick these six, nothing else.
+
+| Type | What it is | Purpose | Ephemeral |
+|---|---|---|---|
+| Location → Approximate location | Near you, peak search (~5–10 km) | App functionality | Yes |
+| Location → Precise location | "My location" → BigDataCloud city lookup | App functionality | Yes |
+| Device or other IDs | Push token | App functionality | No |
+| App activity → App interactions | Plausible page counts | Analytics | No |
+| App activity → Other user-generated content | Weather feedback, planned hikes | App functionality | No |
+| App info and performance → Diagnostics | Speed Insights load times | Analytics | No |
+
+**Step 4 — For every type:** collected **yes**, shared **no**, optional **yes**.
+
+Privacy policy: https://metablend.app/privacy
 
 ## Content rating
 
