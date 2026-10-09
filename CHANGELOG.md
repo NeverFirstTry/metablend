@@ -3,6 +3,20 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-09
+
+### Fixed — Near you, again
+- Near you now lists the summits OpenStreetMap marks as notable (a Wikipedia
+  article, a Wikidata item, a summit cross), nearest first, picked from where
+  you are: around Lienz that is Spitzkofel, Schleinitz, Große Sandspitze and
+  Böses Weibele instead of only the 3000 m Schober peaks further north. One
+  per mountain (the more notable top wins), never a bump on the valley floor.
+- While the summits load it says so, and if they can't be loaded it offers a
+  retry — no more far-off featured peaks (Großglockner, Drei Zinnen) standing
+  in as "near you".
+- The summit lookup is gentler on OpenStreetMap's geocoder (requests a moment
+  apart, a pause before a retry), so fewer answers come back with gaps.
+
 ## 2026-10-08
 
 ### Added — official weather warnings (Europe)

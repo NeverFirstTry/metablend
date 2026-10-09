@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from 'react'
 import { MapPin, MountainSnow, ChevronDown } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { nearest, byRegion, lastCityPos, isOpen, toggled } from '@/lib/hike/featured-list'
-import { nearCell } from '@/lib/hike/near'
-import { haversineKm } from '@/lib/geo'
+import { nearCell, pickNearPeaks, nearView } from '@/lib/hike/near'
 import { grantedPosition } from '@/lib/native'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
 
 // Near you: the notable summits around the position (when already allowed or
-// after "Near me", else the last city looked at) from /api/peaks/near — the
-// nearest featured peaks until that answers, or if it can't. Then every
+// after "Near me", else the last city looked at), picked here from the
+// summits /api/peaks/near knows around that ~5 km cell — "looking…" until it
+// answers, and a retry if it can't (never far-off stand-ins). Then every
 // featured peak by region in collapsible groups, the nearest one's region
 // open. Without hrefFor (the website teaser) plain cards and no Near you.
 // Kept while the app runs: a peak page unmounts the list, and coming back
@@ -24,7 +24,9 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   const linked = !!hrefFor // hrefFor is a new function every render: depend on this
   const [autoPos, setAutoPos] = useState(() => (linked ? MEMO.pos : null))
   const [open, setOpen] = useState(() => (linked ? MEMO.open : null))
-  const [summits, setSummits] = useState(() => (linked ? MEMO.near : null)) // { key, peaks }
+  const [summits, setSummits] = useState(() => (linked ? MEMO.near : null)) // { key, peaks: the cell's summits }
+  const [failed, setFailed] = useState(null) // the cell whose lookup failed
+  const [attempt, setAttempt] = useState(0)
 
   // the last city at once, the device position when it comes (only when
   // location was already allowed — no prompt here)
@@ -40,30 +42,28 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   const here = pos ?? autoPos
   const key = linked ? cellKey(here) : null
 
-  // the summits for this ~5 km cell (CDN-cached a day); a failure keeps the
-  // featured list
+  // the summits around this ~5 km cell (CDN-cached a day)
   useEffect(() => {
     if (!key || MEMO.near?.key === key) return
     let off = false
     const [lat, lon] = key.split(',')
-    fetch(`/api/peaks/near?lat=${lat}&lon=${lon}`)
+    fetch(`/api/peaks/near?lat=${lat}&lon=${lon}&v=2`)
       .then(r => (r.ok ? r.json() : null))
       .then(j => {
-        if (off || !j?.peaks?.length) return
-        MEMO.near = { key, peaks: j.peaks }
+        if (off) return
+        if (!Array.isArray(j?.summits)) { setFailed(key); return }
+        MEMO.near = { key, peaks: j.summits }
         setSummits(MEMO.near)
       })
-      .catch(() => {})
+      .catch(() => { if (!off) setFailed(key) })
     return () => { off = true }
-  }, [key])
+  }, [key, attempt])
+  const retry = () => { setFailed(null); setAttempt(a => a + 1) }
 
-  const near = useMemo(() => {
-    if (!linked || !here) return []
-    const got = summits?.key === key ? summits.peaks : null
-    if (!got) return nearest(peaks, here, 10)
-    // distances from where you are, not from the cell's centre
-    return got.map(p => ({ ...p, km: haversineKm(here.lat, here.lon, p.lat, p.lon) })).sort((a, b) => a.km - b.km)
-  }, [linked, peaks, here, key, summits])
+  const view = nearView(summits, failed, key)
+  const arrived = view.status === 'ready' || view.status === 'empty'
+  // picked from where you are, not from the cell's centre
+  const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here) : []), [arrived, view.peaks, peaks, here])
   const groups = useMemo(() => byRegion(peaks), [peaks])
   // the region to open: the nearest featured peak's (summits have no group)
   const openRegion = useMemo(() => (linked ? nearest(peaks, here, 1)[0]?.region ?? null : null), [linked, peaks, here])
@@ -75,10 +75,17 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
 
   return (
     <div className="space-y-6">
-      {near.length > 0 && (
+      {(near.length > 0 || view.status === 'loading' || view.status === 'failed') && (
         <section className="space-y-3">
           <SectionTitle icon={MapPin}>{t(lang, 'hikeNearYou')}</SectionTitle>
-          <FeaturedList peaks={near} hrefFor={hrefFor} />
+          {view.status === 'loading' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearLoading')}</p>}
+          {view.status === 'failed' && (
+            <p className="text-sm text-zinc-400">
+              {t(lang, 'hikeNearFailed')}{' '}
+              <button onClick={retry} className="press underline hover:text-emerald-400">{t(lang, 'retry')}</button>
+            </p>
+          )}
+          {near.length > 0 && <FeaturedList peaks={near} hrefFor={hrefFor} />}
         </section>
       )}
       <section className="space-y-2">
