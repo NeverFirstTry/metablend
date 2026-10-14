@@ -3,6 +3,16 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-14
+
+### Fixed — the weather now says what most sources say
+- The condition next to the temperature ("Rain", "Partly cloudy") was one
+  source's view (Open-Meteo's), so it could say "Rain" above "Dry for the
+  next 2 hours" and "Dry tonight". It is now what most sources report — wet
+  or dry by majority, then the most common kind — with Open-Meteo deciding
+  ties. The same on the home-screen widgets, the embeddable widget and in
+  the stored history; MetaBlend Local no longer copies Open-Meteo's word.
+
 ## 2026-10-09
 
 ### Fixed — Near you, again

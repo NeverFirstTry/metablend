@@ -13,6 +13,7 @@ import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { sourceName } from '@/lib/sources'
+import { heroCondition } from '@/lib/conditions'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -197,7 +198,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     if (consensus.rainPct == null || vote > consensus.rainPct) consensus.rainPct = vote
   }
 
-  const mainCondition = results.find(r => r.apiId === 'open-meteo')?.condition ?? results[0]?.condition ?? null
+  // the weather now as most sources say it — the same words the page shows
+  const mainCondition = heroCondition({ sources: results })
 
   // MetaBlend Local — our own prognostic: the live consensus corrected by the
   // per-city bias learned from user feedback and station calibration
