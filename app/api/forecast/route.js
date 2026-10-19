@@ -5,7 +5,7 @@ import { pickLang } from '@/lib/share'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
-  fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER, fetchGeoSphere,
+  fetchWorldWeatherOnline, fetchMeteoFrance, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
 } from '@/lib/weather'
@@ -90,12 +90,12 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('met-norway',           () => fetchMETNorway(geo.lat, geo.lon)),
     timedFetch('visual-crossing',      () => fetchVisualCrossing(geo.lat, geo.lon)),
     timedFetch('world-weather-online', () => fetchWorldWeatherOnline(geo.lat, geo.lon)),
-    timedFetch('weatherstack',         () => fetchWeatherStack(geo.lat, geo.lon)),
     timedFetch('nasa-power',           () => fetchNASAPOWER(geo.lat, geo.lon)),
     timedFetch('geosphere',            () => fetchGeoSphere(geo.lat, geo.lon)),
     timedFetch('ecmwf',                () => fetchECMWF(geo.lat, geo.lon)),
     timedFetch('gfs',                  () => fetchGFS(geo.lat, geo.lon)),
     timedFetch('icon',                 () => fetchICON(geo.lat, geo.lon)),
+    timedFetch('meteofrance',          () => fetchMeteoFrance(geo.lat, geo.lon)),
     timedFetch('nws',                  () => fetchNWS(geo.lat, geo.lon)),
     timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),

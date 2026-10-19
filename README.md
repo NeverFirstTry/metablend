@@ -211,8 +211,8 @@ export contains nothing that isn't already public via the app's own endpoints.
 | Source | Key needed | Notes |
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
-| ECMWF IFS · NOAA GFS · DWD ICON | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
-| UK Met Office · Canada GEM · JMA · Météo-France | no | Outlook only (via Open-Meteo): further global models for the today / tomorrow / week blend |
+| ECMWF IFS · NOAA GFS · DWD ICON · Météo-France | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
+| UK Met Office · Canada GEM · JMA | no | Outlook only (via Open-Meteo): further global models for the today / tomorrow / week blend |
 | KNMI HARMONIE · DMI HARMONIE · MET Nordic | no | Outlook only (via Open-Meteo): high-resolution regional models, ~2.5 days, Europe / Nordics |
 | [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, statistical forecast |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |
@@ -227,7 +227,6 @@ export contains nothing that isn't already public via the app's own endpoints.
 | [Tomorrow.io](https://www.tomorrow.io) | yes | |
 | [Visual Crossing](https://www.visualcrossing.com) | yes | Also the daily calibration source |
 | [World Weather Online](https://www.worldweatheronline.com) | yes | |
-| [Weatherstack](https://weatherstack.com) | yes | |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
 | [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration; also powers the `/aviation` METAR/TAF pages |
 
@@ -265,7 +264,6 @@ WEATHERAPI_KEY=
 TOMORROW_KEY=
 VISUAL_CROSSING_KEY=    # also the daily calibration source
 WORLD_WEATHER_KEY=
-WEATHERSTACK_KEY=
 RAPIDAPI_KEY=           # Meteostat, for nightly validation
 
 # Optional jobs / admin

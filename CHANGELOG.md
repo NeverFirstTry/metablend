@@ -3,6 +3,15 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-19
+
+### Changed — Météo-France instead of Weatherstack
+- Weatherstack's free plan only works over plain http, with our key in the
+  address. It is replaced by Météo-France's models (ARPEGE worldwide, AROME at
+  1.3 km over France and the Alps) through Open-Meteo — encrypted, no key —
+  so every request the app makes or makes for you is now over https, and it
+  is still 16 sources. Old Weatherstack rows on the leaderboard keep its name.
+
 ## 2026-10-14
 
 ### Fixed — the weather now says what most sources say

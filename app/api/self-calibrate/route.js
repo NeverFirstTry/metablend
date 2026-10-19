@@ -5,7 +5,7 @@ import { applyDeltas } from '@/lib/weights'
 import { localDateForLon } from '@/lib/localtime'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
-  fetchVisualCrossing, fetchWorldWeatherOnline, fetchWeatherStack, fetchNASAPOWER,
+  fetchVisualCrossing, fetchWorldWeatherOnline, fetchMeteoFrance, fetchNASAPOWER,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
 } from '@/lib/weather'
 
@@ -25,12 +25,12 @@ const FETCHERS = {
   'met-norway': fetchMETNorway,
   'visual-crossing': fetchVisualCrossing,
   'world-weather-online': fetchWorldWeatherOnline,
-  weatherstack: fetchWeatherStack,
   'nasa-power': fetchNASAPOWER,
   // keyless model feeds + regional sources (regionals return null outside coverage)
   ecmwf: fetchECMWF,
   gfs: fetchGFS,
   icon: fetchICON,
+  meteofrance: fetchMeteoFrance,
   nws: fetchNWS,
   brightsky: fetchBrightSky,
   smhi: fetchSMHI,
