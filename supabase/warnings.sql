@@ -20,4 +20,12 @@ create index if not exists warnings_regions_idx on public.warnings using gin (re
 create index if not exists warnings_ends_idx on public.warnings (ends_at);
 create index if not exists warnings_country_idx on public.warnings (country, fetched_at);
 alter table public.warnings add column if not exists thread text;
+-- outline warnings (countries that draw CAP polygons instead of naming regions):
+-- the simplified outline and its box, for the point lookup
+alter table public.warnings add column if not exists areas jsonb;
+alter table public.warnings add column if not exists min_lon double precision;
+alter table public.warnings add column if not exists min_lat double precision;
+alter table public.warnings add column if not exists max_lon double precision;
+alter table public.warnings add column if not exists max_lat double precision;
+create index if not exists warnings_box_idx on public.warnings (min_lat, max_lat, min_lon, max_lon) where areas is not null;
 alter table public.warnings enable row level security;

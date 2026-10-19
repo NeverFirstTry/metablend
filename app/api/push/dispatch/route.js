@@ -10,8 +10,8 @@ import { fetchElevations } from '@/lib/hike/sources'
 import { routeWeather } from '@/lib/route/weather'
 import { supabase } from '@/lib/supabase'
 import regionData from '@/lib/warnings/regions.json'
-import { regionsFor } from '@/lib/warnings/regions'
-import { warningsIn } from '@/lib/warnings/store'
+import { warningsIn, warningsAtPoint } from '@/lib/warnings/store'
+import { lookupWarnings } from '@/lib/warnings/lookup'
 
 // Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), and every
 // 15 minutes with ?only=rain (rain and official warnings; job push-dispatch-nowcast), with the calibrate
@@ -39,8 +39,10 @@ async function routeWeatherFor(q) {
 
 // official warnings at a spot; null outside MeteoAlarm's regions (model-based alerts then)
 const warningsAt = async (lat, lon, cc = null) => {
-  const ids = regionsFor(regionData, lat, lon, cc)
-  return ids.length ? warningsIn(supabase, ids) : null
+  const found = await lookupWarnings(lat, lon, cc, {
+    regionData, inRegions: ids => warningsIn(supabase, ids), atPoint: (la, lo) => warningsAtPoint(supabase, la, lo),
+  })
+  return found.covered ? found.warnings : null
 }
 
 export const GET = withErrorLog('push.dispatch', async (request) => {

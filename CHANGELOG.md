@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-20
 
+### Added — official warnings in 5 more countries (22)
+- Estonia, Israel, Norway, Slovenia and Sweden: their warnings come with the
+  issuer's own outline instead of region codes, so each one is stored with
+  its (simplified) outline and found by whether your spot lies inside it.
+  Same card, strip and alerts as the other 17 countries.
+
+### Added — Pirate Weather, ready when a key is
+- An optional extra source; it stays off until `PIRATE_WEATHER_KEY` is set.
+
 ### Added — 10 more weather models (26 sources)
 - Five more global models: UK Met Office, Canada GEM, JMA (Japan), CMA GRAPES
   (China) and ECMWF's AI model AIFS — and five regional ones that only show

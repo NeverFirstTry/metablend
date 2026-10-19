@@ -4,8 +4,8 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { supabase } from '@/lib/supabase'
 import { pickLang } from '@/lib/share'
 import regionData from '@/lib/warnings/regions.json'
-import { regionsFor } from '@/lib/warnings/regions'
-import { warningsIn } from '@/lib/warnings/store'
+import { warningsIn, warningsAtPoint } from '@/lib/warnings/store'
+import { lookupWarnings } from '@/lib/warnings/lookup'
 import { sortWarnings, warningText } from '@/lib/warnings/text'
 
 // GET /api/warnings?lat=48.21&lon=16.37&lang=de → the official warnings at
@@ -23,11 +23,12 @@ export const GET = withErrorLog('warnings', async (request) => {
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
   const lang = pickLang(sp.get('lang'))
   const cc = /^[a-z]{2}$/i.test(sp.get('cc') ?? '') ? sp.get('cc').toUpperCase() : null // the place's country, when known
-  const ids = regionsFor(regionData, lat, lon, cc)
-  const rows = ids.length ? await warningsIn(supabase, ids) : []
-  const warnings = sortWarnings(rows).map(w => ({
+  const found = await lookupWarnings(lat, lon, cc, {
+    regionData, inRegions: ids => warningsIn(supabase, ids), atPoint: (la, lo) => warningsAtPoint(supabase, la, lo),
+  })
+  const warnings = sortWarnings(found.warnings).map(w => ({
     id: w.id, level: w.level, type: w.type, onset: w.onset, expires: w.expires,
     sender: w.sender, web: w.web, text: warningText(w, lang),
   }))
-  return Response.json({ covered: ids.length > 0, warnings }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=300' } })
+  return Response.json({ covered: found.covered, warnings }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=300' } })
 })

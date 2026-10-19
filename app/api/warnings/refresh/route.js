@@ -2,7 +2,7 @@ import { withErrorLog, logError } from '@/lib/log'
 import { jobKeyProblem } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getJson } from '@/lib/outlook/http'
-import { FEEDS, feedUrl } from '@/lib/warnings/feeds'
+import { FEEDS, AREA_FEEDS, feedUrl } from '@/lib/warnings/feeds'
 import { refreshAll } from '@/lib/warnings/refresh'
 import { saveCountry } from '@/lib/warnings/store'
 
@@ -15,7 +15,7 @@ export const GET = withErrorLog('warnings.refresh', async (request) => {
   const denied = jobKeyProblem(request)
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
   const summary = await refreshAll({
-    feeds: FEEDS,
+    feeds: [...FEEDS, ...AREA_FEEDS],
     fetchFeed: slug => getJson(feedUrl(slug), { ms: 15000, cache: 'no-store' }),
     save: (country, rows, at) => saveCountry(supabase, country, rows, at),
   })
