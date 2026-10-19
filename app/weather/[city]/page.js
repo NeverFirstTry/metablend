@@ -53,9 +53,9 @@ export async function generateMetadata({ params }) {
   const { city } = await params
   const name = displayName(city)
   return {
-    title: `${name} Weather — 16-Source Consensus Forecast`,
+    title: `${name} Weather — 26-Source Consensus Forecast`,
     description:
-      `${name} weather from 16 blended sources: current temperature, rain probability, ` +
+      `${name} weather from 26 blended sources: current temperature, rain probability, ` +
       `wind and a 7-day consensus forecast, weighted by measured accuracy.`,
     alternates: { canonical: `/weather/${city}` },
   }

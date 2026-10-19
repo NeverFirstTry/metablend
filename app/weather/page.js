@@ -7,7 +7,7 @@ import Footer from '../components/Footer'
 export const metadata = {
   title: 'City Weather — Consensus Forecasts for 50+ Cities',
   description:
-    'Consensus forecasts for 54 cities worldwide, blended from 16 weather sources: ' +
+    'Consensus forecasts for 54 cities worldwide, blended from 26 weather sources: ' +
     'current conditions, rain probability and 7-day outlook.',
   alternates: { canonical: '/weather' },
 }
@@ -26,7 +26,7 @@ export default function CityIndex() {
           City <span className="text-emerald-400">Weather</span>
         </h1>
         <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
-          One consensus forecast per city, from 16 sources
+          One consensus forecast per city, from 26 sources
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-10">

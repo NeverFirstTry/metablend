@@ -212,7 +212,8 @@ export contains nothing that isn't already public via the app's own endpoints.
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
 | ECMWF IFS · NOAA GFS · DWD ICON · Météo-France | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
-| UK Met Office · Canada GEM · JMA | no | Outlook only (via Open-Meteo): further global models for the today / tomorrow / week blend |
+| UK Met Office · Canada GEM · JMA · CMA GRAPES · ECMWF AIFS (AI) | no | More global models via Open-Meteo, all in one shared request |
+| MeteoSwiss ICON-CH · ItaliaMeteo ICON-2I · KNMI / DMI HARMONIE · NOAA NBM | no | Regional models via the same request — they only appear inside their own area |
 | KNMI HARMONIE · DMI HARMONIE · MET Nordic | no | Outlook only (via Open-Meteo): high-resolution regional models, ~2.5 days, Europe / Nordics |
 | [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, statistical forecast |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |

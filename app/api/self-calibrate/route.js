@@ -5,7 +5,7 @@ import { applyDeltas } from '@/lib/weights'
 import { localDateForLon } from '@/lib/localtime'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
-  fetchVisualCrossing, fetchWorldWeatherOnline, fetchMeteoFrance, fetchNASAPOWER,
+  fetchVisualCrossing, fetchWorldWeatherOnline, fetchMeteoFrance, modelSource, MORE_MODELS, fetchNASAPOWER,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
 } from '@/lib/weather'
 
@@ -34,6 +34,8 @@ const FETCHERS = {
   nws: fetchNWS,
   brightsky: fetchBrightSky,
   smhi: fetchSMHI,
+  // the extra national and AI models — one shared request per city
+  ...Object.fromEntries(MORE_MODELS.map(([id]) => [id, modelSource(id)])),
 }
 
 // Fixed reference basket (region pre-tagged so we skip geocoding). Spread across

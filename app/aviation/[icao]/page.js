@@ -408,7 +408,7 @@ export default async function AirportPage({ params }) {
           href={`/?city=${encodeURIComponent(ap.municipality ?? ap.name)}`}
           className="block text-center bg-emerald-400 text-black font-bold rounded-xl px-6 py-4 text-sm hover:bg-emerald-300 mb-10"
         >
-          16-source consensus forecast for {ap.municipality ?? ap.name} →
+          26-source consensus forecast for {ap.municipality ?? ap.name} →
         </Link>
 
         <Footer />

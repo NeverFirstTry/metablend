@@ -3,6 +3,21 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-20
+
+### Added — 10 more weather models (26 sources)
+- Five more global models: UK Met Office, Canada GEM, JMA (Japan), CMA GRAPES
+  (China) and ECMWF's AI model AIFS — and five regional ones that only show
+  inside their own area: MeteoSwiss ICON-CH and ItaliaMeteo ICON-2I (the Alps),
+  KNMI and DMI HARMONIE (central and northern Europe) and NOAA NBM (US). All
+  free and keyless through Open-Meteo, in one shared request. Lienz now blends
+  about 21 sources instead of 12.
+- New sources start with a low weight and now actually get calibrated: a
+  source scored for the first time joins the weights (before, sources added
+  after the first setup — like Météo-France — stayed at the starting weight).
+- The site says 26 sources; the store listings and screenshots still say 16
+  until the next store update.
+
 ## 2026-10-19
 
 ### Changed — Météo-France instead of Weatherstack

@@ -5,7 +5,7 @@ import { pickLang } from '@/lib/share'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
-  fetchWorldWeatherOnline, fetchMeteoFrance, fetchNASAPOWER, fetchGeoSphere,
+  fetchWorldWeatherOnline, fetchMeteoFrance, fetchOpenMeteoModels, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
 } from '@/lib/weather'
@@ -81,8 +81,9 @@ export const GET = withErrorLog('forecast', async (request) => {
   // if the lookup fails, the searched name stands in.
   const learnCityP = lang === 'en' ? Promise.resolve(geo.name) : englishPlaceName(geo.id).then(n => n ?? geo.name)
 
-  // 2. All source APIs in parallel, each timed
-  const timed = await Promise.all([
+  // 2. All source APIs in parallel, each timed — plus the extra national and
+  // AI models, which come in one shared Open-Meteo request
+  const [timed, models] = await Promise.all([Promise.all([
     timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
     timedFetch('owm',                  () => fetchOWM(geo.lat, geo.lon)),
     timedFetch('weatherapi',           () => fetchWeatherAPI(geo.lat, geo.lon)),
@@ -99,7 +100,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('nws',                  () => fetchNWS(geo.lat, geo.lon)),
     timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
-  ])
+  ]), timedFetch('open-meteo-models', () => fetchOpenMeteoModels(geo.lat, geo.lon))])
 
   const [extras, details, yesterdayTemp] = await Promise.all([
     fetchOpenMeteoExtras(geo.lat, geo.lon),
@@ -111,6 +112,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   const results = timed
     .filter(t => t.value !== null)
     .map(t => ({ ...t.value, responseMs: t.ms }))
+    .concat((models.value ?? []).map(v => ({ ...v, responseMs: models.ms })))
 
   // sources that actively failed (threw / timed out) — shown as "down"
   const downSources = timed
