@@ -228,6 +228,7 @@ export contains nothing that isn't already public via the app's own endpoints.
 | [Tomorrow.io](https://www.tomorrow.io) | yes | |
 | [Visual Crossing](https://www.visualcrossing.com) | yes | Also the daily calibration source |
 | [World Weather Online](https://www.worldweatheronline.com) | yes | |
+| [Pirate Weather](https://pirateweather.net) | yes | Optional — off until  is set |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
 | [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration; also powers the `/aviation` METAR/TAF pages |
 
@@ -265,6 +266,7 @@ WEATHERAPI_KEY=
 TOMORROW_KEY=
 VISUAL_CROSSING_KEY=    # also the daily calibration source
 WORLD_WEATHER_KEY=
+PIRATE_WEATHER_KEY=          # optional, free tier at pirateweather.net — the source stays off without it
 RAPIDAPI_KEY=           # Meteostat, for nightly validation
 
 # Optional jobs / admin

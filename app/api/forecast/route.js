@@ -5,7 +5,7 @@ import { pickLang } from '@/lib/share'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
-  fetchWorldWeatherOnline, fetchMeteoFrance, fetchOpenMeteoModels, fetchNASAPOWER, fetchGeoSphere,
+  fetchWorldWeatherOnline, fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchNASAPOWER, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
 } from '@/lib/weather'
@@ -100,6 +100,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('nws',                  () => fetchNWS(geo.lat, geo.lon)),
     timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
+    timedFetch('pirateweather',        () => fetchPirateWeather(geo.lat, geo.lon)), // off until PIRATE_WEATHER_KEY is set
   ]), timedFetch('open-meteo-models', () => fetchOpenMeteoModels(geo.lat, geo.lon))])
 
   const [extras, details, yesterdayTemp] = await Promise.all([
