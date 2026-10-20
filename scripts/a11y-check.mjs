@@ -22,6 +22,7 @@ const PAGES = [
   ['/?city=Vienna', 'Week'],
   ['/hike?app=1', null],
   ['/hike?peak=grossglockner&app=1', null],
+  ['/hike?peak=grossglockner&app=1', null, 'avalanche'], // avalanche danger, answered by AVALANCHE_MOCK
   ['/more?app=1', null],
   ['/testers', null],
   ['/', null],
@@ -33,7 +34,7 @@ const PAGES = [
 ]
 // Larger Text: these pages at root font 32 px (2x) in app mode, as TextScale sets it
 const LARGE_PAGES = [
-  ['/?city=Vienna', null], ['/?city=Vienna', null, 'warnings'], ['/?city=Vienna', 'Week'], ['/hike?app=1', null], ['/hike?peak=grossglockner&app=1', null],
+  ['/?city=Vienna', null], ['/?city=Vienna', null, 'warnings'], ['/?city=Vienna', 'Week'], ['/hike?app=1', null], ['/hike?peak=grossglockner&app=1', null], ['/hike?peak=grossglockner&app=1', null, 'avalanche'],
   ['/more?app=1', null], ['/leaderboard', null], ['/planner', null], ['/aviation', null],
 ]
 const LARGE_PROBE = `(async () => {
@@ -92,9 +93,12 @@ const WARNINGS_MOCK = (() => {
 ws.addEventListener('message', e => {
   const m = JSON.parse(e.data)
   if (m.method !== 'Fetch.requestPaused') return
-  send('Fetch.fulfillRequest', { requestId: m.params.requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: 'application/json' }], body: Buffer.from(WARNINGS_MOCK).toString('base64') })
+  const body = m.params.request.url.includes('/api/avalanche') ? AVALANCHE_MOCK : WARNINGS_MOCK
+  send('Fetch.fulfillRequest', { requestId: m.params.requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: 'application/json' }], body: Buffer.from(body).toString('base64') })
 })
-const mockWarnings = on => send(on ? 'Fetch.enable' : 'Fetch.disable', on ? { patterns: [{ urlPattern: '*/api/warnings*' }] } : {})
+// pages marked 'avalanche' get a winter answer: today 3 – considerable, tomorrow 4 – high
+const AVALANCHE_MOCK = JSON.stringify({ region: 'AT-07-26-01', today: 3, tomorrow: 4, dates: { today: '2030-01-01', tomorrow: '2030-01-02' } })
+const mockWarnings = mock => send(mock ? 'Fetch.enable' : 'Fetch.disable', mock ? { patterns: [{ urlPattern: mock === 'avalanche' ? '*/api/avalanche*' : '*/api/warnings*' }] } : {})
 // with the mock: open the first warning, so its full text is checked too
 const openFirstWarning = () => ev(`document.querySelector('#warnings button[aria-expanded]')?.click()`)
 const send = (method, params = {}) => new Promise(r => { const n = ++id; pending.set(n, r); ws.send(JSON.stringify({ id: n, method, params })) })
@@ -108,13 +112,13 @@ let bad = 0
 for (const [theme, sky] of VARIANTS) {
   await send('Network.setCookie', { name: 'metablend_theme', value: theme, url: BASE })
   for (const [path, tab, mock] of PAGES) {
-    await mockWarnings(!!mock)
+    await mockWarnings(mock)
     await send('Page.navigate', { url: BASE + path })
     await sleep(4500)
     // the sky loader's names fade in and out — check the page it gives way to
     for (let i = 0; i < 20 && await ev(`!!document.querySelector('.mb-loader')`); i++) await sleep(500)
     if (tab) { await ev(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === ${JSON.stringify(tab)})?.click()`); await sleep(1200) }
-    if (mock) { await openFirstWarning(); await sleep(400) }
+    if (mock === 'warnings') { await openFirstWarning(); await sleep(400) }
     // pin the sky so the check covers that background whatever today's weather is
     await ev(`(() => { const h = document.documentElement; h.dataset.sky = ${JSON.stringify(sky)}; new MutationObserver(() => { if (h.dataset.sky !== ${JSON.stringify(sky)}) h.dataset.sky = ${JSON.stringify(sky)} }).observe(h, { attributes: true, attributeFilter: ['data-sky'] }) })()`)
     await sleep(2100) // the sky colours ease over 1.8 s
@@ -131,12 +135,12 @@ let cramped = 0
 await send('Network.setCookie', { name: 'metablend_theme', value: 'dark', url: BASE })
 await send('Network.setCookie', { name: 'metablend_app', value: '1', url: BASE })
 for (const [path, tab, mock] of LARGE ? LARGE_PAGES : []) {
-  await mockWarnings(!!mock)
+  await mockWarnings(mock)
   await send('Page.navigate', { url: BASE + path })
   await sleep(4500)
   for (let i = 0; i < 20 && await ev(`!!document.querySelector('.mb-loader')`); i++) await sleep(500)
   if (tab) { await ev(`[...document.querySelectorAll('button')].find(b => b.textContent.trim() === ${JSON.stringify(tab)})?.click()`); await sleep(1200) }
-  if (mock) { await openFirstWarning(); await sleep(400) }
+  if (mock === 'warnings') { await openFirstWarning(); await sleep(400) }
   await ev(`(() => { const h = document.documentElement; h.style.fontSize = '32px'; h.dataset.textLarge = '1' })()`)
   await sleep(800)
   const spots = await ev(LARGE_PROBE)

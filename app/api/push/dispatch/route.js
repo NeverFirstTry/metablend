@@ -12,6 +12,9 @@ import { supabase } from '@/lib/supabase'
 import regionData from '@/lib/warnings/regions.json'
 import { warningsIn, warningsAtPoint } from '@/lib/warnings/store'
 import { lookupWarnings } from '@/lib/warnings/lookup'
+import avalancheRegions from '@/lib/avalanche/regions.json'
+import { avalancheLevel } from '@/lib/avalanche/avalanche'
+import { ratingsFor } from '@/lib/avalanche/fetch'
 
 // Hourly from pg_cron (supabase/cron.sql, job push-dispatch-hourly), and every
 // 15 minutes with ?only=rain (rain and official warnings; job push-dispatch-nowcast), with the calibrate
@@ -45,13 +48,16 @@ const warningsAt = async (lat, lon, cc = null) => {
   return found.covered ? found.warnings : null
 }
 
+// the official avalanche danger at a spot on a day (1–5), null where not rated
+const avalancheAt = async (lat, lon, date) => avalancheLevel(avalancheRegions, await ratingsFor(date), lat, lon)?.level ?? null
+
 export const GET = withErrorLog('push.dispatch', async (request) => {
   const denied = jobKeyProblem(request) // no key configured → nobody can trigger sends
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
   const sp = new URL(request.url).searchParams
   const dry = sp.get('dry') === '1'
   const only = sp.get('only') === 'rain' ? 'rain' : null
-  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only, warningsAt })
+  const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only, warningsAt, avalancheAt })
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
   if (summary.warningErrors?.length) await logError('push.warnings', new Error(summary.warningErrors[0]), { errors: summary.warningErrors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })

@@ -18,6 +18,7 @@ function AttributionList() {
   return (
     <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
       <li><a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Open-Meteo</a> (CC BY 4.0) — incl. model feeds from ECMWF (IFS and the AI model AIFS), NOAA (GFS, NBM), DWD ICON, Météo-France, UK Met Office, MeteoSwiss, ItaliaMeteo, KNMI, DMI, JMA, CMA and Environment Canada (GEM)</li>
+      <li><a href="https://avalanches.org" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">EAWS</a> — avalanche danger levels from the official bulletins of Europe&apos;s avalanche warning services (via avalanche.report); avalanche region outlines CC0</li>
       <li><a href="https://meteoalarm.org" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MeteoAlarm</a> (EUMETNET, CC BY 4.0) — official weather warnings of Europe&apos;s national weather services</li>
       <li><a href="https://www.met.no" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MET Norway</a> (NLOD / CC BY 4.0)</li>
       <li>OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online</li>

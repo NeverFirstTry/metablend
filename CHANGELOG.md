@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-20
 
+### Added — avalanche danger (winter hiking)
+- Peak pages show the official avalanche danger for the summit's area — today
+  and, once the evening bulletin is out, tomorrow — as the level (1–5), its
+  word (low … very high, in all 13 languages) and the standard colour. From
+  the bulletins of Europe's avalanche warning services (EAWS, via
+  avalanche.report); nothing shows out of season or outside avalanche regions.
+- Planned-hike alerts name the avalanche danger for that day.
+
 ### Added — official warnings in 5 more countries (22)
 - Estonia, Israel, Norway, Slovenia and Sweden: their warnings come with the
   issuer's own outline instead of region codes, so each one is stored with
