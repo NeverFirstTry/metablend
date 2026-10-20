@@ -26,6 +26,8 @@ const PAGES = [
   ['/more?app=1', null],
   ['/testers', null],
   ['/', null],
+  ['/mountains/grossglockner', null],
+  ['/weather/vienna', null],
   ['/leaderboard', null],
   ['/planner', null],
   ['/heatmap', null],

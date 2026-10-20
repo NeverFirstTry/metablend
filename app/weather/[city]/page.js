@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, deltaFormatter } from '@/lib/outlook/text'
+import { heroCondition } from '@/lib/conditions'
 import Footer from '../../components/Footer'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
@@ -23,7 +24,7 @@ function displayName(slug) {
 // server-to-server fetches. Returns the payload, 'unknown' for a city the
 // geocoder can't resolve (→ 404), or throws for transient failures (→ 500,
 // which crawlers retry instead of de-indexing the page).
-const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
+const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000') // SELF_BASE: a local next start on another port
 // Same lower-cased key the app uses, so these self-fetches share its CDN copies
 const cityQuery = slug => encodeURIComponent(slugToQuery(slug).toLowerCase())
 
@@ -71,9 +72,7 @@ export default async function CityWeather({ params }) {
   const week = outlook?.days?.slice(0, 7) ?? []
 
   const name = data.city ?? displayName(city)
-  const condition =
-    data.sources?.find(s => s.apiId === 'open-meteo' && !s.down)?.condition ??
-    data.sources?.find(s => !s.down && s.condition)?.condition ?? null
+  const condition = heroCondition(data)
   const upSources = (data.sources ?? []).filter(s => !s.down)
   const topWeights = Object.entries(data.weights ?? {})
     .sort((a, b) => b[1] - a[1])
@@ -145,7 +144,7 @@ export default async function CityWeather({ params }) {
 
         {/* 7-day, as a real table (crawlable) */}
         {week.length > 0 && (
-          <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
+          <section tabIndex={0} aria-label="7-day consensus forecast" className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">7-day consensus forecast</h2>
             <table className="w-full text-sm text-left min-w-[420px]">
               <thead>

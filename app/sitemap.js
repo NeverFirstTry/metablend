@@ -1,4 +1,5 @@
 import { CITIES } from '@/lib/cities'
+import featured from '@/lib/hike/featured.json'
 
 const BASE = 'https://metablend.app'
 
@@ -18,9 +19,16 @@ export default function sitemap() {
     { url: `${BASE}/terms`, lastModified: legalUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/aviation`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/hike`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
+    { url: `${BASE}/mountains`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/testers`, lastModified: now, changeFrequency: 'weekly', priority: 0.5 },
     ...['loww', 'lowi', 'lows', 'eddm', 'eddf', 'egll', 'lfpg', 'eham', 'lirf', 'lszh', 'kjfk', 'klax', 'kord', 'rjtt', 'yssy', 'omdb'].map(icao => ({
       url: `${BASE}/aviation/${icao}`,
+      lastModified: now,
+      changeFrequency: 'hourly',
+      priority: 0.6,
+    })),
+    ...featured.filter(p => p.kind !== 'hut').map(p => ({
+      url: `${BASE}/mountains/${p.id}`,
       lastModified: now,
       changeFrequency: 'hourly',
       priority: 0.6,

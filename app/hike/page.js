@@ -7,6 +7,7 @@ import { hikeApiPath } from '@/lib/hike/params'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { t, detectLang, LANGUAGES } from '@/lib/i18n'
 import { addDays } from '@/lib/localtime'
+import { fill } from '@/lib/outlook/text'
 import Footer from '../components/Footer'
 import Headline from '../components/outlook/Headline'
 import PeakDirectory from '../components/hike/PeakDirectory'
@@ -90,6 +91,7 @@ export default async function HikePage({ searchParams }) {
 
       <section className="mt-8">
         <PeakDirectory peaks={TEASER_PEAKS} lang={lang} />
+        <p className="mt-4 text-sm"><Link href="/mountains" className="underline hover:text-emerald-400">{fill(t(lang, 'hikeWebForecasts'), { n: TEASER_PEAKS.filter(p => p.kind !== 'hut').length })}</Link></p>
       </section>
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>

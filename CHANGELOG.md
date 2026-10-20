@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-20
 
+### Added — summit weather pages on the website
+- metablend.app/mountains and a page per featured peak (195), e.g.
+  /mountains/grossglockner: today's and tomorrow's summit window, a 7-day
+  summit table (low / high, summit wind, rain, freezing level, storm risk) and
+  the avalanche danger in winter, in crawlable HTML with a link to the app.
+  In the sitemap, the footer ("Mountains") and under the hiking teaser.
+- City weather pages now name the weather as most sources report it (as the
+  app does), and their 7-day table can be scrolled with the keyboard.
+
 ### Added — avalanche danger (winter hiking)
 - Peak pages show the official avalanche danger for the summit's area — today
   and, once the evening bulletin is out, tomorrow — as the level (1–5), its
