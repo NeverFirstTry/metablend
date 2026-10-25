@@ -13,6 +13,11 @@ import Footer from '../../components/Footer'
 // rhythm as the API's own cache.
 export const revalidate = 900
 
+// On-demand caching: no pages are built ahead; each is rendered on its first
+// visit and then served from the cache for `revalidate` seconds. Without
+// this a dynamic route renders on every request and revalidate is ignored.
+export async function generateStaticParams() { return [] }
+
 const titleCase = s => s.replace(/\b\w/g, c => c.toUpperCase())
 
 function displayName(slug) {

@@ -16,6 +16,11 @@ import Footer from '../../components/Footer'
 // demand and ISR-cached for 30 minutes, like the summit forecast itself.
 export const revalidate = 1800
 
+// On-demand caching: no pages are built ahead; each is rendered on its first
+// visit and then served from the cache for `revalidate` seconds. Without
+// this a dynamic route renders on every request and revalidate is ignored.
+export async function generateStaticParams() { return [] }
+
 // self-fetches go through the public domain (the raw deployment URL is behind
 // deployment protection); SELF_BASE for a local `next start` on another port
 const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000')

@@ -10,6 +10,11 @@ import { sigWeather, parseRvr, visCategory, ceilingCategory, tafWindshear, skyIn
 
 export const revalidate = 600
 
+// On-demand caching: no pages are built ahead; each is rendered on its first
+// visit and then served from the cache for `revalidate` seconds. Without
+// this a dynamic route renders on every request and revalidate is ignored.
+export async function generateStaticParams() { return [] }
+
 export async function generateMetadata({ params }) {
   const { icao } = await params
   const ap = getAirport(icao)
