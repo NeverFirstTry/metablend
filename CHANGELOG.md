@@ -3,6 +3,25 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-25
+
+### Changed — less server CPU (same forecasts, same alerts)
+- City and summit pages are cached: each one is built on its first visit and
+  then served from the cache for 15 (cities) or 30 (summits) minutes, as
+  intended. Before, every visit rebuilt the page.
+- Official warnings: once `supabase/warnings-feeds.sql` and the new cron job
+  are applied, the database downloads the 22 warning feeds every 15 minutes,
+  skips the unchanged ones and keeps only what can still show (3.6 MB instead
+  of 19.4 MB). The site then only reads the feeds that changed, about 16 ms of
+  work instead of about 560 ms. It is only called when something changed.
+  Until the SQL is applied it downloads the feeds itself, as before.
+- All server routes share one function again (no per-route time limits), so
+  a warm instance serves every route and fewer requests start cold.
+- Faster cold starts: the database client is only the part we use (−30 ms),
+  and push alerts load the warning and avalanche region maps (3.2 MB) only
+  when a lookup needs them. Cold start of /api/forecast 156 → 124 ms,
+  /api/push/dispatch 234 → 125 ms (measured locally).
+
 ## 2026-10-20
 
 ### Added — summit weather pages on the website
