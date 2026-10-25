@@ -29,6 +29,7 @@
     "react-dom": "^19.2.7"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.11",
     "@tailwindcss/postcss": "^4",
     "axe-core": "^4.13.0",
     "eslint": "^9",

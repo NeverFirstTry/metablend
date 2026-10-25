@@ -77,11 +77,14 @@ select cron.schedule(
 );
 
 -- Official warnings: every MeteoAlarm country feed, every quarter hour, just
--- before the quarter-hourly push run (:02/:17/…) reads them.
+-- before the quarter-hourly push run (:02/:17/…) reads them. The database
+-- downloads and trims them (warnings-feeds.sql) and calls Vercel only when a
+-- feed changed — the 19 MB download no longer runs on Vercel.
 select cron.schedule(
   'warnings-refresh',
   '0,15,30,45 * * * *',
   $job$
+  select public.refresh_warning_feeds();
   select net.http_get(
     url := 'https://metablend.app/api/warnings/refresh',
     headers := jsonb_build_object(
@@ -89,6 +92,6 @@ select cron.schedule(
       (select decrypted_secret from vault.decrypted_secrets where name = 'calibrate_secret')
     ),
     timeout_milliseconds := 120000
-  );
+  ) where exists (select 1 from public.warning_feeds_pending);
   $job$
 );
