@@ -9,10 +9,8 @@ import { getJson as outlookGetJson } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
 import { routeWeather } from '@/lib/route/weather'
 import { supabase } from '@/lib/supabase'
-import regionData from '@/lib/warnings/regions.json'
 import { warningsIn, warningsAtPoint } from '@/lib/warnings/store'
 import { lookupWarnings } from '@/lib/warnings/lookup'
-import avalancheRegions from '@/lib/avalanche/regions.json'
 import { avalancheLevel } from '@/lib/avalanche/avalanche'
 import { ratingsFor } from '@/lib/avalanche/fetch'
 
@@ -39,16 +37,22 @@ async function routeWeatherFor(q) {
   return routeWeather(q, { getJson: outlookGetJson, getElevations: fetchElevations, weights })
 }
 
+// The two region maps are 1.5 and 1.7 MB: loaded on the first lookup that
+// needs them, not on every cold start (most runs plan no hike, so the
+// avalanche map usually never loads at all).
+const warningRegions = () => import('@/lib/warnings/regions.json').then(m => m.default)
+const avalancheRegions = () => import('@/lib/avalanche/regions.json').then(m => m.default)
+
 // official warnings at a spot; null outside MeteoAlarm's regions (model-based alerts then)
 const warningsAt = async (lat, lon, cc = null) => {
   const found = await lookupWarnings(lat, lon, cc, {
-    regionData, inRegions: ids => warningsIn(supabase, ids), atPoint: (la, lo) => warningsAtPoint(supabase, la, lo),
+    regionData: await warningRegions(), inRegions: ids => warningsIn(supabase, ids), atPoint: (la, lo) => warningsAtPoint(supabase, la, lo),
   })
   return found.covered ? found.warnings : null
 }
 
 // the official avalanche danger at a spot on a day (1–5), null where not rated
-const avalancheAt = async (lat, lon, date) => avalancheLevel(avalancheRegions, await ratingsFor(date), lat, lon)?.level ?? null
+const avalancheAt = async (lat, lon, date) => avalancheLevel(await avalancheRegions(), await ratingsFor(date), lat, lon)?.level ?? null
 
 export const GET = withErrorLog('push.dispatch', async (request) => {
   const denied = jobKeyProblem(request) // no key configured → nobody can trigger sends
