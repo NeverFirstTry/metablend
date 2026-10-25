@@ -59,6 +59,7 @@ declare
   h text;
   changed integer := 0;
   started timestamptz := clock_timestamp();
+  tried timestamptz;
 begin
   -- both: the extension's own timeout setting and curl's
   perform set_config('http.timeout_msec', '15000', true);
@@ -67,7 +68,15 @@ begin
   for f in select country, slug, hash from public.warning_feeds order by checked_at nulls first, country loop
     status := null;
     begin
-      res := extensions.http_get('https://feeds.meteoalarm.org/api/v1/warnings/feeds-' || f.slug);
+      tried := clock_timestamp();
+      begin
+        res := extensions.http_get('https://feeds.meteoalarm.org/api/v1/warnings/feeds-' || f.slug);
+      exception when others then
+        -- broke off at once (from Supabase a few small feeds end in SSL_ERROR_SYSCALL):
+        -- once more, on a fresh connection. A timeout isn't tried again.
+        if clock_timestamp() - tried > interval '5 seconds' then raise; end if;
+        res := extensions.http_get('https://feeds.meteoalarm.org/api/v1/warnings/feeds-' || f.slug);
+      end;
       status := res.status;
       if status <> 200 then
         update public.warning_feeds set checked_at = now(), last_status = status, last_error = 'HTTP ' || status where country = f.country;

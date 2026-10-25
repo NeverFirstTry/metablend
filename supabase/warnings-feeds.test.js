@@ -18,12 +18,18 @@ const STAND_IN = `
   create table answers (url text primary key, status integer, content text);
   create table curlopts (name text primary key, value text);
   create table downloads (url text, timeout_msec text, at timestamptz default clock_timestamp());
+  -- a flaky URL fails every other try (a sequence: it doesn't roll back with the failed try)
+  create table flaky (url text primary key);
+  create sequence flaky_tries;
   create function extensions.http_set_curlopt(n text, v text) returns boolean language sql as
     'insert into curlopts values (n, v) on conflict (name) do update set value = v returning true';
   create function extensions.http_get(u varchar) returns extensions.http_response language plpgsql as $$
     declare a answers;
     begin
       insert into downloads (url, timeout_msec) values (u, current_setting('http.timeout_msec', true));
+      if exists (select 1 from flaky where url = u) and nextval('flaky_tries') % 2 = 1 then
+        raise exception 'OpenSSL SSL_read: SSL_ERROR_SYSCALL, errno 0';
+      end if;
       select * into a from answers where url = u;
       if a is null then raise exception 'timeout: %', u; end if;
       return row(a.status, 'application/json', null, a.content)::extensions.http_response;
@@ -123,6 +129,18 @@ test('refresh_warning_feeds — stops when its time is up; the feeds asked longe
   await db.query("select public.refresh_warning_feeds(interval '-1 second')")
   const urls = (await db.query('select url from downloads')).rows.map(r => r.url)
   assert.deepEqual(urls, [url('sweden')])
+})
+
+test('refresh_warning_feeds — a download that breaks off at once is tried once more (Supabase loses a few small feeds that way)', async () => {
+  await answer('cyprus', 200, '{"warnings": [], "v": "flaky"}')
+  await db.exec(`insert into flaky values ('${url('cyprus')}')`)
+  await db.exec("update public.warning_feeds set last_error = 'old', ok_at = null where country = 'CY'")
+  await db.query('select public.refresh_warning_feeds()')
+  const cy = await row('CY')
+  assert.equal(cy.last_error, null)
+  assert.ok(cy.ok_at)
+  assert.deepEqual(cy.body, { warnings: [] })
+  await db.exec('delete from flaky')
 })
 
 // The pg_cron job (supabase/cron.sql), run against stand-ins for pg_cron, pg_net and Vault.
