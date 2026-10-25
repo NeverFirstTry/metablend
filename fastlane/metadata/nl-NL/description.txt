@@ -1,4 +1,4 @@
-Geen enkel weermodel zit elke dag goed. MetaBlend vergelijkt tot 16 weerbronnen — ECMWF, GFS, ICON, MET Norway, de NWS en meer — en voegt ze samen tot één verwachting. Bronnen die het in jouw regio steeds goed hebben, tellen zwaarder, gecontroleerd met echte metingen van vliegvelden.
+Geen enkel weermodel zit elke dag goed. MetaBlend vergelijkt tot 26 weerbronnen — ECMWF, GFS, ICON, MET Norway, de NWS en meer — en voegt ze samen tot één verwachting. Bronnen die het in jouw regio steeds goed hebben, tellen zwaarder, gecontroleerd met echte metingen van vliegvelden.
 
 De verwachting
 • Vandaag, morgen en de week, uur voor uur

@@ -1,4 +1,4 @@
-Aucun modèle météo n’a raison tous les jours. MetaBlend compare jusqu’à 16 sources météo — ECMWF, GFS, ICON, MET Norway, le NWS et d’autres — et les fusionne en une seule prévision. Les sources qui voient juste dans votre région pèsent davantage, vérifiées avec de vraies mesures d’aéroports.
+Aucun modèle météo n’a raison tous les jours. MetaBlend compare jusqu’à 26 sources météo — ECMWF, GFS, ICON, MET Norway, le NWS et d’autres — et les fusionne en une seule prévision. Les sources qui voient juste dans votre région pèsent davantage, vérifiées avec de vraies mesures d’aéroports.
 
 La prévision
 • Aujourd’hui, demain et la semaine, heure par heure

@@ -1,4 +1,4 @@
-Žádný jednotlivý model počasí se netrefí každý den. MetaBlend porovnává až 16 zdrojů počasí — ECMWF, GFS, ICON, MET Norway, NWS a další — a spojuje je do jedné předpovědi. Zdroje, které se ve vašem regionu opakovaně trefují, mají větší váhu, ověřenou skutečnými měřeními z letišť.
+Žádný jednotlivý model počasí se netrefí každý den. MetaBlend porovnává až 26 zdrojů počasí — ECMWF, GFS, ICON, MET Norway, NWS a další — a spojuje je do jedné předpovědi. Zdroje, které se ve vašem regionu opakovaně trefují, mají větší váhu, ověřenou skutečnými měřeními z letišť.
 
 Předpověď
 • Dnes, zítra a celý týden, hodinu po hodině

@@ -1,4 +1,4 @@
-Nessun modello meteo ci azzecca ogni giorno. MetaBlend confronta fino a 16 fonti meteo — ECMWF, GFS, ICON, MET Norway, il NWS e altre — e le unisce in un’unica previsione. Le fonti che indovinano spesso nella tua zona contano di più, verificate con misure reali degli aeroporti.
+Nessun modello meteo ci azzecca ogni giorno. MetaBlend confronta fino a 26 fonti meteo — ECMWF, GFS, ICON, MET Norway, il NWS e altre — e le unisce in un’unica previsione. Le fonti che indovinano spesso nella tua zona contano di più, verificate con misure reali degli aeroporti.
 
 La previsione
 • Oggi, domani e la settimana, ora per ora

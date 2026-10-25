@@ -1,4 +1,4 @@
-Żaden pojedynczy model pogody nie trafia każdego dnia. MetaBlend porównuje do 16 źródeł pogody — ECMWF, GFS, ICON, MET Norway, NWS i inne — i łączy je w jedną prognozę. Źródła, które często trafiają w twoim regionie, liczą się bardziej, sprawdzane z prawdziwymi pomiarami z lotnisk.
+Żaden pojedynczy model pogody nie trafia każdego dnia. MetaBlend porównuje do 26 źródeł pogody — ECMWF, GFS, ICON, MET Norway, NWS i inne — i łączy je w jedną prognozę. Źródła, które często trafiają w twoim regionie, liczą się bardziej, sprawdzane z prawdziwymi pomiarami z lotnisk.
 
 Prognoza
 • Dziś, jutro i cały tydzień, godzina po godzinie

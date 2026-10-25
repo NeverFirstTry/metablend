@@ -1,4 +1,4 @@
-Ningún modelo meteorológico acierta todos los días. MetaBlend compara hasta 16 fuentes — ECMWF, GFS, ICON, MET Norway, el NWS y más — y las combina en una sola previsión. Las fuentes que aciertan una y otra vez en tu región cuentan más, comprobadas con mediciones reales de aeropuertos.
+Ningún modelo meteorológico acierta todos los días. MetaBlend compara hasta 26 fuentes — ECMWF, GFS, ICON, MET Norway, el NWS y más — y las combina en una sola previsión. Las fuentes que aciertan una y otra vez en tu región cuentan más, comprobadas con mediciones reales de aeropuertos.
 
 La previsión
 • Hoy, mañana y la semana, hora a hora

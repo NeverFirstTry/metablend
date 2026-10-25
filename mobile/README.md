@@ -151,7 +151,7 @@ Everything you paste or upload is in the repo: listings in
 - [ ] TestFlight → **Internal testing**: add yourself and up to 100 App Store Connect users — installs at once, no review.
 - [ ] **External testing** (friends without an Apple developer role): Test Information from `fastlane/metadata/review/` (beta description, what to test, feedback email) → submit for Beta App Review → share the public link.
 - [ ] Put the TestFlight public link into `lib/testers.js` (`testflight`) so metablend.app/testers shows it.
-- [ ] For the later public release: App Store tab → listing from `fastlane/metadata/<locale>/`, screenshots from `fastlane/screenshots/<locale>/`, App Privacy from `store/compliance.md`, then Submit for Review.
+- [ ] For the public release: follow `store/app-store-release.md` (every App Store Connect field and which file it comes from), then Submit for Review.
 
 ### Every later update
 

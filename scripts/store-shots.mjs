@@ -27,7 +27,9 @@ const SCREENS = [
   // shots pick theirs: Today, then Week.
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabToday' },
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabWeek' },
-  { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && document.body.innerText.includes(${JSON.stringify('§nearYou')})` },
+  // Near you's list is in (not "looking…"): answered from store/near-vienna.json, the production answer
+  // for Vienna — this PC's own lookups can be throttled by the public geocoder
+  { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
   { path: '/hike?peak=grossglockner', ready: `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` }, // the hour strip, in any language (French says CAS, not SAC)
   // tomorrow: by the afternoon today has no safe start left, whenever the script runs
   { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`, pickTomorrow: true },
@@ -42,13 +44,19 @@ const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerU
 await new Promise(r => ws.addEventListener('open', r))
 let id = 0
 const pending = new Map()
-ws.addEventListener('message', e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) } })
+const NEAR = readFileSync(join(ROOT, 'store/near-vienna.json'))
+ws.addEventListener('message', e => {
+  const m = JSON.parse(e.data)
+  if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) }
+  if (m.method === 'Fetch.requestPaused') send('Fetch.fulfillRequest', { requestId: m.params.requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: 'application/json' }], body: NEAR.toString('base64') })
+})
 const send = (method, params = {}) => new Promise(r => { const n = ++id; pending.set(n, r); ws.send(JSON.stringify({ id: n, method, params })) })
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.result?.value
 const until = async (expr, ms = 30000) => { for (let s = 0; s < ms; s += 250) { if (await ev(expr)) return true; await sleep(250) } throw new Error(`timeout: ${expr}`) }
 const png = async () => Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')
 const sizeOf = buf => [buf.readUInt32BE(16), buf.readUInt32BE(20)]
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+await send('Fetch.enable', { patterns: [{ urlPattern: '*/api/peaks/near*' }] })
 
 // a viewport tag, or mobile emulation lays the page out 980 px wide and shrinks it
 const HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
