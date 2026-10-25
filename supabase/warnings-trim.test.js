@@ -12,6 +12,7 @@ const sql = fs.readFileSync(new URL('./warnings-trim.sql', import.meta.url), 'ut
 const fixture = name => JSON.parse(fs.readFileSync(new URL(`../lib/warnings/__fixtures__/${name}.json`, import.meta.url), 'utf8'))
 
 const db = new PGlite()
+await db.exec('create role anon; create role authenticated') // Supabase's API roles
 await db.exec(sql)
 const trimSql = async (feed, cutoff) => (await db.query('select public.trim_warning_feed($1::jsonb, $2::timestamptz) as t', [JSON.stringify(feed), new Date(cutoff).toISOString()])).rows[0].t
 
@@ -44,4 +45,20 @@ test('trim_warning_feed — the same as trimFeed on the odd cases: green, cancel
   feed.warnings[8].alert.info.unshift({ language: 'en', expires: '2026-10-09T20:00:00+02:00', parameter: [] }) // level only in the 2nd info
   assert.deepEqual(await trimSql(feed, NOW - 3600e3), trimFeed(feed, NOW - 3600e3))
   for (const bad of [{}, { warnings: 'x' }, null]) assert.deepEqual(await trimSql(bad, NOW), trimFeed(bad, NOW))
+})
+
+test('trim_warning_feed — an absurd awareness level (11 digits) is shrunk as trimFeed does, never an error that freezes the country', async () => {
+  const feed = { warnings: [alert('huge', {}, { parameter: [{ valueName: 'awareness_level', value: '99999999999; red' }] }), alert('on')] }
+  assert.deepEqual(await trimSql(feed, NOW - 3600e3), trimFeed(feed, NOW - 3600e3))
+})
+
+test('the trim helpers are not callable through the API (anon / authenticated), and cap_time is not cached as immutable', async () => {
+  for (const fn of ['public.cap_param(jsonb, text)', 'public.cap_time(text)', 'public.trim_warning_feed(jsonb, timestamptz)']) {
+    for (const role of ['anon', 'authenticated']) {
+      const { rows } = await db.query('select has_function_privilege($1, $2, $3) as ok', [role, fn, 'execute'])
+      assert.equal(rows[0].ok, false, `${role} can run ${fn}`)
+    }
+  }
+  // it reads the session time zone and accepts words like 'now'
+  assert.equal((await db.query("select provolatile from pg_proc where oid = 'public.cap_time(text)'::regprocedure")).rows[0].provolatile, 's')
 })

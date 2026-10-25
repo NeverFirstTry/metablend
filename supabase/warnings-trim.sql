@@ -8,7 +8,7 @@
 
 -- the first parameter of that name in a CAP info block ("3; orange; Severe")
 create or replace function public.cap_param(info jsonb, name text)
-returns text language sql immutable as $$
+returns text language sql immutable set search_path = '' as $$
   select p->>'value'
   from jsonb_array_elements(case when jsonb_typeof(info->'parameter') = 'array' then info->'parameter' else '[]'::jsonb end)
        with ordinality as e(p, n)
@@ -16,9 +16,10 @@ returns text language sql immutable as $$
   order by n limit 1
 $$;
 
--- a CAP time, or null when it isn't one (never an error)
+-- a CAP time, or null when it isn't one (never an error). Stable, not
+-- immutable: it reads the session time zone and takes words like 'now'.
 create or replace function public.cap_time(t text)
-returns timestamptz language plpgsql immutable as $$
+returns timestamptz language plpgsql stable set search_path = '' as $$
 begin
   return t::timestamptz;
 exception when others then
@@ -26,14 +27,14 @@ exception when others then
 end $$;
 
 create or replace function public.trim_warning_feed(feed jsonb, cutoff timestamptz)
-returns jsonb language plpgsql stable as $$
+returns jsonb language plpgsql stable set search_path = '' as $$
 declare
   out jsonb := '[]'::jsonb;
   w jsonb;
   a jsonb;
   infos jsonb;
   main jsonb;
-  level int;
+  level numeric; -- numeric: an absurd 11-digit level is simply not 2–4, as in JS
   keep boolean;
 begin
   if jsonb_typeof(feed->'warnings') is distinct from 'array' then
@@ -50,7 +51,7 @@ begin
       select i into main from jsonb_array_elements(infos) with ordinality as e(i, n)
       where coalesce(public.cap_param(i, 'awareness_level'), '') <> '' order by n limit 1;
       if main is null then main := infos->0; end if;
-      level := substring(coalesce(public.cap_param(main, 'awareness_level'), '') from '^\s*([+-]?\d+)')::int;
+      level := substring(coalesce(public.cap_param(main, 'awareness_level'), '') from '^\s*([+-]?\d+)')::numeric;
       keep := level between 2 and 4 and exists (
         select 1 from jsonb_array_elements(infos) i where public.cap_time(i->>'expires') > cutoff
       );
@@ -65,3 +66,6 @@ begin
   end loop;
   return jsonb_build_object('warnings', out);
 end $$;
+
+-- only the database's own download job uses these; not callable through the API
+revoke execute on function public.cap_param(jsonb, text), public.cap_time(text), public.trim_warning_feed(jsonb, timestamptz) from public, anon, authenticated;
