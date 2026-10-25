@@ -79,12 +79,23 @@ select cron.schedule(
 -- Official warnings: every MeteoAlarm country feed, every quarter hour, just
 -- before the quarter-hourly push run (:02/:17/…) reads them. The database
 -- downloads and trims them (warnings-feeds.sql) and calls Vercel only when a
--- feed changed — the 19 MB download no longer runs on Vercel.
+-- feed changed or one couldn't be downloaded lately (Vercel downloads that
+-- one itself and logs it) — the 19 MB download no longer runs on Vercel.
+-- Needs warnings-trim.sql and warnings-feeds.sql first.
+do $$ begin
+  if to_regclass('public.warning_feeds_behind') is null then
+    raise exception 'Run supabase/warnings-trim.sql and supabase/warnings-feeds.sql before the warnings-refresh job';
+  end if;
+end $$;
 select cron.schedule(
   'warnings-refresh',
   '0,15,30,45 * * * *',
   $job$
-  select public.refresh_warning_feeds();
+  do $refresh$ begin
+    perform public.refresh_warning_feeds();
+  exception when others then -- Vercel is still called below: every feed is behind then
+    raise warning 'refresh_warning_feeds: %', sqlerrm;
+  end $refresh$;
   select net.http_get(
     url := 'https://metablend.app/api/warnings/refresh',
     headers := jsonb_build_object(
@@ -92,6 +103,7 @@ select cron.schedule(
       (select decrypted_secret from vault.decrypted_secrets where name = 'calibrate_secret')
     ),
     timeout_milliseconds := 120000
-  ) where exists (select 1 from public.warning_feeds_pending);
+  ) where exists (select 1 from public.warning_feeds_pending)
+       or exists (select 1 from public.warning_feeds_behind);
   $job$
 );
