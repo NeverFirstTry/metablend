@@ -60,8 +60,8 @@ const CITIES = [
   { name: 'Auckland',      lat: -36.85, lon: 174.76, region: 'oceania' },
 ]
 
-// The whole basket is fetched live and every source scored — give it room.
-export const maxDuration = 60
+// The whole basket is fetched live and every source scored — the shared
+// 300 s default gives it room.
 
 const MIN_SOURCES_PER_CITY = 3 // need a real spread before a median means anything
 

@@ -13,7 +13,6 @@ import { lastUpstreamFailure } from '@/lib/outlook/http'
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
 // for 30 minutes, so 1 or 1,000 viewers cost the same upstream calls.
-export const maxDuration = 60 // all models (twice), the core three, then MET Norway
 
 const TTL = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })

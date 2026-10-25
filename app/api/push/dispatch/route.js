@@ -20,7 +20,6 @@ import { ratingsFor } from '@/lib/avalanche/fetch'
 // 15 minutes with ?only=rain (rain and official warnings; job push-dispatch-nowcast), with the calibrate
 // secret from Vault — same gate as /api/station-calibrate.
 // ?dry=1 lists what would be sent right now without sending anything.
-export const maxDuration = 300
 
 // our own endpoints, with the server key: outlook / summit / nowcast skip
 // their per-visitor limits for it (one run asks for every home city)

@@ -8,7 +8,6 @@ import { withErrorLog } from '@/lib/log'
 // artifact. Everything here is already publicly readable through the app's own
 // endpoints (leaderboard, heatmap), so an artifact on a public repo leaks
 // nothing new; error_log is deliberately NOT included.
-export const maxDuration = 60
 
 const TABLES = [
   { name: 'api_weights', order: 'id' },

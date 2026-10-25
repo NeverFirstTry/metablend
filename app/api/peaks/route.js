@@ -11,7 +11,6 @@ import { fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchGeocodingRaw } f
 // (Photon) with OSM's surveyed heights (the terrain model only where OSM has
 // none); Open-Meteo geocoding when Photon is down. Cached per query for a
 // day — peaks don't move — or 5 minutes when a source was down.
-export const maxDuration = 15
 
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })

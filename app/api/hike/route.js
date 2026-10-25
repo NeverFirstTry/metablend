@@ -10,7 +10,6 @@ import { lastUpstreamFailure } from '@/lib/outlook/http'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
 // height. Language-neutral and CDN-cached per peak for 30 minutes.
-export const maxDuration = 30
 
 const TTL = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })

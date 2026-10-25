@@ -10,7 +10,6 @@ import { routeWeather } from '@/lib/route/weather'
 
 // Weather along a route, walking times and the suggested start.
 // POST /api/route-weather { points: [[lat, lon, ele|null]…], date, pace?, start?, roundTrip? }
-export const maxDuration = 60
 
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })

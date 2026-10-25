@@ -15,7 +15,6 @@ import { nearCell, ringPoints, samplePoints } from '@/lib/hike/near'
 // mountains are all within a few km), each point once more if it fails;
 // heights as for a search. One answer per ~5 km cell, CDN-cached for a day —
 // summits don't move.
-export const maxDuration = 20
 
 const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })

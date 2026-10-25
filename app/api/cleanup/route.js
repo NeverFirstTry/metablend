@@ -6,8 +6,8 @@ import { logError } from '@/lib/log'
 import { runOutlookVerification } from '@/lib/outlook/job'
 
 // Meteostat lookups, weight round-trips per city and the outlook's METAR
-// verification can outrun the default limit.
-export const maxDuration = 300
+// verification take a while: the default 300 s that every route shares
+// (one function — fewer cold starts) gives it room.
 
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10

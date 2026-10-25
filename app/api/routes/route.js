@@ -11,7 +11,6 @@ import { findRoutes } from '@/lib/route/find'
 // week (route_cache), plus a day on the CDN; an OSM outage serves the stale
 // copy rather than nothing.
 // GET /api/routes?lat=47.0745&lon=12.6941&elev=3798&name=Großglockner
-export const maxDuration = 60
 
 const WEEK = 7 * 86400e3
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })

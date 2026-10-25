@@ -3,9 +3,9 @@ import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
 
-// 50 cities × (one Visual Crossing fetch + weight round-trips) runs well past
-// the default serverless limit — give the cron room to finish.
-export const maxDuration = 300
+// 50 cities × (one Visual Crossing fetch + weight round-trips) take a while:
+// the default 300 s that every route shares (one function — fewer
+// cold starts) gives it room.
 
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50

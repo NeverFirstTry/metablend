@@ -15,9 +15,8 @@ import { haversineKm } from '@/lib/geo'
 // hourly calibration had been silently skipping since launch.
 
 // METARs are prefetched in parallel and weights persist as one batch upsert,
-// but 15 cities of DB work still outgrow the default limit (a run 504ed once
-// traffic picked up) — give it real headroom.
-export const maxDuration = 300
+// and 15 cities of DB work once outgrew a short limit (a run 504ed when
+// traffic picked up) — the shared 300 s default gives it real headroom.
 
 const RADIUS_KM = 60           // METAR stations (airports) are sparser than PWS
 const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour

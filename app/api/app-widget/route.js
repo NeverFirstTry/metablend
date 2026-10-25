@@ -9,7 +9,6 @@ import { parseAppWidgetQuery, weatherPayload, hikePayload } from '@/lib/app-widg
 // 10,000 widgets cost the same) and boiled down to ~1 KB of display text.
 // GET /api/app-widget?city=Lienz&lang=de&unit=C
 // GET /api/app-widget?kind=hike&name=…&lat=…&lon=…&elev=…&date=YYYY-MM-DD&lang=de&unit=C
-export const maxDuration = 30
 
 const TTL = 900
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
