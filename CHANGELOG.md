@@ -9,12 +9,18 @@ All notable changes to MetaBlend. Format loosely follows
 - City and summit pages are cached: each one is built on its first visit and
   then served from the cache for 15 (cities) or 30 (summits) minutes, as
   intended. Before, every visit rebuilt the page.
-- Official warnings: once `supabase/warnings-feeds.sql` and the new cron job
-  are applied, the database downloads the 22 warning feeds every 15 minutes,
-  skips the unchanged ones and keeps only what can still show (3.6 MB instead
-  of 19.4 MB). The site then only reads the feeds that changed, about 16 ms of
-  work instead of about 560 ms. It is only called when something changed.
-  Until the SQL is applied it downloads the feeds itself, as before.
+- Official warnings: once `supabase/warnings-trim.sql`,
+  `supabase/warnings-feeds.sql` and the new cron job are applied (in that
+  order; each refuses to run before the one it needs), the database downloads
+  the 22 warning feeds every 15 minutes, skips the unchanged ones and keeps
+  only what can still show (3.6 MB instead of 19.4 MB). The site then only
+  reads the feeds that changed, about 16 ms of work instead of about 560 ms,
+  and is only called when something changed. A feed the database can't get
+  for 40 minutes is downloaded by the site itself and logged, so warnings
+  (and the severe-weather alerts that rely on them) never stop quietly. Until
+  the SQL is applied the site downloads every feed itself, as before.
+- City pages: a listed city never gets a cached "not found" page because the
+  place lookup failed for a moment; the last good page stays instead.
 - All server routes share one function again (no per-route time limits), so
   a warm instance serves every route and fewer requests start cold.
 - Faster cold starts: the database client is only the part we use (−30 ms),

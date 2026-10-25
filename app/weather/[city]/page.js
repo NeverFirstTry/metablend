@@ -5,6 +5,7 @@ import { CITIES, findCity, slugToQuery } from '@/lib/cities'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, deltaFormatter } from '@/lib/outlook/text'
 import { heroCondition } from '@/lib/conditions'
+import { readForecast } from '@/lib/weather-page'
 import Footer from '../../components/Footer'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
@@ -28,18 +29,14 @@ function displayName(slug) {
 // raw deployment URL sits behind Vercel's deployment protection and 401s
 // server-to-server fetches. Returns the payload, 'unknown' for a city the
 // geocoder can't resolve (→ 404), or throws for transient failures (→ 500,
-// which crawlers retry instead of de-indexing the page).
+// which crawlers retry instead of de-indexing the page; a cached page stays).
 const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000') // SELF_BASE: a local next start on another port
 // Same lower-cased key the app uses, so these self-fetches share its CDN copies
 const cityQuery = slug => encodeURIComponent(slugToQuery(slug).toLowerCase())
 
 async function getForecast(slug) {
   const res = await fetch(`${BASE}/api/forecast?city=${cityQuery(slug)}&lang=en`, { next: { revalidate: 900 } })
-  if (res.status === 404) return 'unknown'
-  if (!res.ok) throw new Error(`forecast api ${res.status}`)
-  const json = await res.json()
-  if (json.error) return 'unknown'
-  return json
+  return readForecast(res, !!findCity(slug))
 }
 
 // The outlook (7-day table, rain sentence, climate) is a bonus on this page:
