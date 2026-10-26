@@ -19,6 +19,28 @@ All notable changes to MetaBlend. Format loosely follows
   page now starts in your language and unit from its first frame — German,
   Japanese, °F and "System" checked on Hiking, peak pages, More and Forecast.
 
+### Fixed — honest walking times on routes (tester feedback)
+- 35 of 69 stored routes (on 23 featured peaks — Kilimanjaro, Mount Fuji,
+  Mount Whitney, Brocken, Hoher Sonnblick and more) had lost their heights:
+  one refused height request emptied a whole route. They were timed as if
+  flat, far too short — Lemosho on Kilimanjaro "21 h" instead of about 47 h,
+  which also moved the suggested start and the stage times. That's a safety
+  issue, not cosmetics.
+- Heights come from the terrain model again (a refused request is tried once
+  more); stored routes are repaired the next time they're opened. Ascent and
+  times from the terrain model are marked as approximate (≈).
+- A route whose heights can't be found at all shows no walking time, start
+  window or stage times, and says why — never a wrong number. Planned-hike
+  alerts say the same.
+
+### Changed — a calmer forecast page and a clear first step (tester feedback)
+- The source cards are folded to one line, e.g. "20 sources · 86% agree";
+  open or closed is remembered. "What is consensus forecasting?" starts
+  collapsed — the title stays visible, a tap opens it.
+- The app's first start (no city yet) shows a "Use my location" card above
+  the search field. The phone asks for location only when it's tapped,
+  never by itself.
+
 ### Changed — summit pages after sunset
 - When no summit window is possible for the rest of today, a peak opens on
   Tomorrow. Today then shows one line — "No daylight left today · Summit

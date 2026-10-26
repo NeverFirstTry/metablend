@@ -46,7 +46,8 @@ export default function RouteList({ peak, lang }) {
                 <span className="flex-1 min-w-0">
                   <span className="block font-medium truncate">{routeLabel(r) ?? t(lang, 'routeUnnamed')}</span>
                   <span className="block text-xs text-zinc-500">
-                    {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · ↑{r.ascentM} m · ~{duration(r.minutes)}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
+                    {/* terrain-model heights: ≈; none: no time at all (it would be a flat-land time, far too short) */}
+                    {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · {r.minutes == null ? t(lang, 'routeNoHeightsShort') : `↑≈${r.ascentM} m · ~${duration(r.minutes)}`}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>
                 </span>
                 <ChevronRight size={16} className="text-zinc-500" aria-hidden />
@@ -55,6 +56,7 @@ export default function RouteList({ peak, lang }) {
           ))}
         </ul>
       )}
+      {state.routes?.some(r => r.minutes != null) && <p className="text-xs text-zinc-500 px-1">{t(lang, 'routeHeightsApprox')}</p>}
     </section>
   )
 }

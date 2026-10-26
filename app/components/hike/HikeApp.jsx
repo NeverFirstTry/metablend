@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
@@ -22,6 +22,7 @@ import featured from '@/lib/hike/featured.json'
 // deep links work; an unknown peak falls back to the list.
 // the hike screens visited while this page is open (lib/hike/nav.js)
 const TRAIL = []
+const IDS = new Set(featured.map(p => p.id))
 
 function HikeAppInner() {
   const lang = useLang()
@@ -29,8 +30,7 @@ function HikeAppInner() {
   const router = useRouter()
   const sp = useSearchParams()
   const [pos, setPos] = useState(null)
-  const ids = useMemo(() => new Set(featured.map(p => p.id)), [featured])
-  const hrefFor = p => peakHref(p, ids)
+  const hrefFor = p => peakHref(p, IDS)
 
   const qs = sp.toString()
   const href = `/hike${qs ? `?${qs}` : ''}`
