@@ -19,6 +19,7 @@ import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { startCity } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast } from '@/lib/forecast-session'
+import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
@@ -178,9 +179,9 @@ export default function Home() {
   const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [lang, setLang] = useState(() => SESSION.lang ?? 'en')
+  const [lang, setLang] = useState(() => SESSION.lang ?? knownLang() ?? 'en')
   const [langPick, setLangPick] = useState(LANG_SYSTEM) // what the picker shows: a language, or follow the phone
-  const [unit, setUnit] = useState(() => SESSION.unit ?? 'C')
+  const [unit, setUnit] = useState(() => SESSION.unit ?? knownUnit() ?? 'C')
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
@@ -204,7 +205,11 @@ export default function Home() {
   const langWanted = useRef('en')
   const showLang = code => {
     langWanted.current = code
-    loadLanguage(code).then(ok => { if (langWanted.current === code) setLang(ok ? code : 'en') })
+    loadLanguage(code).then(ok => {
+      if (langWanted.current !== code) return
+      setLang(ok ? code : 'en')
+      publishPrefs({ lang: ok ? code : 'en' }) // the other tabs start in it (lib/ui-prefs.js)
+    })
   }
   const suggestSeq = useRef(0)       // drops out-of-order suggestion responses
 
@@ -218,7 +223,9 @@ export default function Home() {
     const detectedLang = preferredLang(savedLang, navigator.language)
     showLang(detectedLang)
     setLangPick(langChoice(savedLang))
-    setUnit(getCookie('metablend_unit') === 'F' ? 'F' : 'C')
+    const savedUnit = getCookie('metablend_unit') === 'F' ? 'F' : 'C'
+    setUnit(savedUnit)
+    publishPrefs({ unit: savedUnit })
     setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
@@ -303,6 +310,7 @@ export default function Home() {
   function changeUnit(u) {
     setUnit(u)
     setCookie('metablend_unit', u)
+    publishPrefs({ unit: u })
   }
 
   // the header button flips what's on screen and keeps that as an explicit

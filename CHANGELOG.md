@@ -15,6 +15,9 @@ All notable changes to MetaBlend. Format loosely follows
   and nearby peaks seen once show at once on the next visit.
 - The website's hiking teaser can no longer appear inside the app, not even
   for a frame.
+- No more English (or °C) frame when a tab or page opens in the app: every
+  page now starts in your language and unit from its first frame — German,
+  Japanese, °F and "System" checked on Hiking, peak pages, More and Forecast.
 
 ### Changed — summit pages after sunset
 - When no summit window is possible for the rest of today, a peak opens on

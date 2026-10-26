@@ -6,6 +6,7 @@ import { Settings, Compass, ChevronRight, ArrowLeft } from 'lucide-react'
 import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
+import { publishPrefs } from '@/lib/ui-prefs'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
@@ -70,7 +71,7 @@ export default function MoreClient() {
         <div className={box}>
           <div className={caption}>{t(lang, 'unitLabel')}</div>
           <div className="flex gap-1 bg-zinc-800/60 rounded-xl p-1">
-            {['C', 'F'].map(x => pick(x, u === x, `°${x}`, () => { setCookie('metablend_unit', x); setUnit(x) }))}
+            {['C', 'F'].map(x => pick(x, u === x, `°${x}`, () => { setCookie('metablend_unit', x); setUnit(x); publishPrefs({ unit: x }) }))}
           </div>
         </div>
         <div className={box}>
