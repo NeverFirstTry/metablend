@@ -3,6 +3,24 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-27
+
+### Changed — faster, steadier tabs in the app (first external tester)
+- Switching between Forecast, Hiking and More no longer waits for the server
+  or starts over: the Forecast tab comes back with its city at once (no start
+  screen, no loader; it refreshes quietly when due), Hiking comes back on the
+  peak or route you had open, and Hiking and More are fetched ahead.
+- Hiking: "Near you" no longer shows "looking…" and then disappears when no
+  well-known summit is close — it says so in one line instead. Summits, routes
+  and nearby peaks seen once show at once on the next visit.
+- The website's hiking teaser can no longer appear inside the app, not even
+  for a frame.
+
+### Changed — summit pages after sunset
+- When no summit window is possible for the rest of today, a peak opens on
+  Tomorrow. Today then shows one line — "No daylight left today · Summit
+  window tomorrow 07:00–11:00" — that opens Tomorrow when tapped.
+
 ## 2026-10-26
 
 ### Added — sign up for the Android test by email

@@ -6,7 +6,7 @@ import { t, tn } from '@/lib/i18n'
 import { tempFormatter, deltaFormatter, spanFormatter } from '@/lib/outlook/text'
 import { addDays } from '@/lib/localtime'
 import { hikeApiPath } from '@/lib/hike/params'
-import { windowText, windowTone } from '@/lib/hike/text'
+import { windowText, windowTone, defaultSummitTab, noDaylightPointer } from '@/lib/hike/text'
 import { worstStorm } from '@/lib/hike/blend'
 import { OM_MODELS } from '@/lib/outlook/models'
 import { sourceName } from '@/lib/sources'
@@ -29,33 +29,44 @@ import AvalancheCard from './AvalancheCard'
 // the models a summit request asks, for the loader's ticker
 const SUMMIT_MODELS = OM_MODELS.map(m => sourceName(m.id))
 
+// Summit forecasts already seen while the app runs: back on a peak (or back
+// on the Hiking tab) shows it at once instead of the loader. Fresh for 30
+// minutes, like the forecast's own CDN copy.
+const SEEN = new Map() // url → { at, data }
+const FRESH_MS = 30 * 60e3
+const seen = url => { const c = SEEN.get(url); return c && Date.now() - c.at < FRESH_MS ? c.data : null }
+
 // One peak's summit forecast: Today / Tomorrow / Week, like the city outlook.
 // Mounted with key={peak.id}, so a new peak starts from a clean state.
 export default function PeakView({ peak, lang, unit, onBack }) {
-  const [tab, setTab] = useState('today')
-  const [state, setState] = useState({ data: null, error: false })
+  const url = hikeApiPath(peak)
+  // null until the user picks one: Today, or Tomorrow when today has no window left (after sunset)
+  const [tab, setTab] = useState(null)
+  const [state, setState] = useState(() => ({ data: seen(url), error: false }))
   const [attempt, setAttempt] = useState(0)
   const [native, setNative] = useState(false)
   // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration environment sync
   useEffect(() => setNative(isNative()), [])
-  const url = hikeApiPath(peak)
   useEffect(() => {
+    if (attempt === 0 && seen(url)) return
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then(data => { if (!off) setState({ data, error: false }) }, () => { if (!off) setState({ data: null, error: true }) })
+      .then(data => { SEEN.set(url, { at: Date.now(), data }); if (!off) setState({ data, error: false }) }, () => { if (!off) setState({ data: null, error: true }) })
     return () => { off = true }
   }, [url, attempt])
   const retry = () => { setState({ data: null, error: false }); setAttempt(a => a + 1) }
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
 
   const d = state.data
+  const shown = tab ?? defaultSummitTab(d)
+  const dark = shown === 'today' && d?.windows?.today === null // no daylight left today
   // the summit's sky right now
   useSky(d ? skyFor({ code: d.hourly?.[0]?.code, nowLocal: d.nowLocal, sun: d.sun }) : null)
   const todayLocal = d?.nowLocal?.slice(0, 10)
-  const date = d && (tab === 'tomorrow' ? addDays(todayLocal, 1) : todayLocal)
+  const date = d && (shown === 'tomorrow' ? addDays(todayLocal, 1) : todayLocal)
   const hours = d ? d.hourly.filter(h => h.t.startsWith(date)) : []
-  const w = d?.windows?.[tab]
+  const w = d?.windows?.[shown]
   const nums = k => hours.map(h => h[k]).filter(v => typeof v === 'number')
   const fz = nums('freezingLevel'), winds = nums('windKmh')
   const worst = worstStorm(hours.map(h => h.storm))
@@ -76,7 +87,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         </p>
         {peak.grade && <p className="text-zinc-500 text-xs mt-1">{t(lang, 'gradeNote')}</p>}
       </div>
-      <RangeTabs value={tab} onChange={setTab} lang={lang} />
+      <RangeTabs value={shown} onChange={setTab} lang={lang} />
       {native && d && <PlanHike peak={peak} lang={lang} unit={unit} todayLocal={todayLocal} />}
       {state.error ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 text-sm text-zinc-400 flex flex-wrap items-center gap-3">
@@ -87,8 +98,15 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         </div>
       ) : !d ? (
         <SkyLoader lang={lang} title={t(lang, 'loadingSummit')} names={SUMMIT_MODELS} />
-      ) : tab === 'd7' ? (
+      ) : shown === 'd7' ? (
         <SummitDays days={d.days} todayLocal={todayLocal} lang={lang} fmt={fmt} />
+      ) : dark ? (
+        // after sunset: one line to tomorrow's window instead of a mostly empty page
+        <>
+          <Headline text={noDaylightPointer(lang, d)} onClick={() => setTab('tomorrow')} />
+          <WarningsCard lat={peak.lat} lon={peak.lon} cc={peak.country} lang={lang} todayLocal={todayLocal} />
+          <AvalancheCard lat={peak.lat} lon={peak.lon} lang={lang} />
+        </>
       ) : (
         <>
           <Headline text={windowText(lang, w, { date, todayLocal, stormUnknown })} tone={windowTone(w, { stormUnknown })} />
@@ -111,7 +129,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
         </>
       )}
       {/* Today / Tomorrow carry this in the headline; the Week list has none */}
-      {stormUnknown && tab === 'd7' && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'hikeNoStorm')}</p>}
+      {stormUnknown && shown === 'd7' && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'hikeNoStorm')}</p>}
       <RouteList peak={peak} lang={lang} />
       <HikeNotes lang={lang} borrowed />
     </div>
