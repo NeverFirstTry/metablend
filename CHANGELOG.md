@@ -3,6 +3,18 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-26
+
+### Added — what the numbers mean
+- Every kind of number now carries the same small icon wherever it shows: a
+  droplet for the chance of rain, wind for wind, a snowflake for the freezing
+  level. Each card ends with one line naming them (in all 13 languages), next
+  to the existing storm-risk and "sources agree" keys. In the week list, the
+  hour strips, the summit hours and week, and the route stages.
+- Route stages on a phone: the place name gets its own line above the values
+  (it was squeezed to nothing between six columns). Summit week: wind and
+  freezing level on two short lines, so the freezing level is no longer cut off.
+
 ## 2026-10-25
 
 ### Changed — less server CPU (same forecasts, same alerts)

@@ -10,7 +10,8 @@ import { highestIndex, withReturn } from '@/lib/route/geometry'
 import { routeStats } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
 import { SectionTitle } from '../ui'
-import { StormBar } from './SummitStrip'
+import { StormBar, StormLegend } from './SummitStrip'
+import { Valued, ValueKey } from '../ValueKey'
 import RouteMap from './RouteMap'
 import RouteProfile from './RouteProfile'
 
@@ -132,20 +133,24 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
           <SectionTitle>{t(lang, 'routeStages')}</SectionTitle>
           <ol className="@container bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
             {d.stages.map((st, k) => (
-              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm @max-[19rem]:flex-wrap @max-[19rem]:gap-x-2" style={st.blocker ? { background: 'color-mix(in srgb, var(--bad) 12%, transparent)' } : undefined}>
-                <span className="w-12 font-semibold tabular-nums @max-[19rem]:w-auto">{st.eta}</span>
-                <span className="flex-1 min-w-0 @max-[19rem]:basis-full @max-[19rem]:order-first">
-                  <span className="block truncate @max-[19rem]:whitespace-normal">{label(st, k)}</span>
+              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm @max-[30rem]:flex-wrap @max-[30rem]:gap-x-2" style={st.blocker ? { background: 'color-mix(in srgb, var(--bad) 12%, transparent)' } : undefined}>
+                <span className="w-12 font-semibold tabular-nums @max-[30rem]:w-auto">{st.eta}</span>
+                <span className="flex-1 min-w-0 @max-[30rem]:basis-full @max-[30rem]:order-first">
+                  <span className="block truncate @max-[30rem]:whitespace-normal">{label(st, k)}</span>
                   <span className="block text-xs text-zinc-500">{st.ele != null ? `${st.ele} m` : ''}{st.blocker ? ` · ${t(lang, REASON_KEY[st.blocker])}` : ''}</span>
                 </span>
                 <span aria-hidden>{st.icon ?? ''}</span>
-                <span className="w-24 text-right tabular-nums @max-[19rem]:w-auto">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
-                <span className="w-16 text-right text-xs text-zinc-400 tabular-nums @max-[19rem]:w-auto">{st.wind ?? '–'} km/h</span>
-                <span className="w-10 text-right text-xs text-zinc-400 tabular-nums @max-[19rem]:w-auto">{st.rain ?? '–'}%</span>
+                <span className="w-24 text-right tabular-nums @max-[30rem]:w-auto">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
+                <span className="w-20 text-right text-xs text-zinc-400 tabular-nums @max-[30rem]:w-auto">{st.wind != null ? <Valued kind="wind">{st.wind} km/h</Valued> : '–'}</span>
+                <span className="w-12 text-right text-xs tabular-nums @max-[30rem]:w-auto" style={{ color: 'var(--info)' }}>{st.rain != null ? <Valued kind="rain">{st.rain}%</Valued> : '–'}</span>
                 <StormBar storm={st.storm} compact lang={lang} className="shrink-0" />
               </li>
             ))}
           </ol>
+          <ValueKey lang={lang} kinds={['wind', 'rain']} className="px-1">
+            <span><span className="text-zinc-400">(°)</span> {t(lang, 'feelsLike')}</span>
+          </ValueKey>
+          <StormLegend lang={lang} className="px-1" />
         </section>
       )}
 

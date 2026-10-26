@@ -9,6 +9,7 @@ import { MetricCard } from '../ui'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
 import Notes from './Notes'
+import { Valued, ValueKey } from '../ValueKey'
 
 function Agree({ level, lang }) {
   if (level == null) return <span className="w-8 shrink-0" />
@@ -58,7 +59,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                   />
                 </span>
                 <span className="w-9 shrink-0 tabular-nums">{fmt.fmtTemp(d.tempMax)}</span>
-                <span className="w-10 shrink-0 text-right tabular-nums" style={{ color: 'var(--info)' }}>{d.rainPct != null ? `${d.rainPct}%` : '–'}</span>
+                <span className="w-12 shrink-0 text-right tabular-nums" style={{ color: 'var(--info)' }}>{d.rainPct != null ? <Valued kind="rain">{d.rainPct}%</Valued> : '–'}</span>
                 <Agree level={d.agree} lang={lang} />
               </button>
               {d.spread > 4 && (
@@ -71,7 +72,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
           )
         })}
       </div>
-      <p className="text-zinc-500 text-xs">{t(lang, 'agreeHint')}</p>
+      <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       {(w1 != null || rd?.of > 0) && (
         <div className="flex flex-wrap gap-3">
           {w1 != null && (

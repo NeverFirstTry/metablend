@@ -99,7 +99,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
               <HourlyChart hours={hours} unit={unit} lang={lang} />
               <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
               <SummitStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={d.sunByDate?.[date] ?? d.sun} lang={lang} />
-              <StormLegend lang={lang} />
+              <StormLegend lang={lang} className="mt-1.5" />
             </div>
           )}
           <div className="flex flex-wrap gap-3">

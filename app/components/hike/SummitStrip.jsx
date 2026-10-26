@@ -4,6 +4,7 @@ import { t } from '@/lib/i18n'
 import { summitHourLabel, stormSegments } from '@/lib/a11y-text'
 import { isDark, nightIcon } from '@/lib/sky'
 import ScrollStrip from '../ScrollStrip'
+import { Valued, ValueKey } from '../ValueKey'
 
 export const STORM_COLOR = { low: 'var(--ok)', moderate: 'var(--warn)', high: 'var(--bad)' }
 
@@ -27,28 +28,31 @@ export function StormBar({ storm, className = '', compact = false, lang = null }
 // screen readers get one sentence per card.
 export default function SummitStrip({ hours, fmtTemp, sun, lang }) {
   return (
-    <ScrollStrip label={t(lang, 'hourByHour')}>
-      <div role="list" className="flex gap-1.5 min-w-max">
-        {hours.map(h => (
-          <div key={h.t} role="listitem" className="min-w-16 px-1 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
-            <span className="sr-only">{summitHourLabel(lang, h, fmtTemp)}</span>
-            <div className="text-zinc-500 tabular-nums" aria-hidden>{h.t.slice(11, 16)}</div>
-            <div className="text-lg leading-tight" aria-hidden>{(isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon) ?? '·'}</div>
-            <div className="font-bold tabular-nums" aria-hidden>{fmtTemp(h.temp)}</div>
-            <div className="tabular-nums text-zinc-400" aria-hidden>{h.windKmh != null ? `${h.windKmh} km/h` : '–'}</div>
-            <div className="tabular-nums text-zinc-500" aria-hidden>{h.freezingLevel != null ? `${h.freezingLevel} m` : '–'}</div>
-            <div className="tabular-nums" style={{ color: 'var(--info)' }} aria-hidden>{h.rainPct != null ? `${h.rainPct}%` : '–'}</div>
-            <StormBar storm={h.storm} className="mt-1 justify-center" />
-          </div>
-        ))}
-      </div>
-    </ScrollStrip>
+    <>
+      <ScrollStrip label={t(lang, 'hourByHour')}>
+        <div role="list" className="flex gap-1.5 min-w-max">
+          {hours.map(h => (
+            <div key={h.t} role="listitem" className="min-w-16 px-1 shrink-0 bg-zinc-800/50 border border-zinc-800 rounded-xl py-2 text-center text-xs leading-relaxed">
+              <span className="sr-only">{summitHourLabel(lang, h, fmtTemp)}</span>
+              <div className="text-zinc-500 tabular-nums" aria-hidden>{h.t.slice(11, 16)}</div>
+              <div className="text-lg leading-tight" aria-hidden>{(isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon) ?? '·'}</div>
+              <div className="font-bold tabular-nums" aria-hidden>{fmtTemp(h.temp)}</div>
+              <div className="tabular-nums text-zinc-400" aria-hidden>{h.windKmh != null ? <Valued kind="wind">{h.windKmh} km/h</Valued> : '–'}</div>
+              <div className="tabular-nums text-zinc-500" aria-hidden>{h.freezingLevel != null ? <Valued kind="freezing">{h.freezingLevel} m</Valued> : '–'}</div>
+              <div className="tabular-nums" style={{ color: 'var(--info)' }} aria-hidden>{h.rainPct != null ? <Valued kind="rain">{h.rainPct}%</Valued> : '–'}</div>
+              <StormBar storm={h.storm} className="mt-1 justify-center" />
+            </div>
+          ))}
+        </div>
+      </ScrollStrip>
+      <ValueKey lang={lang} kinds={['summitWind', 'freezing', 'rain']} className="mt-3" />
+    </>
   )
 }
 
-export function StormLegend({ lang }) {
+export function StormLegend({ lang, className = 'mt-3' }) {
   return (
-    <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
+    <div className={`flex flex-wrap items-center gap-3 text-xs text-zinc-500 ${className}`}>
       <span>{t(lang, 'stormRisk')}:</span>
       {['low', 'moderate', 'high'].map(k => (
         <span key={k} className="inline-flex items-center gap-1.5">
