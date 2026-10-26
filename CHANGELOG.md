@@ -5,6 +5,19 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-26
 
+### Added — sign up for the Android test by email
+- /testers: leave the Gmail address of the Google account on your phone's
+  Play Store (and, if you like, your phone model and country) and you're added
+  to the closed test's email list and sent the link — no Google Group to join.
+  The group stays as the other way in. Three tips under it: open the link with
+  that same account, the app can take minutes to hours to show up in Play,
+  and the test runs 14 days. All 13 languages.
+- The privacy notice says what the sign-up stores, why, for how long (until
+  the test ends) and how to have it deleted.
+- For the owner: `node scripts/testers.mjs export` (the list for Play Console),
+  `new`, `mark-added`, `status`, `delete`, `delete-all`. Needs
+  `supabase/tester-signups.sql`.
+
 ### Added — what the numbers mean
 - Every kind of number now carries the same small icon wherever it shows: a
   droplet for the chance of rain, wind for wind, a snowflake for the freezing
