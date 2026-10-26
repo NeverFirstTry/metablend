@@ -167,7 +167,8 @@ export default function Home() {
   // at once — empty on a fresh page load, so the first render matches the server's
   const [city, setCity] = useState(() => SESSION.city || '')
   const [data, setData] = useState(() => SESSION.data)
-  const [loading, setLoading] = useState(false)
+  // left while the first forecast was loading: back straight to its loader
+  const [loading, setLoading] = useState(() => !SESSION.data && !!SESSION.pending)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
   // The future forecast (today / tomorrow / week) — fetched alongside "right
@@ -386,6 +387,7 @@ export default function Home() {
     if (silent) setRefreshing(true)
     else {
       setLoading(true); setError(null)
+      if (!data) rememberForecast({ pending: q })
       // a search is on its way: a suggestion lookup still pending from the last
       // keystrokes must not pop its list open over the loader
       clearTimeout(suggestTimer.current); suggestSeq.current++; setShowSuggestions(false)
@@ -400,6 +402,8 @@ export default function Home() {
       if (json.error) throw new Error(json.error)
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
+      // kept even if the tab was left meanwhile (the effect below no longer runs then)
+      rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
       if (out) { setOutlook(out); setOutlookError(null) }
       else {
         setOutlookError(outRes.status === 'fulfilled' ? outRes.value?.error ?? 'error' : 'network')
@@ -441,7 +445,7 @@ export default function Home() {
       }
     } finally {
       if (silent) setRefreshing(false)
-      else setLoading(false)
+      else { setLoading(false); rememberForecast({ pending: null }) }
     }
   }
 
