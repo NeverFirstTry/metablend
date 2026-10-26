@@ -21,6 +21,7 @@
   --bad:     #f87171;
   --info:    #60a5fa;
   --hot:     #fb923c;
+  --lifr:    #d8b4fe;  /* purple-300: aviation's LIFR flight rules */
   --neutral: #a1a1aa;
   --map-bg:  #0a0a0d;
 
@@ -45,6 +46,7 @@
   --bad:     #b91c1c;
   --info:    #1d4ed8;
   --hot:     #c2410c;
+  --lifr:    #7e22ce;  /* purple-700 */
   --neutral: #52525b;
   --map-bg:  #e5e7e1;
 }
@@ -333,7 +335,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --muted: rgb(226 234 247 / 0.78);
   --accent: #ffd98a;          /* sunlight */
   --accent-strong: #ffe7b3;
-  --ok: #8eecc4; --warn: #ffd166; --bad: #ffb8b8; --info: #a9d1ff; --hot: #ffbb99; --neutral: rgb(226 234 247 / 0.7);
+  --ok: #8eecc4; --warn: #ffd166; --bad: #ffb8b8; --info: #a9d1ff; --hot: #ffbb99; --lifr: #e2c6ff; --neutral: rgb(226 234 247 / 0.7);
   --surface-2: rgb(255 255 255 / 0.08); --surface-3: rgb(255 255 255 / 0.15);
   --glass: rgb(255 255 255 / 0.075);
   --glass-strong: rgb(9 14 32 / 0.55);
@@ -404,7 +406,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --muted: rgb(15 27 51 / 0.72);
   --accent: #1c3f9e;
   --accent-strong: #132f78;
-  --ok: #064f34; --warn: #663c00; --bad: #861b1f; --info: #154192; --hot: #7e2a08; --neutral: rgb(15 27 51 / 0.7);
+  --ok: #064f34; --warn: #663c00; --bad: #861b1f; --info: #154192; --hot: #7e2a08; --lifr: #5b1a8f; --neutral: rgb(15 27 51 / 0.7);
   --surface-2: rgb(15 27 51 / 0.07); --surface-3: rgb(15 27 51 / 0.13);
   --glass: rgb(255 255 255 / 0.56);
   --glass-strong: rgb(255 255 255 / 0.74);
