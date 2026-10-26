@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Route as RouteIcon, ChevronRight } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { routesApiPath } from '@/lib/hike/params'
+import { isMultiDay } from '@/lib/route/timing'
 import { routeLabel, sacGrade } from '@/lib/route/osm'
 import { SectionTitle } from '../ui'
 
@@ -49,7 +50,7 @@ export default function RouteList({ peak, lang }) {
                   <span className="block font-medium truncate">{routeLabel(r) ?? t(lang, 'routeUnnamed')}</span>
                   <span className="block text-xs text-zinc-500">
                     {/* terrain-model heights: ≈; none: no time at all (it would be a flat-land time, far too short) */}
-                    {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · {r.minutes == null ? t(lang, 'routeNoHeightsShort') : `↑≈${r.ascentM} m · ~${duration(r.minutes)}`}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
+                    {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · {r.minutes == null ? t(lang, 'routeNoHeightsShort') : `↑≈${r.ascentM} m · ~${duration(r.minutes)}${isMultiDay(r.minutes) ? ` · ${t(lang, 'routeMultiDayShort')}` : ''}`}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>
                 </span>
                 <ChevronRight size={16} className="text-zinc-500" aria-hidden />
