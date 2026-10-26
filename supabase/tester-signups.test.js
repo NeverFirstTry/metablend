@@ -7,6 +7,8 @@ import { PGlite } from '@electric-sql/pglite'
 const sql = fs.readFileSync(new URL('./tester-signups.sql', import.meta.url), 'utf8')
 const db = new PGlite()
 await db.exec('create role anon; create role authenticated; create role service_role;')
+// what a Supabase project grants on every new table — the SQL must take it back from the API roles
+await db.exec('alter default privileges in schema public grant all on tables to anon, authenticated, service_role;')
 await db.exec(sql)
 await db.exec(sql) // safe to run twice
 
@@ -36,6 +38,18 @@ test('tester_signups — row level security on, nothing for the public API roles
   for (const role of ['anon', 'authenticated']) {
     for (const priv of ['select', 'insert', 'update', 'delete']) {
       assert.equal((await db.query('select has_table_privilege($1, $2, $3) as ok', [role, 'public.tester_signups', priv])).rows[0].ok, false, `${role} ${priv}`)
+    }
+  }
+})
+
+test('tester_signups — the server routes (service role) can read and write it, whatever the project defaults', async () => {
+  // a project without Supabase's default grants: the SQL's own grant must be enough
+  const bare = new PGlite()
+  await bare.exec('create role anon; create role authenticated; create role service_role;')
+  await bare.exec(sql)
+  for (const d of [db, bare]) {
+    for (const priv of ['select', 'insert', 'update', 'delete']) {
+      assert.equal((await d.query('select has_table_privilege($1, $2, $3) as ok', ['service_role', 'public.tester_signups', priv])).rows[0].ok, true, priv)
     }
   }
 })

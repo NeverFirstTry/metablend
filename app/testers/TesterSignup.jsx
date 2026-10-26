@@ -1,6 +1,6 @@
 'use client'
 
-import { useId, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { t } from '@/lib/i18n'
 import { MAX_TEXT } from '@/lib/testers-signup'
 
@@ -15,6 +15,10 @@ export default function TesterSignup({ lang }) {
   const id = useId()
   const [state, setState] = useState('idle') // idle | sending | done | error
   const [error, setError] = useState('')
+  const [badEmail, setBadEmail] = useState(false)
+  const done = useRef(null)
+  // the form (and the focused button) is replaced: take focus along, so screen readers read the confirmation
+  useEffect(() => { if (state === 'done') done.current?.focus() }, [state])
 
   async function submit(e) {
     e.preventDefault()
@@ -25,12 +29,14 @@ export default function TesterSignup({ lang }) {
       const res = await fetch('/api/testers/signup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: text('email'), phone: text('phone'), country: text('country'), consent: f.get('consent') === 'on', lang, website: text('website') }),
+        body: JSON.stringify({ email: text('email'), phone: text('phone'), country: text('country'), consent: f.get('consent') === 'on', lang, mb_hp: text('mb_hp') }),
       })
       if (res.ok) return setState('done')
       const body = await res.json().catch(() => ({}))
+      setBadEmail(body.field === 'email')
       setError(t(lang, res.status === 429 ? 'testersSignupTooMany' : body.field === 'email' ? 'testersSignupInvalid' : 'testersSignupFailed'))
     } catch {
+      setBadEmail(false)
       setError(t(lang, 'testersSignupFailed'))
     }
     setState('error')
@@ -38,7 +44,7 @@ export default function TesterSignup({ lang }) {
 
   if (state === 'done') {
     return (
-      <div role="status" className="rounded-xl border p-4 space-y-1.5 text-sm" style={{ borderColor: 'var(--ok)' }}>
+      <div ref={done} tabIndex={-1} role="status" className="rounded-xl border p-4 space-y-1.5 text-sm outline-none" style={{ borderColor: 'var(--ok)' }}>
         <p className="font-semibold" style={{ color: 'var(--ok)' }}>{t(lang, 'testersSignupDone')}</p>
         <p className="text-zinc-300">{t(lang, 'testersSignupNext')}</p>
       </div>
@@ -46,13 +52,14 @@ export default function TesterSignup({ lang }) {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3">
+    // method=post: a tap before the script has loaded must not put the address in the URL
+    <form onSubmit={submit} method="post" className="space-y-3">
       <h3 className="font-semibold">{t(lang, 'testersSignupTitle')}</h3>
       <p className="text-sm text-zinc-400">{t(lang, 'testersSignupIntro')}</p>
       <div className="space-y-1.5">
         <label htmlFor={`${id}-email`} className="block text-sm text-zinc-200">{t(lang, 'testersEmailLabel')}</label>
         <input id={`${id}-email`} name="email" type="email" required maxLength={254} autoComplete="email" inputMode="email"
-          aria-describedby={`${id}-hint`} className={field} />
+          aria-invalid={badEmail || undefined} aria-describedby={badEmail ? `${id}-hint ${id}-error` : `${id}-hint`} className={field} />
         <p id={`${id}-hint`} className="text-xs text-zinc-500">{t(lang, 'testersEmailHint')}</p>
       </div>
       <div className="grid sm:grid-cols-2 gap-3">
@@ -67,13 +74,13 @@ export default function TesterSignup({ lang }) {
       </div>
       {/* honeypot: off-screen, skipped by keyboard and screen readers — only bots fill it */}
       <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
-        <label>Website <input name="website" tabIndex={-1} autoComplete="off" /></label>
+        <label>Leave this field empty <input name="mb_hp" tabIndex={-1} autoComplete="off" /></label>
       </div>
       <label className="flex items-start gap-2.5 text-xs text-zinc-400 leading-relaxed">
         <input type="checkbox" name="consent" required className="mt-0.5 h-4 w-4 shrink-0 accent-emerald-400" />
         <span>{t(lang, 'testersConsent')}</span>
       </label>
-      {state === 'error' && <p role="alert" className="text-sm" style={{ color: 'var(--bad)' }}>{error}</p>}
+      {state === 'error' && <p id={`${id}-error`} role="alert" className="text-sm" style={{ color: 'var(--bad)' }}>{error}</p>}
       <button type="submit" disabled={state === 'sending'} className={button}>
         {t(lang, state === 'sending' ? 'testersSignupSending' : 'testersSignupSend')}
       </button>

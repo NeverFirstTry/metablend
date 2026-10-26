@@ -7,17 +7,16 @@ import { listTesters, applyAdminAction } from '@/lib/testers-store'
 // The owner's side of the Android tester list — the calibrate key in the
 // x-calibrate-key header (never a query parameter). scripts/testers.mjs wraps it.
 //
-// GET → the Play Console email list (Closed testing → Testers → email list →
-// upload CSV): everyone still in the test, one address per line. An upload
-// REPLACES the list, which is why it holds everyone, not just the new ones.
-// GET ?only=new → just the new addresses, comma-separated, for Play's
-// "add email addresses" box (which appends) or the Bcc of the opt-in mail.
-// X-Exported-At says when; POST { action: 'mark-added', upTo: <it> } then
-// marks exactly those new ones added.
+// GET → the Play Console email list: everyone still in the test, one address
+// per line. Upload it to an email list kept ONLY for these sign-ups (e.g.
+// "metablend.app sign-ups"; a track can have several lists): an upload
+// REPLACES the whole list, so addresses typed into it by hand would be gone.
+// GET ?format=json[&only=new] → the same rows as JSON (email, status,
+// created_at), so the script knows exactly which new addresses a file held.
 //
-// POST → { action: 'mark-added', upTo } | { action: 'set-status', status,
-// emails } | { action: 'delete', emails } | { action: 'delete-all', confirm:
-// 'delete all testers' } (when the test ends).
+// POST → { action: 'set-status', status, emails } (e.g. added, for exactly the
+// exported new ones) | { action: 'delete', emails } (on request) |
+// { action: 'delete-all', confirm: 'delete all testers' } (when the test ends).
 const NO_STORE = { 'Cache-Control': 'no-store' }
 const denied = request => {
   const problem = jobKeyProblem(request)
@@ -27,19 +26,19 @@ const denied = request => {
 export const GET = withErrorLog('testers.export', async (request) => {
   const no = denied(request)
   if (no) return no
-  const onlyNew = new URL(request.url).searchParams.get('only') === 'new'
-  // taken before the read: a sign-up during the read is never marked added unseen
-  const exportedAt = new Date().toISOString()
-  const rows = await listTesters(supabase, { onlyNew })
-  const headers = {
-    ...NO_STORE,
-    'X-Exported-At': exportedAt,
-    'X-Count': String(rows.length),
-    'X-New': String(rows.filter(r => r.status === 'new').length),
+  const sp = new URL(request.url).searchParams
+  if (sp.get('format') === 'json') {
+    return Response.json({ testers: await listTesters(supabase, { onlyNew: sp.get('only') === 'new' }) }, { headers: NO_STORE })
   }
-  if (onlyNew) return new Response(rows.map(r => r.email).join(', '), { headers: { ...headers, 'Content-Type': 'text/plain; charset=utf-8' } })
+  const rows = await listTesters(supabase)
   return new Response(testersCsv(rows), {
-    headers: { ...headers, 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': 'attachment; filename="metablend-testers.csv"' },
+    headers: {
+      ...NO_STORE,
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': 'attachment; filename="metablend-testers.csv"',
+      'X-Count': String(rows.length),
+      'X-New': String(rows.filter(r => r.status === 'new').length),
+    },
   })
 })
 

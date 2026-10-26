@@ -14,9 +14,11 @@ All notable changes to MetaBlend. Format loosely follows
   and the test runs 14 days. All 13 languages.
 - The privacy notice says what the sign-up stores, why, for how long (until
   the test ends) and how to have it deleted.
-- For the owner: `node scripts/testers.mjs export` (the list for Play Console),
-  `new`, `mark-added`, `status`, `delete`, `delete-all`. Needs
-  `supabase/tester-signups.sql`.
+- For the owner: `node scripts/testers.mjs export` (the list for Play Console —
+  upload it to an email list kept only for these sign-ups, because an upload
+  replaces that list), then `mark-added` (exactly the new ones in that file,
+  with their addresses for the opt-in mail); also `new`, `status`, `delete`,
+  `delete-all`. Needs `supabase/tester-signups.sql`.
 
 ### Added — what the numbers mean
 - Every kind of number now carries the same small icon wherever it shows: a

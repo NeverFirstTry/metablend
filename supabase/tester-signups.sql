@@ -17,3 +17,5 @@ create table if not exists public.tester_signups (
 create index if not exists tester_signups_status_idx on public.tester_signups (status, created_at);
 alter table public.tester_signups enable row level security;
 revoke all on public.tester_signups from anon, authenticated;
+-- the server routes' role, not left to the project's default grants
+grant select, insert, update, delete on public.tester_signups to service_role;
