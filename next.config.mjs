@@ -14,6 +14,9 @@ const nextConfig = {
     // 2026-10-03 that shipped a stale globals.css (new utility classes, old
     // theme colours). Fresh CSS on every deploy is worth the extra build time.
     turbopackFileSystemCacheForBuild: false,
+    // a page visited in the app is reused for 3 minutes when you come back (tab
+    // switches); the tab bar prefetches Hiking and More in full (5 minutes)
+    staleTimes: { dynamic: 180 },
   },
   async headers() {
     return [

@@ -14,6 +14,8 @@ import HikeNotes from './HikeNotes'
 import RouteScreen from './RouteScreen'
 import MyRoutes from './MyRoutes'
 import PeakDirectory from './PeakDirectory'
+// in the app's code (downloaded once, cached), not in every visit's page data
+import featured from '@/lib/hike/featured.json'
 
 // The app-only hiking section: search + featured peaks, then one peak's
 // summit forecast. The peak lives in the URL so the phone's back button and
@@ -21,7 +23,7 @@ import PeakDirectory from './PeakDirectory'
 // the hike screens visited while this page is open (lib/hike/nav.js)
 const TRAIL = []
 
-function HikeAppInner({ featured }) {
+function HikeAppInner() {
   const lang = useLang()
   const unit = useUnit()
   const router = useRouter()
@@ -57,10 +59,10 @@ function HikeAppInner({ featured }) {
   )
 }
 
-export default function HikeApp(props) {
+export default function HikeApp() {
   return (
     <Suspense fallback={null}>
-      <HikeAppInner {...props} />
+      <HikeAppInner />
     </Suspense>
   )
 }

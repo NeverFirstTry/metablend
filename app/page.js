@@ -18,6 +18,7 @@ import { nativeShare } from '@/lib/native'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { startCity } from '@/lib/app-client'
+import { SESSION, rememberForecast, resumeForecast } from '@/lib/forecast-session'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
@@ -162,21 +163,23 @@ const AUTO_REFRESH_MS = 15 * 60 * 1000
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function Home() {
-  const [city, setCity] = useState('')
-  const [data, setData] = useState(null)
+  // back on this tab (the app's tabs unmount it): the last screen from memory
+  // at once — empty on a fresh page load, so the first render matches the server's
+  const [city, setCity] = useState(() => SESSION.city || '')
+  const [data, setData] = useState(() => SESSION.data)
   const [loading, setLoading] = useState(false)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
   // The future forecast (today / tomorrow / week) — fetched alongside "right
   // now" and failing independently of it.
-  const [outlook, setOutlook] = useState(null)
+  const [outlook, setOutlook] = useState(() => SESSION.outlook)
   const [outlookError, setOutlookError] = useState(null)
-  const [tab, setTab] = useState('today')
+  const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [lang, setLang] = useState('en')
+  const [lang, setLang] = useState(() => SESSION.lang ?? 'en')
   const [langPick, setLangPick] = useState(LANG_SYSTEM) // what the picker shows: a language, or follow the phone
-  const [unit, setUnit] = useState('C')
+  const [unit, setUnit] = useState(() => SESSION.unit ?? 'C')
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
@@ -191,7 +194,7 @@ export default function Home() {
   const [compareLoading, setCompareLoading] = useState(false)
   // Refresh / auto-refresh
   const [refreshing, setRefreshing] = useState(false)      // silent background re-fetch
-  const [nextRefreshAt, setNextRefreshAt] = useState(null) // ms timestamp of next auto-refresh
+  const [nextRefreshAt, setNextRefreshAt] = useState(() => SESSION.nextRefreshAt) // ms timestamp of next auto-refresh
   const [justUpdated, setJustUpdated] = useState(false)    // drives the "Updated just now" flash
   const [nowTick, setNowTick] = useState(() => Date.now()) // re-renders the countdown each second
   const autoRefreshRef = useRef(() => {})
@@ -226,15 +229,22 @@ export default function Home() {
     // per-city SEO pages and the RSS feed links).
     // Inside the app the Forecast tab reloads the page, so it brings back the
     // last city looked at.
-    const first = startCity({
-      deepLink: new URLSearchParams(window.location.search).get('city'),
-      inApp: document.documentElement.dataset.app === '1',
-      last: (() => { try { return sessionStorage.getItem(LAST_KEY) } catch { return null } })(),
-      recent: getRecent(),
-    })
-    if (first) {
-      setCity(first)
-      loadForecast(first, { lang: detectedLang, remember: false })
+    const deepLink = new URLSearchParams(window.location.search).get('city')
+    const resume = resumeForecast({ deepLink })
+    if (resume.restore) {
+      // the last screen is already showing (state initializers); refresh it quietly when due
+      if (resume.refresh) loadForecast(SESSION.city, { silent: true, lang: detectedLang })
+    } else {
+      const first = resume.load ?? startCity({
+        deepLink,
+        inApp: document.documentElement.dataset.app === '1',
+        last: (() => { try { return sessionStorage.getItem(LAST_KEY) } catch { return null } })(),
+        recent: getRecent(),
+      })
+      if (first) {
+        setCity(first)
+        loadForecast(first, { lang: detectedLang, remember: false })
+      }
     }
     /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -329,6 +339,10 @@ export default function Home() {
   useSky(outlook ? skyFor({ code: outlook.hourly?.[0]?.code, nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
   useEffect(() => { document.documentElement.lang = lang }, [lang])
+  // what a later visit to this tab starts from (lib/forecast-session.js)
+  useEffect(() => {
+    rememberForecast({ city: data?.city ?? '', data, outlook, tab, lang, unit, nextRefreshAt })
+  }, [data, outlook, tab, lang, unit, nextRefreshAt])
 
   function giveConsent() {
     setCookie('metablend_consent', '1')

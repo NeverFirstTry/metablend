@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MapPin, MountainSnow, ChevronDown } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { nearest, byRegion, lastCityPos, isOpen, toggled } from '@/lib/hike/featured-list'
-import { nearCell, pickNearPeaks, nearView } from '@/lib/hike/near'
+import { nearCell, pickNearPeaks, nearView, nearSection } from '@/lib/hike/near'
 import { grantedPosition } from '@/lib/native'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
@@ -50,9 +50,10 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
     fetch(`/api/peaks/near?lat=${lat}&lon=${lon}&v=2`)
       .then(r => (r.ok ? r.json() : null))
       .then(j => {
+        // kept even when the tab was left meanwhile: the next visit then has it at once
+        if (Array.isArray(j?.summits)) MEMO.near = { key, peaks: j.summits }
         if (off) return
         if (!Array.isArray(j?.summits)) { setFailed(key); return }
-        MEMO.near = { key, peaks: j.summits }
         setSummits(MEMO.near)
       })
       .catch(() => { if (!off) setFailed(key) })
@@ -64,6 +65,7 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   const arrived = view.status === 'ready' || view.status === 'empty'
   // picked from where you are, not from the cell's centre
   const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here) : []), [arrived, view.peaks, peaks, here])
+  const nearShows = nearSection(view, near.length)
   const groups = useMemo(() => byRegion(peaks), [peaks])
   // the region to open: the nearest featured peak's (summits have no group)
   const openRegion = useMemo(() => (linked ? nearest(peaks, here, 1)[0]?.region ?? null : null), [linked, peaks, here])
@@ -75,17 +77,18 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
 
   return (
     <div className="space-y-6">
-      {(near.length > 0 || view.status === 'loading' || view.status === 'failed') && (
+      {nearShows !== 'hidden' && (
         <section className="space-y-3">
           <SectionTitle icon={MapPin}>{t(lang, 'hikeNearYou')}</SectionTitle>
-          {view.status === 'loading' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearLoading')}</p>}
-          {view.status === 'failed' && (
+          {nearShows === 'loading' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearLoading')}</p>}
+          {nearShows === 'failed' && (
             <p className="text-sm text-zinc-400">
               {t(lang, 'hikeNearFailed')}{' '}
               <button onClick={retry} className="press underline hover:text-emerald-400">{t(lang, 'retry')}</button>
             </p>
           )}
-          {near.length > 0 && <FeaturedList peaks={near} hrefFor={hrefFor} />}
+          {nearShows === 'none' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearNone')}</p>}
+          {nearShows === 'list' && <FeaturedList peaks={near} hrefFor={hrefFor} />}
         </section>
       )}
       <section className="space-y-2">

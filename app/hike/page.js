@@ -15,6 +15,7 @@ import StoreBadges from '../components/hike/StoreBadges'
 import HikeNotes from '../components/hike/HikeNotes'
 import HikeApp from '../components/hike/HikeApp'
 import AppFlag from './AppFlag'
+import AppRescue from './AppRescue'
 import LangPack from '../components/LangPack'
 
 export const metadata = {
@@ -53,7 +54,7 @@ export default async function HikePage({ searchParams }) {
   const h = await headers()
   const appParam = typeof sp?.app === 'string' ? sp.app : null
   if (isAppRequest({ userAgent: h.get('user-agent') ?? '', cookie: h.get('cookie') ?? '', appParam })) {
-    return shell(<><AppFlag value={appParam} /><HikeApp featured={featured} /></>)
+    return shell(<><AppFlag value={appParam} /><HikeApp /></>)
   }
 
   const saved = (await cookies()).get('metablend_lang')?.value
@@ -67,9 +68,12 @@ export default async function HikePage({ searchParams }) {
   const date = late ? addDays(todayLocal, 1) : todayLocal
   const stormUnknown = !!data?.notes?.includes('no_storm_data')
 
+  // .web-only: should this ever reach the app, it's hidden before first paint
+  // and AppRescue loads the app view instead
   return shell(
-    <>
+    <div className="web-only">
       <AppFlag value={appParam} />
+      <AppRescue />
       <LangPack lang={lang} />
       <div className="flex items-center justify-between mb-6">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
@@ -96,6 +100,6 @@ export default async function HikePage({ searchParams }) {
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>
       <Footer lang={lang} />
-    </>,
+    </div>,
   )
 }

@@ -13,6 +13,7 @@ import { getCookie } from '@/lib/prefs'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
+import { tabOf, tabHref, rememberTabUrl, lastTabUrls } from '@/lib/app-tabs'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -57,17 +58,24 @@ export default function AppChrome() {
   }, [router])
 
   if (!app) return null
-  const active = href => (href === '/' ? path === '/' : path?.startsWith(href))
+  const activeTab = tabOf(path)
+  const leave = () => {
+    // coming back to Hiking finds the peak or route you had open (lib/app-tabs.js)
+    rememberTabUrl(activeTab, window.location.pathname + window.location.search)
+    tapHaptic()
+  }
   return (
     <nav aria-label="MetaBlend" className="app-tabbar fixed bottom-0 inset-x-0 z-40 border-t border-zinc-800 bg-[#0e0e12]/95 backdrop-blur">
       <div className="max-w-3xl mx-auto grid grid-cols-3">
         {TABS.map(([href, key, Icon]) => (
           <Link
             key={href}
-            href={href}
-            onClick={() => tapHaptic()}
-            aria-current={active(href) ? 'page' : undefined}
-            className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${active(href) ? 'text-emerald-400' : 'text-zinc-500'}`}
+            href={tabHref(href, lastTabUrls(), activeTab)}
+            // Hiking and More fetched ahead in full (kept 5 minutes), so a tap shows them at once
+            prefetch={href === '/' ? undefined : true}
+            onClick={leave}
+            aria-current={activeTab === href ? 'page' : undefined}
+            className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${activeTab === href ? 'text-emerald-400' : 'text-zinc-500'}`}
           >
             <Icon size={20} aria-hidden /> {t(lang, key)}
           </Link>
