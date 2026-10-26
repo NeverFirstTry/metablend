@@ -8,7 +8,7 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
   Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
-  Sparkles, Plane, MountainSnow, Smartphone,
+  Sparkles, Plane, MountainSnow, Smartphone, ChevronDown,
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -679,6 +679,24 @@ ${url}`)
         {/* In-development disclaimer */}
         <BetaBanner lang={lang} className="mb-8 web-only" />
 
+        {/* First use in the app (no city yet): one clear way to start. Only CSS shows it
+            (html[data-first-use], set before first paint), so it's there from the first
+            frame; the phone asks for location only when it's tapped, never by itself. */}
+        {!data && !loading && (
+          <div className="first-use-only mb-4">
+            <button onClick={handleLocation} disabled={locating}
+              className="press w-full text-left rounded-2xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-4 flex items-center gap-4 disabled:opacity-60">
+              {locating
+                ? <Loader2 size={22} className="shrink-0 text-emerald-400 animate-spin-slow" aria-hidden />
+                : <Navigation size={22} className="shrink-0 text-emerald-400" aria-hidden />}
+              <span className="min-w-0">
+                <span className="block font-semibold">{t(lang, 'a11yLocate')}</span>
+                <span className="block text-sm text-zinc-400 mt-0.5">{t(lang, 'locateCardText')}</span>
+              </span>
+            </button>
+          </div>
+        )}
+
         {/* Search (large text: the field on its own line above the buttons) */}
         <div className="@container relative flex flex-wrap gap-2 mb-8">
           <button
@@ -945,7 +963,9 @@ ${url}`)
 
             <PushPrompt lang={lang} unit={unit} />
 
-            <Fold icon={Layers} title={t(lang, 'sourcesFold')}>
+            {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
+            <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
+              summary={fill(t(lang, 'widgetSources'), { n: data.sources.filter(s => !s.down).length, agree: data.consensus.confidencePct })}>
               <SourcesPanel data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
             </Fold>
             <Fold icon={Send} title={t(lang, 'feedbackFold')}>
@@ -958,14 +978,18 @@ ${url}`)
         {/* Plain-language explainer: comprehension for new visitors and the
             only real prose on an otherwise UI-heavy page (search engines
             index this for generic consensus/accuracy queries). */}
-        <section className="mt-16 max-w-2xl" aria-labelledby="how-title">
-          <h2 id="how-title" className="text-lg font-bold mb-3">{t(lang, 'howTitle')}</h2>
-          <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
+        {/* collapsed: the title shows, a tap opens it; still in the HTML for search engines */}
+        <details className="group mt-16 max-w-2xl">
+          <summary className="press flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+            <h2 className="text-lg font-bold">{t(lang, 'howTitle')}</h2>
+            <ChevronDown size={18} className="shrink-0 text-zinc-500 transition-transform group-open:rotate-180" aria-hidden />
+          </summary>
+          <div className="mt-3 space-y-3 text-sm text-zinc-400 leading-relaxed">
             <p>{t(lang, 'howP1')}</p>
             <p>{t(lang, 'howP2')}</p>
             <p>{t(lang, 'howP3')}</p>
           </div>
-        </section>
+        </details>
 
         <Footer lang={lang} />
       </div>
