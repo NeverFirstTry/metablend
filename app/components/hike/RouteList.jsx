@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Route as RouteIcon, ChevronRight } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { routesApiPath } from '@/lib/hike/params'
 import { routeLabel, sacGrade } from '@/lib/route/osm'
 import { SectionTitle } from '../ui'
 
@@ -15,13 +16,14 @@ export default function RouteList({ peak, lang }) {
   const router = useRouter()
   const [state, setState] = useState({ routes: null, error: false })
 
+  const url = routesApiPath(peak)
   useEffect(() => {
     let off = false
-    fetch(`/api/routes?lat=${peak.lat}&lon=${peak.lon}&elev=${Math.round(peak.elev)}&name=${encodeURIComponent(peak.name ?? '')}`)
+    fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then(d => { if (!off) setState({ routes: d.routes ?? [], error: false }) }, () => { if (!off) setState({ routes: [], error: true }) })
     return () => { off = true }
-  }, [peak.lat, peak.lon, peak.elev, peak.name])
+  }, [url])
 
   const open = id => {
     const sp = new URLSearchParams(window.location.search)

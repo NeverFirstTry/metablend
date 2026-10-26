@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { t } from '@/lib/i18n'
+import { routesApiPath } from '@/lib/hike/params'
 import { routeLabel } from '@/lib/route/osm'
 import { getRoute, saveRoute } from '@/lib/route-store'
 import { highestIndex } from '@/lib/route/geometry'
@@ -22,7 +23,7 @@ export default function RouteScreen({ routeId, peak, lang, unit, onBack }) {
     const done = (route, saved) => { if (!off) setState({ route, missing: !route, saved }) }
     if (routeId.startsWith('osm-') && lat != null) {
       const id = Number(routeId.slice(4))
-      fetch(`/api/routes?lat=${lat}&lon=${lon}&elev=${Math.round(elev)}&name=${encodeURIComponent(peakName)}`)
+      fetch(routesApiPath({ lat, lon, elev, name: peakName }))
         .then(r => (r.ok ? r.json() : { routes: [] }))
         .then(async ({ routes }) => {
           const r = (routes ?? []).find(x => x.id === id)
