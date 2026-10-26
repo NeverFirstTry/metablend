@@ -2,7 +2,7 @@ import TestersContent from './TestersContent'
 
 export const metadata = {
   title: 'Test the MetaBlend app',
-  description: 'Join the MetaBlend beta on Android or iPhone: weather from 16 sources, summit forecasts and hiking routes.',
+  description: 'Join the MetaBlend beta on Android or iPhone: weather from 26 sources, summit forecasts and hiking routes.',
   alternates: { canonical: '/testers' },
 }
 

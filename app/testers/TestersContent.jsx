@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { TESTERS, channelOpen } from '@/lib/testers'
 import Footer from '../components/Footer'
+import TesterSignup from './TesterSignup'
 
 const button = 'inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold bg-emerald-400 text-black hover:bg-emerald-300'
 
@@ -22,8 +23,8 @@ const Out = ({ href, children }) => (
   <a href={href} target="_blank" rel="noopener noreferrer" className={button}>{children} <ExternalLink size={14} aria-hidden /></a>
 )
 
-// Become a tester: how to join the Play closed test (Google Group + opt-in
-// link) and TestFlight, what to try, and the 14 days Google asks for.
+// Become a tester: sign up for the Play closed test by email (or join the
+// Google Group yourself), TestFlight, the tips, and what to try.
 export default function TestersContent() {
   const lang = useLang()
   return (
@@ -37,19 +38,27 @@ export default function TestersContent() {
       </div>
 
       <Channel icon={Play} title={t(lang, 'testersAndroid')} open={channelOpen(TESTERS, 'android')} lang={lang}>
-        <ol className="list-decimal pl-5 space-y-3 text-sm text-zinc-300">
-          <li className="space-y-2"><p>{t(lang, 'testersAndroidStep1')}</p><Out href={TESTERS.androidGroup}>{t(lang, 'testersJoinGroup')}</Out></li>
-          <li className="space-y-2"><p>{t(lang, 'testersAndroidStep2')}</p><Out href={TESTERS.androidOptIn}>{t(lang, 'testersOptIn')}</Out></li>
-          <li>{t(lang, 'testersAndroidStep3')}</li>
-        </ol>
+        <TesterSignup lang={lang} />
+        <div className="border-t border-zinc-800 pt-4 space-y-3">
+          <p className="text-sm text-zinc-400">{t(lang, 'testersOrGroup')}</p>
+          <ol className="list-decimal pl-5 space-y-3 text-sm text-zinc-300">
+            <li className="space-y-2"><p>{t(lang, 'testersAndroidStep1')}</p><Out href={TESTERS.androidGroup}>{t(lang, 'testersJoinGroup')}</Out></li>
+            <li className="space-y-2"><p>{t(lang, 'testersAndroidStep2')}</p><Out href={TESTERS.androidOptIn}>{t(lang, 'testersOptIn')}</Out></li>
+            <li>{t(lang, 'testersAndroidStep3')}</li>
+          </ol>
+        </div>
+        <div className="border-t border-zinc-800 pt-4 space-y-2">
+          <h3 className="text-sm font-semibold">{t(lang, 'testersTipsTitle')}</h3>
+          <ul className="list-disc pl-5 space-y-1.5 text-sm text-zinc-300">
+            {[1, 2, 3].map(n => <li key={n}>{t(lang, `testersTip${n}`)}</li>)}
+          </ul>
+        </div>
       </Channel>
 
       <Channel icon={Apple} title={t(lang, 'testersIphone')} open={channelOpen(TESTERS, 'ios')} lang={lang}>
         <p className="text-sm text-zinc-300">{t(lang, 'testersIphoneStep')}</p>
         <Out href={TESTERS.testflight}>{t(lang, 'testersOpenTestflight')}</Out>
       </Channel>
-
-      <p className="text-sm text-zinc-300 leading-relaxed">{t(lang, 'testersStay')}</p>
 
       <section className="space-y-2">
         <h2 className="text-emerald-400 text-xs uppercase tracking-widest">{t(lang, 'testersTryTitle')}</h2>
