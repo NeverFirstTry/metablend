@@ -14,11 +14,12 @@ import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, trans
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
-import { nativeShare } from '@/lib/native'
+import { nativeShare, isNative, nativePosition } from '@/lib/native'
+import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { startCity } from '@/lib/app-client'
-import { SESSION, rememberForecast, resumeForecast } from '@/lib/forecast-session'
+import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
@@ -179,9 +180,14 @@ export default function Home() {
   const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const [lang, setLang] = useState(() => SESSION.lang ?? knownLang() ?? 'en')
+  // the shared value first: a language or unit just changed on another tab beats this tab's memory
+  const [lang, setLang] = useState(() => knownLang() ?? SESSION.lang ?? 'en')
   const [langPick, setLangPick] = useState(LANG_SYSTEM) // what the picker shows: a language, or follow the phone
-  const [unit, setUnit] = useState(() => SESSION.unit ?? knownUnit() ?? 'C')
+  const [unit, setUnit] = useState(() => knownUnit() ?? SESSION.unit ?? 'C')
+  // restore or load — decided once, together with the state restored above, so
+  // the two can't disagree (a load finishing in between left a loader stuck)
+  const [resume] = useState(() => resumeForecast({ deepLink: typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('city') }))
+  const router = useRouter()
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
@@ -238,7 +244,6 @@ export default function Home() {
     // Inside the app the Forecast tab reloads the page, so it brings back the
     // last city looked at.
     const deepLink = new URLSearchParams(window.location.search).get('city')
-    const resume = resumeForecast({ deepLink })
     if (resume.restore) {
       // the last screen is already showing (state initializers); refresh it quietly when due
       if (resume.refresh) loadForecast(SESSION.city, { silent: true, lang: detectedLang })
@@ -305,6 +310,9 @@ export default function Home() {
       showLang(code)
       setCookie('metablend_lang', code)
     }
+    // pages rendered by the server in the old language (the hiking teaser) are
+    // dropped from the client cache, not reused for the next 3 minutes
+    router.refresh()
   }
 
   function changeUnit(u) {
@@ -392,6 +400,8 @@ export default function Home() {
   async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang } = {}) {
     const q = targetCity ?? city
     if (!q.trim()) return
+    // only the latest load shows or keeps its answer (lib/forecast-session.js)
+    const load = startLoad()
     if (silent) setRefreshing(true)
     else {
       setLoading(true); setError(null)
@@ -406,6 +416,7 @@ export default function Home() {
         fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
         fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
       ])
+      if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: nowRes.reason?.message ?? 'Network error' }
       if (json.error) throw new Error(json.error)
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
@@ -434,6 +445,7 @@ export default function Home() {
       // A failed request doesn't mean we're offline — it could be a server or
       // data error while the device is perfectly online. Only treat it as
       // offline when the browser actually reports no connectivity.
+      if (!isLatestLoad(load)) return
       const genuinelyOffline = !navigator.onLine
       const cached = readCachedForecast(q)
       if (genuinelyOffline && cached) {
@@ -453,7 +465,7 @@ export default function Home() {
       }
     } finally {
       if (silent) setRefreshing(false)
-      else { setLoading(false); rememberForecast({ pending: null }) }
+      else if (isLatestLoad(load)) { setLoading(false); rememberForecast({ pending: null }) }
     }
   }
 
@@ -496,27 +508,28 @@ export default function Home() {
   }, [data])
 
   async function handleLocation() {
-    if (!navigator.geolocation) { setError(t(lang, 'geolocationUnsupported')); return }
+    const native = isNative()
+    if (!native && !navigator.geolocation) { setError(t(lang, 'geolocationUnsupported')); return }
     setLocating(true)
     setError(null)
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const { latitude, longitude } = pos.coords
-          const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=${lang}`)
-          const geo = await res.json()
-          const name = geo.city || geo.locality || geo.principalSubdivision
-          if (!name) throw new Error(t(lang, 'locationNotDetected'))
-          setCity(name)
-          await loadForecast(name)
-        } catch (e) {
-          setError(e.message)
-        } finally {
-          setLocating(false)
-        }
-      },
-      () => { setError(t(lang, 'locationUnavailable')); setLocating(false) }
-    )
+    // inside the app only the native location — the browser API there would
+    // show Android's permission prompt a second time after a denial
+    const pos = native
+      ? await nativePosition()
+      : await new Promise(resolve => navigator.geolocation.getCurrentPosition(p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }), () => resolve(null)))
+    if (!pos) { setError(t(lang, 'locationUnavailable')); setLocating(false); return }
+    try {
+      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=${lang}`)
+      const geo = await res.json()
+      const name = geo.city || geo.locality || geo.principalSubdivision
+      if (!name) throw new Error(t(lang, 'locationNotDetected'))
+      setCity(name)
+      await loadForecast(name)
+    } catch (e) {
+      setError(e.message)
+    } finally {
+      setLocating(false)
+    }
   }
 
   function flashToast(msg) {

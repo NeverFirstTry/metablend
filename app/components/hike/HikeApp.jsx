@@ -8,6 +8,7 @@ import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { peakFromParams, peakHref } from '@/lib/hike/params'
 import { recordVisit, backAction } from '@/lib/hike/nav'
+import { rememberTabUrl } from '@/lib/app-tabs'
 import PeakSearch from './PeakSearch'
 import PeakView from './PeakView'
 import HikeNotes from './HikeNotes'
@@ -34,7 +35,8 @@ function HikeAppInner() {
 
   const qs = sp.toString()
   const href = `/hike${qs ? `?${qs}` : ''}`
-  useEffect(() => { recordVisit(TRAIL, href) }, [href])
+  // the Hiking tab reopens here — whether it's left by the tab bar, back or a link
+  useEffect(() => { recordVisit(TRAIL, href); rememberTabUrl('/hike', href) }, [href])
   useEffect(() => () => { TRAIL.length = 0 }, [])
   const goBack = parent => (backAction(TRAIL, parent) === 'back' ? router.back() : router.replace(parent))
 

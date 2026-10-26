@@ -28,10 +28,11 @@ export const GET = withErrorLog('routes', async (request) => {
   // Routes without heights (the terrain model refused them) are served at once
   // without walking times — never the flat-land ones — and filled after the
   // response; such a list is cached 10 minutes, so the repaired one follows soon.
-  const serve = stored => {
+  const serve = (stored, { heal = true } = {}) => {
     const now = withoutGuesses(stored)
     if (!now.missing) return ok(now.routes)
-    after(async () => {
+    // just looked up: its heights were tried a moment ago — the next request retries
+    if (heal) after(async () => {
       const { routes, changed } = await healRoutes(stored, fetchElevations)
       if (changed) await supabase.from('route_cache').update({ routes }).eq('peak_key', key)
     })
@@ -43,7 +44,7 @@ export const GET = withErrorLog('routes', async (request) => {
   const fresh = await findRoutes(peak, { getJson, getElevations: fetchElevations })
   if (fresh) {
     await supabase.from('route_cache').upsert({ peak_key: key, routes: fresh, fetched_at: new Date().toISOString() })
-    return serve(fresh)
+    return serve(fresh, { heal: false })
   }
   if (cached) return serve(cached.routes)
   return noStore({ error: 'Routes unavailable right now', upstream: lastUpstreamFailure() }, 502)

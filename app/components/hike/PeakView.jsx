@@ -30,10 +30,10 @@ import AvalancheCard from './AvalancheCard'
 const SUMMIT_MODELS = OM_MODELS.map(m => sourceName(m.id))
 
 // Summit forecasts already seen while the app runs: back on a peak (or back
-// on the Hiking tab) shows it at once instead of the loader. Fresh for 30
-// minutes, like the forecast's own CDN copy.
+// on the Hiking tab) shows it at once instead of the loader. Fresh for 10
+// minutes (on top of the CDN copy's own age); the last 30 peaks only.
 const SEEN = new Map() // url → { at, data }
-const FRESH_MS = 30 * 60e3
+const FRESH_MS = 10 * 60e3
 const seen = url => { const c = SEEN.get(url); return c && Date.now() - c.at < FRESH_MS ? c.data : null }
 
 // One peak's summit forecast: Today / Tomorrow / Week, like the city outlook.
@@ -52,7 +52,11 @@ export default function PeakView({ peak, lang, unit, onBack }) {
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then(data => { SEEN.set(url, { at: Date.now(), data }); if (!off) setState({ data, error: false }) }, () => { if (!off) setState({ data: null, error: true }) })
+      .then(data => {
+        SEEN.delete(url); SEEN.set(url, { at: Date.now(), data })
+        if (SEEN.size > 30) SEEN.delete(SEEN.keys().next().value)
+        if (!off) setState({ data, error: false })
+      }, () => { if (!off) setState({ data: null, error: true }) })
     return () => { off = true }
   }, [url, attempt])
   const retry = () => { setState({ data: null, error: false }); setAttempt(a => a + 1) }
