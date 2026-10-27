@@ -14,6 +14,7 @@ import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
 import { tabOf, tabHref, rememberTabUrl, lastTabUrls } from '@/lib/app-tabs'
+import { repairHeights } from '@/lib/route-store'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -51,6 +52,8 @@ export default function AppChrome() {
     // widgets: settings at start, and fresh again whenever the app is left
     syncWidgets({ refresh: true })
     onAppHidden(() => syncWidgets()).then(fn => { if (gone) fn(); else offHidden = fn })
+    // saved routes still without heights are filled (once — then nothing to do)
+    repairHeights().catch(() => {})
     // Larger Text: the phone's text size scales the page
     let offScale = () => {}
     watchTextScale().then(fn => { if (gone) fn(); else offScale = fn })

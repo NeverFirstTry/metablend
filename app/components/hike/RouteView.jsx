@@ -6,7 +6,7 @@ import { t } from '@/lib/i18n'
 import { fill, tempFormatter, dayWord, dayPhrase } from '@/lib/outlook/text'
 import { addDays } from '@/lib/localtime'
 import { localToday } from '@/lib/app-widget-sync'
-import { highestIndex, withReturn } from '@/lib/route/geometry'
+import { highestIndex } from '@/lib/route/geometry'
 import { walkStats } from '@/lib/route/heights'
 import { isMultiDay } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
@@ -48,7 +48,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
   const d = res.data
   const fmt = useMemo(() => tempFormatter(unit), [unit])
   // without heights: distance only — no ascent and no walking time (lib/route/heights.js)
-  const local = useMemo(() => walkStats(route.roundTrip ? withReturn(asPoints(route.points)) : asPoints(route.points), pace), [route, pace])
+  const local = useMemo(() => walkStats(asPoints(route.points), pace, { roundTrip: !!route.roundTrip }), [route, pace])
   const stats = d?.stats ?? local
   const noHeights = d ? !!d.noHeights : stats.minutes == null
   // heights from the terrain model (every OpenStreetMap route; a GPX the server filled): approximate

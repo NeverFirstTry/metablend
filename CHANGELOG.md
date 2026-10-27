@@ -27,11 +27,32 @@ All notable changes to MetaBlend. Format loosely follows
   which also moved the suggested start and the stage times. That's a safety
   issue, not cosmetics.
 - Heights come from the terrain model again (a refused request is tried once
-  more); stored routes are repaired the next time they're opened. Ascent and
-  times from the terrain model are marked as approximate (≈).
+  more). Ascent and times from the terrain model are marked as approximate (≈).
+- Every stored route was repaired and re-timed at once, not when next opened:
+  all 74 routes on 33 peaks have new times (56 moved by more than 10%), the
+  31 without heights have them again, none is left without. Planned hikes
+  with a route: none stored right now — alerts are timed when they're sent,
+  so they use the new heights and rules anyway.
+- Ascent and walking times are no longer inflated by the terrain model's
+  noise. On steep slopes it reads the 90 m cells above and below a path in
+  turn (±40 m from point to point), and every jump counted as climbing: Mount
+  Whitney Trail said ↑4030 m and 27 h (real: 1830 m, about 15 h), Mount
+  Fuji's Yoshida trail 12 h 57 (now 9 h 34) and so "multi-day". The height
+  profile is now averaged over 200 m before ascent and time are counted; the
+  start and the end (trailhead and summit) keep their real heights, and the
+  heights shown are unchanged. Climbing is timed in stretches, as the rule
+  intends, not per 20 m leg.
+- Routes saved to "My routes" (GPX imports and saved copies) live on the
+  phone: the app fills any still without heights once, in the background, the
+  next time it starts — a route saved or removed meanwhile is left as it is.
 - A route whose heights can't be found at all shows no walking time, start
   window or stage times, and says why — never a wrong number. Planned-hike
   alerts say the same.
+- Multi-day routes (more than 12 hours of walking, e.g. Lemosho or Northern
+  Circuit on Kilimanjaro) are labelled "multi-day" and get no single start
+  window or stage times — those would assume one continuous walk, and nobody
+  walks 47 hours in one go. The screen says why; planned-hike alerts for such
+  a route name no start time either.
 
 ### Changed — a calmer forecast page and a clear first step (tester feedback)
 - The source cards are folded to one line, e.g. "20 sources · 86% agree";
