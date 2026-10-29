@@ -275,6 +275,7 @@ body { padding: var(--sa-top) var(--sa-right) var(--sa-bottom) var(--sa-left); }
 /* 4rem: the tab bar's room, growing with it under Larger Text */
 html[data-app] body { padding-bottom: calc(4rem + var(--sa-bottom)); }
 html[data-app] .web-only { display: none !important; }
+html:not([data-app]) .app-only { display: none !important; }
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }

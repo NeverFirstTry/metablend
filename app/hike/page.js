@@ -69,12 +69,13 @@ export default async function HikePage({ searchParams }) {
   const stormUnknown = !!data?.notes?.includes('no_storm_data')
 
   // .web-only: should this ever reach the app, it's hidden before first paint
-  // and AppRescue loads the app view instead
+  // and AppRescue (outside it, app-only) loads the app view instead
   return shell(
+    <>
+    <LangPack lang={lang} />
+    <AppRescue lang={lang} />
     <div className="web-only">
       <AppFlag value={appParam} />
-      <AppRescue />
-      <LangPack lang={lang} />
       <div className="flex items-center justify-between mb-6">
         <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
@@ -100,6 +101,7 @@ export default async function HikePage({ searchParams }) {
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>
       <Footer lang={lang} />
-    </div>,
+    </div>
+    </>,
   )
 }
