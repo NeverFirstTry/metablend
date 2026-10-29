@@ -8,7 +8,7 @@ import { addDays } from '@/lib/localtime'
 import { localToday } from '@/lib/app-widget-sync'
 import { highestIndex } from '@/lib/route/geometry'
 import { walkStats } from '@/lib/route/heights'
-import { isMultiDay } from '@/lib/route/timing'
+import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
 import { SectionTitle } from '../ui'
 import { StormBar, StormLegend } from './SummitStrip'
@@ -56,6 +56,8 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
   const ap = approx ? '≈' : ''
   // more than a day of walking: no single start window or stage times (lib/route/timing.js)
   const multi = !noHeights && (d ? !!d.multiDay : isMultiDay(stats.minutes))
+  // 10–14 h: still one walk with its start window and stages, labelled as a long day
+  const long = !noHeights && !multi && isLongDay(stats.minutes)
   const points = d?.points ?? route.points
   const highIdx = d ? d.stages.find(s => s.high)?.i : highestIndex(asPoints(route.points))
   const days = Array.from({ length: 7 }, (_, k) => addDays(today, k))
@@ -72,7 +74,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
       <div>
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{route.name || t(lang, 'routesTitle')}</h1>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
-          {stats.distanceKm} km · {noHeights ? t(lang, 'routeNoHeightsShort') : `↑${ap}${stats.ascentM} m · ↓${ap}${stats.descentM} m · ~${duration(stats.minutes)}${multi ? ` · ${t(lang, 'routeMultiDayShort')}` : ''}`}{route.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
+          {stats.distanceKm} km · {noHeights ? t(lang, 'routeNoHeightsShort') : `↑${ap}${stats.ascentM} m · ↓${ap}${stats.descentM} m · ~${duration(stats.minutes)}${multi ? ` · ${t(lang, 'routeMultiDayShort')}` : long ? ` · ${t(lang, 'routeLongDayShort')}` : ''}`}{route.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
         </p>
         {approx && !noHeights && <p className="text-zinc-500 text-xs mt-1">{t(lang, 'routeHeightsApprox')}</p>}
       </div>
@@ -139,7 +141,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
             {start && <button onClick={() => setStart(null)} className="press text-xs text-emerald-400">{t(lang, 'routeUseSuggestion')}</button>}
           </div>
         )}
-        {stats.longerThanDay && !multi && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'routeLongerThanDay')}</p>}
+        {long && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'routeLongDay')}</p>}
       </div>
 
       {d && !loading && !d.noHeights && !d.multiDay && (

@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-29
 
+### Changed — long days are timed again
+- Routes of 10 to 14 hours' walking are no longer "multi-day": they're
+  labelled "long day — may be done with an overnight stay" and get their
+  start window and stage times like any day walk (in short autumn days that
+  can honestly be "not enough daylight"). Only routes over 14 hours are
+  multi-day now, without a single start time.
+
 ### Changed — "up to 20 weather sources at once", three unreliable sources gone
 - Everywhere the app talks about itself — site, social preview, store
   listings and screenshot captions in all languages, README — "26 sources"
