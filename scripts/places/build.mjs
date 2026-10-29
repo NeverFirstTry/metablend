@@ -19,7 +19,11 @@ const get = (url, file) => {
 // 1. towns
 get('https://download.geonames.org/export/dump/cities5000.zip', join(DIR, 'cities5000.zip'))
 get('https://download.geonames.org/export/dump/admin1CodesASCII.txt', join(DIR, 'admin1CodesASCII.txt'))
-if (!existsSync(join(DIR, 'cities5000.txt'))) spawnSync('tar', ['-xf', join(DIR, 'cities5000.zip'), '-C', DIR], { stdio: 'inherit' })
+// Python is needed for step 1 anyway; its zipfile unpacks on every system (Git Bash's tar can't)
+if (!existsSync(join(DIR, 'cities5000.txt'))) {
+  const r = spawnSync(process.platform === 'win32' ? 'python' : 'python3', ['-m', 'zipfile', '-e', join(DIR, 'cities5000.zip'), DIR], { stdio: 'inherit' })
+  if (r.status !== 0 || !existsSync(join(DIR, 'cities5000.txt'))) throw new Error('could not unpack cities5000.zip')
+}
 const admin1 = Object.fromEntries(readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([k, name]) => [k, name]))
 const towns = readFileSync(join(DIR, 'cities5000.txt'), 'utf8').split('\n').filter(Boolean).map(l => townRow(l, admin1)).filter(Boolean)
 const tw = createWriteStream(join(DIR, 'towns.ndjson'))
