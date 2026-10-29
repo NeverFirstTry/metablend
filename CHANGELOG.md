@@ -15,7 +15,11 @@ All notable changes to MetaBlend. Format loosely follows
   and shared; the request identifies MetaBlend with a contact address; "©
   OpenStreetMap contributors" shows under the summits and huts.
 - Needs `supabase/nominatim.sql` once in the production database; until then
-  each server spaces its own requests, as before.
+  each server spaces its own requests, as before. Checked in production: one
+  search took three slots, a repeat came from the cache, a burst of three
+  searches went out one at a time. Slots are now 1.25 s apart (room for each
+  server's own latency) and every cached answer records when its request
+  went out — run the updated `supabase/nominatim.sql` again for both.
 
 ### Fixed — Hiking and notifications (tester feedback round 2: thank you to our tester in Vietnam, Red Magic 8S Pro, Android 15)
 - "Near you" works again, everywhere: it spun for 14 seconds and then said
