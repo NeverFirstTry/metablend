@@ -8,6 +8,7 @@ import { nearCell, pickNearPeaks, nearView, nearSection } from '@/lib/hike/near'
 import { grantedPosition } from '@/lib/native'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
+import OsmCredit from './OsmCredit'
 
 // Near you: the notable summits around the position (when already allowed or
 // after "Near me", else the last city looked at), picked here from the
@@ -92,7 +93,7 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
             </p>
           )}
           {nearShows === 'none' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearNone')}</p>}
-          {nearShows === 'list' && <FeaturedList peaks={near} hrefFor={hrefFor} />}
+          {nearShows === 'list' && <><FeaturedList peaks={near} hrefFor={hrefFor} /><OsmCredit lang={lang} /></>}
           {fallback.length > 0 && (
             <>
               <p className="text-xs text-zinc-500">{t(lang, 'hikeNearFallback')}</p>

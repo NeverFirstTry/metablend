@@ -12,6 +12,7 @@ export const SCHEMA_FILES = [
   'warnings-trim.sql',
   'warnings-feeds.sql', // downloads feeds when called; no job calls it in dev
   'tester-signups.sql',
+  'nominatim.sql', // the one-request-a-second gate and the answer cache
   'enable_rls.sql',
 ]
 

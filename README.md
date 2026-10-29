@@ -243,6 +243,17 @@ ICAO-coded fields at build time (`lib/airports.json`).
 Sources without a configured key are simply skipped — the app still works with
 just the keyless ones.
 
+Summits and huts for the Hiking screen come from OpenStreetMap through
+[Nominatim](https://nominatim.org), within its
+[usage policy](https://operations.osmfoundation.org/policies/nominatim/): at
+most one request a second for the whole app — every server instance takes a
+slot from one row in the database (`supabase/nominatim.sql`,
+`lib/hike/nominatim.js`) — answers cached 30 days, a User-Agent with a contact
+address, OpenStreetMap credited under the results, and no search-as-you-type:
+typing shows featured peaks and the geocoder's mountains; Nominatim is asked
+only when a search is sent (Enter, or "Search peaks, huts and places").
+`NOMINATIM_URL` points the server at another Nominatim without an app update.
+
 ---
 
 ## Run it locally

@@ -5,6 +5,18 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-29
 
+### Changed — OpenStreetMap's Nominatim used within its usage policy
+- Typing in the hiking search no longer asks Nominatim: while you type you
+  get our featured peaks and the geocoder's mountains; peaks, huts and towns
+  from OpenStreetMap come when you send the search (Enter, or "Search peaks,
+  huts and places for …"). The search field says it finds towns too.
+- One request a second for the whole app, however many servers run: each
+  request takes a slot from a gate in the database. Answers are kept 30 days
+  and shared; the request identifies MetaBlend with a contact address; "©
+  OpenStreetMap contributors" shows under the summits and huts.
+- Needs `supabase/nominatim.sql` once in the production database; until then
+  each server spaces its own requests, as before.
+
 ### Fixed — Hiking and notifications (tester feedback round 2: thank you to our tester in Vietnam, Red Magic 8S Pro, Android 15)
 - "Near you" works again, everywhere: it spun for 14 seconds and then said
   summits couldn't be loaded — not only in Vietnam, Vienna too. The public

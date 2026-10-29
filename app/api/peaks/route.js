@@ -7,23 +7,36 @@ import { matchFeatured, parseNominatim, parsePhoton, parseGeocodingPeaks, mergeP
 import { resolveHeights } from '@/lib/hike/heights'
 import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchGeocodingRaw } from '@/lib/hike/sources'
 
-// Worldwide peak & hut search: featured peaks first, then OpenStreetMap by
-// name (Nominatim; Photon, then the geocoder's mountains when it's down).
-// When the query names a city or town, the summits and huts within 25 km of
-// it follow, nearest first, with their distance. Heights from OpenStreetMap,
-// the terrain model where it has none. Cached per query for a day — peaks
-// don't move — or 5 minutes when a source was down.
+// Worldwide peak & hut search. While the user types: featured peaks and the
+// geocoder's mountains — never Nominatim, whose policy rules out
+// search-as-you-type. A search the user sends (full=1: Enter, or "search
+// places"): featured peaks first, then OpenStreetMap by name (Nominatim;
+// Photon, then the geocoder's mountains when it's down), and when the query
+// names a city or town, the summits and huts within 25 km of it, nearest
+// first, with their distance. Heights from OpenStreetMap, the terrain model
+// where it has none. Cached per query for a day — peaks don't move — or 5
+// minutes when a source was down.
 
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
+// a sent search can ask Nominatim three times (name, summits, huts around)
+const sentLimiter = createRateLimiter({ max: 10, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 const AROUND_KM = 25
 
 export const GET = withErrorLog('peaks', async (request) => {
   const query = parseSearchQuery(new URL(request.url).searchParams)
   if (!query) return noStore({ error: 'Search needs 2–80 characters.' }, 400)
-  if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
+  const ip = clientIp(request)
+  if (limiter.limited(ip) || (query.full && sentLimiter.limited(ip))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const feat = matchFeatured(query.q, featured)
+  if (!query.full) {
+    const typed = parseGeocodingPeaks(await fetchGeocodingRaw(query.q))
+    const age = typed ? 86400 : 300
+    return Response.json({ peaks: mergePeaks(feat, typed ?? []), around: null }, {
+      headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
+    })
+  }
   // a town's name is also asked plain: "Hà Nội" is found only as "hanoi"
   const plain = plainQuery(query.q)
   const [nominatim, geo, geoPlain] = await Promise.all([
