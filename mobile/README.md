@@ -68,6 +68,10 @@ Check on a device / emulator / simulator:
 - [ ] A peak → Plan a hike → Tomorrow → shows up under Hike alerts.
 - [ ] Android: Settings → Apps → MetaBlend → Notifications lists Weather
       alerts, Morning briefing, Hike alerts (in the app's language).
+- [ ] Notifications turned off in the phone's settings → More →
+      Notifications shows "Open settings" → it opens MetaBlend's notification
+      settings (Android: AppSettingsPlugin, builds from 2026-10-29; iOS: the
+      app's page in Settings).
 - [ ] Android: the status bar shows the white sun-and-cloud icon, not a grey
       square.
 - [ ] With the phone set to German (or another non-English language): turn on,

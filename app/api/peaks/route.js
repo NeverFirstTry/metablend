@@ -3,17 +3,20 @@ import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import featured from '@/lib/hike/featured.json'
 import { parseSearchQuery } from '@/lib/hike/params'
-import { matchFeatured, parsePhoton, parseGeocodingPeaks, mergePeaks, searchMaxAge } from '@/lib/hike/search'
+import { matchFeatured, parseNominatim, parsePhoton, parseGeocodingPeaks, mergePeaks, searchMaxAge, placeOfQuery, aroundPlace, plainQuery } from '@/lib/hike/search'
 import { resolveHeights } from '@/lib/hike/heights'
-import { fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchGeocodingRaw } from '@/lib/hike/sources'
+import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchGeocodingRaw } from '@/lib/hike/sources'
 
-// Worldwide peak & hut search: featured Alps peaks first, then OpenStreetMap
-// (Photon) with OSM's surveyed heights (the terrain model only where OSM has
-// none); Open-Meteo geocoding when Photon is down. Cached per query for a
-// day — peaks don't move — or 5 minutes when a source was down.
+// Worldwide peak & hut search: featured peaks first, then OpenStreetMap by
+// name (Nominatim; Photon, then the geocoder's mountains when it's down).
+// When the query names a city or town, the summits and huts within 25 km of
+// it follow, nearest first, with their distance. Heights from OpenStreetMap,
+// the terrain model where it has none. Cached per query for a day — peaks
+// don't move — or 5 minutes when a source was down.
 
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
+const AROUND_KM = 25
 
 export const GET = withErrorLog('peaks', async (request) => {
   const query = parseSearchQuery(new URL(request.url).searchParams)
@@ -21,15 +24,35 @@ export const GET = withErrorLog('peaks', async (request) => {
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const feat = matchFeatured(query.q, featured)
-  const photon = parsePhoton(await fetchPhotonRaw(query.q, query.bias ?? {}))
-  const geo = photon ? null : parseGeocodingPeaks(await fetchGeocodingRaw(query.q))
-  if (!photon && !geo && !feat.length) return noStore({ error: 'Search is unavailable right now — try a featured peak.' }, 502)
+  // a town's name is also asked plain: "Hà Nội" is found only as "hanoi"
+  const plain = plainQuery(query.q)
+  const [nominatim, geo, geoPlain] = await Promise.all([
+    fetchNominatimSearchRaw(query.q, query.bias ?? {}), fetchGeocodingRaw(query.q), plain !== query.q ? fetchGeocodingRaw(plain) : null,
+  ])
+  let named = parseNominatim(nominatim), fromPhoton = false
+  if (!named) { named = parsePhoton(await fetchPhotonRaw(query.q, query.bias ?? {})); fromPhoton = !!named }
+  const geoPeaks = named ? null : parseGeocodingPeaks(geo)
 
-  const heights = photon
-    ? await resolveHeights(photon, { osmEle: fetchOsmHeights, demEle: fetchElevations })
-    : { peaks: geo ?? [], osmDown: false, demDown: false }
-  const age = searchMaxAge({ photonDown: !photon, elevationsDown: heights.osmDown || heights.demDown })
-  return Response.json({ peaks: mergePeaks(feat, heights.peaks) }, {
+  // a city or town: what's around it
+  const place = placeOfQuery({ results: [...(geo?.results ?? []), ...(geoPlain?.results ?? [])] }, query.q)
+  let around = null, aroundDown = false
+  if (place) {
+    const peaks = parseNominatim(await fetchNominatimNearRaw(place.latitude, place.longitude, AROUND_KM, 'peak'))
+    const huts = parseNominatim(await fetchNominatimNearRaw(place.latitude, place.longitude, AROUND_KM, 'alpine hut'))
+    aroundDown = !peaks || !huts
+    const h = await resolveHeights([...(peaks ?? []), ...(huts ?? [])], { osmEle: async () => ({}), demEle: fetchElevations })
+    aroundDown ||= h.demDown
+    around = { place: { name: place.name, region: place.admin1 ?? null, country: place.country_code ?? null }, peaks: aroundPlace(h.peaks, place) }
+  }
+  if (!named && !geoPeaks && !feat.length && !around?.peaks.length) return noStore({ error: 'Search is unavailable right now — try a featured peak.' }, 502)
+
+  const heights = named
+    ? await resolveHeights(named, { osmEle: fromPhoton ? fetchOsmHeights : async () => ({}), demEle: fetchElevations })
+    : { peaks: geoPeaks ?? [], osmDown: false, demDown: false }
+  const peaks = mergePeaks(feat, heights.peaks)
+  if (around) around.peaks = around.peaks.filter(p => !peaks.some(q => q.id === p.id))
+  const age = searchMaxAge({ photonDown: !nominatim || aroundDown, elevationsDown: heights.osmDown || heights.demDown })
+  return Response.json({ peaks, around }, {
     headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
   })
 })

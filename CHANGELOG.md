@@ -5,6 +5,27 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-29
 
+### Fixed — Hiking and notifications (tester feedback round 2: thank you to our tester in Vietnam, Red Magic 8S Pro, Android 15)
+- "Near you" works again, everywhere: it spun for 14 seconds and then said
+  summits couldn't be loaded — not only in Vietnam, Vienna too. The public
+  OpenStreetMap geocoder it asked (Photon) stopped accepting connections, and
+  so did the backup (Overpass). Summits now come from OpenStreetMap's
+  Nominatim (in about two seconds, heights and notability included), Photon
+  only as a fallback.
+- Nothing near you no longer means an empty section: "No summits found
+  within 50 km" — or, when the lookup fails, a clear error with Retry — and
+  under it the nearest summits we feature, with their distance.
+- Searching for a city or town finds the summits and huts around it, nearest
+  first, with the distance ("hanoi", "Hà Nội", "sa pa", "zermatt"); peaks
+  and huts by name still come first. Name search uses Nominatim too.
+- The search field's focus edge is a thin border again, like every other
+  field — not a thick double ring.
+- More → Notifications → "Open settings" opens the app's notification
+  settings on Android (or its app info screen where a phone has none) — it
+  did nothing before. Needs the new Android app build; older builds show the
+  path to the settings instead of a button that can't work. iOS already
+  opened the app's settings page.
+
 ### Fixed — no blank Hiking page in the app
 - Should the website's hiking teaser ever reach the app twice (it's hidden
   there), the page no longer stays blank: a "Loading…" line shows, a refresh

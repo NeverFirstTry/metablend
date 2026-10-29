@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { SectionTitle } from '../ui'
-import { pushApi, permission, enablePush, promptState, openSystemSettings } from '@/lib/push-client'
+import { pushApi, permission, enablePush, promptState } from '@/lib/push-client'
+import { canOpenSettings, openSettings } from '@/lib/app-settings'
 import { syncWidgets } from '@/lib/app-widget-client'
 
 const ALERTS = [['alert_rain', 'notifRain'], ['alert_storm', 'notifStorm'], ['alert_severe', 'notifSevere'], ['alert_heat', 'notifHeat']]
@@ -27,7 +28,7 @@ export default function NotificationSettings({ lang, unit }) {
       const perm = await permission()
       if (perm === 'unavailable') { setState({ loading: false, unavailable: true }); return }
       const r = await pushApi('settings')
-      setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [] })
+      setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [], canOpen: canOpenSettings() })
     } catch {
       setState({ loading: false, unavailable: true })
     }
@@ -94,7 +95,7 @@ export default function NotificationSettings({ lang, unit }) {
         <div className={box}>
           <p className="text-sm">{t(lang, 'notifBlocked')}</p>
           <p className="text-xs text-zinc-400">{t(lang, 'notifBlockedHow')}</p>
-          <button onClick={openSystemSettings} className="press text-sm text-emerald-400 underline underline-offset-4">{t(lang, 'notifOpenSettings')}</button>
+          {state.canOpen && <button onClick={openSettings} className="press text-sm text-emerald-400 underline underline-offset-4">{t(lang, 'notifOpenSettings')}</button>}
         </div>
       ) : !s ? (
         <div className={box}>

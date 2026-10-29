@@ -103,6 +103,12 @@ body {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
+/* …except where a field says `outline-none` and shows focus by its own 1 px
+   border (the forecast and hiking search fields): this rule isn't in a layer,
+   so it used to beat Tailwind's `outline-none` — a text field is
+   focus-visible even when tapped, and the hiking search got a thick double
+   ring inside its border (a tester's report). */
+.outline-none:focus-visible { outline: none; }
 
 /* ── Keyframes ──────────────────────────────────────────────────────────── */
 @keyframes mb-fade-in {

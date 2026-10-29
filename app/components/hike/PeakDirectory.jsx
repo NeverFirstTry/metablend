@@ -12,7 +12,9 @@ import FeaturedList from './FeaturedList'
 // Near you: the notable summits around the position (when already allowed or
 // after "Near me", else the last city looked at), picked here from the
 // summits /api/peaks/near knows around that ~5 km cell — "looking…" until it
-// answers, and a retry if it can't (never far-off stand-ins). Then every
+// answers. When it can't (an error, with a retry) or finds nothing within
+// 50 km (a plain line), the nearest featured peaks follow with their
+// distance, however far — never an empty section. Then every
 // featured peak by region in collapsible groups, the nearest one's region
 // open. Without hrefFor (the website teaser) plain cards and no Near you.
 // Kept while the app runs: a peak page unmounts the list, and coming back
@@ -66,6 +68,8 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   // picked from where you are, not from the cell's centre
   const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here) : []), [arrived, view.peaks, peaks, here])
   const nearShows = nearSection(view, near.length)
+  // nothing near, or the lookup failed: the nearest featured peaks anyway
+  const fallback = useMemo(() => (nearShows === 'none' || nearShows === 'failed' ? nearest(peaks, here, 3) : []), [nearShows, peaks, here])
   const groups = useMemo(() => byRegion(peaks), [peaks])
   // the region to open: the nearest featured peak's (summits have no group)
   const openRegion = useMemo(() => (linked ? nearest(peaks, here, 1)[0]?.region ?? null : null), [linked, peaks, here])
@@ -82,13 +86,19 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
           <SectionTitle icon={MapPin}>{t(lang, 'hikeNearYou')}</SectionTitle>
           {nearShows === 'loading' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearLoading')}</p>}
           {nearShows === 'failed' && (
-            <p className="text-sm text-zinc-400">
+            <p role="alert" className="text-sm" style={{ color: 'var(--warn)' }}>
               {t(lang, 'hikeNearFailed')}{' '}
               <button onClick={retry} className="press underline hover:text-emerald-400">{t(lang, 'retry')}</button>
             </p>
           )}
           {nearShows === 'none' && <p role="status" className="text-sm text-zinc-400">{t(lang, 'hikeNearNone')}</p>}
           {nearShows === 'list' && <FeaturedList peaks={near} hrefFor={hrefFor} />}
+          {fallback.length > 0 && (
+            <>
+              <p className="text-xs text-zinc-500">{t(lang, 'hikeNearFallback')}</p>
+              <FeaturedList peaks={fallback} hrefFor={hrefFor} />
+            </>
+          )}
         </section>
       )}
       <section className="space-y-2">

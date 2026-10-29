@@ -9,6 +9,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(WidgetBridgePlugin.class); // before super: the bridge is built there
         registerPlugin(AppIconPlugin.class);
         registerPlugin(TextScalePlugin.class);
+        registerPlugin(AppSettingsPlugin.class);
         super.onCreate(savedInstanceState);
         // Larger Text comes from TextScalePlugin (root font size), so the web
         // view must not scale text by the system setting a second time.

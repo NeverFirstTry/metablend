@@ -4,16 +4,19 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { Search, LocateFixed, Loader2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { fill } from '@/lib/outlook/text'
 import { isNative, nativePosition } from '@/lib/native'
 import { applyLocation } from '@/lib/hike/search'
 
 // Debounced peak search. The query is trimmed + lower-cased and the location
 // bias rounded to 0.1° so equal searches share one CDN entry. "Near me" also
-// reports the position so the featured list can sort by distance.
+// reports the position so the featured list can sort by distance. Peaks and
+// huts by name first; when the query names a city or town, what's around it
+// follows, nearest first, with the distance.
 export default function PeakSearch({ lang, hrefFor, onLocate }) {
   const [text, setText] = useState('')
   const [bias, setBias] = useState(null)
-  const [res, setRes] = useState({ query: '', peaks: null, error: false, loading: false })
+  const [res, setRes] = useState({ query: '', peaks: null, around: null, error: false, loading: false })
   const seq = useRef(0)
   const query = text.trim().toLowerCase()
   const active = query.length >= 2
@@ -27,9 +30,9 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
         const b = bias ? `&lat=${bias.lat}&lon=${bias.lon}` : ''
         const r = await fetch(`/api/peaks?q=${encodeURIComponent(query)}${b}`)
         const json = await r.json()
-        if (id === seq.current) setRes({ query, peaks: r.ok ? json.peaks : null, error: !r.ok, loading: false })
+        if (id === seq.current) setRes({ query, peaks: r.ok ? json.peaks : null, around: r.ok ? json.around ?? null : null, error: !r.ok, loading: false })
       } catch {
-        if (id === seq.current) setRes({ query, peaks: null, error: true, loading: false })
+        if (id === seq.current) setRes({ query, peaks: null, around: null, error: true, loading: false })
       }
     }, 350)
     return () => clearTimeout(timer)
@@ -48,6 +51,17 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
   }
 
   const shown = active && res.query === query
+  const around = res.around?.peaks?.length ? res.around : null
+  const row = p => (
+    <li key={p.id}>
+      <Link href={hrefFor(p)} className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400">
+        <span className="min-w-0 truncate">{p.name}<span className="text-zinc-500">{p.region ? ` · ${p.region}` : ''}{p.country ? ` · ${p.country}` : ''}</span></span>
+        <span className="text-zinc-500 text-xs tabular-nums shrink-0" title={p.elevApprox ? t(lang, 'elevApprox') : undefined}>
+          {p.km != null ? `${Math.round(p.km)} km · ` : ''}{p.elevApprox ? '≈' : ''}{p.elev} m
+        </span>
+      </Link>
+    </li>
+  )
   return (
     <div className="space-y-2">
       <div className="flex gap-2">
@@ -68,18 +82,15 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
         </button>
       </div>
       {shown && res.error && <p className="text-sm" style={{ color: 'var(--warn)' }}>{t(lang, 'hikeSearchDown')}</p>}
-      {shown && res.peaks?.length === 0 && <p className="text-sm text-zinc-500">{t(lang, 'hikeNoResults')}</p>}
+      {shown && res.peaks?.length === 0 && !around && <p className="text-sm text-zinc-500">{t(lang, 'hikeNoResults')}</p>}
       {shown && res.peaks?.length > 0 && (
-        <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">
-          {res.peaks.map(p => (
-            <li key={p.id}>
-              <Link href={hrefFor(p)} className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400">
-                <span className="min-w-0 truncate">{p.name}<span className="text-zinc-500">{p.region ? ` · ${p.region}` : ''}{p.country ? ` · ${p.country}` : ''}</span></span>
-                <span className="text-zinc-500 text-xs tabular-nums shrink-0" title={p.elevApprox ? t(lang, 'elevApprox') : undefined}>{p.elevApprox ? '≈' : ''}{p.elev} m</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">{res.peaks.map(row)}</ul>
+      )}
+      {shown && around && (
+        <section className="space-y-1.5 pt-1" aria-label={fill(t(lang, 'hikeSearchAround'), { place: around.place.name })}>
+          <p className="text-xs text-zinc-500 px-1">{fill(t(lang, 'hikeSearchAround'), { place: around.place.name })}</p>
+          <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">{around.peaks.map(row)}</ul>
+        </section>
       )}
     </div>
   )
