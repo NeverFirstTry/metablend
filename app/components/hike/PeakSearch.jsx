@@ -6,14 +6,15 @@ import { Search, LocateFixed, Loader2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import { isNative, nativePosition } from '@/lib/native'
-import { applyLocation } from '@/lib/hike/search'
+import { applyLocation, localName } from '@/lib/hike/search'
 import OsmCredit from './OsmCredit'
 
-// Peak search. While typing (debounced): featured peaks and the geocoder's
-// mountains — never OpenStreetMap's Nominatim, whose policy rules out
-// search-as-you-type. Enter, or "Search peaks, huts and places", sends the
-// query: then OpenStreetMap by name, and when it names a city or town, the
-// summits and huts around it, nearest first, with the distance. The query is
+// Peak search, as you type (debounced): featured peaks, then summits and huts
+// by name from our own data (in the reader's language where OpenStreetMap
+// has it), and when the query names a town, what's around it, nearest first,
+// with the distance. Enter sends the query: only then may the server ask
+// Nominatim, for places our data doesn't know (never while typing: its
+// policy). The query is
 // trimmed + lower-cased and the location bias rounded to 0.1° so equal
 // searches share one CDN entry. "Near me" also reports the position so the
 // featured list can sort by distance.
@@ -62,7 +63,7 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
   const row = p => (
     <li key={p.id}>
       <Link href={hrefFor(p)} className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400">
-        <span className="min-w-0 truncate">{p.name}<span className="text-zinc-500">{p.region ? ` · ${p.region}` : ''}{p.country ? ` · ${p.country}` : ''}</span></span>
+        <span className="min-w-0 truncate">{localName(p, lang)}<span className="text-zinc-500">{p.region ? ` · ${p.region}` : ''}{p.country ? ` · ${p.country}` : ''}</span></span>
         <span className="text-zinc-500 text-xs tabular-nums shrink-0" title={p.elevApprox ? t(lang, 'elevApprox') : undefined}>
           {p.km != null ? `${Math.round(p.km)} km · ` : ''}{p.elevApprox ? '≈' : ''}{p.elev} m
         </span>
@@ -101,12 +102,12 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
           <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">{around.peaks.map(row)}</ul>
         </section>
       )}
-      {active && !full && (
+      {shown && !full && !res.peaks?.length && !around && (
         <button type="submit" className="press w-full text-left text-sm text-emerald-400 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 hover:border-emerald-400">
           {fill(t(lang, 'hikeSearchFull'), { q: text.trim() })}
         </button>
       )}
-      {shown && full && (res.peaks?.length > 0 || around) && <OsmCredit lang={lang} />}
+      {shown && (res.peaks?.length > 0 || around) && <OsmCredit lang={lang} towns={!!around} />}
     </form>
   )
 }

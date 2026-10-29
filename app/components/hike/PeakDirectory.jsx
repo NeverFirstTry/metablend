@@ -5,6 +5,7 @@ import { MapPin, MountainSnow, ChevronDown } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { nearest, byRegion, lastCityPos, isOpen, toggled } from '@/lib/hike/featured-list'
 import { nearCell, pickNearPeaks, nearView, nearSection } from '@/lib/hike/near'
+import { localName } from '@/lib/hike/search'
 import { grantedPosition } from '@/lib/native'
 import { SectionTitle } from '../ui'
 import FeaturedList from './FeaturedList'
@@ -50,7 +51,7 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
     if (!key || MEMO.near?.key === key) return
     let off = false
     const [lat, lon] = key.split(',')
-    fetch(`/api/peaks/near?lat=${lat}&lon=${lon}&v=2`)
+    fetch(`/api/peaks/near?lat=${lat}&lon=${lon}&v=3`)
       .then(r => (r.ok ? r.json() : null))
       .then(j => {
         // kept even when the tab was left meanwhile: the next visit then has it at once
@@ -67,7 +68,7 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   const view = nearView(summits, failed, key)
   const arrived = view.status === 'ready' || view.status === 'empty'
   // picked from where you are, not from the cell's centre
-  const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here) : []), [arrived, view.peaks, peaks, here])
+  const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here).map(p => ({ ...p, name: localName(p, lang) })) : []), [arrived, view.peaks, peaks, here, lang])
   const nearShows = nearSection(view, near.length)
   // nothing near, or the lookup failed: the nearest featured peaks anyway
   const fallback = useMemo(() => (nearShows === 'none' || nearShows === 'failed' ? nearest(peaks, here, 3) : []), [nearShows, peaks, here])

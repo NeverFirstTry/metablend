@@ -13,6 +13,7 @@ export const SCHEMA_FILES = [
   'warnings-feeds.sql', // downloads feeds when called; no job calls it in dev
   'tester-signups.sql',
   'nominatim.sql', // the one-request-a-second gate and the answer cache
+  'places.sql', // our summits, huts and towns (PostGIS, pg_trgm, unaccent)
   'enable_rls.sql',
 ]
 

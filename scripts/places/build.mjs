@@ -1,0 +1,53 @@
+// Step 2 of the summits dataset: GeoNames towns (cities with 5 000+ people,
+// CC BY 4.0) and the rows for our tables from every region's OpenStreetMap
+// lines (step 1, osm.mjs) — data/places/towns.ndjson and summits.ndjson, plus
+// what was kept and dropped.
+//   node scripts/places/build.mjs
+import { spawnSync } from 'node:child_process'
+import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync } from 'node:fs'
+import { createInterface } from 'node:readline'
+import { join } from 'node:path'
+import { osmRow, townRow, townIndex, nearestTown, keepSummit } from '../../lib/places/rows.js'
+
+const DIR = join('data', 'places')
+const get = (url, file) => {
+  if (existsSync(file)) return
+  const r = spawnSync('curl', ['-sfL', '--retry', '3', '-o', file, url], { stdio: 'inherit' })
+  if (r.status !== 0) throw new Error(`download failed: ${url}`)
+}
+
+// 1. towns
+get('https://download.geonames.org/export/dump/cities5000.zip', join(DIR, 'cities5000.zip'))
+get('https://download.geonames.org/export/dump/admin1CodesASCII.txt', join(DIR, 'admin1CodesASCII.txt'))
+if (!existsSync(join(DIR, 'cities5000.txt'))) spawnSync('tar', ['-xf', join(DIR, 'cities5000.zip'), '-C', DIR], { stdio: 'inherit' })
+const admin1 = Object.fromEntries(readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([k, name]) => [k, name]))
+const towns = readFileSync(join(DIR, 'cities5000.txt'), 'utf8').split('\n').filter(Boolean).map(l => townRow(l, admin1)).filter(Boolean)
+const tw = createWriteStream(join(DIR, 'towns.ndjson'))
+for (const t of towns) tw.write(JSON.stringify(t) + '\n')
+tw.end()
+console.log(`towns: ${towns.length} (with other names: ${towns.filter(t => t.alt).length})`)
+
+// 2. summits and huts, each OSM object once (regions overlap at their edges)
+const grid = townIndex(towns)
+const seen = new Set()
+const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, withNames: 0, bytes: 0 }
+const out = createWriteStream(join(DIR, 'summits.ndjson'))
+for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort()) {
+  for await (const line of createInterface({ input: createReadStream(join(DIR, 'osm', file)) })) {
+    if (!line) continue
+    stats.lines++
+    const row = osmRow(JSON.parse(line))
+    if (!row || seen.has(row.id)) continue
+    seen.add(row.id)
+    if (!keepSummit(row)) { stats.dropped++; continue }
+    const town = nearestTown(grid, row.lat, row.lon)
+    const json = JSON.stringify({ ...row, country: town?.country ?? null, region: town?.region ?? null })
+    stats.bytes += json.length + 1
+    if (row.kind === 'hut') stats.huts++
+    else { stats.peaks++; if (row.ele == null) stats.peaksNoEle++ }
+    if (row.names) stats.withNames++
+    out.write(json + '\n')
+  }
+}
+out.end()
+console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)

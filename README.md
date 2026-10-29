@@ -254,6 +254,27 @@ typing shows featured peaks and the geocoder's mountains; Nominatim is asked
 only when a search is sent (Enter, or "Search peaks, huts and places").
 `NOMINATIM_URL` points the server at another Nominatim without an app update.
 
+### Summits, huts and towns (our own data)
+
+Search (as you type), "Near you" and "around a town" read our own tables
+(`supabase/places.sql`: PostGIS for nearest-first, pg_trgm + unaccent for
+names with typos and accents). Named summits and volcanoes (with a height, or
+a Wikidata item) and named huts come from OpenStreetMap (ODbL); towns with
+5 000+ people and their other names from GeoNames (CC BY 4.0). Rebuild every
+few months — on this PC, free:
+
+```bash
+pip install osmium                       # pyosmium, once
+node scripts/places/osm.mjs              # every Geofabrik region (~90 GB, one at a time; resumes)
+node scripts/places/build.mjs            # GeoNames towns + the rows → data/places/*.ndjson
+node scripts/places/load.mjs             # into the dev database (.env.local)
+node scripts/places/load.mjs --production   # into production — asks for the project ref
+```
+
+`places_bench()` times each query inside the database, `places_size()`
+shows the tables' size. Until the tables hold data, the API keeps using
+Nominatim / Photon / the geocoder as before.
+
 ---
 
 ## Run it locally

@@ -2,6 +2,9 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { PGlite } from '@electric-sql/pglite'
+import { postgis } from '@electric-sql/pglite-postgis'
+import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm'
+import { unaccent } from '@electric-sql/pglite/contrib/unaccent'
 import { buildDevSchema } from '../scripts/lib/dev-schema.mjs'
 
 // supabase/dev-schema.sql: the whole schema for a fresh dev project, built
@@ -18,18 +21,18 @@ test('dev-schema.sql — no scheduled jobs and nothing that calls the production
 })
 
 test('dev-schema.sql — applies to a fresh Postgres, twice, with every table and function the code uses', async () => {
-  const db = new PGlite()
-  // what a Supabase project has before any SQL runs (PGlite has no `http` extension)
+  const db = new PGlite({ extensions: { postgis, pg_trgm, unaccent } })
+  // what a Supabase project has before any SQL runs (PGlite has no `http` extension: a stand-in)
   await db.exec(`create role anon; create role authenticated; create role service_role;
     create schema extensions;
     create type extensions.http_response as (status integer, content_type varchar, headers text, content varchar);
     create function extensions.http_get(u varchar) returns extensions.http_response language sql as 'select null::extensions.http_response';
     create function extensions.http_set_curlopt(n text, v text) returns boolean language sql as 'select true';`)
-  const sql = file.replace(/create extension[^;]*;/g, '')
+  const sql = file.replace(/create extension if not exists http [^;]*;/g, '')
   await db.exec(sql)
   await db.exec(sql)
   const used = ['api_weights', 'forecasts', 'feedback', 'city_bias', 'consensus_history', 'api_stats', 'outlook_snapshots', 'outlook_weights',
-    'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'tester_signups']
+    'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'tester_signups', 'nominatim_cache', 'summits', 'towns']
   for (const t of used) assert.ok((await db.query(`select to_regclass('public.${t}') as r`)).rows[0].r, t)
   for (const v of ['warning_feeds_pending', 'warning_feeds_behind']) assert.ok((await db.query(`select to_regclass('public.${v}') as r`)).rows[0].r, v)
   for (const f of ['bump_api_stats', 'mark_outlook_verified', 'refresh_warning_feeds', 'trim_warning_feed']) {

@@ -57,3 +57,6 @@ _dev.log
 google-services.json
 GoogleService-Info.plist
 *service-account*.json
+
+# downloaded and built datasets (scripts/places)
+/data/
