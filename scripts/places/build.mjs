@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process'
 import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, nearestTown, keepSummit } from '../../lib/places/rows.js'
+import { osmRow, townRow, townIndex, nearestTown, keepSummit, townAltNames, countryLanguages } from '../../lib/places/rows.js'
 
 const DIR = join('data', 'places')
 const get = (url, file) => {
@@ -19,13 +19,32 @@ const get = (url, file) => {
 // 1. towns
 get('https://download.geonames.org/export/dump/cities5000.zip', join(DIR, 'cities5000.zip'))
 get('https://download.geonames.org/export/dump/admin1CodesASCII.txt', join(DIR, 'admin1CodesASCII.txt'))
+// every name with its language (205 MB), and each country's languages
+get('https://download.geonames.org/export/dump/alternateNamesV2.zip', join(DIR, 'alternateNamesV2.zip'))
+get('https://download.geonames.org/export/dump/countryInfo.txt', join(DIR, 'countryInfo.txt'))
 // Python is needed for step 1 anyway; its zipfile unpacks on every system (Git Bash's tar can't)
-if (!existsSync(join(DIR, 'cities5000.txt'))) {
-  const r = spawnSync(process.platform === 'win32' ? 'python' : 'python3', ['-m', 'zipfile', '-e', join(DIR, 'cities5000.zip'), DIR], { stdio: 'inherit' })
-  if (r.status !== 0 || !existsSync(join(DIR, 'cities5000.txt'))) throw new Error('could not unpack cities5000.zip')
+const unzip = (zip, want) => {
+  if (existsSync(join(DIR, want))) return
+  const r = spawnSync(process.platform === 'win32' ? 'python' : 'python3', ['-m', 'zipfile', '-e', join(DIR, zip), DIR], { stdio: 'inherit' })
+  if (r.status !== 0 || !existsSync(join(DIR, want))) throw new Error(`could not unpack ${zip}`)
 }
+unzip('cities5000.zip', 'cities5000.txt')
+unzip('alternateNamesV2.zip', 'alternateNamesV2.txt')
 const admin1 = Object.fromEntries(readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([k, name]) => [k, name]))
 const towns = readFileSync(join(DIR, 'cities5000.txt'), 'utf8').split('\n').filter(Boolean).map(l => townRow(l, admin1)).filter(Boolean)
+// their other names from the list with languages, not cities5000's unlabelled
+// one (Vienna has hundreds there, and "Wien" wasn't among the first 30)
+const langs = countryLanguages(readFileSync(join(DIR, 'countryInfo.txt'), 'utf8'))
+const named = new Map(towns.map(t => [String(t.id), []]))
+for await (const line of createInterface({ input: createReadStream(join(DIR, 'alternateNamesV2.txt')) })) {
+  const c = line.split('\t')
+  const list = named.get(c[1])
+  if (list && c[3]) list.push({ lang: c[2] ?? '', name: c[3], preferred: c[4] === '1', colloquial: c[6] === '1', historic: c[7] === '1' })
+}
+for (const t of towns) {
+  const alt = townAltNames(named.get(String(t.id)), { name: t.name, countryLangs: langs[t.country] ?? [] })
+  t.alt = alt.length ? alt.join(' | ') : null
+}
 const tw = createWriteStream(join(DIR, 'towns.ndjson'))
 for (const t of towns) tw.write(JSON.stringify(t) + '\n')
 tw.end()
