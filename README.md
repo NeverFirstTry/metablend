@@ -304,6 +304,8 @@ everything that runs on your machine.
 
 - `.env.local` points at the **dev** project. `node scripts/dev-db.mjs check`
   confirms it isn't production and that every table is there.
+- After changing `.env.local`, build again: Next bakes `NEXT_PUBLIC_…`
+  variables (the database URL among them) into the build, server code too.
 - Production is written only by the deployed site and by admin scripts. A local
   server, script or test that still points at production can read it, but every
   write is refused before it's sent (`lib/db-target.js`).

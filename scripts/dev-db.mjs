@@ -9,7 +9,7 @@ import { parseEnv } from './lib/production.mjs'
 import { isProductionUrl } from '../lib/db-target.js'
 
 const TABLES = ['api_weights', 'forecasts', 'feedback', 'city_bias', 'consensus_history', 'api_stats', 'outlook_snapshots', 'outlook_weights',
-  'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'warning_feeds_pending', 'tester_signups']
+  'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'warning_feeds_pending', 'tester_signups', 'nominatim_gate', 'nominatim_cache']
 const [cmd] = process.argv.slice(2)
 
 if (cmd === 'build') {
