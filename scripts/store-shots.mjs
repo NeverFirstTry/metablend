@@ -1,6 +1,7 @@
 // Captioned store screenshots from a local production build, every language:
 //   npx next build && npx next start -p 3123      (separate terminal)
 //   node scripts/store-shots.mjs [lang …]         (default: all 13)
+//   SHOTS=1,3 node scripts/store-shots.mjs        (only those screens, e.g. a changed caption)
 // Writes fastlane/screenshots/<ios>/ (1290×2796) and
 // fastlane/metadata/android/<android>/images/phoneScreenshots/ (1080×1920),
 // plus the Play feature graphic and icon in en-US.
@@ -90,6 +91,7 @@ async function render(html, d) {
 }
 
 const langs = process.argv.slice(2).length ? process.argv.slice(2) : LOCALES.map(l => l.lang)
+const only = process.env.SHOTS ? process.env.SHOTS.split(',').map(Number) : null
 await send('Network.setCookie', { name: 'metablend_app', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
@@ -99,6 +101,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
     if (!dir) continue
     mkdirSync(dir, { recursive: true })
     for (const [i, s] of SCREENS.entries()) {
+      if (only && !only.includes(i + 1)) continue
       await send('Emulation.setDeviceMetricsOverride', { width: d.w, height: d.h, deviceScaleFactor: d.scale, mobile: true })
       // map tiles and route lookups are sometimes slow: one more try before giving up
       const ready = s.ready.replace('§nearYou', t(l.lang, 'hikeNearYou')).replace('§tabWeek', t(l.lang, 'tabWeek'))
@@ -131,7 +134,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
 }
 
 // Play feature graphic (1024×500) and icon (512×512), English listing only
-if (langs.includes('en')) {
+if (langs.includes('en') && !only) {
   const img = join(ROOT, 'fastlane/metadata/android/en-US/images')
   mkdirSync(img, { recursive: true })
   const icon = readFileSync(join(ROOT, 'public/icon-512.png'))

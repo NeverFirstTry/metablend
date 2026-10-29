@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
+import { countSources } from '@/lib/sources'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
@@ -547,7 +548,7 @@ export default function Home() {
       city: data.city,
       temp: fmt.fmtTemp(data.consensus.temp),
       condition: translateCondition(lang, heroCondition(data) ?? ''),
-      sources: data.sources.filter(s => !s.down).length,
+      sources: countSources(data.sources),
       agree: data.consensus.confidencePct,
     })
     if (await nativeShare({ title, text, url })) return
@@ -978,7 +979,7 @@ ${url}`)
 
             {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
             <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
-              summary={fill(t(lang, 'widgetSources'), { n: data.sources.filter(s => !s.down).length, agree: data.consensus.confidencePct })}>
+              summary={fill(t(lang, 'widgetSources'), { n: countSources(data.sources), agree: data.consensus.confidencePct })}>
               <SourcesPanel data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
             </Fold>
             <Fold icon={Send} title={t(lang, 'feedbackFold')}>

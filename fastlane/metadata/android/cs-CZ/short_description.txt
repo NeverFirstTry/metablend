@@ -1,1 +1,1 @@
-Jedna předpověď z 26 zdrojů počasí, navíc předpovědi pro vrcholy a trasy.
+Až 20 zdrojů počasí najednou, navíc předpovědi pro vrcholy a trasy.

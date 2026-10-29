@@ -5,8 +5,8 @@
 
 **Weather truth through consensus.**
 
-Every weather app gives you one number and asks you to trust it. MetaBlend asks a
-dozen forecasts the same question, weighs each one by how accurate it's actually
+Every weather app gives you one number and asks you to trust it. MetaBlend asks up
+to 20 weather sources at once the same question, weighs each one by how accurate it's actually
 been, and gives you the blended answer — plus how confident the sources are that
 they agree.
 
@@ -208,6 +208,13 @@ export contains nothing that isn't already public via the app's own endpoints.
 
 ## Weather data sources
 
+Up to 20 weather sources answer at once: 14 everywhere, plus the regional
+models and services that cover the place (most in Austria and Bavaria — 20; the
+Alps 19, Germany and the Nordics 17–18, the US 16). MetaBlend Local is made from
+them and isn't counted. Retired (2026-10-29): NASA POWER (hourly data ~7 days
+behind), World Weather Online (no free plan left) and Tomorrow.io (the free
+plan's 500 calls a day missed one forecast in six).
+
 | Source | Key needed | Notes |
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
@@ -217,7 +224,6 @@ export contains nothing that isn't already public via the app's own endpoints.
 | KNMI HARMONIE · DMI HARMONIE · MET Nordic | no | Outlook only (via Open-Meteo): high-resolution regional models, ~2.5 days, Europe / Nordics |
 | [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, statistical forecast |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |
-| [NASA POWER](https://power.larc.nasa.gov) | no | Satellite-derived hourly data |
 | [GeoSphere Austria](https://data.hub.geosphere.at) | no | INCA analysis grid; Austria/DACH coverage only |
 | [NWS / weather.gov](https://www.weather.gov/documentation/services-web-api) | no | US only; hourly gridpoint forecast |
 | [Bright Sky (DWD)](https://brightsky.dev) | no | Germany only; station observations |
@@ -225,9 +231,7 @@ export contains nothing that isn't already public via the app's own endpoints.
 | MetaBlend Local | — | Synthetic: our consensus + learned per-city bias (see above) |
 | [OpenWeatherMap](https://openweathermap.org/api) | yes | |
 | [WeatherAPI](https://www.weatherapi.com) | yes | |
-| [Tomorrow.io](https://www.tomorrow.io) | yes | |
 | [Visual Crossing](https://www.visualcrossing.com) | yes | Also the daily calibration source |
-| [World Weather Online](https://www.worldweatheronline.com) | yes | |
 | [Pirate Weather](https://pirateweather.net) | yes | Optional — off until `PIRATE_WEATHER_KEY` is set |
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
 | [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration; also powers the `/aviation` METAR/TAF pages |
@@ -263,9 +267,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 # Optional weather APIs
 OPENWEATHERMAP_API_KEY=
 WEATHERAPI_KEY=
-TOMORROW_KEY=
 VISUAL_CROSSING_KEY=    # also the daily calibration source
-WORLD_WEATHER_KEY=
 PIRATE_WEATHER_KEY=          # optional, free tier at pirateweather.net — the source stays off without it
 RAPIDAPI_KEY=           # Meteostat, for nightly validation
 

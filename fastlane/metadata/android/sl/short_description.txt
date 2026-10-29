@@ -1,1 +1,1 @@
-Ena napoved iz 26 vremenskih virov, plus napovedi za vrhove in pohodne poti.
+Do 20 vremenskih virov hkrati, plus napovedi za vrhove in pohodne poti.

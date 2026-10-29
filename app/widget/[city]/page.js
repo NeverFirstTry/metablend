@@ -8,6 +8,7 @@ import { skyFor, isDark, nightIcon } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { applyTheme } from '@/lib/theme'
 import { SITE, pickLang, pickUnit, pickTheme } from '@/lib/share'
+import { countSources } from '@/lib/sources'
 import { heroCondition } from '../../components/outlook/icons'
 import SkyLoader from '../../components/SkyLoader'
 
@@ -53,7 +54,7 @@ export default function Widget() {
   const icon = hour?.icon ? (dark ? nightIcon(hour.icon) : hour.icon) : null
   const condition = now ? translateCondition(lang, heroCondition(now) ?? '') : ''
   const href = `${SITE}/?city=${encodeURIComponent(now?.city ?? city)}`
-  const sourcesLine = now ? fill(t(lang, 'widgetSources'), { n: now.sources.filter(s => !s.down).length, agree: now.consensus.confidencePct }) : ''
+  const sourcesLine = now ? fill(t(lang, 'widgetSources'), { n: countSources(now.sources), agree: now.consensus.confidencePct }) : ''
   const brand = <span className="font-semibold text-zinc-300 shrink-0">Meta<span className="text-emerald-400">Blend</span></span>
 
   if (!done) return <div className="h-screen flex items-center justify-center overflow-hidden"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} mini /></div>

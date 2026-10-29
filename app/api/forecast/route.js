@@ -4,8 +4,8 @@ import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import {
   geocodeCity, englishPlaceName, getRegion,
-  fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway, fetchVisualCrossing,
-  fetchWorldWeatherOnline, fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchNASAPOWER, fetchGeoSphere,
+  fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
+  fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
 } from '@/lib/weather'
@@ -87,11 +87,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
     timedFetch('owm',                  () => fetchOWM(geo.lat, geo.lon)),
     timedFetch('weatherapi',           () => fetchWeatherAPI(geo.lat, geo.lon)),
-    timedFetch('tomorrow',             () => fetchTomorrow(geo.lat, geo.lon)),
     timedFetch('met-norway',           () => fetchMETNorway(geo.lat, geo.lon)),
     timedFetch('visual-crossing',      () => fetchVisualCrossing(geo.lat, geo.lon)),
-    timedFetch('world-weather-online', () => fetchWorldWeatherOnline(geo.lat, geo.lon)),
-    timedFetch('nasa-power',           () => fetchNASAPOWER(geo.lat, geo.lon)),
     timedFetch('geosphere',            () => fetchGeoSphere(geo.lat, geo.lon)),
     timedFetch('ecmwf',                () => fetchECMWF(geo.lat, geo.lon)),
     timedFetch('gfs',                  () => fetchGFS(geo.lat, geo.lon)),
@@ -143,7 +140,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // 4. Gewichteten Durchschnitt berechnen
   // Rain is averaged only across sources reporting a true precipitation
   // probability (rainIsProb) — cloud cover / humidity stand-ins used to bias
-  // the answer toward "rain". NASA/GeoSphere pseudo-probabilities serve as a
+  // the answer toward "rain". MET Norway/GeoSphere pseudo-probabilities serve as a
   // fallback when no real probability source responded.
   let totalWeight = 0
   let wTemp = 0, wFeelsLike = 0, wWind = 0

@@ -1,4 +1,4 @@
-Kein einzelnes Wettermodell liegt jeden Tag richtig. MetaBlend vergleicht bis zu 26 Wetterquellen — ECMWF, GFS, ICON, MET Norway, den NWS und mehr — und verbindet sie zu einer Vorhersage. Quellen, die in deiner Region immer wieder richtig liegen, zählen mehr, geprüft an echten Messungen von Flughäfen.
+Kein einzelnes Wettermodell liegt jeden Tag richtig. MetaBlend vergleicht bis zu 20 Wetterquellen gleichzeitig — ECMWF, GFS, ICON, MET Norway, den NWS und mehr — und verbindet sie zu einer Vorhersage. Quellen, die in deiner Region immer wieder richtig liegen, zählen mehr, geprüft an echten Messungen von Flughäfen.
 
 Die Vorhersage
 • Heute, morgen und die Woche, Stunde für Stunde

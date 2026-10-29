@@ -21,8 +21,8 @@ function AttributionList() {
       <li><a href="https://avalanches.org" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">EAWS</a> — avalanche danger levels from the official bulletins of Europe&apos;s avalanche warning services (via avalanche.report); avalanche region outlines CC0</li>
       <li><a href="https://meteoalarm.org" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MeteoAlarm</a> (EUMETNET, CC BY 4.0) — official weather warnings of Europe&apos;s national weather services</li>
       <li><a href="https://www.met.no" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">MET Norway</a> (NLOD / CC BY 4.0)</li>
-      <li>OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online</li>
-      <li><a href="https://power.larc.nasa.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NASA POWER</a> · <a href="https://data.hub.geosphere.at" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoSphere Austria</a></li>
+      <li>OpenWeatherMap, WeatherAPI, Visual Crossing</li>
+      <li><a href="https://data.hub.geosphere.at" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoSphere Austria</a></li>
       <li><a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NOAA</a> (NWS &amp; Aviation Weather METARs, US public domain) · <a href="https://brightsky.dev" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Bright Sky / DWD</a> · <a href="https://opendata.smhi.se" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">SMHI</a> (CC BY 4.0)</li>
       <li><a href="https://ourairports.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OurAirports</a> (public domain) — airport &amp; runway data on the Aviation pages</li>
       <li>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OpenStreetMap</a> (ODbL)</li>

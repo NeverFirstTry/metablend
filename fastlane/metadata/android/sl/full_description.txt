@@ -1,4 +1,4 @@
-Noben posamezen vremenski model ne zadene vsak dan. MetaBlend primerja do 26 vremenskih virov — ECMWF, GFS, ICON, MET Norway, NWS in druge — in jih združi v eno napoved. Viri, ki v tvoji regiji redno zadenejo, štejejo več, preverjeno z resničnimi meritvami letališč.
+Noben posamezen vremenski model ne zadene vsak dan. MetaBlend hkrati primerja do 20 vremenskih virov — ECMWF, GFS, ICON, MET Norway, NWS in druge — in jih združi v eno napoved. Viri, ki v tvoji regiji redno zadenejo, štejejo več, preverjeno z resničnimi meritvami letališč.
 
 Napoved
 • Danes, jutri in ves teden, uro za uro

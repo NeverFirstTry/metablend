@@ -31,7 +31,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, air quality, historical archive)</li>
           <li>Photon (komoot) and OpenStreetMap — peak search and summit heights: the search text and, with “Near me”, a location rounded to about 10 km; for marked routes our server sends only the summit’s coordinates</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — only if you use “my location”, to turn your coordinates into a city name (reverse geocoding)</li>
           <li>NOAA Aviation Weather (METAR reports) and Meteostat — receive city coordinates server-side to fetch reference measurements that score each source&apos;s accuracy</li>
           <li>Map tiles by OpenStreetMap contributors (heatmap and rain radar) and OpenTopoMap (route maps in the app)</li>
@@ -60,7 +60,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (inkl. Geocoding, Luftqualität, historisches Archiv)</li>
           <li>Photon (komoot) und OpenStreetMap — Gipfelsuche und Gipfelhöhen: der Suchtext und bei „In meiner Nähe“ ein auf etwa 10 km gerundeter Standort; für markierte Routen sendet unser Server nur die Koordinaten des Gipfels</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — nur bei „Mein Standort“, um Koordinaten in einen Stadtnamen zu übersetzen (Reverse-Geocoding)</li>
           <li>NOAA Aviation Weather (METAR-Meldungen) und Meteostat — erhalten serverseitig Stadtkoordinaten, um Referenzmessungen für die Genauigkeitsbewertung abzurufen</li>
           <li>Kartenkacheln von OpenStreetMap-Mitwirkenden (Heatmap und Regenradar) und OpenTopoMap (Routenkarten in der App)</li>
@@ -89,7 +89,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (y compris géocodage, qualité de l’air, archives historiques)</li>
           <li>Photon (komoot) et OpenStreetMap — recherche de sommets et altitudes : le texte recherché et, avec « Près de moi », une position arrondie à environ 10 km ; pour les itinéraires balisés, notre serveur n’envoie que les coordonnées du sommet</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — uniquement si vous utilisez « ma position », pour convertir vos coordonnées en nom de ville (géocodage inverse)</li>
           <li>NOAA Aviation Weather (relevés METAR) et Meteostat — reçoivent côté serveur les coordonnées des villes pour récupérer des mesures de référence servant à noter la précision de chaque source</li>
           <li>Tuiles cartographiques des contributeurs OpenStreetMap (carte et radar de pluie) et OpenTopoMap (cartes d’itinéraires dans l’app)</li>
@@ -118,7 +118,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocodificación, calidad del aire, archivo histórico)</li>
           <li>Photon (komoot) y OpenStreetMap — búsqueda de cumbres y altitudes: el texto buscado y, con «Cerca de mí», una ubicación redondeada a unos 10 km; para las rutas señalizadas nuestro servidor solo envía las coordenadas de la cumbre</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo si usas «mi ubicación», para convertir tus coordenadas en un nombre de ciudad (geocodificación inversa)</li>
           <li>NOAA Aviation Weather (informes METAR) y Meteostat — reciben coordenadas de ciudades en el servidor para obtener mediciones de referencia con las que puntuar la precisión de cada fuente</li>
           <li>Teselas de mapa de los colaboradores de OpenStreetMap (mapa y radar de lluvia) y OpenTopoMap (mapas de rutas en la app)</li>
@@ -147,7 +147,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, qualità dell’aria, archivio storico)</li>
           <li>Photon (komoot) e OpenStreetMap — ricerca delle vette e quote: il testo cercato e, con «Vicino a me», una posizione arrotondata a circa 10 km; per i percorsi segnalati il nostro server invia solo le coordinate della vetta</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — solo se usi «la mia posizione», per convertire le coordinate in un nome di città (geocoding inverso)</li>
           <li>NOAA Aviation Weather (bollettini METAR) e Meteostat — ricevono lato server le coordinate delle città per ottenere misurazioni di riferimento con cui valutare la precisione di ogni fonte</li>
           <li>Tessere mappa dei collaboratori di OpenStreetMap (mappa e radar pioggia) e OpenTopoMap (mappe dei percorsi nell’app)</li>
@@ -175,7 +175,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, luchtkwaliteit, historisch archief)</li>
           <li>Photon (komoot) en OpenStreetMap — zoeken naar toppen en tophoogtes: de zoektekst en, met „In de buurt”, een locatie afgerond op ongeveer 10 km; voor gemarkeerde routes stuurt onze server alleen de coördinaten van de top</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (VS), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (VS), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — alleen als je „mijn locatie” gebruikt, om je coördinaten om te zetten in een plaatsnaam (reverse geocoding)</li>
           <li>NOAA Aviation Weather (METAR-rapporten) en Meteostat — krijgen op de server stadscoördinaten om referentiemetingen op te halen waarmee de nauwkeurigheid van elke bron wordt beoordeeld</li>
           <li>Kaarttegels van OpenStreetMap-bijdragers (heatmap en regenradar) en OpenTopoMap (routekaarten in de app)</li>
@@ -203,7 +203,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (w tym geokodowanie, jakość powietrza, archiwum historyczne)</li>
           <li>Photon (komoot) i OpenStreetMap — wyszukiwanie szczytów i ich wysokości: wyszukiwany tekst oraz, przy „W pobliżu”, lokalizacja zaokrąglona do ok. 10 km; dla oznakowanych tras nasz serwer wysyła tylko współrzędne szczytu</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — oraz ECMWF/GFS/ICON przez Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — oraz ECMWF/GFS/ICON przez Open-Meteo</li>
           <li>BigDataCloud — tylko gdy używasz „mojej lokalizacji”, aby zamienić współrzędne na nazwę miasta (odwrotne geokodowanie)</li>
           <li>NOAA Aviation Weather (raporty METAR) i Meteostat — otrzymują po stronie serwera współrzędne miast, aby pobrać pomiary referencyjne do oceny dokładności źródeł</li>
           <li>Kafelki map od współtwórców OpenStreetMap (mapa cieplna i radar opadów) oraz OpenTopoMap (mapy tras w aplikacji)</li>
@@ -231,7 +231,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (vč. geokódování, kvality ovzduší, historického archivu)</li>
           <li>Photon (komoot) a OpenStreetMap — hledání vrcholů a jejich výšek: hledaný text a u „Poblíž“ poloha zaokrouhlená asi na 10 km; pro značené trasy náš server posílá jen souřadnice vrcholu</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — a ECMWF/GFS/ICON přes Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — a ECMWF/GFS/ICON přes Open-Meteo</li>
           <li>BigDataCloud — jen pokud použijete „moji polohu“, k převodu souřadnic na název města (reverzní geokódování)</li>
           <li>NOAA Aviation Weather (hlášení METAR) a Meteostat — dostávají na serveru souřadnice měst, aby získaly referenční měření pro hodnocení přesnosti zdrojů</li>
           <li>Mapové dlaždice od přispěvatelů OpenStreetMap (teplotní mapa a srážkový radar) a OpenTopoMap (mapy tras v aplikaci)</li>
@@ -259,7 +259,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (vklj. geokodiranje, kakovost zraka, zgodovinski arhiv)</li>
           <li>Photon (komoot) in OpenStreetMap — iskanje vrhov in njihovih višin: iskano besedilo in pri »V bližini« lokacija, zaokrožena na približno 10 km; za označene poti naš strežnik pošlje le koordinate vrha</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (ZDA), Bright Sky (DWD), SMHI — ter ECMWF/GFS/ICON prek Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (ZDA), Bright Sky (DWD), SMHI — ter ECMWF/GFS/ICON prek Open-Meteo</li>
           <li>BigDataCloud — le če uporabiš »mojo lokacijo«, da koordinate pretvori v ime mesta (obratno geokodiranje)</li>
           <li>NOAA Aviation Weather (poročila METAR) in Meteostat — na strežniku prejmeta koordinate mest, da pridobita referenčne meritve za oceno natančnosti virov</li>
           <li>Ploščice zemljevidov sodelavcev OpenStreetMap (toplotni zemljevid in radar padavin) ter OpenTopoMap (zemljevidi poti v aplikaciji)</li>
@@ -287,7 +287,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocodificação, qualidade do ar, arquivo histórico)</li>
           <li>Photon (komoot) e OpenStreetMap — busca de picos e altitudes: o texto buscado e, com “Perto de mim”, uma localização arredondada a cerca de 10 km; para rotas sinalizadas, nosso servidor envia apenas as coordenadas do cume</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS (EUA), Bright Sky (DWD), SMHI — além de ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (EUA), Bright Sky (DWD), SMHI — além de ECMWF/GFS/ICON via Open-Meteo</li>
           <li>BigDataCloud — só se você usar “minha localização”, para transformar suas coordenadas no nome de uma cidade (geocodificação reversa)</li>
           <li>NOAA Aviation Weather (boletins METAR) e Meteostat — recebem no servidor as coordenadas das cidades para obter medições de referência que avaliam a precisão de cada fonte</li>
           <li>Blocos de mapa dos colaboradores do OpenStreetMap (mapa de calor e radar de chuva) e OpenTopoMap (mapas de rotas no app)</li>
@@ -315,7 +315,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo（ジオコーディング、大気質、過去データのアーカイブを含む）</li>
           <li>Photon（komoot）とOpenStreetMap — 山の検索と山頂の標高：検索テキストと、「現在地周辺」の場合は約10 kmに丸めた位置。標識のあるルートについては、サーバーが山頂の座標だけを送ります</li>
-          <li>MET Norway、OpenWeatherMap、WeatherAPI、Tomorrow.io、Visual Crossing、World Weather Online、NASA POWER、GeoSphere Austria、NWS（米国）、Bright Sky（DWD）、SMHI — およびOpen-Meteo経由のECMWF/GFS/ICON</li>
+          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（米国）、Bright Sky（DWD）、SMHI — およびOpen-Meteo経由のECMWF/GFS/ICON</li>
           <li>BigDataCloud — 「現在地」を使う場合のみ、座標を都市名に変換するため（逆ジオコーディング）</li>
           <li>NOAA Aviation Weather（METAR通報）とMeteostat — 各ソースの精度を採点する基準測定値を取得するため、サーバー側で都市の座標を受け取ります</li>
           <li>OpenStreetMap contributorsによる地図タイル（ヒートマップと雨雲レーダー）とOpenTopoMap（アプリ内のルート地図）</li>
@@ -343,7 +343,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo（含地理编码、空气质量、历史档案）</li>
           <li>Photon（komoot）和 OpenStreetMap — 山峰搜索和山顶高度：搜索文本，以及使用“我附近”时精确到约 10 公里的位置；对于有标记的路线，我们的服务器只发送山顶坐标</li>
-          <li>MET Norway、OpenWeatherMap、WeatherAPI、Tomorrow.io、Visual Crossing、World Weather Online、NASA POWER、GeoSphere Austria、NWS（美国）、Bright Sky（DWD）、SMHI — 以及通过 Open-Meteo 获取的 ECMWF/GFS/ICON</li>
+          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（美国）、Bright Sky（DWD）、SMHI — 以及通过 Open-Meteo 获取的 ECMWF/GFS/ICON</li>
           <li>BigDataCloud — 仅在你使用“我的位置”时，用于把坐标转换为城市名（逆地理编码）</li>
           <li>NOAA Aviation Weather（METAR 报告）和 Meteostat — 在服务器端接收城市坐标，用于获取评估各来源准确度的参考测量值</li>
           <li>OpenStreetMap 贡献者提供的地图瓦片（热力图和降雨雷达）以及 OpenTopoMap（应用中的路线地图）</li>
@@ -371,7 +371,7 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo(지오코딩, 대기질, 과거 기록 포함)</li>
           <li>Photon(komoot)과 OpenStreetMap — 산 검색과 정상 고도: 검색어와, “내 주변” 사용 시 약 10 km로 반올림한 위치. 표시된 경로의 경우 서버는 정상 좌표만 보내요</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Tomorrow.io, Visual Crossing, World Weather Online, NASA POWER, GeoSphere Austria, NWS(미국), Bright Sky(DWD), SMHI — 그리고 Open-Meteo를 통한 ECMWF/GFS/ICON</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS(미국), Bright Sky(DWD), SMHI — 그리고 Open-Meteo를 통한 ECMWF/GFS/ICON</li>
           <li>BigDataCloud — “내 위치”를 사용할 때만, 좌표를 도시 이름으로 바꾸기 위해(역지오코딩)</li>
           <li>NOAA Aviation Weather(METAR 보고)와 Meteostat — 각 출처의 정확도를 채점할 기준 측정값을 가져오기 위해 서버에서 도시 좌표를 받아요</li>
           <li>OpenStreetMap 기여자의 지도 타일(히트맵과 강수 레이더)과 OpenTopoMap(앱의 경로 지도)</li>

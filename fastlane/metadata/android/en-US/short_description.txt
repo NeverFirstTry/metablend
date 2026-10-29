@@ -1,1 +1,1 @@
-One forecast from 26 weather sources, plus summit forecasts and hiking routes.
+One forecast from up to 20 weather sources at once, plus summits and routes.

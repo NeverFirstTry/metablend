@@ -1,4 +1,4 @@
-No single weather model gets every day right. MetaBlend compares up to 26 weather sources — ECMWF, GFS, ICON, MET Norway, the NWS and more — and blends them into one forecast. Sources that keep getting your region right count for more, checked against real airport measurements.
+No single weather model gets every day right. MetaBlend compares up to 20 weather sources at once — ECMWF, GFS, ICON, MET Norway, the NWS and more — and blends them into one forecast. Sources that keep getting your region right count for more, checked against real airport measurements.
 
 The forecast
 • Today, tomorrow and the week, hour by hour

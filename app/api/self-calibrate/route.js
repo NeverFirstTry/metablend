@@ -4,8 +4,8 @@ import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { localDateForLon } from '@/lib/localtime'
 import {
-  fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchTomorrow, fetchMETNorway,
-  fetchVisualCrossing, fetchWorldWeatherOnline, fetchMeteoFrance, modelSource, MORE_MODELS, fetchPirateWeather, fetchNASAPOWER,
+  fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway,
+  fetchVisualCrossing, fetchMeteoFrance, modelSource, MORE_MODELS, fetchPirateWeather,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
 } from '@/lib/weather'
 
@@ -21,11 +21,8 @@ const FETCHERS = {
   'open-meteo': fetchOpenMeteo,
   owm: fetchOWM,
   weatherapi: fetchWeatherAPI,
-  tomorrow: fetchTomorrow,
   'met-norway': fetchMETNorway,
   'visual-crossing': fetchVisualCrossing,
-  'world-weather-online': fetchWorldWeatherOnline,
-  'nasa-power': fetchNASAPOWER,
   // keyless model feeds + regional sources (regionals return null outside coverage)
   ecmwf: fetchECMWF,
   gfs: fetchGFS,

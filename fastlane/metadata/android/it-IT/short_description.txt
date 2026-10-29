@@ -1,1 +1,1 @@
-Una previsione da 26 fonti meteo, più previsioni in vetta e percorsi.
+Fino a 20 fonti meteo alla volta, più previsioni in vetta e percorsi.

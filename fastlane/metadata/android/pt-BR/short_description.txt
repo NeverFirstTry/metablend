@@ -1,1 +1,1 @@
-Uma previsão de 26 fontes meteorológicas, com previsões de cume e trilhas.
+Até 20 fontes meteorológicas de uma vez, com previsões de cume e trilhas.

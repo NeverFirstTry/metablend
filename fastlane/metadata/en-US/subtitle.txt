@@ -1,1 +1,1 @@
-Weather from 26 sources
+Up to 20 weather sources

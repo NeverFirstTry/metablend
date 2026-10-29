@@ -53,7 +53,7 @@ export default function OpengraphImage() {
             color: '#71717a',
           }}
         >
-          <div style={{ display: 'flex' }}>16 forecasts, weighted by accuracy</div>
+          <div style={{ display: 'flex' }}>Up to 20 weather sources at once</div>
           <div style={{ display: 'flex', color: '#ffd98a' }}>metablend.app</div>
         </div>
       </div>

@@ -5,6 +5,20 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-29
 
+### Changed — "up to 20 weather sources at once", three unreliable sources gone
+- Everywhere the app talks about itself — site, social preview, store
+  listings and screenshot captions in all languages, README — "26 sources"
+  is now "up to 20 weather sources at once": that's what a place really gets
+  (20 in Austria and Bavaria, 19 in the Alps, 16 in the US, 14 everywhere).
+- Retired: NASA POWER (its hourly data runs about 7 days behind, so it never
+  had a value for "now"), World Weather Online (its key is over the daily
+  limit and there's no free plan left) and Tomorrow.io (the free plan's 500
+  calls a day already missed one forecast in six). Credits, privacy notice
+  and terms no longer list them; old leaderboard rows keep their names.
+- "N sources" on the forecast card, the share text and the widget counts
+  the weather sources that answered — not MetaBlend Local, which is made
+  from them.
+
 ### Added — a separate dev database; production is written only on purpose
 - Local development gets its own Supabase project: `supabase/dev-schema.sql`
   is the whole schema in one script (built from `supabase/*.sql`, without the
