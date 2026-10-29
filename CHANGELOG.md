@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-29
 
+### Fixed — no blank Hiking page in the app
+- Should the website's hiking teaser ever reach the app twice (it's hidden
+  there), the page no longer stays blank: a "Loading…" line shows, a refresh
+  is tried, and two seconds later the app view is loaded directly.
+
 ### Changed — long days are timed again
 - Routes of 10 to 14 hours' walking are no longer "multi-day": they're
   labelled "long day — may be done with an overnight stay" and get their
