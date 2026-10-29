@@ -1,5 +1,6 @@
 // The Android tester list from /testers, for the owner (calls /api/testers/export
-// with CALIBRATE_SECRET from .env.local — the key is sent in a header, never printed):
+// with production's CALIBRATE_SECRET from .env.production-admin, else .env.local —
+// the key is sent in a header, never printed):
 //
 //   node scripts/testers.mjs export        everyone still in the test → Downloads/metablend-testers.csv
 //                                          Upload it in Play Console (Closed testing → Testers) to an
@@ -17,10 +18,10 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { testersCsv } from '../lib/testers-signup.js'
+import { parseEnv } from './lib/production.mjs'
 
-const env = existsSync('.env.local')
-  ? Object.fromEntries(readFileSync('.env.local', 'utf8').split(/\r?\n/).filter(l => l.includes('=')).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1).trim().replace(/^"|"$/g, '')]))
-  : {}
+const file = ['.env.production-admin', '.env.local'].find(f => existsSync(f)) // production's secret first: .env.local is the dev project's
+const env = file ? parseEnv(readFileSync(file, 'utf8')) : {}
 const KEY = process.env.CALIBRATE_SECRET || env.CALIBRATE_SECRET
 const BASE = process.env.TESTERS_BASE ?? 'https://metablend.app'
 const URL_ = `${BASE}/api/testers/export`
@@ -28,7 +29,7 @@ const LAST = join(tmpdir(), 'metablend-testers-last-export.json') // the new add
 const [cmd, ...args] = process.argv.slice(2)
 const REUPLOAD = 'They stay on the Play list until you run "export" again and upload the new file.'
 
-if (!KEY) { console.error('No CALIBRATE_SECRET in .env.local or the environment.'); process.exit(1) }
+if (!KEY) { console.error('No CALIBRATE_SECRET in .env.production-admin, .env.local or the environment.'); process.exit(1) }
 
 async function call(method, { query = '', body } = {}) {
   const res = await fetch(URL_ + query, {

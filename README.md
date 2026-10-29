@@ -278,11 +278,28 @@ CRON_SECRET=            # gates the cron jobs (/api/calibrate, /api/cleanup,
 WEBHOOK_URL=            # optional low-confidence alert target
 ```
 
-Set up the database by pasting **`supabase/setup_all.sql`** into the Supabase SQL
-editor and running it — it's one idempotent script that creates every table and
-seeds the weight rows (the older `migrationN.sql` files are no longer needed).
-To lock the database down, set `SUPABASE_SERVICE_ROLE_KEY` and then run
-**`supabase/enable_rls.sql`** (see Security below).
+Set up the database by pasting **`supabase/dev-schema.sql`** into the Supabase SQL
+editor of a fresh project and running it — the whole schema in one idempotent
+script (every table, the weight seeds, row level security on), built from the
+files in `supabase/` by `node scripts/dev-db.mjs build`. It leaves out the
+scheduled jobs (`supabase/cron.sql`): they call the live site.
+
+### Databases
+
+Two Supabase projects: **production** (the live site) and a **dev** project for
+everything that runs on your machine.
+
+- `.env.local` points at the **dev** project. `node scripts/dev-db.mjs check`
+  confirms it isn't production and that every table is there.
+- Production is written only by the deployed site and by admin scripts. A local
+  server, script or test that still points at production can read it, but every
+  write is refused before it's sent (`lib/db-target.js`).
+- Admin scripts that change production (`scripts/backfill-route-heights.mjs`)
+  take its keys from **`.env.production-admin`** (git-ignored; Next never loads
+  it), say what they'll change and go on only once you type the project ref (or
+  pass `--confirm=<ref>`). Read-only ones (`scripts/verify-local.mjs`) and the
+  tester list (`scripts/testers.mjs`, through the live site's API) use the same
+  file, without asking.
 
 ```bash
 npm run dev    # start the app

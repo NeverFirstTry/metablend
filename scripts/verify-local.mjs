@@ -15,17 +15,15 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
+import { loadProduction, parseEnv } from './lib/production.mjs'
 
 // usage: node scripts/verify-local.mjs (needs .env.local with RAPIDAPI_KEY)
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..')
 const req = createRequire(path.join(ROOT, 'package.json'))
 const { createClient } = req('@supabase/supabase-js')
 
-const env = Object.fromEntries(
-  fs.readFileSync(ROOT + '/.env.local', 'utf8').split(/\r?\n/)
-    .filter(l => l.includes('=') && !l.trim().startsWith('#'))
-    .map(l => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim()] })
-)
+// reads production (its keys from .env.production-admin); writes nothing
+const env = { ...parseEnv(fs.readFileSync(ROOT + '/.env.local', 'utf8')), ...loadProduction() }
 const supabase = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
 
 // --- forecasts to score ---

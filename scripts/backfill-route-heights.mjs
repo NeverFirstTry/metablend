@@ -1,22 +1,21 @@
 // One-off backfill (2026-10-27, safe to re-run): every stored route gets its
 // heights and is timed again under the current rules — instead of waiting for
 // each route to be opened.
-//   node scripts/backfill-route-heights.mjs          (writes; DRY=1 to only count)
+//   node scripts/backfill-route-heights.mjs    (writes after you confirm; DRY=1 only counts)
 // - route_cache: missing heights filled from the terrain model, then every
 //   route's ascent / descent / walking time recomputed (gaps interpolated,
 //   no time without heights), heights marked.
 // - hike_plans (today and later): the planned route's missing heights filled,
 //   so the evening / morning alerts are computed from real heights (dispatch
 //   times the route at send time; a changed start sends the morning update).
-// Reads SUPABASE_SERVICE_ROLE_KEY from .env.local; prints counts only.
-import { readFileSync } from 'node:fs'
+// Production keys from .env.production-admin (scripts/lib/production.mjs);
+// prints counts and route names only.
 import { pathToFileURL } from 'node:url'
 import { join } from 'node:path'
+import { loadProduction, confirmProduction } from './lib/production.mjs'
 
-for (const l of readFileSync('.env.local', 'utf8').split(/\r?\n/)) {
-  const i = l.indexOf('=')
-  if (i > 0 && !process.env[l.slice(0, i)]) process.env[l.slice(0, i)] = l.slice(i + 1).trim().replace(/^"|"$/g, '')
-}
+if (process.env.DRY === '1') loadProduction()
+else await confirmProduction('fill missing route heights and re-time every stored route and planned hike')
 const imp = p => import(pathToFileURL(join(process.cwd(), p)).href)
 const { supabase } = await imp('lib/supabase.js')
 const { fillHeights, hasHeights, walkStats } = await imp('lib/route/heights.js')

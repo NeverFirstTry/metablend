@@ -3,6 +3,18 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-29
+
+### Added — a separate dev database; production is written only on purpose
+- Local development gets its own Supabase project: `supabase/dev-schema.sql`
+  is the whole schema in one script (built from `supabase/*.sql`, without the
+  scheduled jobs that call the live site, checked on a real Postgres in the
+  tests), `node scripts/dev-db.mjs check` confirms `.env.local` points at it.
+- A local server, script or test that still points at production can read it
+  but can't write: every write is refused before it's sent. Only the deployed
+  site writes there — and admin scripts, which take production's keys from a
+  separate git-ignored file and go on only after you type the project ref.
+
 ## 2026-10-27
 
 ### Changed — faster, steadier tabs in the app (first external tester)
