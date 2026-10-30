@@ -1,0 +1,1 @@
+Mehr → Benachrichtigungen → „Einstellungen öffnen“ öffnet jetzt die Benachrichtigungseinstellungen von MetaBlend. Außerdem neu: Die Suche unter Wandern findet Gipfel, Hütten und Orte schon beim Tippen – in deiner Sprache, auch mit Tippfehlern – und zeigt, was rund um einen Ort liegt; „In deiner Nähe“ funktioniert wieder überall.

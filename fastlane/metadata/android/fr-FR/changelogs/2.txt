@@ -1,0 +1,1 @@
+Plus → Notifications → « Ouvrir les réglages » ouvre désormais les réglages de notification de MetaBlend. Aussi nouveau : la recherche de Randonnée trouve sommets, refuges et villes dès la saisie — dans votre langue, même avec des fautes de frappe — et montre ce qui entoure une ville ; « Près de vous » fonctionne de nouveau partout.

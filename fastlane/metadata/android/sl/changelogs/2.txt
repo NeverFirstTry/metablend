@@ -1,0 +1,1 @@
+Več → Obvestila → »Odpri nastavitve« zdaj odpre nastavitve obvestil aplikacije MetaBlend. Novo tudi pri Pohodništvu: iskanje najde vrhove, koče in kraje že med tipkanjem — v tvojem jeziku, tudi s tipkarskimi napakami — in pokaže, kaj je okoli kraja; »V tvoji bližini« spet deluje povsod.

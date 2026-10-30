@@ -1,0 +1,1 @@
+More → Notifications → “Open settings” now opens MetaBlend's notification settings. Also new: the Hiking search finds summits, huts and towns as you type — in your language, typos forgiven — and shows what's around a town; “Near you” works everywhere again.

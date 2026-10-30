@@ -1,0 +1,1 @@
+Mais → Notificações → “Abrir configurações” agora abre as configurações de notificação do MetaBlend. Também novo: a busca de Trilhas encontra cumes, abrigos e cidades enquanto você digita — no seu idioma, mesmo com erros de digitação — e mostra o que há ao redor de uma cidade; “Perto de você” volta a funcionar em todo lugar.

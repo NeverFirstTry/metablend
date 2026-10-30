@@ -1,0 +1,1 @@
+Más → Notificaciones → «Abrir ajustes» ahora abre los ajustes de notificaciones de MetaBlend. También nuevo: la búsqueda de Senderismo encuentra cumbres, refugios y localidades mientras escribes —en tu idioma y aunque haya erratas— y muestra lo que hay alrededor de una localidad; «Cerca de ti» vuelve a funcionar en todas partes.

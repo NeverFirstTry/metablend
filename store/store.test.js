@@ -52,3 +52,12 @@ test('captions — 5 per app language, short enough for two lines', () => {
     for (const s of c[lang]) assert.ok(s && len(s) <= 48, `${lang}: ${s}`)
   }
 })
+
+test('Play release notes — the version being built has them in every locale, within 500 characters', () => {
+  const code = read('mobile/android/app/build.gradle').match(/versionCode (\d+)/)[1]
+  for (const { android } of LOCALES) {
+    const s = read(`fastlane/metadata/android/${android}/changelogs/${code}.txt`)
+    assert.ok(s && len(s) <= 500, `${android}/changelogs/${code}.txt: ${len(s)} > 500`)
+    assert.doesNotMatch(s, JUNK, `${android}/changelogs/${code}.txt`)
+  }
+})
