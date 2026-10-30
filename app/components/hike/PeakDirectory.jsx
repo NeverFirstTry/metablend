@@ -68,7 +68,7 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
   const view = nearView(summits, failed, key)
   const arrived = view.status === 'ready' || view.status === 'empty'
   // picked from where you are, not from the cell's centre
-  const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here).map(p => ({ ...p, name: localName(p, lang) })) : []), [arrived, view.peaks, peaks, here, lang])
+  const near = useMemo(() => (arrived && here ? pickNearPeaks(view.peaks, peaks, here).map(p => ({ ...p, label: localName(p, lang) })) : []), [arrived, view.peaks, peaks, here, lang])
   const nearShows = nearSection(view, near.length)
   // nothing near, or the lookup failed: the nearest featured peaks anyway
   const fallback = useMemo(() => (nearShows === 'none' || nearShows === 'failed' ? nearest(peaks, here, 3) : []), [nearShows, peaks, here])

@@ -4,6 +4,8 @@ import { MountainSnow, House } from 'lucide-react'
 // Featured peaks as compact cards: linked in the app, plain on the teaser.
 // Long names wrap instead of being cut off (the details column is wide on
 // a phone: km · m · grade · country); with large text the details drop below.
+// `label` shows a summit's name in the reader's language; the link keeps
+// OpenStreetMap's, so a peak's page is one cached copy in every language.
 export default function FeaturedList({ peaks, hrefFor = null }) {
   return (
     <div className="@container grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -13,7 +15,7 @@ export default function FeaturedList({ peaks, hrefFor = null }) {
           <>
             <span className="inline-flex items-center gap-2 min-w-0">
               <Icon size={14} className="shrink-0 text-zinc-500" aria-hidden />
-              <span className="min-w-0 break-words">{p.name}</span>
+              <span className="min-w-0 break-words">{p.label ?? p.name}</span>
             </span>
             <span className="text-zinc-500 text-xs tabular-nums shrink-0">
               {[p.km != null ? `${Math.round(p.km)} km` : null, `${p.elev} m`, p.grade, p.country].filter(Boolean).join(' · ')}

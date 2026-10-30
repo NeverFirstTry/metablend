@@ -4,6 +4,10 @@
 -- loaded by scripts/places (load.mjs), read only through the functions below
 -- by our API (service-role key). RLS on, no policies, no grants for the
 -- public API roles. Safe to run more than once.
+-- Changed 2026-10-30 (run it again): loads write only rows that changed and
+-- delete by id (summits_upsert, towns_upsert, summits_ids, towns_ids,
+-- places_delete) instead of rewriting every row; places_ready says a load has
+-- finished (places_loads) — until then the API keeps the outside services.
 
 create extension if not exists postgis with schema extensions;
 create extension if not exists pg_trgm with schema extensions;
@@ -20,6 +24,7 @@ as $$ select lower(extensions.unaccent('extensions.unaccent'::regdictionary, t))
 create or replace function public.place_names_text(j jsonb)
 returns text
 language sql immutable parallel safe
+set search_path = public, pg_temp
 as $$ select coalesce(string_agg(v, ' | '), '') from jsonb_each_text(coalesce(j, '{}'::jsonb)) as e(k, v) $$;
 
 create table if not exists public.summits (
@@ -34,7 +39,7 @@ create table if not exists public.summits (
   region text,
   geog extensions.geography(point, 4326) not null,
   search text generated always as (public.place_norm(name || ' | ' || public.place_names_text(names))) stored,
-  loaded_at timestamptz not null default now()
+  loaded_at timestamptz not null default now() -- when a load last changed it
 );
 
 create table if not exists public.towns (
@@ -66,10 +71,21 @@ do $$ begin
   end if;
 end $$;
 create index if not exists summits_search_notable on public.summits (search collate "C") include (ele, id) where notability >= 2;
-create index if not exists summits_loaded_idx on public.summits (loaded_at);
 create index if not exists towns_geog_idx on public.towns using gist (geog);
 create index if not exists towns_search_idx on public.towns using gist (search extensions.gist_trgm_ops);
-create index if not exists towns_loaded_idx on public.towns (loaded_at);
+-- (loads no longer prune by time: those indexes only took space)
+drop index if exists public.summits_loaded_idx;
+drop index if exists public.towns_loaded_idx;
+
+-- Each finished load: when, and what it left. The API uses our tables only
+-- once there is one (places_ready) — never half of a first load.
+create table if not exists public.places_loads (
+  finished_at timestamptz primary key default now(),
+  summits integer not null,
+  towns integer not null,
+  written integer not null,
+  deleted integer not null
+);
 
 -- Summits and huts whose name, in any of our languages, is like the query —
 -- as you type, typos and accents forgiven. Candidates in three steps: names
@@ -175,20 +191,102 @@ as $$
            limit 150) s
 $$;
 
--- After a complete load: drop what the new data no longer has — max_rows at
--- a time, so each call stays within the API's time limit (the loader calls
--- it until nothing is left). The first version, 2026-10-30, deleted all at
--- once and timed out right after a full load.
-drop function if exists public.places_prune(timestamptz);
-create or replace function public.places_prune(before timestamptz, max_rows integer default 20000)
+-- A batch of a load (jsonb rows as in data/places/*.ndjson): new rows in,
+-- changed rows updated, unchanged rows left as they are — not rewritten, so
+-- a reload every few months adds only what changed, not a second copy of
+-- 200 MB until vacuum (the free tier has 500 MB). Returns the rows written.
+create or replace function public.summits_upsert(batch jsonb)
+returns integer
+language sql volatile
+set search_path = public, extensions, pg_temp
+as $$
+  with r as (
+    select * from jsonb_to_recordset(batch) as x(id text, kind text, name text, names jsonb, ele smallint, notability smallint,
+                                                 wikidata text, country text, region text, lat double precision, lon double precision)
+  ), w as (
+    insert into public.summits as s (id, kind, name, names, ele, notability, wikidata, country, region, geog, loaded_at)
+    select r.id, r.kind, r.name, r.names, r.ele, coalesce(r.notability, 0), r.wikidata, r.country, r.region,
+           st_makepoint(r.lon, r.lat)::geography, now()
+      from r
+    on conflict (id) do update
+       set kind = excluded.kind, name = excluded.name, names = excluded.names, ele = excluded.ele, notability = excluded.notability,
+           wikidata = excluded.wikidata, country = excluded.country, region = excluded.region, geog = excluded.geog, loaded_at = excluded.loaded_at
+     where (s.kind, s.name, s.names, s.ele, s.notability, s.wikidata, s.country, s.region, st_asbinary(s.geog))
+           is distinct from
+           (excluded.kind, excluded.name, excluded.names, excluded.ele, excluded.notability, excluded.wikidata, excluded.country, excluded.region, st_asbinary(excluded.geog))
+    returning 1
+  )
+  select count(*)::integer from w
+$$;
+
+create or replace function public.towns_upsert(batch jsonb)
+returns integer
+language sql volatile
+set search_path = public, extensions, pg_temp
+as $$
+  with r as (
+    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, country text, region text, population integer,
+                                                 lat double precision, lon double precision)
+  ), w as (
+    insert into public.towns as t (id, name, alt, country, region, population, geog, loaded_at)
+    select r.id, r.name, r.alt, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
+      from r
+    on conflict (id) do update
+       set name = excluded.name, alt = excluded.alt, country = excluded.country, region = excluded.region,
+           population = excluded.population, geog = excluded.geog, loaded_at = excluded.loaded_at
+     where (t.name, t.alt, t.country, t.region, t.population, st_asbinary(t.geog))
+           is distinct from
+           (excluded.name, excluded.alt, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
+    returning 1
+  )
+  select count(*)::integer from w
+$$;
+
+-- The ids we have, in order, n at a time (after: the last id of the page
+-- before) — the loader finds what the new data no longer has.
+create or replace function public.summits_ids(after text default null, n integer default 50000)
+returns text[]
+language sql stable
+set search_path = public, pg_temp
+as $$ select coalesce(array_agg(id order by id), '{}') from (select id from public.summits where id > coalesce(after, '') order by id limit n) x $$;
+
+create or replace function public.towns_ids(after integer default null, n integer default 50000)
+returns integer[]
+language sql stable
+set search_path = public, pg_temp
+as $$ select coalesce(array_agg(id order by id), '{}') from (select id from public.towns where id > coalesce(after, -1) order by id limit n) x $$;
+
+-- Rows the new data no longer has, by id (the loader sends a few thousand a
+-- call, each within the API's time limit).
+create or replace function public.places_delete(summit_ids text[] default '{}', town_ids integer[] default '{}')
 returns table (summits bigint, towns bigint)
 language sql volatile
 set search_path = public, pg_temp
 as $$
-  with a as (delete from public.summits where id in (select id from public.summits where loaded_at < before limit max_rows) returning 1),
-       b as (delete from public.towns where id in (select id from public.towns where loaded_at < before limit max_rows) returning 1)
+  with a as (delete from public.summits where id = any(summit_ids) returning 1),
+       b as (delete from public.towns where id = any(town_ids) returning 1)
   select (select count(*) from a), (select count(*) from b)
 $$;
+
+-- A load finished: what it left, and from now on the API reads our tables.
+create or replace function public.places_mark_loaded(rows_written integer, rows_deleted integer)
+returns void
+language sql volatile
+set search_path = public, pg_temp
+as $$
+  insert into public.places_loads (summits, towns, written, deleted)
+  select (select count(*) from public.summits), (select count(*) from public.towns), rows_written, rows_deleted
+$$;
+
+create or replace function public.places_ready()
+returns boolean
+language sql stable
+set search_path = public, pg_temp
+as $$ select exists (select 1 from public.places_loads) $$;
+
+-- (loads used to mark every row and drop the unmarked ones after)
+drop function if exists public.places_prune(timestamptz);
+drop function if exists public.places_prune(timestamptz, integer);
 
 -- Fresh statistics for the planner right after a load (security definer:
 -- only the tables' owner may analyze them, not the API's role).
@@ -290,11 +388,18 @@ $$;
 
 alter table public.summits enable row level security;
 alter table public.towns enable row level security;
-revoke all on public.summits, public.towns from anon, authenticated;
-grant select, insert, update, delete on public.summits, public.towns to service_role;
-revoke execute on function public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
+alter table public.places_loads enable row level security;
+revoke all on public.summits, public.towns, public.places_loads from anon, authenticated;
+grant select, insert, update, delete on public.summits, public.towns, public.places_loads to service_role;
+revoke execute on function public.place_norm(text), public.place_names_text(jsonb),
+  public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
   public.summits_near(double precision, double precision, double precision, integer, text[]), public.summits_pool(double precision, double precision),
-  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() from public, anon, authenticated;
-grant execute on function public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
+  public.summits_upsert(jsonb), public.towns_upsert(jsonb), public.summits_ids(text, integer), public.towns_ids(integer, integer),
+  public.places_delete(text[], integer[]), public.places_mark_loaded(integer, integer), public.places_ready(),
+  public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() from public, anon, authenticated;
+grant execute on function public.place_norm(text), public.place_names_text(jsonb),
+  public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
   public.summits_near(double precision, double precision, double precision, integer, text[]), public.summits_pool(double precision, double precision),
-  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() to service_role;
+  public.summits_upsert(jsonb), public.towns_upsert(jsonb), public.summits_ids(text, integer), public.towns_ids(integer, integer),
+  public.places_delete(text[], integer[]), public.places_mark_loaded(integer, integer), public.places_ready(),
+  public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() to service_role;

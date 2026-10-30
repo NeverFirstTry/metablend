@@ -271,10 +271,17 @@ node scripts/places/load.mjs             # into the dev database (.env.local)
 node scripts/places/load.mjs --production   # into production — asks for the project ref
 ```
 
+The build needs every region (a broken extract run must not become a world
+without Europe). A load writes only new or changed rows (a reload doesn't
+double the tables on the 500 MB free tier), deletes by id what the new data
+no longer has — but stops if that's more than a tenth of a table
+(`--allow-shrink` when it's right) — and only then marks the load finished:
+until a first load has finished, the API keeps using Nominatim / Photon / the
+geocoder as before. A failed run is finished by running it again.
+
 `places_bench()` times each query inside the database,
 `places_search_stages('mont')` each step of one name search, `places_size()`
-shows the tables' size. Until the tables hold data, the API keeps using
-Nominatim / Photon / the geocoder as before.
+shows the tables' size, `places_loads` each finished load.
 
 ---
 

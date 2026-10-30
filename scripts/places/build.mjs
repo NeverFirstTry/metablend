@@ -1,15 +1,30 @@
 // Step 2 of the summits dataset: GeoNames towns (cities with 5 000+ people,
 // CC BY 4.0) and the rows for our tables from every region's OpenStreetMap
 // lines (step 1, osm.mjs) — data/places/towns.ndjson and summits.ndjson, plus
-// what was kept and dropped.
+// what was kept and dropped. Only with every region there (a broken extract
+// run must not become a world without Europe), and the old files stay until
+// the new ones are complete.
 //   node scripts/places/build.mjs
 import { spawnSync } from 'node:child_process'
-import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync } from 'node:fs'
+import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync, renameSync } from 'node:fs'
+import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
 import { osmRow, townRow, townIndex, nearestTown, keepSummit, townAltNames, countryLanguages } from '../../lib/places/rows.js'
+import { missingRegions } from '../../lib/places/plan.js'
 
 const DIR = join('data', 'places')
+const missing = missingRegions(existsSync(join(DIR, 'osm')) ? readdirSync(join(DIR, 'osm')) : [])
+if (missing.length) {
+  console.error(`Not built: no OpenStreetMap lines yet for ${missing.join(', ')} — run scripts/places/osm.mjs (it picks up where it stopped).`)
+  process.exit(1)
+}
+// written beside the old file, which it replaces only once complete
+const output = name => {
+  const stream = createWriteStream(join(DIR, `${name}.part`))
+  stream.done = async () => { stream.end(); await finished(stream); renameSync(join(DIR, `${name}.part`), join(DIR, name)) }
+  return stream
+}
 const get = (url, file) => {
   if (existsSync(file)) return
   const r = spawnSync('curl', ['-sfL', '--retry', '3', '-o', file, url], { stdio: 'inherit' })
@@ -45,16 +60,16 @@ for (const t of towns) {
   const alt = townAltNames(named.get(String(t.id)), { name: t.name, countryLangs: langs[t.country] ?? [] })
   t.alt = alt.length ? alt.join(' | ') : null
 }
-const tw = createWriteStream(join(DIR, 'towns.ndjson'))
+const tw = output('towns.ndjson')
 for (const t of towns) tw.write(JSON.stringify(t) + '\n')
-tw.end()
+await tw.done()
 console.log(`towns: ${towns.length} (with other names: ${towns.filter(t => t.alt).length})`)
 
 // 2. summits and huts, each OSM object once (regions overlap at their edges)
 const grid = townIndex(towns)
 const seen = new Set()
 const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, withNames: 0, bytes: 0 }
-const out = createWriteStream(join(DIR, 'summits.ndjson'))
+const out = output('summits.ndjson')
 for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort()) {
   for await (const line of createInterface({ input: createReadStream(join(DIR, 'osm', file)) })) {
     if (!line) continue
@@ -72,5 +87,5 @@ for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson
     out.write(json + '\n')
   }
 }
-out.end()
+await out.done()
 console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)

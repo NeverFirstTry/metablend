@@ -7,8 +7,8 @@
 import { spawnSync } from 'node:child_process'
 import { existsSync, mkdirSync, renameSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { REGIONS } from '../../lib/places/plan.js'
 
-export const REGIONS = ['australia-oceania', 'central-america', 'south-america', 'antarctica', 'africa', 'russia', 'asia', 'north-america', 'europe']
 const DIR = join('data', 'places', 'osm')
 mkdirSync(DIR, { recursive: true })
 const python = process.platform === 'win32' ? 'python' : 'python3'

@@ -53,7 +53,7 @@ test('places_search — as you type: a start of a name finds it, in any of our l
 test('places_search — accents and typos forgiven', async () => {
   assert.equal((await rows(`select * from public.places_search('phan xi pang')`))[0].id, 'osm-N1')
   assert.equal((await rows(`select * from public.places_search('matterhron')`))[0].id, 'osm-N2')
-  assert.equal((await rows(`select * from public.places_search('hoernli')`)).length >= 0, true) // no error on a stray spelling
+  assert.equal((await rows(`select * from public.places_search('hornlihuette')`))[0]?.id, 'osm-W7') // "ue" for "ü", at the end
 })
 
 test('places_search — names starting with the query first; with a position, the nearer of equal matches first, with the distance', async () => {
@@ -92,18 +92,55 @@ test('summits_pool — Near you: the nearest summits and the notable ones within
   assert.ok(pool.every(r => r.kind === 'peak'), 'no huts')
 })
 
-test('places_prune — rows a new load didn\'t bring are dropped, in chunks (each call within the API\'s time limit); places_size, places_bench and places_analyze answer', async () => {
-  await db.exec(`update public.summits set loaded_at = now() - interval '1 day' where id in ('osm-N5', 'osm-N1001', 'osm-N1002')`)
-  const prune = async () => Object.values((await rows(`select * from public.places_prune(now() - interval '1 hour', 2)`))[0]).map(Number)
-  assert.deepEqual(await prune(), [2, 0])
-  assert.deepEqual(await prune(), [1, 0])
-  assert.deepEqual(await prune(), [0, 0])
+test('loads — a batch writes new and changed rows only, unchanged ones stay as they are (no second copy until vacuum); places_size, places_bench and places_analyze answer', async () => {
+  const xmin = async id => (await rows(`select xmin::text as x from public.summits where id = $1`, [id]))[0]?.x
+  const fuji = { id: 'osm-N3', kind: 'peak', name: '富士山', names: { en: 'Mount Fuji', ja: '富士山' }, ele: 3776, notability: 3, wikidata: null, country: 'JP', region: null, lat: 35.3606, lon: 138.7274 }
+  const upsert = async batch => (await rows(`select public.summits_upsert($1::jsonb) as n`, [JSON.stringify(batch)]))[0].n
+  const before = await xmin('osm-N3')
+  assert.equal(await upsert([fuji]), 0)
+  assert.equal(await xmin('osm-N3'), before, 'not rewritten')
+  // a row first loaded from text ('SRID=4326;POINT(…)', the loader before) counts as the same place
+  await db.exec(`insert into public.summits (id, kind, name, ele, geog) values ('osm-N77', 'peak', 'Testspitze', 2001, 'SRID=4326;POINT(7.123456789 45.987654321)'::extensions.geography)`)
+  const test77 = { id: 'osm-N77', kind: 'peak', name: 'Testspitze', names: null, ele: 2001, notability: 0, wikidata: null, country: null, region: null, lat: 45.987654321, lon: 7.123456789 }
+  assert.equal(await upsert([test77]), 0)
+  assert.equal(await upsert([{ ...fuji, ele: 3777 }, { ...test77, id: 'osm-N78' }]), 2) // one changed, one new
+  assert.equal((await rows(`select ele from public.summits where id = 'osm-N3'`))[0].ele, 3777)
+  await upsert([fuji])
+  const town = { id: 99, name: 'Testdorf', alt: 'Village Test', country: 'CH', region: 'Valais', population: 5001, lat: 46.1, lon: 7.7 }
+  const towns = async batch => (await rows(`select public.towns_upsert($1::jsonb) as n`, [JSON.stringify(batch)]))[0].n
+  assert.equal(await towns([town]), 1)
+  assert.equal(await towns([town]), 0)
+  assert.equal((await rows(`select * from public.towns_search('village test')`))[0].id, 99)
+
   await db.query('select public.places_analyze()')
-  assert.equal((await rows(`select 1 from public.summits where id = 'osm-N5'`)).length, 0)
   assert.equal((await rows(`select * from public.places_size()`)).length, 3)
   const bench = await rows(`select * from public.places_bench(1)`)
   assert.equal(bench.length, 10)
   assert.ok(bench.every(b => Number(b.avg_ms) >= 0))
+})
+
+test('loads — the ids we have, page by page; what the new data lacks is deleted by id; the API reads our tables once a load has finished', async () => {
+  const all = (await rows(`select count(*)::int as n from public.summits`))[0].n
+  let after = null, seen = []
+  for (;;) {
+    const page = (await rows(`select public.summits_ids($1, 7000) as ids`, [after]))[0].ids
+    if (!page.length) break
+    seen = seen.concat(page)
+    after = page.at(-1)
+  }
+  assert.equal(seen.length, all)
+  assert.equal(new Set(seen).size, all)
+  assert.deepEqual((await rows(`select public.towns_ids(null, 2) as ids`))[0].ids, [1, 99])
+  assert.deepEqual((await rows(`select public.towns_ids(99, 2) as ids`))[0].ids, [1581130, 2657928])
+
+  assert.equal((await rows(`select public.places_ready() as r`))[0].r, false) // tables full, but no load finished: not yet
+  const [gone] = await rows(`select * from public.places_delete(array['osm-N77', 'osm-N78', 'osm-N1001'], array[99])`)
+  assert.deepEqual([Number(gone.summits), Number(gone.towns)], [3, 1])
+  assert.equal((await rows(`select 1 from public.summits where id in ('osm-N77', 'osm-N78', 'osm-N1001')`)).length, 0)
+  await db.query('select public.places_mark_loaded(12, 4)')
+  assert.equal((await rows(`select public.places_ready() as r`))[0].r, true)
+  const [load] = await rows(`select summits, towns, written, deleted from public.places_loads`)
+  assert.deepEqual(load, { summits: all - 3, towns: 4, written: 12, deleted: 4 })
 })
 
 test('places — the public API roles get nothing; our API (service role) everything it uses', async () => {
@@ -111,9 +148,13 @@ test('places — the public API roles get nothing; our API (service role) everyt
     const [r] = await rows(`select has_table_privilege('${role}', 'public.summits', 'select') as s, has_table_privilege('${role}', 'public.towns', 'select') as t,
       has_function_privilege('${role}', 'public.places_search(text, double precision, double precision, integer)', 'execute') as f`)
     assert.deepEqual(r, { s: false, t: false, f: false }, role)
+    const [h] = await rows(`select has_function_privilege('${role}', 'public.place_norm(text)', 'execute') as n,
+      has_function_privilege('${role}', 'public.summits_upsert(jsonb)', 'execute') as u, has_table_privilege('${role}', 'public.places_loads', 'select') as l`)
+    assert.deepEqual(h, { n: false, u: false, l: false }, role)
   }
-  const [r] = await rows(`select has_function_privilege('service_role', 'public.summits_pool(double precision, double precision)', 'execute') as f`)
-  assert.equal(r.f, true)
+  const [r] = await rows(`select has_function_privilege('service_role', 'public.summits_pool(double precision, double precision)', 'execute') as f,
+    has_function_privilege('service_role', 'public.places_ready()', 'execute') as ready, has_function_privilege('service_role', 'public.place_norm(text)', 'execute') as norm`)
+  assert.deepEqual(r, { f: true, ready: true, norm: true })
 })
 
 test('places — names indexed for exact substrings and typos (GIN) and for their start (sorted); no GiST trigram index (it read the whole index per query)', async () => {
@@ -121,6 +162,7 @@ test('places — names indexed for exact substrings and typos (GIN) and for thei
   assert.match(idx.summits_search_gin ?? '', /USING gin/)
   assert.match(idx.summits_search_c ?? '', /COLLATE "C"/)
   assert.equal(idx.summits_search_idx, undefined)
+  assert.equal(idx.summits_loaded_idx, undefined) // loads don't prune by time any more
 })
 
 test('places — the start of a name: notable summits from their own small index (sorted by height), the rest in name order — never sorting every "mont…"', async () => {

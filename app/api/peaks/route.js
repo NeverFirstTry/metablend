@@ -2,11 +2,10 @@ import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import featured from '@/lib/hike/featured.json'
-import { haversineKm } from '@/lib/geo'
 import { parseSearchQuery } from '@/lib/hike/params'
-import { matchFeatured, parseNominatim, parsePhoton, parseGeocodingPeaks, mergePeaks, searchMaxAge, placeOfQuery, aroundPlace, plainQuery, pickTown, namedLike } from '@/lib/hike/search'
+import { matchFeatured, parseNominatim, parsePhoton, parseGeocodingPeaks, mergePeaks, searchMaxAge, placeOfQuery, aroundPlace, plainQuery, geocodeTown } from '@/lib/hike/search'
 import { places } from '@/lib/places/server'
-import { aroundTown } from '@/lib/hike/near'
+import { ownSearch, ownAnswers } from '@/lib/places/search'
 import { resolveHeights } from '@/lib/hike/heights'
 import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchSummitElevations, fetchGeocodingRaw } from '@/lib/hike/sources'
 
@@ -14,10 +13,11 @@ import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOs
 // (supabase/places.sql) — as you type, too: featured peaks first, then
 // summits and huts by name in any of our languages, and when the query names
 // a town, what's within 25 km of it — what "Near you" would show standing
-// there, and its nearest huts — nearest first, with the distance.
-// Heights from OpenStreetMap, the terrain model for the few shown without
-// one. Only a search the user sends (full=1: Enter) that our data can't
-// answer — or our data not there yet — goes outside: Nominatim (never while
+// there, and its nearest huts — nearest first, with the distance
+// (lib/places/search.js). Heights from OpenStreetMap, the terrain model for
+// the few shown without one. Only a search the user sends (full=1: Enter)
+// goes outside: the geocoder for a village too small for our towns, and —
+// when our data can't answer, or isn't loaded yet — Nominatim (never while
 // typing: its policy), then Photon, then the geocoder's mountains. Cached per
 // query for a day — peaks don't move — or 5 minutes when a source was down.
 
@@ -38,9 +38,9 @@ export const GET = withErrorLog('peaks', async (request) => {
     headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
   })
   if (await places.ready()) {
-    const own = await ownSearch(query, feat)
-    // a sent search our data has nothing for: the outside geocoder below
-    if (own && !(query.full && !own.body.peaks.length && !own.body.around?.peaks.length)) return ok(own.body, own.age)
+    const own = await ownSearch(query, feat, { places, featured, demEle: fetchSummitElevations, geocode: q => geocodeTown(q, fetchGeocodingRaw), km: AROUND_KM })
+    // a sent search our data has nothing for: the outside services below
+    if (ownAnswers(own, query.full)) return ok(own.body, own.age)
   }
   if (!query.full) {
     const typed = parseGeocodingPeaks(await fetchGeocodingRaw(query.q))
@@ -81,25 +81,3 @@ export const GET = withErrorLog('peaks', async (request) => {
     headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
   })
 })
-
-// Our own data: names, and a town the query names with what's around it.
-async function ownSearch(query, feat) {
-  const [found, towns] = await Promise.all([places.search(query.q, query.bias), places.towns(query.q)])
-  if (!found) return null
-  const town = pickTown(towns, query.q)
-  // a town's name: the summits around it, not the typo guesses for it
-  const named = town ? namedLike(found, query.q) : found
-  const [pool, huts] = town
-    ? await Promise.all([places.pool(town.lat, town.lon), places.near(town.lat, town.lon, AROUND_KM, 3, ['hut'])])
-    : [null, null]
-  const close = (pool ?? []).filter(p => haversineKm(town.lat, town.lon, p.lat, p.lon) <= AROUND_KM)
-  const h = await resolveHeights([...named, ...close, ...(huts ?? [])], { osmEle: async () => ({}), demEle: fetchSummitElevations })
-  const byId = new Map(h.peaks.map(p => [p.id, p]))
-  const peaks = mergePeaks(feat, named.map(p => byId.get(p.id)))
-  const around = town ? {
-    place: { name: town.name, region: town.region, country: town.country },
-    peaks: aroundTown(close.map(p => byId.get(p.id)), (huts ?? []).map(p => byId.get(p.id)), featured, town, { km: AROUND_KM })
-      .filter(p => !peaks.some(q => q.id === p.id)),
-  } : null
-  return { body: { peaks, around }, age: h.demDown || (town && (!pool || !huts)) ? 300 : 86400 }
-}

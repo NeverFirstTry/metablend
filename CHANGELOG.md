@@ -21,14 +21,20 @@ All notable changes to MetaBlend. Format loosely follows
   notable summits spread over the area and its nearest huts, within 25 km,
   nearest first ("zermatt": Matterhorn, Weisshorn, Dom, Monte Rosa,
   Hörnlihütte) — instead of guesses that only look like it ("hanoi" isn't
-  Hanover Mountain).
+  Hanover Mountain). A village too small for our towns (Grindelwald,
+  Saas-Fee) gets the same when you send the search: the geocoder says where
+  it is, the summits come from our data.
+- Heights written with a thousands comma ("4,600") are read as such, not as
+  4.6 m.
 - Nominatim is now only the fallback for a search you send that our data
   can't answer, through the same shared gate and cache. Featured peaks,
   grades and routes are unchanged. "© OpenStreetMap contributors" and
   "GeoNames" are credited under the results and in the terms.
 - 226 MB in the database (free tier: 500 MB). Rebuilt every few months on a
-  PC from Geofabrik's extracts (`scripts/places`, see the README); until the
-  production tables hold data, the outside services answer as before.
+  PC from Geofabrik's extracts (`scripts/places`, see the README). A reload
+  writes only what changed and stops before deleting more than a tenth of a
+  table; until a first load has finished, the outside services answer as
+  before.
 
 ## 2026-10-29
 
