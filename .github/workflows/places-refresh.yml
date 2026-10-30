@@ -1,0 +1,110 @@
+name: Places refresh (dev)
+
+# Twice a year, and by hand: our own summits, huts and towns rebuilt from
+# OpenStreetMap (Geofabrik's extracts, streamed through pyosmium — nothing
+# stored, so the runner's 14 GB disk is plenty) and GeoNames, loaded into the
+# DEV database, checked with the app's own search and Near you code, and
+# reported in a GitHub issue with row counts, size, changed rows and check
+# results. The built data stays with the run (artifact "places-data", 90 days).
+# Production is NOT touched here — its keys are never in GitHub. On the
+# owner's PC, one command loads a run's data:
+#   node scripts/places/load.mjs --production --run=<run id>
+# Needs the repo secrets DEV_SUPABASE_URL and DEV_SUPABASE_SERVICE_ROLE_KEY
+# (the dev project); without them it builds and reports, but loads nothing.
+# Scheduled workflows in a public repo pause after 60 days without commits.
+
+on:
+  schedule:
+    - cron: '23 3 2 1,7 *' # 2 January and 2 July, 03:23 UTC
+  workflow_dispatch:
+    inputs:
+      data_from_run:
+        description: Load and check the data of an earlier run (its id) instead of building it again
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  issues: write
+  actions: read
+
+concurrency:
+  group: places-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345 # GitHub's limit for a job is 6 h
+    env:
+      HAVE_DEV: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY != '' && secrets.DEV_SUPABASE_URL != '' }}
+      FROM_RUN: ${{ inputs.data_from_run }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          pip install osmium==4.3.2
+          npm ci
+      - name: Start the clock and the disk log
+        run: |
+          echo "PLACES_STARTED=$(date +%s)" >> "$GITHUB_ENV"
+          mkdir -p data/places
+          # the runner's disk use (MB used, MB free) every 20 s, for the report
+          nohup sh -c 'while true; do df -BM --output=used,avail / | tail -1 | tr -d M >> data/places/disk.log; sleep 20; done' > /dev/null 2>&1 &
+
+      - name: OpenStreetMap — every region streamed twice (summits and huts, then hut corners)
+        if: env.FROM_RUN == ''
+        run: node scripts/places/osm.mjs
+      - name: Build (GeoNames towns + rows)
+        if: env.FROM_RUN == ''
+        run: node scripts/places/build.mjs
+      - name: Keep the data with the run
+        if: env.FROM_RUN == ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: places-data
+          path: |
+            data/places/summits.ndjson
+            data/places/towns.ndjson
+            data/places/osm-summary.json
+            data/places/build-summary.json
+          retention-days: 90
+          if-no-files-found: error
+      - name: The data of an earlier run
+        if: env.FROM_RUN != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: places-data
+          path: data/places
+          run-id: ${{ inputs.data_from_run }}
+          github-token: ${{ github.token }}
+
+      - name: Load into the dev database
+        if: env.HAVE_DEV == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/places/load.mjs
+      - name: Check search and Near you
+        if: env.HAVE_DEV == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/places/check.mjs
+
+      - name: Open an issue with the results
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/places/report.mjs --title > title.txt
+          node scripts/places/report.mjs > report.md
+          cat report.md
+          gh issue create --title "$(cat title.txt)" --body-file report.md

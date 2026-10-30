@@ -6,7 +6,7 @@
 // the new ones are complete.
 //   node scripts/places/build.mjs
 import { spawnSync } from 'node:child_process'
-import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync, renameSync } from 'node:fs'
+import { createReadStream, createWriteStream, existsSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
@@ -89,3 +89,5 @@ for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson
 }
 await out.done()
 console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
+// for the refresh issue (scripts/places/report.mjs)
+writeFileSync(join(DIR, 'build-summary.json'), JSON.stringify({ towns: towns.length, townsWithOtherNames: towns.filter(t => t.alt).length, ...stats }, null, 1))

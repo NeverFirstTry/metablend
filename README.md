@@ -260,16 +260,37 @@ Search (as you type), "Near you" and "around a town" read our own tables
 (`supabase/places.sql`: PostGIS for nearest-first, pg_trgm + unaccent for
 names with typos and accents). Named summits and volcanoes (with a height, or
 a Wikidata item) and named huts come from OpenStreetMap (ODbL); towns with
-5 000+ people and their other names from GeoNames (CC BY 4.0). Rebuild every
-few months — on this PC, free:
+5 000+ people and their other names from GeoNames (CC BY 4.0).
+
+**Refresh, twice a year:** the GitHub Actions workflow *Places refresh (dev)*
+(`.github/workflows/places-refresh.yml`, 2 January and 2 July, or by hand
+from the Actions tab) streams every Geofabrik region through pyosmium —
+nothing stored, so a free runner's disk is plenty — builds the rows, loads
+them into the **dev** database, checks the app's search and Near you on it
+(matterhron, cervino, zermatt, hà nội, the Jungfrau region, Sa Pa), and opens
+an issue with row counts, size, changed rows and the checks. It needs the repo
+secrets `DEV_SUPABASE_URL` and `DEV_SUPABASE_SERVICE_ROLE_KEY` (the dev
+project, from `.env.local`). Production keys are never in GitHub: the issue
+ends with the one command for the PC, which loads that run's data:
+
+```bash
+node scripts/places/load.mjs --production --run=<run id>   # downloads the run's data (gh), asks for the project ref
+```
+
+The same steps by hand, on this PC:
 
 ```bash
 pip install osmium                       # pyosmium, once
-node scripts/places/osm.mjs              # every Geofabrik region (~90 GB, one at a time; resumes)
+node scripts/places/osm.mjs              # every Geofabrik region, streamed (~150 GB through, nothing stored; resumes)
 node scripts/places/build.mjs            # GeoNames towns + the rows → data/places/*.ndjson
 node scripts/places/load.mjs             # into the dev database (.env.local)
+node scripts/places/check.mjs            # the search and Near you checks on it
 node scripts/places/load.mjs --production   # into production — asks for the project ref
 ```
+
+Huts mapped as buildings need their corner nodes, and an extract lists every
+node before the first way: so each region streams twice, the second time
+only up to the end of its nodes (~1.7× the extracts' size in all).
 
 The build needs every region (a broken extract run must not become a world
 without Europe). A load writes only new or changed rows (a reload doesn't

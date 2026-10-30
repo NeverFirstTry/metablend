@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-10-30
 
+### Added — The summits, huts and towns refresh themselves twice a year
+- A GitHub Actions workflow (2 January and 2 July, or by hand) rebuilds them
+  from OpenStreetMap and GeoNames, loads them into the dev database, checks
+  the search and Near you on it (matterhron, cervino, zermatt, hà nội, the
+  Jungfrau region, Sa Pa) and opens an issue with row counts, size, changed
+  rows and the results. The extracts are streamed, never stored (Europe alone
+  is 31 GB; the free runner has 14 GB of disk).
+- Production stays one command on the owner's PC — its keys are never in
+  GitHub: `node scripts/places/load.mjs --production --run=<run id>` loads
+  the data that run built.
+
 ### Changed — Hiking search and "Near you" from our own summits, huts and towns
 - Search, "Near you" and "around a town" no longer depend on public
   OpenStreetMap services (Photon and Overpass were down for days; Nominatim
