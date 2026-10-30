@@ -29,8 +29,10 @@ await db.exec(`
     ('osm-N8', 'peak', 'Monte Rosa', '{"it": "Monte Rosa"}', 4634, 3, 'CH', ${pt(7.8670, 45.9369)}),
     ('osm-N9', 'peak', 'Mont Blanc', '{"it": "Monte Bianco"}', 4808, 3, 'FR', ${pt(6.8652, 45.8326)}),
     ('osm-N10', 'peak', 'Mont Gelé', null, 3518, 4, 'CH', ${pt(7.2967, 45.9881)});
+  -- the made-up summits far from every real one above (south of 40° S), and the same every run
+  select setseed(0.42);
   insert into public.summits (id, kind, name, ele, geog)
-    select 'osm-N' || (1000 + i), 'peak', 'Hill ' || md5(i::text), (random() * 3000)::int, ${pt('-180 + random() * 360', '-60 + random() * 130')}
+    select 'osm-N' || (1000 + i), 'peak', 'Hill ' || md5(i::text), (random() * 3000)::int, ${pt('-180 + random() * 360', '-60 + random() * 20')}
       from generate_series(1, 20000) as i;
   insert into public.towns (id, name, alt, country, region, population, geog) values
     (1581130, 'Hanoi', 'Ha Noi | Hà Nội | Hanoï | ハノイ', 'VN', 'Hanoi', 8053663, ${pt(105.8412, 21.0245)}),
