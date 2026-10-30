@@ -25,7 +25,7 @@ function AttributionList() {
       <li><a href="https://data.hub.geosphere.at" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoSphere Austria</a></li>
       <li><a href="https://www.weather.gov" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">NOAA</a> (NWS &amp; Aviation Weather METARs, US public domain) · <a href="https://brightsky.dev" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">Bright Sky / DWD</a> · <a href="https://opendata.smhi.se" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">SMHI</a> (CC BY 4.0)</li>
       <li><a href="https://ourairports.com" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OurAirports</a> (public domain) — airport &amp; runway data on the Aviation pages</li>
-      <li>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OpenStreetMap</a> contributors (ODbL) — maps, routes, and the summits and huts in the hiking search</li>
+      <li>© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">OpenStreetMap</a> contributors (ODbL) — maps, routes, and the summits and huts in the hiking search (how our copy of them is made: <a href="https://github.com/NeverFirstTry/metablend/tree/main/scripts/places" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">scripts/places</a>)</li>
       <li><a href="https://www.geonames.org/" target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400">GeoNames</a> (CC BY 4.0) — towns for the hiking search (summits and huts around a town)</li>
     </ul>
   )
