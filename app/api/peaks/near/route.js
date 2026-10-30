@@ -4,7 +4,7 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { haversineKm } from '@/lib/geo'
 import { parsePhoton, parseNominatim } from '@/lib/hike/search'
 import { resolveHeights, withNotability } from '@/lib/hike/heights'
-import { fetchNominatimNearRaw, fetchPhotonNearRaw, fetchOsmTags, fetchElevations } from '@/lib/hike/sources'
+import { fetchNominatimNearRaw, fetchPhotonNearRaw, fetchOsmTags, fetchSummitElevations as demEle } from '@/lib/hike/sources'
 import { nearCell, uniqueById } from '@/lib/hike/near'
 import { places } from '@/lib/places/server'
 
@@ -19,11 +19,6 @@ import { places } from '@/lib/places/server'
 
 const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
-// the terrain model takes at most 100 points per call; it's only the fallback
-const demEle = async points => {
-  const got = await fetchElevations(points.slice(0, 100))
-  return got && points.map((_, i) => got[i] ?? null)
-}
 
 export const GET = withErrorLog('peaks.near', async (request) => {
   const sp = new URL(request.url).searchParams
