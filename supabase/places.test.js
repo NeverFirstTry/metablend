@@ -122,3 +122,10 @@ test('places — names indexed for exact substrings and typos (GIN) and for thei
   assert.match(idx.summits_search_c ?? '', /COLLATE "C"/)
   assert.equal(idx.summits_search_idx, undefined)
 })
+
+test('places — the start of a name: notable summits from their own small index (sorted by height), the rest in name order — never sorting every "mont…"', async () => {
+  const idx = Object.fromEntries((await rows(`select indexname, indexdef from pg_indexes where tablename = 'summits'`)).map(r => [r.indexname, r.indexdef]))
+  assert.match(idx.summits_search_notable ?? '', /WHERE \(notability >= 2\)/)
+  // two letters only look at how names start: a hut that isn't notable comes from the name-order step
+  assert.equal((await rows(`select * from public.places_search('hö')`))[0]?.id, 'osm-W7')
+})

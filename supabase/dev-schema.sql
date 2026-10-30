@@ -712,6 +712,9 @@ create index if not exists summits_geog_idx on public.summits using gist (geog);
 drop index if exists public.summits_search_idx;
 create index if not exists summits_search_gin on public.summits using gin (search extensions.gin_trgm_ops);
 create index if not exists summits_search_c on public.summits (search collate "C");
+-- the 6% with a Wikipedia article (or Wikidata and a summit cross): how
+-- their names start, on their own — "mont" sorts 1 500 of them, not 18 000
+create index if not exists summits_search_notable on public.summits (search collate "C") where notability >= 2;
 create index if not exists summits_loaded_idx on public.summits (loaded_at);
 create index if not exists towns_geog_idx on public.towns using gist (geog);
 create index if not exists towns_search_idx on public.towns using gist (search extensions.gist_trgm_ops);
@@ -737,8 +740,13 @@ declare
   cand text[];
 begin
   cand := array(select s.id from public.summits s
+                 where s.notability >= 2 and s.search collate "C" >= n and s.search collate "C" < n || chr(1114111)
+                 order by s.ele desc nulls last limit 40);
+  if coalesce(array_length(cand, 1), 0) < 40 then
+    cand := cand || array(select s.id from public.summits s
                  where s.search collate "C" >= n and s.search collate "C" < n || chr(1114111)
-                 order by (s.notability >= 2) desc, s.ele desc nulls last limit 40);
+                 order by s.search collate "C" limit 40);
+  end if;
   if length(n) >= 3 then
     cand := cand || array(select s.id from public.summits s where s.search like '%' || n || '%' limit 200);
   end if;
