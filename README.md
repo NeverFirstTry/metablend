@@ -271,7 +271,8 @@ node scripts/places/load.mjs             # into the dev database (.env.local)
 node scripts/places/load.mjs --production   # into production — asks for the project ref
 ```
 
-`places_bench()` times each query inside the database, `places_size()`
+`places_bench()` times each query inside the database,
+`places_search_stages('mont')` each step of one name search, `places_size()`
 shows the tables' size. Until the tables hold data, the API keeps using
 Nominatim / Photon / the geocoder as before.
 

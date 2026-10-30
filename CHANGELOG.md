@@ -3,6 +3,33 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-10-30
+
+### Changed — Hiking search and "Near you" from our own summits, huts and towns
+- Search, "Near you" and "around a town" no longer depend on public
+  OpenStreetMap services (Photon and Overpass were down for days; Nominatim
+  forbids search-as-you-type). They read our own copy: 544 000 named summits
+  and volcanoes (with a height or a Wikidata item) and 24 000 huts from
+  OpenStreetMap, with their names in our 13 languages, and 70 000 towns of
+  5 000+ people from GeoNames with their names in other languages and scripts
+  — "Hà Nội", "ha noi", "Hanoi", "Wien", "Vienna", "ウィーン" all find the town.
+- Typing searches peaks and huts again, with typos and accents forgiven
+  ("matterhron", "phan xi pang"), names in any of our languages ("Cervino",
+  "富士"), nearer matches first when you share your position. Each query
+  takes 1–18 ms in the database.
+- A town's name shows what "Near you" would show standing there — the
+  notable summits spread over the area and its nearest huts, within 25 km,
+  nearest first ("zermatt": Matterhorn, Weisshorn, Dom, Monte Rosa,
+  Hörnlihütte) — instead of guesses that only look like it ("hanoi" isn't
+  Hanover Mountain).
+- Nominatim is now only the fallback for a search you send that our data
+  can't answer, through the same shared gate and cache. Featured peaks,
+  grades and routes are unchanged. "© OpenStreetMap contributors" and
+  "GeoNames" are credited under the results and in the terms.
+- 226 MB in the database (free tier: 500 MB). Rebuilt every few months on a
+  PC from Geofabrik's extracts (`scripts/places`, see the README); until the
+  production tables hold data, the outside services answer as before.
+
 ## 2026-10-29
 
 ### Changed — OpenStreetMap's Nominatim used within its usage policy
