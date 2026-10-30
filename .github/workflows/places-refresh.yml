@@ -2,10 +2,14 @@ name: Places refresh (dev)
 
 # Twice a year, and by hand: our own summits, huts and towns rebuilt from
 # OpenStreetMap (Geofabrik's extracts, streamed through pyosmium — nothing
-# stored, so the runner's 14 GB disk is plenty) and GeoNames, loaded into the
-# DEV database, checked with the app's own search and Near you code, and
-# reported in a GitHub issue with row counts, size, changed rows and check
-# results. The built data stays with the run (artifact "places-data", 90 days).
+# stored) and GeoNames, loaded into the DEV database, checked with the app's
+# own search and Near you code, and reported in a GitHub issue with row
+# counts, size, changed rows and check results. The built data stays with the
+# run (artifact "places-data", 90 days).
+# Each region streams in a job of its own, three at a time: Geofabrik gave
+# anywhere from 5 to 68 MB/s on the first run (3 h 28 min, all regions in one
+# job) — at the slow end one job would pass GitHub's 6 h limit; one region
+# per job never comes near it, and the whole run takes about as long as Europe.
 # Production is NOT touched here — its keys are never in GitHub. On the
 # owner's PC, one command loads a run's data:
 #   node scripts/places/load.mjs --production --run=<run id>
@@ -22,6 +26,10 @@ on:
         description: Load and check the data of an earlier run (its id) instead of building it again
         required: false
         default: ''
+      regions:
+        description: 'Only these regions, for a test (JSON, e.g. ["antarctica"]); empty = the whole world'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -33,9 +41,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  refresh:
+  extract:
+    if: inputs.data_from_run == ''
     runs-on: ubuntu-latest
-    timeout-minutes: 345 # GitHub's limit for a job is 6 h
+    timeout-minutes: 345 # GitHub's limit for a job is 6 h; Europe took 73 min
+    strategy:
+      fail-fast: false
+      max-parallel: 3 # gentle on Geofabrik
+      matrix:
+        # biggest first, so the longest ones start right away
+        region: ${{ fromJSON(inputs.regions || '["europe","asia","north-america","africa","south-america","russia","australia-oceania","central-america","antarctica"]') }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install osmium==4.3.2
+      - name: Stream ${{ matrix.region }} twice (summits and huts, then hut corners)
+        run: |
+          node scripts/places/osm.mjs ${{ matrix.region }}
+          mv data/places/osm-summary.json data/places/osm/${{ matrix.region }}.summary.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: osm-${{ matrix.region }}
+          path: data/places/osm/${{ matrix.region }}.*
+          retention-days: 7
+
+  refresh:
+    needs: extract
+    if: always() # report also when a region failed (the build then says which)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       HAVE_DEV: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY != '' && secrets.DEV_SUPABASE_URL != '' }}
       FROM_RUN: ${{ inputs.data_from_run }}
@@ -45,26 +84,29 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Install
+      - run: npm ci
+      - name: Start the clock (from the run's start) and the disk log
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          pip install osmium==4.3.2
-          npm ci
-      - name: Start the clock and the disk log
-        run: |
-          echo "PLACES_STARTED=$(date +%s)" >> "$GITHUB_ENV"
-          mkdir -p data/places
-          # the runner's disk use (MB used, MB free) every 20 s, for the report
+          echo "PLACES_STARTED=$(date -d "$(gh api repos/${{ github.repository }}/actions/runs/${{ github.run_id }} -q .run_started_at)" +%s)" >> "$GITHUB_ENV"
+          mkdir -p data/places/osm
+          # this job's disk use (MB used, MB free) every 20 s, for the report
           nohup sh -c 'while true; do df -BM --output=used,avail / | tail -1 | tr -d M >> data/places/disk.log; sleep 20; done' > /dev/null 2>&1 &
 
-      - name: OpenStreetMap — every region streamed twice (summits and huts, then hut corners)
+      - name: Every region's lines
         if: env.FROM_RUN == ''
-        run: node scripts/places/osm.mjs
+        uses: actions/download-artifact@v4
+        with:
+          pattern: osm-*
+          merge-multiple: true
+          path: data/places/osm
       - name: Build (GeoNames towns + rows)
         if: env.FROM_RUN == ''
-        run: node scripts/places/build.mjs
+        run: |
+          # the regions' summaries → data/places/osm-summary.json
+          node -e "const fs=require('fs'),d='data/places/osm',s={};for(const f of fs.readdirSync(d).filter(f=>f.endsWith('.summary.json'))){Object.assign(s,JSON.parse(fs.readFileSync(d+'/'+f,'utf8')));fs.rmSync(d+'/'+f)}fs.writeFileSync('data/places/osm-summary.json',JSON.stringify(s,null,1))"
+          node scripts/places/build.mjs
       - name: Keep the data with the run
         if: env.FROM_RUN == ''
         uses: actions/upload-artifact@v4

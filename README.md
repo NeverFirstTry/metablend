@@ -265,7 +265,9 @@ a Wikidata item) and named huts come from OpenStreetMap (ODbL); towns with
 **Refresh, twice a year:** the GitHub Actions workflow *Places refresh (dev)*
 (`.github/workflows/places-refresh.yml`, 2 January and 2 July, or by hand
 from the Actions tab) streams every Geofabrik region through pyosmium —
-nothing stored, so a free runner's disk is plenty — builds the rows, loads
+nothing stored, so a free runner's disk is plenty; each region in a job of
+its own, three at a time, so none comes near GitHub's 6 h limit per job (the
+first run, all in one job, took 3½ h at 5–68 MB/s) — builds the rows, loads
 them into the **dev** database, checks the app's search and Near you on it
 (matterhron, cervino, zermatt, hà nội, the Jungfrau region, Sa Pa), and opens
 an issue with row counts, size, changed rows and the checks. It needs the repo
