@@ -27,7 +27,8 @@ await db.exec(`
     ('osm-N6', 'peak', 'Gornergrat', null, 3135, 2, 'CH', ${pt(7.7845, 45.9836)}),
     ('osm-W7', 'hut', 'Hörnlihütte', null, 3260, 1, 'CH', ${pt(7.6720, 45.9817)}),
     ('osm-N8', 'peak', 'Monte Rosa', '{"it": "Monte Rosa"}', 4634, 3, 'CH', ${pt(7.8670, 45.9369)}),
-    ('osm-N9', 'peak', 'Mont Blanc', '{"it": "Monte Bianco"}', 4808, 3, 'FR', ${pt(6.8652, 45.8326)});
+    ('osm-N9', 'peak', 'Mont Blanc', '{"it": "Monte Bianco"}', 4808, 3, 'FR', ${pt(6.8652, 45.8326)}),
+    ('osm-N10', 'peak', 'Mont Gelé', null, 3518, 4, 'CH', ${pt(7.2967, 45.9881)});
   insert into public.summits (id, kind, name, ele, geog)
     select 'osm-N' || (1000 + i), 'peak', 'Hill ' || md5(i::text), (random() * 3000)::int, ${pt('-180 + random() * 360', '-60 + random() * 130')}
       from generate_series(1, 20000) as i;
@@ -57,8 +58,9 @@ test('places_search — names starting with the query first; with a position, th
   const z = await rows(`select * from public.places_search('zugspitze', 47.42, 10.98)`)
   assert.deepEqual(z.slice(0, 2).map(r => r.id), ['osm-N4', 'osm-N5'])
   assert.ok(z[0].km < 2)
-  const mon = await rows(`select * from public.places_search('mont')`)
-  assert.ok(['osm-N8', 'osm-N9'].includes(mon[0].id), mon[0].name)
+  // a summit cross scores for Near you, not for fame: of the names starting so, Wikipedia ones by height
+  assert.equal((await rows(`select * from public.places_search('mont')`))[0].id, 'osm-N9')
+  assert.equal((await rows(`select * from public.places_search('mo')`))[0].id, 'osm-N9') // two letters: names starting so
   assert.equal((await rows(`select * from public.places_search('fansi')`))[0].km, null)
 })
 
@@ -88,10 +90,13 @@ test('summits_pool — Near you: the nearest summits and the notable ones within
   assert.ok(pool.every(r => r.kind === 'peak'), 'no huts')
 })
 
-test('places_prune — rows a new load didn\'t bring are dropped; places_size and places_bench answer', async () => {
-  await db.exec(`update public.summits set loaded_at = now() - interval '1 day' where id = 'osm-N5'`)
-  const [{ summits, towns }] = await rows(`select * from public.places_prune(now() - interval '1 hour')`)
-  assert.deepEqual([Number(summits), Number(towns)], [1, 0])
+test('places_prune — rows a new load didn\'t bring are dropped, in chunks (each call within the API\'s time limit); places_size, places_bench and places_analyze answer', async () => {
+  await db.exec(`update public.summits set loaded_at = now() - interval '1 day' where id in ('osm-N5', 'osm-N1001', 'osm-N1002')`)
+  const prune = async () => Object.values((await rows(`select * from public.places_prune(now() - interval '1 hour', 2)`))[0]).map(Number)
+  assert.deepEqual(await prune(), [2, 0])
+  assert.deepEqual(await prune(), [1, 0])
+  assert.deepEqual(await prune(), [0, 0])
+  await db.query('select public.places_analyze()')
   assert.equal((await rows(`select 1 from public.summits where id = 'osm-N5'`)).length, 0)
   assert.equal((await rows(`select * from public.places_size()`)).length, 3)
   const bench = await rows(`select * from public.places_bench(1)`)
@@ -107,4 +112,11 @@ test('places — the public API roles get nothing; our API (service role) everyt
   }
   const [r] = await rows(`select has_function_privilege('service_role', 'public.summits_pool(double precision, double precision)', 'execute') as f`)
   assert.equal(r.f, true)
+})
+
+test('places — names indexed for exact substrings and typos (GIN) and for their start (sorted); no GiST trigram index (it read the whole index per query)', async () => {
+  const idx = Object.fromEntries((await rows(`select indexname, indexdef from pg_indexes where tablename = 'summits'`)).map(r => [r.indexname, r.indexdef]))
+  assert.match(idx.summits_search_gin ?? '', /USING gin/)
+  assert.match(idx.summits_search_c ?? '', /COLLATE "C"/)
+  assert.equal(idx.summits_search_idx, undefined)
 })

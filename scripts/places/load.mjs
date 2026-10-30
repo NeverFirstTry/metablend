@@ -47,7 +47,18 @@ for (const table of ['towns', 'summits']) {
   if (batch.length) { await put(table, batch); n += batch.length }
   console.log(`${table}: ${n} rows in ${Math.round((Date.now() - t0) / 1000)} s`)
 }
-const pruned = await supabase.rpc('places_prune', { before: started })
-console.log('older rows dropped:', pruned.error ? pruned.error.message : JSON.stringify(pruned.data))
+// older loads' rows out, 20 000 at a time (each call within the API's time limit)
+const dropped = { summits: 0, towns: 0 }
+for (;;) {
+  const { data, error } = await supabase.rpc('places_prune', { before: started, max_rows: 20000 })
+  if (error) { console.log('older rows: could not drop —', error.message); break }
+  const s = Number(data[0].summits), t = Number(data[0].towns)
+  dropped.summits += s
+  dropped.towns += t
+  if (!s && !t) break
+}
+console.log('older rows dropped:', JSON.stringify(dropped))
+const analyzed = await supabase.rpc('places_analyze')
+console.log('planner statistics:', analyzed.error ? analyzed.error.message : 'fresh')
 const size = await supabase.rpc('places_size')
 for (const s of size.data ?? []) console.log(`  ${s.relation}: ${s.row_count ?? ''} ${s.total_mb} MB`)
