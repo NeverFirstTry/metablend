@@ -57,8 +57,15 @@ drop index if exists public.summits_search_idx;
 create index if not exists summits_search_gin on public.summits using gin (search extensions.gin_trgm_ops);
 create index if not exists summits_search_c on public.summits (search collate "C");
 -- the 6% with a Wikipedia article (or Wikidata and a summit cross): how
--- their names start, on their own — "mont" sorts 1 500 of them, not 18 000
-create index if not exists summits_search_notable on public.summits (search collate "C") where notability >= 2;
+-- their names start, on their own — "mont" sorts 1 500 of them, not 18 000 —
+-- with height and id in the index, so that step reads no table rows
+-- (on Supabase those row reads were most of the 65 ms "mont" took)
+do $$ begin
+  if exists (select 1 from pg_indexes where indexname = 'summits_search_notable' and indexdef not like '%INCLUDE%') then
+    drop index public.summits_search_notable;
+  end if;
+end $$;
+create index if not exists summits_search_notable on public.summits (search collate "C") include (ele, id) where notability >= 2;
 create index if not exists summits_loaded_idx on public.summits (loaded_at);
 create index if not exists towns_geog_idx on public.towns using gist (geog);
 create index if not exists towns_search_idx on public.towns using gist (search extensions.gist_trgm_ops);
@@ -225,6 +232,50 @@ begin
 end
 $$;
 
+-- Where a name search spends its time: each step on its own, the whole
+-- search, and how much of the table is all-visible (index-only reads need it;
+-- autovacuum sets it some time after a load).
+create or replace function public.places_search_stages(q text)
+returns table (stage text, row_count integer, ms numeric)
+language plpgsql volatile
+set search_path = public, extensions, pg_temp
+as $$
+declare
+  n text := public.place_norm(q);
+  t0 timestamptz;
+  a text[];
+begin
+  t0 := clock_timestamp();
+  a := array(select s.id from public.summits s
+              where s.notability >= 2 and s.search collate "C" >= n and s.search collate "C" < n || chr(1114111)
+              order by s.ele desc nulls last limit 40);
+  stage := 'start, notable'; row_count := coalesce(array_length(a, 1), 0);
+  ms := round((extract(epoch from clock_timestamp() - t0) * 1000)::numeric, 2); return next;
+  t0 := clock_timestamp();
+  a := array(select s.id from public.summits s
+              where s.search collate "C" >= n and s.search collate "C" < n || chr(1114111)
+              order by s.search collate "C" limit 40);
+  stage := 'start, any'; row_count := coalesce(array_length(a, 1), 0);
+  ms := round((extract(epoch from clock_timestamp() - t0) * 1000)::numeric, 2); return next;
+  t0 := clock_timestamp();
+  a := array(select s.id from public.summits s where s.search like '%' || n || '%' limit 200);
+  stage := 'contains'; row_count := coalesce(array_length(a, 1), 0);
+  ms := round((extract(epoch from clock_timestamp() - t0) * 1000)::numeric, 2); return next;
+  t0 := clock_timestamp();
+  a := array(select s.id from public.summits s where n <% s.search order by word_similarity(n, s.search) desc limit 40);
+  stage := 'near misses'; row_count := coalesce(array_length(a, 1), 0);
+  ms := round((extract(epoch from clock_timestamp() - t0) * 1000)::numeric, 2); return next;
+  t0 := clock_timestamp();
+  select count(*) into row_count from public.places_search(q);
+  stage := 'whole search';
+  ms := round((extract(epoch from clock_timestamp() - t0) * 1000)::numeric, 2); return next;
+  stage := 'table pages all-visible (%)';
+  select c.relallvisible, round(100.0 * c.relallvisible / greatest(c.relpages, 1), 1) into row_count, ms
+    from pg_class c where c.oid = 'public.summits'::regclass;
+  return next;
+end
+$$;
+
 create or replace function public.places_size()
 returns table (relation text, row_count bigint, total_mb numeric)
 language sql stable
@@ -243,7 +294,7 @@ revoke all on public.summits, public.towns from anon, authenticated;
 grant select, insert, update, delete on public.summits, public.towns to service_role;
 revoke execute on function public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
   public.summits_near(double precision, double precision, double precision, integer, text[]), public.summits_pool(double precision, double precision),
-  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_size() from public, anon, authenticated;
+  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() from public, anon, authenticated;
 grant execute on function public.places_search(text, double precision, double precision, integer), public.towns_search(text, integer),
   public.summits_near(double precision, double precision, double precision, integer, text[]), public.summits_pool(double precision, double precision),
-  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_size() to service_role;
+  public.places_prune(timestamptz, integer), public.places_analyze(), public.places_bench(integer), public.places_search_stages(text), public.places_size() to service_role;

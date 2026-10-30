@@ -129,3 +129,11 @@ test('places — the start of a name: notable summits from their own small index
   // two letters only look at how names start: a hut that isn't notable comes from the name-order step
   assert.equal((await rows(`select * from public.places_search('hö')`))[0]?.id, 'osm-W7')
 })
+
+test('places_search_stages — each step of a name search timed inside the database, and how much of the table is all-visible (index-only reads)', async () => {
+  const stages = await rows(`select * from public.places_search_stages('mont')`)
+  assert.deepEqual(stages.map(s => s.stage), ['start, notable', 'start, any', 'contains', 'near misses', 'whole search', 'table pages all-visible (%)'])
+  assert.ok(stages.every(s => Number(s.ms) >= 0))
+  const idx = (await rows(`select indexdef from pg_indexes where indexname = 'summits_search_notable'`))[0]?.indexdef ?? ''
+  assert.match(idx, /INCLUDE \(ele, id\)/) // the notable step reads height and id from the index alone
+})
