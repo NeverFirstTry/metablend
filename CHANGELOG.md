@@ -11,7 +11,11 @@ All notable changes to MetaBlend. Format loosely follows
   the search and Near you on it (matterhron, cervino, zermatt, hà nội, the
   Jungfrau region, Sa Pa) and opens an issue with row counts, size, changed
   rows and the results. The extracts are streamed, never stored (Europe alone
-  is 31 GB; the free runner has 14 GB of disk).
+  is 35 GB): about 150 GB flow through per run, and the runner's disk never
+  holds more than about 1 GB. Each region runs in a job of its own, three at a
+  time — Geofabrik gave 5–68 MB/s, and the first run, all in one job, took
+  3 h 28 min; per region the longest (Europe) took 73 min, far from GitHub's
+  6 h limit per job.
 - Production stays one command on the owner's PC — its keys are never in
   GitHub: `node scripts/places/load.mjs --production --run=<run id>` loads
   the data that run built.
