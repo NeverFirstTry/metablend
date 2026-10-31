@@ -24,7 +24,7 @@ jobs:
             --retry 2 --retry-delay 20 --retry-all-errors
           python3 -c "import json;d=json.load(open('metablend-backup.json'));print({k:(len(v) if isinstance(v,list) else v) for k,v in d['tables'].items()})"
       - name: Store as artifact (30-day retention)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: metablend-backup-${{ github.run_id }}
           path: metablend-backup.json

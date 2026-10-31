@@ -52,11 +52,11 @@ jobs:
         # biggest first, so the longest ones start right away
         region: ${{ fromJSON(inputs.regions || '["europe","asia","north-america","africa","south-america","russia","australia-oceania","central-america","antarctica"]') }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
       - run: pip install osmium==4.3.2
@@ -64,7 +64,7 @@ jobs:
         run: |
           node scripts/places/osm.mjs ${{ matrix.region }}
           mv data/places/osm-summary.json data/places/osm/${{ matrix.region }}.summary.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: osm-${{ matrix.region }}
           path: data/places/osm/${{ matrix.region }}.*
@@ -79,8 +79,8 @@ jobs:
       HAVE_DEV: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY != '' && secrets.DEV_SUPABASE_URL != '' }}
       FROM_RUN: ${{ inputs.data_from_run }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -96,7 +96,7 @@ jobs:
 
       - name: Every region's lines
         if: env.FROM_RUN == ''
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: osm-*
           merge-multiple: true
@@ -109,7 +109,7 @@ jobs:
           node scripts/places/build.mjs
       - name: Keep the data with the run
         if: env.FROM_RUN == ''
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: places-data
           path: |
@@ -121,7 +121,7 @@ jobs:
           if-no-files-found: error
       - name: The data of an earlier run
         if: env.FROM_RUN != ''
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: places-data
           path: data/places
