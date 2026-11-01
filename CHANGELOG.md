@@ -3,6 +3,28 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-01
+
+### Fixed — from a full code audit
+- Security: Next.js 16.4.3 (16.3.8 was inside the range of three published
+  advisories; this site used none of the affected features, but the image
+  endpoint exists on every Next.js site).
+- The source weights and MetaBlend Local learned from the wrong forecasts:
+  the daily and hourly scoring read only the first 1000 stored forecasts of a
+  day (one database request stops there), which a day with widgets passes by
+  noon — so it compared night-time forecasts with daily values, and many
+  cities were never scored. Every row is read now; a community report is
+  compared with the newest forecast of each source.
+- Push alerts can no longer repeat on every run when the database can't
+  save the send log (it is all that stops a repeat): nothing is sent until
+  it is saved. A send that fails for a moment is still tried again.
+- Phones that read their alerts without opening the app were deleted after
+  90 days, settings and planned hikes included. Every delivered alert now
+  counts as "seen".
+- Returning visitors could see last week's summit window or "right now"
+  as today's: the offline cache also kept the pages' data. It keeps only
+  the app's build files and offline pages now.
+
 ## 2026-10-30
 
 ### Added — The summits, huts and towns refresh themselves twice a year
