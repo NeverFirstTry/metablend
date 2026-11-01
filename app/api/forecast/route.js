@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
+import { parseNear } from '@/lib/geo'
 import {
   geocodeCity, englishPlaceName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
@@ -35,7 +36,7 @@ async function timedFetch(id, fn) {
 // instance as a second line. Errors are never cached.
 const CACHE = new Map()
 const CACHE_TTL = 15 * 60 * 1000
-const cacheKey = (city, lang) => `${city.trim().toLowerCase()}|${lang}`
+const cacheKey = (city, lang, near) => `${city.trim().toLowerCase()}|${lang}|${near ? `${near.lat},${near.lon}` : ''}`
 const cdnHeaders = ttlSec => ({ 'Cache-Control': `public, s-maxage=${ttlSec}, stale-while-revalidate=${ttlSec * 2}` })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
@@ -51,12 +52,14 @@ export const GET = withErrorLog('forecast', async (request) => {
   // a known language or English: anything else would be a fresh cache key (and
   // 16 upstream calls) per made-up value
   const lang = pickLang(searchParams.get('lang'))
+  // where the search came from: tells same-name towns apart (lib/geo.js)
+  const near = parseNear(searchParams.get('near'))
 
   if (!city) return noStore({ error: 'No city specified' }, 400)
 
   // serve a fresh in-memory copy if we have one — the CDN may keep it only
   // for what's left of its 15 minutes
-  const key = cacheKey(city, lang)
+  const key = cacheKey(city, lang, near)
   const cached = CACHE.get(key)
   const age = cached ? Date.now() - cached.ts : Infinity
   if (age < CACHE_TTL) {
@@ -69,7 +72,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   // 1. Stadt → Koordinaten
-  const geo = await geocodeCity(city, lang)
+  const geo = await geocodeCity(city, lang, near)
   if (!geo) {
     return noStore({ error: `"${city}" was not found. Check the spelling or pick a city from the suggestions.` }, 404)
   }

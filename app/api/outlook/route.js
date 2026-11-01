@@ -3,6 +3,7 @@ import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { geocodeCity, englishPlaceName, getRegion } from '@/lib/weather'
 import { pickLang } from '@/lib/share'
+import { parseNear } from '@/lib/geo'
 import { fetchOpenMeteoMultiRaw, fetchClimateRaw } from '@/lib/outlook/sources'
 import { fetchNationalRaw, fetchMetNorwayRaw } from '@/lib/outlook/national'
 import { buildOutlook } from '@/lib/outlook/build'
@@ -28,7 +29,8 @@ export const GET = withErrorLog('outlook', async (request) => {
   // only cache misses reach this point — CDN hits never invoke the function
   if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
-  const geo = await geocodeCity(q, lang)
+  // where the search came from: tells same-name towns apart (lib/geo.js)
+  const geo = await geocodeCity(q, lang, parseNear(sp.get('near')))
   if (!geo) return noStore({ error: `"${q}" was not found.` }, 404)
   const region = getRegion(geo.lat, geo.lon)
 

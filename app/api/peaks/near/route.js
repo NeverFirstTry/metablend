@@ -15,7 +15,8 @@ import { places } from '@/lib/places/server'
 // (supabase/places.sql summits_pool: the nearest within 15 km and the most
 // notable within 50 km); while that isn't there, or fails, OpenStreetMap via
 // Nominatim (the 40 most important within 50 and 15 km), then Photon.
-// One answer per ~5 km cell, CDN-cached for a day — summits don't move.
+// One answer per ~5 km cell, CDN-cached for a day — summits don't move; the
+// fallback's for 5 minutes, so ours is back as soon as it answers again.
 
 const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
 const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
@@ -53,9 +54,5 @@ export const GET = withErrorLog('peaks.near', async (request) => {
   const summits = withNotability(heights.peaks, notability)
     .filter(p => p.name && Number.isFinite(p.elev) && haversineKm(cell.lat, cell.lon, p.lat, p.lon) <= 50)
 
-  // an incomplete answer (one box, the fallback or the heights failed) mustn't stick
-  const age = !wide || !close || heights.osmDown || heights.demDown ? 300 : 86400
-  return Response.json({ cell, summits }, {
-    headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
-  })
+  return Response.json({ cell, summits }, { headers: cache(300) })
 })

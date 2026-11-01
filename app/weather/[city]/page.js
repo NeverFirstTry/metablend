@@ -148,24 +148,25 @@ export default async function CityWeather({ params }) {
         {week.length > 0 && (
           <section tabIndex={0} aria-label="7-day consensus forecast" className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6 overflow-x-auto">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">7-day consensus forecast</h2>
-            <table className="w-full text-sm text-left min-w-[420px]">
+            {/* fits a phone: there the conditions show as their icon (the words stay for screen readers and search) */}
+            <table className="w-full text-sm text-left">
               <thead>
                 <tr className="text-zinc-500 text-xs uppercase tracking-wider">
-                  <th className="py-2 pr-4 font-normal">Day</th>
-                  <th className="py-2 pr-4 font-normal">Conditions</th>
-                  <th className="py-2 pr-4 font-normal">High / Low</th>
-                  <th className="py-2 pr-4 font-normal">Rain</th>
+                  <th className="py-2 pr-3 sm:pr-4 font-normal">Day</th>
+                  <th className="py-2 pr-3 sm:pr-4 font-normal"><span className="sr-only sm:not-sr-only">Conditions</span></th>
+                  <th className="py-2 pr-3 sm:pr-4 font-normal whitespace-nowrap">High / Low</th>
+                  <th className="py-2 pr-3 sm:pr-4 font-normal">Rain</th>
                   <th className="py-2 font-normal">Wind</th>
                 </tr>
               </thead>
               <tbody>
                 {week.map(d => (
                   <tr key={d.date} className="border-t border-zinc-800">
-                    <td className="py-2 pr-4 whitespace-nowrap">{weekday(d.date)}</td>
-                    <td className="py-2 pr-4">{d.icon ?? ''} {d.condition ?? ''}</td>
-                    <td className="py-2 pr-4 tabular-nums">{Math.round(d.tempMax)}° / {Math.round(d.tempMin)}°</td>
-                    <td className="py-2 pr-4 tabular-nums">{d.rainPct != null ? `${d.rainPct}%` : '–'}</td>
-                    <td className="py-2 tabular-nums">{d.windKmh != null ? `${d.windKmh} km/h` : '–'}</td>
+                    <td className="py-2 pr-3 sm:pr-4 whitespace-nowrap">{weekday(d.date)}</td>
+                    <td className="py-2 pr-3 sm:pr-4">{d.icon ?? ''} <span className="sr-only sm:not-sr-only">{d.condition ?? ''}</span></td>
+                    <td className="py-2 pr-3 sm:pr-4 tabular-nums whitespace-nowrap">{Math.round(d.tempMax)}° / {Math.round(d.tempMin)}°</td>
+                    <td className="py-2 pr-3 sm:pr-4 tabular-nums">{d.rainPct != null ? `${d.rainPct}%` : '–'}</td>
+                    <td className="py-2 tabular-nums whitespace-nowrap">{d.windKmh != null ? `${d.windKmh} km/h` : '–'}</td>
                   </tr>
                 ))}
               </tbody>

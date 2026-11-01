@@ -30,6 +30,23 @@ All notable changes to MetaBlend. Format loosely follows
 - A local run can no longer write to the production database because of a
   `VERCEL=1` line that `vercel env pull` puts into a local env file: only a
   real Vercel deployment (production or preview) writes there.
+- "Use my location" and a picked suggestion open the place you meant, not
+  the biggest one of that name: Vienna, Virginia no longer shows Vienna,
+  Austria, and Portland, Maine no longer shows Portland, Oregon. Its quiet
+  refreshes keep the right place too.
+- iPhone alerts: switching between a test build and the TestFlight build no
+  longer deletes the phone's alert settings and planned hikes.
+- Hiking: a moment when OpenStreetMap was slow no longer leaves a peak
+  showing "no marked routes" for a week; routes found only in part are looked
+  up again the next day.
+- Hiking search and "Near you": a short database hiccup no longer leaves
+  the thinner outside results in place for a day (5 minutes now).
+- City pages: the 7-day table fits a phone screen (the conditions show as
+  their icon there); before, the rain and wind columns ran off the edge.
+- Battery: the "refreshes in m:ss" countdown no longer redraws the whole
+  forecast page every second, only itself.
+- Route weather: switching the day or pace reuses the forecast fetched a
+  moment ago (15 minutes) instead of downloading it again.
 
 ## 2026-10-30
 

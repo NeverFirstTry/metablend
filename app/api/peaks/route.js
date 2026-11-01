@@ -19,7 +19,8 @@ import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOs
 // goes outside: the geocoder for a village too small for our towns, and —
 // when our data can't answer, or isn't loaded yet — Nominatim (never while
 // typing: its policy), then Photon, then the geocoder's mountains. Cached per
-// query for a day — peaks don't move — or 5 minutes when a source was down.
+// query for a day — peaks don't move — or 5 minutes when a source was down,
+// ours included (the fallback's answer mustn't stick once ours is back).
 
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 // a sent search can ask Nominatim three times (name, summits, huts around)
@@ -37,17 +38,17 @@ export const GET = withErrorLog('peaks', async (request) => {
   const ok = (body, age) => Response.json(body, {
     headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
   })
+  let ownDown = true
   if (await places.ready()) {
     const own = await ownSearch(query, feat, { places, featured, demEle: fetchSummitElevations, geocode: q => geocodeTown(q, fetchGeocodingRaw), km: AROUND_KM })
     // a sent search our data has nothing for: the outside services below
     if (ownAnswers(own, query.full)) return ok(own.body, own.age)
+    ownDown = !own
   }
   if (!query.full) {
+    // only reached when our data didn't answer: never cached for long
     const typed = parseGeocodingPeaks(await fetchGeocodingRaw(query.q))
-    const age = typed ? 86400 : 300
-    return Response.json({ peaks: mergePeaks(feat, typed ?? []), around: null }, {
-      headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
-    })
+    return ok({ peaks: mergePeaks(feat, typed ?? []), around: null }, 300)
   }
   // a town's name is also asked plain: "Hà Nội" is found only as "hanoi"
   const plain = plainQuery(query.q)
@@ -76,8 +77,5 @@ export const GET = withErrorLog('peaks', async (request) => {
     : { peaks: geoPeaks ?? [], osmDown: false, demDown: false }
   const peaks = mergePeaks(feat, heights.peaks)
   if (around) around.peaks = around.peaks.filter(p => !peaks.some(q => q.id === p.id))
-  const age = searchMaxAge({ photonDown: !nominatim || aroundDown, elevationsDown: heights.osmDown || heights.demDown })
-  return Response.json({ peaks, around }, {
-    headers: { 'Cache-Control': `public, s-maxage=${age}, stale-while-revalidate=${age === 86400 ? 604800 : age}` },
-  })
+  return ok({ peaks, around }, ownDown ? 300 : searchMaxAge({ photonDown: !nominatim || aroundDown, elevationsDown: heights.osmDown || heights.demDown }))
 })

@@ -16,6 +16,7 @@ import { countSources } from '@/lib/sources'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
+import { nearParam } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -38,6 +39,7 @@ import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
+import { Countdown, DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
 import { cityShareUrl, shareText } from '@/lib/share'
@@ -104,6 +106,9 @@ const cToF = c => c * 9 / 5 + 32
 // Both APIs are keyed by the lower-cased city so every visitor of a city
 // shares one CDN copy.
 const cityKey = q => encodeURIComponent(q.trim().toLowerCase())
+const nearQuery = near => (near ? `&near=${near}` : '')
+// where the city on screen was found, for its refreshes (SESSION.near)
+const nearOf = q => (SESSION.near?.city === q ? SESSION.near.at : null)
 const TAB_KEY = 'mb_tab'
 
 // ── Welcome / empty state ────────────────────────────────────────────────────
@@ -205,7 +210,6 @@ export default function Home() {
   const [refreshing, setRefreshing] = useState(false)      // silent background re-fetch
   const [nextRefreshAt, setNextRefreshAt] = useState(() => SESSION.nextRefreshAt) // ms timestamp of next auto-refresh
   const [justUpdated, setJustUpdated] = useState(false)    // drives the "Updated just now" flash
-  const [nowTick, setNowTick] = useState(() => Date.now()) // re-renders the countdown each second
   const autoRefreshRef = useRef(() => {})
   const suggestTimer = useRef(null)  // debounce for the geocoding suggestions
   // a language shows once its texts have loaded; the latest pick wins a race
@@ -398,9 +402,15 @@ export default function Home() {
   // `lang` defaults to the current language; the first load passes the detected
   // one, since the state still holds the server default ('en') at that moment —
   // and the language decides the place ("Wien" in English is a town in Missouri)
-  async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang } = {}) {
+  // `near` = where the place was found (a located phone, a picked suggestion):
+  // sent along, and again on its quiet refreshes, so a town of the same name
+  // elsewhere can't take its place (lib/geo.js).
+  // shortcut: Recent, widgets and links carry the name only — they open the
+  // biggest place of that name; carry `near` there too if that bites
+  async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang, near: nearAt } = {}) {
     const q = targetCity ?? city
     if (!q.trim()) return
+    const near = nearAt ?? (silent ? nearOf(q) : null)
     // only the latest load shows or keeps its answer (lib/forecast-session.js)
     const load = startLoad()
     if (silent) setRefreshing(true)
@@ -414,8 +424,8 @@ export default function Home() {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
-        fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}`).then(r => r.json()),
+        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
+        fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
       ])
       if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: nowRes.reason?.message ?? 'Network error' }
@@ -423,7 +433,7 @@ export default function Home() {
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
-      rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
+      rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null, near: near ? { city: json.city ?? q, at: near } : null })
       if (out) { setOutlook(out); setOutlookError(null) }
       else {
         setOutlookError(outRes.status === 'fulfilled' ? outRes.value?.error ?? 'error' : 'network')
@@ -480,7 +490,7 @@ export default function Home() {
     if (!data) return
     setOutlookError(null)
     try {
-      const out = await fetch(`/api/outlook?city=${cityKey(data.city)}&lang=${lang}`).then(r => r.json())
+      const out = await fetch(`/api/outlook?city=${cityKey(data.city)}&lang=${lang}${nearQuery(nearOf(data.city))}`).then(r => r.json())
       if (out.error) throw new Error(out.error)
       setOutlook(out)
     } catch (e) {
@@ -497,14 +507,12 @@ export default function Home() {
     }
   })
 
-  // 1-second ticker: drives the countdown display and fires the silent refresh
-  // when it reaches zero. Only runs while a forecast is on screen.
+  // 1-second check that fires the silent refresh when it's due. No state: the
+  // countdown on screen ticks on its own (components/RefreshClock.jsx), so the
+  // page isn't redrawn every second. Only runs while a forecast is on screen.
   useEffect(() => {
     if (!data) return
-    const id = setInterval(() => {
-      setNowTick(Date.now())
-      autoRefreshRef.current()
-    }, 1000)
+    const id = setInterval(() => autoRefreshRef.current(), 1000)
     return () => clearInterval(id)
   }, [data])
 
@@ -525,7 +533,7 @@ export default function Home() {
       const name = geo.city || geo.locality || geo.principalSubdivision
       if (!name) throw new Error(t(lang, 'locationNotDetected'))
       setCity(name)
-      await loadForecast(name)
+      await loadForecast(name, { near: nearParam(pos.lat, pos.lon) })
     } catch (e) {
       setError(e.message)
     } finally {
@@ -593,13 +601,8 @@ ${url}`)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Countdown to the next auto-refresh, formatted mm:ss (recomputed each tick).
-  const remainingMs = nextRefreshAt ? Math.max(0, nextRefreshAt - nowTick) : 0
-  const countdownStr = `${Math.floor(remainingMs / 60000)}:${String(Math.floor((remainingMs % 60000) / 1000)).padStart(2, '0')}`
-  // How old the data on screen is — with the CDN in front, a fresh fetch can
-  // still return a copy computed up to 30 minutes ago, so show its real age.
+  // how old the data on screen is (components/RefreshClock.jsx)
   const generatedAt = outlook?.generatedAt ?? data?.generatedAt
-  const ageMin = generatedAt ? Math.max(0, Math.floor((nowTick - Date.parse(generatedAt)) / 60000)) : null
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
@@ -739,7 +742,7 @@ ${url}`)
                   <button
                     key={s.id}
                     className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 transition-colors flex justify-between items-center"
-                    onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name), 50) }}
+                    onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
                   >
                     <span>{s.name}</span>
                     <span className="text-zinc-500 text-xs">{s.admin1 ? `${s.admin1}, ` : ''}{s.country}</span>
@@ -921,23 +924,9 @@ ${url}`)
                   >
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
-                  {!offline && nextRefreshAt && (
-                    <span className="text-zinc-500 text-[0.6875rem] tabular-nums">
-                      {t(lang, 'refreshesIn')} {countdownStr}
-                    </span>
-                  )}
+                  {!offline && nextRefreshAt && <Countdown at={nextRefreshAt} lang={lang} />}
                 </div>
-                {ageMin != null && (
-                  <div className="text-[0.6875rem] mt-1 tabular-nums">
-                    {justUpdated ? (
-                      <span className="text-emerald-400 inline-flex items-center gap-1 animate-fade-in">
-                        <CheckCircle2 size={12} aria-hidden /> {t(lang, 'updatedJustNow')}
-                      </span>
-                    ) : (
-                      <span className="text-zinc-500">{ageMin < 1 ? t(lang, 'updatedJustNow') : fill(t(lang, 'updatedAgo'), { n: ageMin })}</span>
-                    )}
-                  </div>
-                )}
+                {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} />}
               </div>
               <div className="flex gap-2 shrink-0">
                 <button

@@ -43,8 +43,10 @@ export const GET = withErrorLog('routes', async (request) => {
   if (cached && Date.now() - Date.parse(cached.fetched_at) < WEEK) return serve(cached.routes)
   const fresh = await findRoutes(peak, { getJson, getElevations: fetchElevations })
   if (fresh) {
-    await supabase.from('route_cache').upsert({ peak_key: key, routes: fresh, fetched_at: new Date().toISOString() })
-    return serve(fresh, { heal: false })
+    // some lookups failed: dated so it's looked up again in a day, not a week
+    const at = fresh.complete ? Date.now() : Date.now() - WEEK + 86400e3
+    await supabase.from('route_cache').upsert({ peak_key: key, routes: fresh.routes, fetched_at: new Date(at).toISOString() })
+    return serve(fresh.routes, { heal: false })
   }
   if (cached) return serve(cached.routes)
   return noStore({ error: 'Routes unavailable right now', upstream: lastUpstreamFailure() }, 502)
