@@ -4,7 +4,7 @@ import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
 import {
-  geocodeCity, englishPlaceName, getRegion,
+  geocodeCity, learnName, getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
   fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
@@ -80,9 +80,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   const region = getRegion(geo.lat, geo.lon)
   // Everything this route stores or learns is filed under the place's English
   // name, whatever language it was searched in — "Wien", "Vienne" and "Vienna"
-  // are one city (the outlook does the same). Fetched alongside the sources;
-  // if the lookup fails, the searched name stands in.
-  const learnCityP = lang === 'en' ? Promise.resolve(geo.name) : englishPlaceName(geo.id).then(n => n ?? geo.name)
+  // are one city (the outlook does the same); a same-name town picked by
+  // position adds its region (lib/weather.js learnName). Fetched alongside
+  // the sources; if the lookup fails, the searched name stands in.
+  const learnCityP = learnName(geo, lang).then(n => n ?? geo.name)
 
   // 2. All source APIs in parallel, each timed — plus the extra national and
   // AI models, which come in one shared Open-Meteo request

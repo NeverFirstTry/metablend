@@ -1,7 +1,7 @@
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
-import { geocodeCity, englishPlaceName, getRegion } from '@/lib/weather'
+import { geocodeCity, learnName as learnNameOf, getRegion } from '@/lib/weather'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
 import { fetchOpenMeteoMultiRaw, fetchClimateRaw } from '@/lib/outlook/sources'
@@ -39,7 +39,7 @@ export const GET = withErrorLog('outlook', async (request) => {
     fetchClimateRaw(geo.lat, geo.lon),
     fetchNationalRaw(geo.lat, geo.lon),
     loadOutlookWeights(region),
-    lang === 'en' ? geo.name : englishPlaceName(geo.id),
+    learnNameOf(geo, lang),
   ])
   // Open-Meteo hangs now and then on the full request: note how often
   if (!multi || multi.fallback) await logError('outlook.upstream', new Error(multi ? 'fell back to the core models' : 'model request failed'), { upstream: lastUpstreamFailure() })

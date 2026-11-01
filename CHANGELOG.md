@@ -32,13 +32,17 @@ All notable changes to MetaBlend. Format loosely follows
   real Vercel deployment (production or preview) writes there.
 - "Use my location" and a picked suggestion open the place you meant, not
   the biggest one of that name: Vienna, Virginia no longer shows Vienna,
-  Austria, and Portland, Maine no longer shows Portland, Oregon. Its quiet
-  refreshes keep the right place too.
+  Austria, and Portland, Maine no longer shows Portland, Oregon. The phone
+  remembers it, so refreshes, Recent and the app's next start keep the right
+  place, and such a town learns on its own ("Vienna, Virginia") instead of
+  sharing the bigger town's forecasts, reports and local bias.
 - iPhone alerts: switching between a test build and the TestFlight build no
   longer deletes the phone's alert settings and planned hikes.
 - Hiking: a moment when OpenStreetMap was slow no longer leaves a peak
   showing "no marked routes" for a week; routes found only in part are looked
-  up again the next day.
+  up again the next day, and never replace a fuller list found before.
+- The leaderboard's Recalibrate button answered with an error (after doing
+  its work) since this morning's clean-up.
 - Hiking search and "Near you": a short database hiccup no longer leaves
   the thinner outside results in place for a day (5 minutes now).
 - City pages: the 7-day table fits a phone screen (the conditions show as

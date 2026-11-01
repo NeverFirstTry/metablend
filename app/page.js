@@ -16,7 +16,7 @@ import { countSources } from '@/lib/sources'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
-import { nearParam } from '@/lib/geo'
+import { nearParam, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -107,8 +107,14 @@ const cToF = c => c * 9 / 5 + 32
 // shares one CDN copy.
 const cityKey = q => encodeURIComponent(q.trim().toLowerCase())
 const nearQuery = near => (near ? `&near=${near}` : '')
-// where the city on screen was found, for its refreshes (SESSION.near)
-const nearOf = q => (SESSION.near?.city === q ? SESSION.near.at : null)
+// Where each place was found (a located phone, a picked suggestion), by name,
+// kept on the phone: its refreshes, Recent and the app's next start open the
+// same town of that name (lib/geo.js). shortcut: widgets, shared links and
+// alerts carry the name only — they open the biggest place of that name
+const NEAR_KEY = 'metablend_near'
+const nearMap = () => { try { return JSON.parse(localStorage.getItem(NEAR_KEY)) ?? {} } catch { return {} } }
+const nearOf = q => nearMap()[q.trim().toLowerCase()] ?? null
+const rememberNear = (q, near) => { try { localStorage.setItem(NEAR_KEY, JSON.stringify(withNear(nearMap(), q, near))) } catch { /* private mode */ } }
 const TAB_KEY = 'mb_tab'
 
 // ── Welcome / empty state ────────────────────────────────────────────────────
@@ -403,14 +409,13 @@ export default function Home() {
   // one, since the state still holds the server default ('en') at that moment —
   // and the language decides the place ("Wien" in English is a town in Missouri)
   // `near` = where the place was found (a located phone, a picked suggestion):
-  // sent along, and again on its quiet refreshes, so a town of the same name
-  // elsewhere can't take its place (lib/geo.js).
-  // shortcut: Recent, widgets and links carry the name only — they open the
-  // biggest place of that name; carry `near` there too if that bites
+  // sent along, and remembered for every later load of that name (nearOf), so
+  // a town of the same name elsewhere can't take its place.
   async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang, near: nearAt } = {}) {
     const q = targetCity ?? city
     if (!q.trim()) return
-    const near = nearAt ?? (silent ? nearOf(q) : null)
+    const near = nearAt ?? nearOf(q)
+    if (nearAt) rememberNear(q, nearAt) // kept at once: a load left half-way resumes with it
     // only the latest load shows or keeps its answer (lib/forecast-session.js)
     const load = startLoad()
     if (silent) setRefreshing(true)
@@ -433,7 +438,8 @@ export default function Home() {
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
-      rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null, near: near ? { city: json.city ?? q, at: near } : null })
+      rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
+      if (near) rememberNear(json.city ?? q, near)
       if (out) { setOutlook(out); setOutlookError(null) }
       else {
         setOutlookError(outRes.status === 'fulfilled' ? outRes.value?.error ?? 'error' : 'network')

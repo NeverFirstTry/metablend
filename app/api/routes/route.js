@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase'
 import { parsePeakQuery } from '@/lib/hike/params'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
-import { findRoutes, healRoutes, withoutGuesses } from '@/lib/route/find'
+import { findRoutes, healRoutes, withoutGuesses, replacesCache } from '@/lib/route/find'
 
 // The marked routes up a peak (OpenStreetMap). One OSM lookup per peak a
 // week (route_cache), plus a day on the CDN; an OSM outage serves the stale
@@ -42,7 +42,7 @@ export const GET = withErrorLog('routes', async (request) => {
   const { data: cached } = await supabase.from('route_cache').select('routes, fetched_at').eq('peak_key', key).maybeSingle()
   if (cached && Date.now() - Date.parse(cached.fetched_at) < WEEK) return serve(cached.routes)
   const fresh = await findRoutes(peak, { getJson, getElevations: fetchElevations })
-  if (fresh) {
+  if (fresh && replacesCache(fresh, cached)) {
     // some lookups failed: dated so it's looked up again in a day, not a week
     const at = fresh.complete ? Date.now() : Date.now() - WEEK + 86400e3
     await supabase.from('route_cache').upsert({ peak_key: key, routes: fresh.routes, fetched_at: new Date(at).toISOString() })

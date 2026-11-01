@@ -69,6 +69,11 @@ html[data-app="1"] :is(button, a, label, [role="tab"]) {
   user-select: none;
   -webkit-touch-callout: none;
 }
+/* WebKit passes user-select down: a field inside such a label stays typeable */
+html[data-app="1"] :is(input, textarea) {
+  -webkit-user-select: text;
+  user-select: text;
+}
 
 /* native controls (the language list, scrollbars) follow the theme; the
    options get explicit colours too, since some browsers ignore the scheme
