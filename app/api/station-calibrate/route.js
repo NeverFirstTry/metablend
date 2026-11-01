@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
@@ -60,11 +61,14 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
 
   const since = new Date(Date.now() - LOOKBACK_MIN * 60 * 1000).toISOString()
   // Ordered oldest-first so "last row wins" below really is the latest per API.
-  const { data: forecasts } = await supabase
+  // Every page: one request stops at 1000 rows.
+  const forecasts = await readAll((from, to) => supabase
     .from('forecasts')
     .select('city, lat, lon, api_id, temp, wind_kmh, region, created_at')
     .gte('created_at', since)
     .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
+    .range(from, to))
   if (!forecasts?.length) return Response.json({ skipped: 'no forecasts in the last hour', since })
 
   // Unique cities (with coordinates), capped

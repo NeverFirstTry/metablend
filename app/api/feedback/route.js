@@ -64,7 +64,8 @@ export const POST = withErrorLog('feedback', async (request) => {
   }
 
   // ── Load today's forecasts to validate consensus deviation ────────────────
-  // Ordered oldest-first so "last row wins" below really is the latest per API.
+  // Newest first, and only those: the latest row per API is the first one seen
+  // (a busy city stores thousands a day; one request stops at 1000).
   // "Today" is the CITY's local date (forecast rows are tagged the same way).
   const today = localDateForLon(lon)
   const { data: forecasts } = await supabase
@@ -72,7 +73,8 @@ export const POST = withErrorLog('feedback', async (request) => {
     .select('api_id, temp, rain_pct, condition, lat, lon')
     .eq('city', city)
     .eq('valid_for', today)
-    .order('created_at', { ascending: true })
+    .order('created_at', { ascending: false })
+    .limit(200)
 
   // Where we actually forecast this city anchors the report: its heatmap pin
   // and the weight region come from our own stored coordinates, never from
@@ -88,7 +90,7 @@ export const POST = withErrorLog('feedback', async (request) => {
   let consensusTemp = null
   if (forecasts?.length) {
     const latestPerApi = {}
-    forecasts.forEach(f => { latestPerApi[f.api_id] = f })
+    forecasts.forEach(f => { latestPerApi[f.api_id] ??= f })
     const real = Object.values(latestPerApi).filter(f => f.api_id !== 'metablend')
     if (real.length) {
       consensusTemp = real.reduce((s, f) => s + f.temp, 0) / real.length
@@ -146,7 +148,7 @@ export const POST = withErrorLog('feedback', async (request) => {
   }
 
   const latestPerApi = {}
-  forecasts.forEach(f => { latestPerApi[f.api_id] = f })
+  forecasts.forEach(f => { latestPerApi[f.api_id] ??= f })
   const unique = Object.values(latestPerApi)
 
   // Median forecast temp across all APIs — used to flag outliers (see below).

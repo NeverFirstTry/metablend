@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
@@ -62,12 +63,14 @@ async function runMeteostatValidation() {
   if (sentinel?.length) return { skipped: 'already validated', date: yesterday }
 
   // Fetch all of yesterday's stored forecasts, oldest first so "last row wins"
-  // below really is the latest per API.
-  const { data: forecasts } = await supabase
+  // below really is the latest per API — every page: one request stops at 1000.
+  const forecasts = await readAll((from, to) => supabase
     .from('forecasts')
     .select('city, lat, lon, api_id, temp, region, created_at')
     .eq('valid_for', yesterday)
     .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
+    .range(from, to))
 
   if (!forecasts?.length) return { skipped: 'no forecasts for yesterday', date: yesterday }
 
@@ -158,7 +161,13 @@ export async function GET(request) {
     supabase.from('push_log').delete().lt('sent_at', new Date(Date.now() - 14 * 86_400_000).toISOString()),
   ])
 
-  const validation = await runMeteostatValidation()
+  let validation
+  try {
+    validation = await runMeteostatValidation()
+  } catch (e) {
+    await logError('meteostat.validate', e)
+    validation = { error: e.message }
+  }
 
   // Outlook learning: check the saved predictions whose time has come
   let outlook

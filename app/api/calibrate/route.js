@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
@@ -48,11 +49,14 @@ export async function GET(request) {
   if (sentinel?.length) return Response.json({ skipped: 'already calibrated', date: yesterday })
 
   // Ordered oldest-first so "last row wins" below really is the latest per API.
-  const { data: forecasts } = await supabase
+  // Every page: one request stops at 1000 rows, and a busy day has thousands.
+  const forecasts = await readAll((from, to) => supabase
     .from('forecasts')
     .select('city, lat, lon, api_id, temp, region, created_at')
     .eq('valid_for', yesterday)
     .order('created_at', { ascending: true })
+    .order('id', { ascending: true })
+    .range(from, to))
   if (!forecasts?.length) return Response.json({ skipped: 'no forecasts for yesterday', date: yesterday })
 
   // unique cities, capped
