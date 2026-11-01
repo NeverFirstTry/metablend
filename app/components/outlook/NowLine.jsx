@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { ChevronDown, Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } from 'lucide-react'
 import { t, translateCondition } from '@/lib/i18n'
 import { MetricCard } from '../ui'
-import { conditionIcon, heroCondition } from './icons'
+import { conditionIcon, heroCondition } from '@/lib/conditions'
 
 const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
 const cloudColor = v => (v == null ? MUTED : v < 30 ? GREEN : v < 70 ? YELLOW : RED)

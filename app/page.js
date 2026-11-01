@@ -43,7 +43,7 @@ import { Countdown, DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
 import { cityShareUrl, shareText } from '@/lib/share'
-import { heroCondition } from './components/outlook/icons'
+import { heroCondition } from '@/lib/conditions'
 
 // ── Offline cache (localStorage, per city): the last "right now" payload and
 // the last outlook, so the page still shows something without a connection.

@@ -9,7 +9,7 @@ import { useSky } from '@/lib/useSky'
 import { applyTheme } from '@/lib/theme'
 import { SITE, pickLang, pickUnit, pickTheme } from '@/lib/share'
 import { countSources } from '@/lib/sources'
-import { heroCondition } from '../../components/outlook/icons'
+import { heroCondition } from '@/lib/conditions'
 import SkyLoader from '../../components/SkyLoader'
 
 // The embeddable card (an iframe on other sites): the city's weather right

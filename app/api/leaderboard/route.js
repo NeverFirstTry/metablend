@@ -22,22 +22,13 @@ function groupByRegion(rows, stats) {
 }
 
 export async function GET() {
-  let { data, error } = await supabase
+  const { data, error } = await supabase
     .from('api_weights')
     .select('id, name, weight, score, reports, updated_at, region, delta_history')
     .order('weight', { ascending: false })
-
-  // Pre-migration DBs don't have the `region` column yet — fall back to a
-  // region-less query and treat every row as global, rather than 500-ing.
   if (error) {
-    ;({ data, error } = await supabase
-      .from('api_weights')
-      .select('id, name, weight, score, reports, updated_at')
-      .order('weight', { ascending: false }))
-    if (error) {
-      await logError('leaderboard', error)
-      return Response.json({ error: 'Leaderboard unavailable right now' }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
-    }
+    await logError('leaderboard', error)
+    return Response.json({ error: 'Leaderboard unavailable right now' }, { status: 500, headers: { 'Cache-Control': 'no-store' } })
   }
 
   // response time + uptime per API (optional table)

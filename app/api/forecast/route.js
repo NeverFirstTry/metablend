@@ -247,8 +247,8 @@ export const GET = withErrorLog('forecast', async (request) => {
   if (fcInsErr) logError('forecast.insert', fcInsErr, { city: learnCity })
 
   // snapshot the consensus for the RSS feed and the low-confidence webhook
-  try {
-    await supabase.from('consensus_history').insert({
+  {
+    const { error } = await supabase.from('consensus_history').insert({
       city: learnCity,
       country: geo.country,
       region,
@@ -260,42 +260,18 @@ export const GET = withErrorLog('forecast', async (request) => {
       condition: mainCondition,
       source_count: results.length,
     })
-  } catch { /* table may not exist yet */ }
+    if (error) logError('forecast.history', error, { city: learnCity })
+  }
 
   // Response-time + uptime stats (EMA on the response time, running up/down
-  // counts). Atomic via the bump_api_stats DB function; falls back to the old
-  // read-modify-write (which can drop concurrent increments) on DBs that
-  // haven't re-run setup_all.sql yet.
-  try {
-    const attempts = timed.filter(t => t.value !== null || t.down)
-    if (attempts.length) {
-      const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
-        rows: attempts.map(t => ({ api_id: t.id, ms: t.ms, up: t.value !== null })),
-      })
-      if (rpcErr) {
-        const { data: existing } = await supabase
-          .from('api_stats')
-          .select('api_id, avg_response_ms, success_count, fail_count')
-        const cur = {}
-        ;(existing ?? []).forEach(r => { cur[r.api_id] = r })
-        const rows = attempts.map(t => {
-          const prev = cur[t.id]
-          const up = t.value !== null
-          const avg = prev?.avg_response_ms != null
-            ? Math.round(prev.avg_response_ms * 0.7 + t.ms * 0.3)
-            : t.ms
-          return {
-            api_id: t.id,
-            avg_response_ms: avg,
-            success_count: (prev?.success_count ?? 0) + (up ? 1 : 0),
-            fail_count: (prev?.fail_count ?? 0) + (up ? 0 : 1),
-            last_checked: new Date().toISOString(),
-          }
-        })
-        await supabase.from('api_stats').upsert(rows, { onConflict: 'api_id' })
-      }
-    }
-  } catch { /* api_stats table may not exist yet */ }
+  // counts), atomic via the bump_api_stats DB function.
+  const attempts = timed.filter(t => t.value !== null || t.down)
+  if (attempts.length) {
+    const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
+      rows: attempts.map(t => ({ api_id: t.id, ms: t.ms, up: t.value !== null })),
+    })
+    if (rpcErr) logError('forecast.stats', rpcErr)
+  }
 
   // Low-confidence consensus → fire the webhook check in the background.
   // (Cleanup is NOT triggered here anymore — it's a daily cron; running two

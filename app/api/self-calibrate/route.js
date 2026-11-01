@@ -82,16 +82,6 @@ async function handle(request) {
   const denied = jobKeyProblem(request)
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
 
-  // Does this DB have the per-region weights migration? Decides whether we
-  // calibrate every region or just a single global bucket.
-  const { error: regionProbe } = await supabase.from('api_weights').select('region').limit(1)
-  const hasRegionCol = !regionProbe
-
-  // forecasts.api_id has a FK to the reference table — only seed rows for APIs
-  // that actually exist there, or an atomic batch insert fails entirely.
-  const { data: knownRows } = await supabase.from('api_weights').select('id')
-  const knownIds = new Set((knownRows ?? []).map(r => r.id))
-
   const today = new Date().toISOString().split('T')[0]
 
   // ── 1. Fetch the whole basket live (cities in parallel) ──────────────────
@@ -114,7 +104,6 @@ async function handle(request) {
 
     // seed forecasts for the ground-truth cron regardless of source count
     for (const r of results) {
-      if (!knownIds.has(r.apiId)) continue // skip sources not in the FK reference table
       forecastRows.push({
         city: city.name, lat: city.lat, lon: city.lon,
         api_id: r.apiId, valid_for: localDateForLon(city.lon),
@@ -130,19 +119,15 @@ async function handle(request) {
     for (const r of results) {
       const delta = deltaFromDiff(Math.abs(r.temp - med), 'instant')
       addDelta('global', r.apiId, delta)            // global always accumulates
-      if (hasRegionCol) addDelta(city.region, r.apiId, delta)
+      addDelta(city.region, r.apiId, delta)
     }
   }
 
-  // ── 3. Seed forecasts (best-effort; retry without region on old schema) ──
+  // ── 3. Seed forecasts (best-effort) ───────────────────────────────────────
   let seeded = 0
   let seedError = null
   if (forecastRows.length) {
-    let { error: insErr } = await supabase.from('forecasts').insert(forecastRows)
-    if (insErr) {
-      const minimal = forecastRows.map(({ region, ...r }) => r)
-      ;({ error: insErr } = await supabase.from('forecasts').insert(minimal))
-    }
+    const { error: insErr } = await supabase.from('forecasts').insert(forecastRows)
     if (insErr) seedError = insErr.message
     else seeded = forecastRows.length
   }

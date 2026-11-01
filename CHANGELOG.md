@@ -48,6 +48,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Route weather: switching the day or pace reuses the forecast fetched a
   moment ago (15 minutes) instead of downloading it again.
 
+### Removed
+- Leftovers for database setups older than the current one (every table and
+  column they guarded is there in production), an unused animation
+  component, a re-export file and the unused `@plausible-analytics/tracker`
+  package. Two hand-written paging loops use the shared helper now.
+
 ## 2026-10-30
 
 ### Added — The summits, huts and towns refresh themselves twice a year
