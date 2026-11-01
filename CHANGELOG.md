@@ -24,6 +24,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Returning visitors could see last week's summit window or "right now"
   as today's: the offline cache also kept the pages' data. It keeps only
   the app's build files and offline pages now.
+- The nightly backup stopped at 1000 rows per table without an error, so the
+  newest community reports were missing from it. It reads every row now
+  (reports newest first, up to 20,000).
+- A local run can no longer write to the production database because of a
+  `VERCEL=1` line that `vercel env pull` puts into a local env file: only a
+  real Vercel deployment (production or preview) writes there.
 
 ## 2026-10-30
 

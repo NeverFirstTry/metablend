@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { isAuthorizedJob } from '@/lib/auth'
 import { withErrorLog } from '@/lib/log'
+import { readAll } from '@/lib/push/paging'
 
 // Nightly export of the learned state — the data that can't be re-derived if
 // the database is lost (Supabase's free tier has no automated backups).
@@ -12,6 +13,8 @@ import { withErrorLog } from '@/lib/log'
 const TABLES = [
   { name: 'api_weights', order: 'id' },
   { name: 'city_bias', order: 'city' },
+  // newest first: past the cap the oldest reports drop out (20k rows ≈ 4 MB,
+  // Vercel's response limit is 4.5 MB)
   { name: 'feedback', order: 'id', cap: 20000 },
   { name: 'api_stats', order: 'api_id' },
   { name: 'outlook_weights', order: 'id' }, // learned per-range trust — can't be re-derived either
@@ -22,10 +25,10 @@ export const GET = withErrorLog('backup', async (request) => {
 
   const tables = {}
   for (const t of TABLES) {
-    let q = supabase.from(t.name).select('*').order(t.order, { ascending: true })
-    if (t.cap) q = q.limit(t.cap)
-    const { data, error } = await q
-    tables[t.name] = error ? { error: error.message } : data
+    // page by page: one request stops at 1000 rows
+    tables[t.name] = await readAll((from, to) => supabase.from(t.name).select('*')
+      .order(t.order, { ascending: !t.cap }).range(from, to), 1000, t.cap)
+      .catch(e => ({ error: e.message }))
   }
 
   return Response.json(
