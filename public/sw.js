@@ -1,6 +1,8 @@
 // Caches the app shell so it loads offline. The forecasts themselves live in
 // localStorage (see page.js) — this is just the static stuff.
-const CACHE = 'metablend-v2'
+// v3: v2 also kept Next's page data (/x?_rsc=…), so a summit page could show
+// last week's forecast as today's; the new name drops those entries
+const CACHE = 'metablend-v3'
 const SHELL = ['/', '/leaderboard', '/heatmap', '/manifest.json', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (event) => {
@@ -59,7 +61,9 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // assets: serve cached, refresh in the background
+  // assets: serve cached, refresh in the background — only build files (a new
+  // build, new names) and the shell; page data and the rest stay live
+  if (!url.pathname.startsWith('/_next/static/') && !SHELL.includes(url.pathname)) return
   event.respondWith(
     caches.match(request).then(cached => {
       const network = fetch(request)
