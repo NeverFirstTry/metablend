@@ -741,7 +741,7 @@ ${url}`)
                 {suggestions.map(s => (
                   <button
                     key={s.id}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 transition-colors flex justify-between items-center"
+                    className="press-row w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 transition-colors flex justify-between items-center"
                     onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
                   >
                     <span>{s.name}</span>

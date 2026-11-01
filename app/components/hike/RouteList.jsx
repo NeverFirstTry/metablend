@@ -45,7 +45,7 @@ export default function RouteList({ peak, lang }) {
         <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
           {state.routes.map(r => (
             <li key={r.id}>
-              <button onClick={() => open(r.id)} className="press w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-zinc-800/50">
+              <button onClick={() => open(r.id)} className="press-row w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-zinc-800/50">
                 <span className="flex-1 min-w-0">
                   <span className="block font-medium truncate">{routeLabel(r) ?? t(lang, 'routeUnnamed')}</span>
                   <span className="block text-xs text-zinc-500">

@@ -13,7 +13,7 @@ export default function FeedbackLink({ lang }) {
     window.location.href = feedbackMailto({ ...info, os: osLabel(navigator.userAgent), lang })
   }
   return (
-    <button onClick={open} className="w-full flex items-center justify-between px-4 py-3 text-sm hover:text-emerald-400">
+    <button onClick={open} className="press-row w-full flex items-center justify-between px-4 py-3 text-sm hover:text-emerald-400">
       {t(lang, 'feedbackSend')}
       <ChevronRight size={16} className="text-zinc-600" aria-hidden />
     </button>

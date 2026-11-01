@@ -88,7 +88,7 @@ export default function MoreClient() {
         <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">
           {LINKS.map(([href, key]) => (
             <li key={href}>
-              <Link href={href} className="flex items-center justify-between px-4 py-3 text-sm hover:text-emerald-400">
+              <Link href={href} className="press-row flex items-center justify-between px-4 py-3 text-sm hover:text-emerald-400">
                 {label(t(lang, key))}<ChevronRight size={16} className="text-zinc-600" aria-hidden />
               </Link>
             </li>

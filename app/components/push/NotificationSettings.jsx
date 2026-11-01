@@ -7,6 +7,7 @@ import { SectionTitle } from '../ui'
 import { pushApi, permission, enablePush, promptState } from '@/lib/push-client'
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
 import { syncWidgets } from '@/lib/app-widget-client'
+import { haptic } from '@/lib/native'
 
 const ALERTS = [['alert_rain', 'notifRain'], ['alert_storm', 'notifStorm'], ['alert_severe', 'notifSevere'], ['alert_heat', 'notifHeat']]
 const HOURS = [5, 6, 7, 8, 9, 10, 11]
@@ -80,7 +81,7 @@ export default function NotificationSettings({ lang, unit }) {
   const toggle = (key, label) => (
     <label key={key} className="flex items-center justify-between gap-3 text-sm py-1">
       <span>{label}</span>
-      <input type="checkbox" className="h-5 w-5 accent-emerald-400" checked={!!state.settings?.[key]} onChange={e => save({ [key]: e.target.checked })} />
+      <input type="checkbox" className="h-5 w-5 accent-emerald-400" checked={!!state.settings?.[key]} onChange={e => { haptic('selection'); save({ [key]: e.target.checked }) }} />
     </label>
   )
 
@@ -116,7 +117,7 @@ export default function NotificationSettings({ lang, unit }) {
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-400" />
                 {hits.map(h => (
                   <button key={h.id} onClick={() => { save({ home_name: h.name }); setEditHome(false); setQuery(''); setHits([]) }}
-                    className="press block w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-zinc-800">
+                    className="press-row block w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-zinc-800">
                     {h.name}<span className="text-zinc-500"> · {[h.admin1, h.country].filter(Boolean).join(', ')}</span>
                   </button>
                 ))}

@@ -8,6 +8,7 @@ import { enablePush, pushApi, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { simplify } from '@/lib/route/geometry'
 import { keepPlanned } from '@/lib/route-store'
+import { haptic } from '@/lib/native'
 
 // 🔔 Plan a hike (app only): pick a day, get the summit window the evening
 // before at 18:00 and a morning update if it moves. On a route: the plan
@@ -27,7 +28,7 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
       body.route = { id: route.id ?? null, name: route.name.slice(0, 80), pace, roundTrip: !!route.roundTrip, points: pts.map(p => [p.lat, p.lon, p.ele]) }
     }
     const r = await pushApi('plans', { method: 'POST', body })
-    if (r.status === 200) syncWidgets({ refresh: true })
+    if (r.status === 200) { haptic('success'); syncWidgets({ refresh: true }) }
     // the alert opens the route by its id: keep it on the phone
     if (r.status === 200 && route?.id) await keepPlanned(route)
     setMsg(r.status === 200 ? t(lang, 'planSaved') : r.json.error ?? t(lang, 'notifError'))

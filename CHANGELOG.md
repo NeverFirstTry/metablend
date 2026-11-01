@@ -48,6 +48,19 @@ All notable changes to MetaBlend. Format loosely follows
 - Route weather: switching the day or pace reuses the forecast fetched a
   moment ago (15 minutes) instead of downloading it again.
 
+### Changed — the site and app answer your finger like an iPhone app
+(nothing looks different at rest)
+- List rows (search results, More, the week's days, suggestions) light up
+  while held; cards press in a little, chips and buttons with the usual
+  spring.
+- In the app, holding a button or link no longer selects its label or opens
+  the link menu; text in the content stays selectable.
+- Tapping the tab you're on scrolls back to the top (an open peak still goes
+  back to the peak list).
+- Haptics only where they confirm something: a tick when switching Today,
+  Tomorrow and Week and on the notification switches, a success tap when a
+  hike is planned.
+
 ### Removed
 - Leftovers for database setups older than the current one (every table and
   column they guarded is there in production), an unused animation

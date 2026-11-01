@@ -1,4 +1,5 @@
 import { t } from '@/lib/i18n'
+import { haptic } from '@/lib/native'
 
 export const RANGES = [['today', 'tabToday'], ['tomorrow', 'tabTomorrow'], ['d7', 'tabWeek']]
 
@@ -11,7 +12,7 @@ export default function RangeTabs({ value, onChange, lang }) {
           key={id}
           role="tab"
           aria-selected={value === id}
-          onClick={() => onChange(id)}
+          onClick={() => { if (id !== value) haptic('selection'); onChange(id) }}
           className={`press flex-1 text-xs sm:text-sm py-2 rounded-lg transition-colors ${value === id ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
         >
           {t(lang, key)}

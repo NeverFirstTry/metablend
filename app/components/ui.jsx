@@ -51,7 +51,7 @@ export function Fold({ icon: Icon, title, summary = null, children, defaultOpen 
       <button
         onClick={toggle}
         aria-expanded={open}
-        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left text-sm text-zinc-300 hover:text-emerald-400 transition-colors"
+        className="press-row w-full flex items-center justify-between gap-3 px-5 py-4 rounded-2xl text-left text-sm text-zinc-300 hover:text-emerald-400 transition-colors"
       >
         <span className="inline-flex items-center gap-2 min-w-0">
           {Icon && <Icon size={15} className="shrink-0" aria-hidden />}

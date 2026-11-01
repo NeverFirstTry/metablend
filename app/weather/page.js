@@ -34,7 +34,7 @@ export default function CityIndex() {
             <Link
               key={c.slug}
               href={`/weather/${c.slug}`}
-              className="bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
+              className="press-soft bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
             >
               {c.name}
             </Link>

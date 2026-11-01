@@ -92,7 +92,7 @@ export default async function AviationHub() {
                   <Link
                     key={icao}
                     href={`/aviation/${icao.toLowerCase()}`}
-                    className="bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 flex items-center justify-between text-sm hover:border-emerald-400 transition-colors"
+                    className="press-soft bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 flex items-center justify-between text-sm hover:border-emerald-400 transition-colors"
                   >
                     <span className="tracking-widest text-zinc-200">{icao}</span>
                     {cat ? (

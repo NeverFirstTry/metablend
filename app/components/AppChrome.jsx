@@ -13,7 +13,7 @@ import { getCookie } from '@/lib/prefs'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
-import { tabOf, tabHref, rememberTabUrl, lastTabUrls } from '@/lib/app-tabs'
+import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp } from '@/lib/app-tabs'
 import { repairHeights } from '@/lib/route-store'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
@@ -62,10 +62,12 @@ export default function AppChrome() {
 
   if (!app) return null
   const activeTab = tabOf(path)
-  const leave = () => {
+  const leave = (e, href) => {
+    tapHaptic()
+    // the open tab tapped again at its start: back to the top (smooth unless reduced motion — globals.css)
+    if (retapScrollsUp(href, activeTab, window.location)) { e.preventDefault(); window.scrollTo({ top: 0 }); return }
     // coming back to Hiking finds the peak or route you had open (lib/app-tabs.js)
     rememberTabUrl(activeTab, window.location.pathname + window.location.search)
-    tapHaptic()
   }
   return (
     <nav aria-label="MetaBlend" className="app-tabbar fixed bottom-0 inset-x-0 z-40 border-t border-zinc-800 bg-[#0e0e12]/95 backdrop-blur">
@@ -76,7 +78,7 @@ export default function AppChrome() {
             href={tabHref(href, lastTabUrls(), activeTab)}
             // Hiking and More fetched ahead in full (kept 5 minutes), so a tap shows them at once
             prefetch={href === '/' ? undefined : true}
-            onClick={leave}
+            onClick={e => leave(e, href)}
             aria-current={activeTab === href ? 'page' : undefined}
             className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${activeTab === href ? 'text-emerald-400' : 'text-zinc-500'}`}
           >

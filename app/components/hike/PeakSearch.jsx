@@ -62,7 +62,7 @@ export default function PeakSearch({ lang, hrefFor, onLocate }) {
   const around = res.around?.peaks?.length ? res.around : null
   const row = p => (
     <li key={p.id}>
-      <Link href={hrefFor(p)} className="flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400">
+      <Link href={hrefFor(p)} className="press-row flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400">
         <span className="min-w-0 truncate">{localName(p, lang)}<span className="text-zinc-500">{p.region ? ` · ${p.region}` : ''}{p.country ? ` · ${p.country}` : ''}</span></span>
         <span className="text-zinc-500 text-xs tabular-nums shrink-0" title={p.elevApprox ? t(lang, 'elevApprox') : undefined}>
           {p.km != null ? `${Math.round(p.km)} km · ` : ''}{p.elevApprox ? '≈' : ''}{p.elev} m

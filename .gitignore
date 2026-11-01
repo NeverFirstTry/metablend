@@ -60,3 +60,9 @@ GoogleService-Info.plist
 
 # downloaded and built datasets (scripts/places)
 /data/
+
+# agent tooling: a locally installed skill (it copies third-party pages) and the
+# note `next dev` writes on every run
+/.agents/
+/skills-lock.json
+/AGENTS.md

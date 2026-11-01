@@ -43,7 +43,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                 onClick={() => setOpenDay(open ? null : d.date)}
                 aria-expanded={open}
                 disabled={!dayHours.length}
-                className="w-full flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm text-left rounded-xl hover:bg-zinc-800/40 disabled:cursor-default @max-[19rem]:flex-wrap"
+                className="press-row w-full flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm text-left rounded-xl hover:bg-zinc-800/40 disabled:cursor-default @max-[19rem]:flex-wrap"
               >
                 <span className="w-12 sm:w-16 shrink-0">{d.date === todayLocal ? t(lang, 'todayLabel') : formatCalendarDate(d.date, lang, { weekday: 'short' })}</span>
                 <span className="w-6 shrink-0 text-center text-lg" aria-hidden>{d.icon ?? '·'}</span>

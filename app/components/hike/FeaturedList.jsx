@@ -24,7 +24,7 @@ export default function FeaturedList({ peaks, hrefFor = null }) {
         )
         const cls = 'flex items-center justify-between gap-3 @max-[18rem]:flex-wrap @max-[18rem]:gap-y-1 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm'
         return hrefFor
-          ? <Link key={p.id} href={hrefFor(p)} className={`${cls} hover:border-emerald-400 transition-colors`}>{body}</Link>
+          ? <Link key={p.id} href={hrefFor(p)} className={`${cls} press-soft hover:border-emerald-400 transition-colors`}>{body}</Link>
           : <div key={p.id} className={cls}>{body}</div>
       })}
     </div>

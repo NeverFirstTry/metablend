@@ -203,7 +203,7 @@ export default async function CityWeather({ params }) {
         {/* CTA into the interactive app */}
         <Link
           href={`/?city=${encodeURIComponent(name)}`}
-          className="block text-center bg-emerald-400 text-black font-bold rounded-xl px-6 py-4 text-sm hover:bg-emerald-300 mb-10"
+          className="press block text-center bg-emerald-400 text-black font-bold rounded-xl px-6 py-4 text-sm hover:bg-emerald-300 mb-10"
         >
           Open {name} in the live app — radar, hourly detail &amp; all {upSources.length} sources →
         </Link>
@@ -216,12 +216,12 @@ export default async function CityWeather({ params }) {
               <Link
                 key={c.slug}
                 href={`/weather/${c.slug}`}
-                className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
+                className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
               >
                 {c.name}
               </Link>
             ))}
-            <Link href="/weather" className="bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-emerald-400 hover:border-emerald-400">
+            <Link href="/weather" className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-emerald-400 hover:border-emerald-400">
               All cities →
             </Link>
           </div>
