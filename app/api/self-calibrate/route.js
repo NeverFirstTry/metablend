@@ -148,7 +148,7 @@ async function handle(request) {
   return Response.json({
     ok: true,
     date: today,
-    mode: hasRegionCol ? 'per-region' : 'global-only',
+    mode: 'per-region',
     citiesProbed: CITIES.length,
     citiesScored,
     sourcesSeen,

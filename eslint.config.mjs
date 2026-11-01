@@ -3,6 +3,9 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
+  // a variable used but never defined fails lint (Next's preset leaves this
+  // out; 2026-11-01 a deleted variable still used on one line reached production)
+  { rules: { "no-undef": "error" } },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
