@@ -6,6 +6,7 @@
 // Regenerate every app / site icon after a change here:
 //   npm i --no-save opentype.js @fontsource/hanken-grotesk sharp
 //   node scripts/brand/generate.mjs
+//   node scripts/brand/social.mjs   (profile pictures in store/social/)
 import fs from 'node:fs'
 import { createRequire } from 'node:module'
 const require = createRequire(import.meta.url)
