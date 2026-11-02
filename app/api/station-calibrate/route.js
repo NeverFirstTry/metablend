@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
-import { updateCityBias } from '@/lib/blend'
+import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { withErrorLog } from '@/lib/log'
 import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
@@ -104,11 +104,13 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     // Cross-API median forecast — used for the outlier guard, same as feedback
     const medForecast = median(unique.map(f => f.temp))
 
-    // Teach MetaBlend Local from station ground truth: error of the raw-source
-    // median (our own synthetic source excluded) vs the PWS median.
+    // Teach MetaBlend Local from station ground truth: its error vs the
+    // consensus shown (the raw-source median, our own source excluded, when
+    // none was stored in the window).
     const real = unique.filter(f => f.api_id !== 'metablend')
     if (real.length) {
-      await updateCityBias(city, lat, lon, region, actualTemp - median(real.map(f => f.temp)))
+      const shown = await shownConsensus(city, since)
+      await updateCityBias(city, lat, lon, region, actualTemp - (shown ?? median(real.map(f => f.temp))))
     }
 
     // 5. Score + re-weight (identical math to the feedback / calibrate routes).

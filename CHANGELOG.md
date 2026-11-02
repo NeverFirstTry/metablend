@@ -52,6 +52,36 @@ All notable changes to MetaBlend. Format loosely follows
 - Route weather: switching the day or pace reuses the forecast fetched a
   moment ago (15 minutes) instead of downloading it again.
 
+### Fixed — 2026-11-02, the audit's remaining findings
+- MetaBlend Local learns its correction against the consensus it is added
+  to (it learned against a median, or a plain average, of the sources), and
+  a source never scored in a region counts like an average one instead of
+  about five times as much.
+- Error messages appear in your language ("not found", "too many searches")
+  instead of the server's English text or the browser's "Failed to fetch".
+- The climate planner shows °F to °F users.
+- City pages: "Most trusted here" names only sources that answered; the
+  Retry button on a failed outlook can no longer paint the old city's
+  outlook onto a city opened meanwhile; a shared link's preview without
+  weather isn't kept for 30 minutes.
+- Hiking: one request with a wrong summit height can no longer set it for
+  everyone's routes, and heights are looked up only for the part of a trail
+  that is kept.
+- The daily calibration and the nightly station check can't score the same
+  day twice when a scheduled run arrives twice.
+- Maps: the map library from the CDN is checked against its published
+  fingerprint before it runs.
+
+### Changed — 2026-11-02
+- Faster first forecasts: UV, air quality and the other extras load
+  alongside the weather sources instead of after them.
+- Less server work: the embeddable widget is built once per city and served
+  from the CDN; Compare shares the main search's cached copy; the city pages
+  share the app's English outlook; old route and place-search cache rows are
+  cleaned out nightly.
+- Brand: a second profile picture with bigger letters
+  (`store/social/profile-letters-*.png`).
+
 ### Fixed — 2026-11-02
 - A burst of community reports sent at the same moment can no longer steer
   the blend: a city's weights and local bias learn from at most one report

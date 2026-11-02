@@ -394,8 +394,10 @@ runtime errors for visibility.
 `CALIBRATE_SECRET` (sent as the `x-calibrate-key` header). The cron jobs
 (`/api/calibrate`, `/api/cleanup`, `/api/webhook`) are gated by `CRON_SECRET`:
 set it in the environment and Vercel attaches it to cron invocations
-automatically, while public callers get a `401`. Until `CRON_SECRET` is set these
-endpoints stay open so the crons keep working without it.
+automatically, while public callers get a `401`. Without `CRON_SECRET` they fail
+closed: every caller is refused, the Vercel crons included (an admin can still
+call them with `x-calibrate-key: $CALIBRATE_SECRET`), so set it before relying
+on the nightly cleanup and calibration.
 
 **Rate limiting.** `/api/forecast` (cache miss) and `/api/feedback` are throttled
 per IP to protect the metered upstream APIs and the weighting from abuse.

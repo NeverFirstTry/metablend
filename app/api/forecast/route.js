@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase'
+import { after } from 'next/server'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
@@ -87,7 +88,8 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   // 2. All source APIs in parallel, each timed — plus the extra national and
   // AI models, which come in one shared Open-Meteo request
-  const [timed, models] = await Promise.all([Promise.all([
+  // and the extras (UV, air, details, yesterday), which needn't wait for them
+  const [[timed, models], [extras, details, yesterdayTemp]] = await Promise.all([Promise.all([Promise.all([
     timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
     timedFetch('owm',                  () => fetchOWM(geo.lat, geo.lon)),
     timedFetch('weatherapi',           () => fetchWeatherAPI(geo.lat, geo.lon)),
@@ -102,13 +104,11 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
     timedFetch('pirateweather',        () => fetchPirateWeather(geo.lat, geo.lon)), // off until PIRATE_WEATHER_KEY is set
-  ]), timedFetch('open-meteo-models', () => fetchOpenMeteoModels(geo.lat, geo.lon))])
-
-  const [extras, details, yesterdayTemp] = await Promise.all([
+  ]), timedFetch('open-meteo-models', () => fetchOpenMeteoModels(geo.lat, geo.lon))]), Promise.all([
     fetchOpenMeteoExtras(geo.lat, geo.lon),
     fetchOpenMeteoDetails(geo.lat, geo.lon),
     fetchYesterdayTemp(geo.lat, geo.lon),
-  ])
+  ])])
 
   // successful sources, tagged with their response time
   const results = timed
@@ -140,6 +140,8 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   const weightMap = {}
   weightRows.forEach(w => { weightMap[w.id] = w.weight })
+  // a source never scored here counts like an average one (saved weights add up to 1)
+  const unscored = weightRows.length ? 1 / weightRows.length : 1
 
   // 4. Gewichteten Durchschnitt berechnen
   // Rain is averaged only across sources reporting a true precipitation
@@ -151,7 +153,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   let rainSum = 0, rainWeight = 0
 
   results.forEach(r => {
-    const w = weightMap[r.apiId] ?? 0.25
+    const w = weightMap[r.apiId] ?? unscored
     wTemp      += r.temp                   * w
     wFeelsLike += (r.feelsLike ?? r.temp)  * w
     wWind      += r.windKmh                * w
@@ -161,7 +163,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   if (!rainWeight) {
     results.forEach(r => {
       if (r.rainPct == null) return
-      const w = weightMap[r.apiId] ?? 0.25
+      const w = weightMap[r.apiId] ?? unscored
       rainSum += r.rainPct * w; rainWeight += w
     })
   }
@@ -274,15 +276,14 @@ export const GET = withErrorLog('forecast', async (request) => {
     if (rpcErr) logError('forecast.stats', rpcErr)
   }
 
-  // Low-confidence consensus → fire the webhook check in the background.
-  // (Cleanup is NOT triggered here anymore — it's a daily cron; running two
-  // table-scan deletes per cache-miss search was pure overhead.)
-  if (consensus.confidencePct < 40) {
+  // Low-confidence consensus → the webhook check, after the response (and
+  // only when there's a webhook to call). Cleanup is a daily cron, not here.
+  if (consensus.confidencePct < 40 && process.env.WEBHOOK_URL) {
     const origin = selfBase(request)
     const jobHeaders = process.env.CRON_SECRET
       ? { Authorization: `Bearer ${process.env.CRON_SECRET}` }
       : undefined
-    fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {})
+    after(() => fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {}))
   }
 
   const payload = {
@@ -303,6 +304,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     generatedAt: new Date().toISOString(),
   }
 
+  // expired copies go once the map grows (a warm instance lives for hours)
+  if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= CACHE_TTL) CACHE.delete(k)
   CACHE.set(key, { ts: Date.now(), payload })
   return Response.json(payload, { headers: cdnHeaders(CACHE_TTL / 1000) })
 })

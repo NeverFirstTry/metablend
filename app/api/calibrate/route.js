@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
-import { applyDeltas } from '@/lib/weights'
+import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
 
 // 50 cities × (one Visual Crossing fetch + weight round-trips) take a while:
@@ -39,14 +39,8 @@ export async function GET(request) {
   // scoring "yesterday" compares each city against its own local day.
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
 
-  // Don't calibrate the same day twice (sentinel row ages out via cleanup)
-  const { data: sentinel } = await supabase
-    .from('feedback')
-    .select('id')
-    .eq('report_date', yesterday)
-    .eq('actual_cond', '__calibrate__')
-    .limit(1)
-  if (sentinel?.length) return Response.json({ skipped: 'already calibrated', date: yesterday })
+  // Never the same day twice — claimed before any work (lib/weights.js claimDay)
+  if (!(await claimDay('__calibrate__', yesterday))) return Response.json({ skipped: 'already calibrated', date: yesterday })
 
   // Ordered oldest-first so "last row wins" below really is the latest per API.
   // Every page: one request stops at 1000 rows, and a busy day has thousands.
@@ -108,14 +102,6 @@ export async function GET(request) {
     calibrated++
   }
 
-  // mark this date done
-  await supabase.from('feedback').insert({
-    city: '__calibrate__',
-    actual_temp: 0,
-    actual_cond: '__calibrate__',
-    report_date: yesterday,
-    processed: true,
-  })
 
   return Response.json({ calibrated, date: yesterday, results })
 }

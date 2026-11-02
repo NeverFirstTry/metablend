@@ -1,10 +1,11 @@
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
-import { applyDeltas } from '@/lib/weights'
+import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
 import { logError } from '@/lib/log'
 import { runOutlookVerification } from '@/lib/outlook/job'
+import { CACHE_DAYS as NOMINATIM_DAYS } from '@/lib/hike/nominatim'
 
 // Meteostat lookups, weight round-trips per city and the outlook's METAR
 // verification take a while: the default 300 s that every route shares
@@ -52,15 +53,8 @@ async function runMeteostatValidation() {
   // valid_for is the city-local date; Meteostat daily data is local too.
   const yesterday = new Date(Date.now() - 86_400_000).toISOString().split('T')[0]
 
-  // Guard: a sentinel row in feedback marks "already validated this date"
-  const { data: sentinel } = await supabase
-    .from('feedback')
-    .select('id')
-    .eq('report_date', yesterday)
-    .eq('actual_cond', '__meteostat__')
-    .limit(1)
-
-  if (sentinel?.length) return { skipped: 'already validated', date: yesterday }
+  // Never the same day twice — claimed before any work (lib/weights.js claimDay)
+  if (!(await claimDay('__meteostat__', yesterday))) return { skipped: 'already validated', date: yesterday }
 
   // Fetch all of yesterday's stored forecasts, oldest first so "last row wins"
   // below really is the latest per API — every page: one request stops at 1000.
@@ -128,14 +122,6 @@ async function runMeteostatValidation() {
     validated++
   }
 
-  // Insert sentinel so this date isn't validated again (ages out naturally after 48 h)
-  await supabase.from('feedback').insert({
-    city: '__meteostat__',
-    actual_temp: 0,
-    actual_cond: '__meteostat__',
-    report_date: yesterday,
-    processed: true,
-  })
 
   return { validated, date: yesterday, results }
 }
@@ -159,6 +145,9 @@ export async function GET(request) {
     supabase.from('push_devices').delete().lt('last_seen', new Date(Date.now() - 90 * 86_400_000).toISOString()),
     supabase.from('hike_plans').delete().lt('date', new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10)),
     supabase.from('push_log').delete().lt('sent_at', new Date(Date.now() - 14 * 86_400_000).toISOString()),
+    // caches past their use: routes are looked up again after a week, Nominatim answers after 30 days
+    supabase.from('route_cache').delete().lt('fetched_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
+    supabase.from('nominatim_cache').delete().lt('fetched_at', new Date(Date.now() - NOMINATIM_DAYS * 86_400_000).toISOString()),
   ])
 
   let validation

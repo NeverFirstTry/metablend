@@ -83,6 +83,7 @@ export async function GET(req) {
         </div>
       </div>
     ),
-    { ...SIZE, headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` } },
+    // the card without weather (the forecast didn't answer in time) isn't kept
+    { ...SIZE, headers: { 'Cache-Control': now ? `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` : 'no-store' } },
   )
 }

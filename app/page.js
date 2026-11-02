@@ -21,7 +21,7 @@ import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { startCity } from '@/lib/app-client'
-import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad } from '@/lib/forecast-session'
+import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
@@ -107,6 +107,9 @@ const cToF = c => c * 9 / 5 + 32
 // shares one CDN copy.
 const cityKey = q => encodeURIComponent(q.trim().toLowerCase())
 const nearQuery = near => (near ? `&near=${near}` : '')
+// what a failed load says, in the page's language (the server's text is English)
+const loadError = (lang, status, q) =>
+  status === 404 ? fill(t(lang, 'cityNotFound'), { city: q }) : t(lang, status === 429 ? 'tooManyRequests' : 'outlookError')
 // Where each place was found (a located phone, a picked suggestion), by name,
 // kept on the phone: its refreshes, Recent and the app's next start open the
 // same town of that name (lib/geo.js). shortcut: widgets, shared links and
@@ -429,11 +432,11 @@ export default function Home() {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
+        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q) } : j))),
         fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
       ])
       if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
-      const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: nowRes.reason?.message ?? 'Network error' }
+      const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: loadError(asLang, 0, q) }
       if (json.error) throw new Error(json.error)
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
@@ -495,12 +498,14 @@ export default function Home() {
   async function retryOutlook() {
     if (!data) return
     setOutlookError(null)
+    // another city loaded meanwhile: this answer is stale (lib/forecast-session.js)
+    const load = currentLoad()
     try {
       const out = await fetch(`/api/outlook?city=${cityKey(data.city)}&lang=${lang}${nearQuery(nearOf(data.city))}`).then(r => r.json())
       if (out.error) throw new Error(out.error)
-      setOutlook(out)
+      if (isLatestLoad(load)) setOutlook(out)
     } catch (e) {
-      setOutlookError(e.message)
+      if (isLatestLoad(load)) setOutlookError(e.message)
     }
   }
 
@@ -537,11 +542,11 @@ export default function Home() {
       const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=${lang}`)
       const geo = await res.json()
       const name = geo.city || geo.locality || geo.principalSubdivision
-      if (!name) throw new Error(t(lang, 'locationNotDetected'))
+      if (!name) throw new Error('no place name')
       setCity(name)
       await loadForecast(name, { near: nearParam(pos.lat, pos.lon) })
-    } catch (e) {
-      setError(e.message)
+    } catch {
+      setError(t(lang, 'locationNotDetected')) // the reverse lookup failed or found no place
     } finally {
       setLocating(false)
     }
@@ -583,9 +588,10 @@ ${url}`)
     if (!q.trim()) return
     setCompareLoading(true)
     try {
-      const res = await fetch(`/api/forecast?city=${encodeURIComponent(q)}&lang=${lang}`)
-      const json = await res.json()
-      if (json.error) throw new Error(json.error)
+      // cityKey, like the main search: the same CDN copy, not a second fan-out
+      const res = await fetch(`/api/forecast?city=${cityKey(q)}&lang=${lang}`).catch(() => null)
+      const json = res && await res.json().catch(() => null)
+      if (!json || json.error) throw new Error(loadError(lang, res?.status ?? 0, q))
       setCompareData(json)
     } catch (e) {
       setError(e.message)

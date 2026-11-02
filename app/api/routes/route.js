@@ -23,7 +23,9 @@ export const GET = withErrorLog('routes', async (request) => {
   if (!peak) return noStore({ error: 'lat, lon and elev are required' }, 400)
   // only cache misses reach this point — CDN hits never invoke the function
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
-  const key = `${peak.lat.toFixed(3)},${peak.lon.toFixed(3)}`
+  // the summit height is part of the key: it becomes the route's last point,
+  // so one request with a wrong elev mustn't set it for everyone
+  const key = `${peak.lat.toFixed(3)},${peak.lon.toFixed(3)},${peak.elev}`
 
   // Routes without heights (the terrain model refused them) are served at once
   // without walking times — never the flat-land ones — and filled after the

@@ -43,7 +43,8 @@ async function getForecast(slug) {
 // if it fails, the page still renders the current consensus.
 async function getOutlook(slug) {
   try {
-    const res = await fetch(`${BASE}/api/outlook?city=${cityQuery(slug)}`, { next: { revalidate: 900 } })
+    // &lang=en like the forecast above: the same CDN copy the app's English visitors get
+    const res = await fetch(`${BASE}/api/outlook?city=${cityQuery(slug)}&lang=en`, { next: { revalidate: 900 } })
     if (!res.ok) return null
     const json = await res.json()
     return json.error ? null : json
@@ -76,7 +77,9 @@ export default async function CityWeather({ params }) {
   const name = data.city ?? displayName(city)
   const condition = heroCondition(data)
   const upSources = (data.sources ?? []).filter(s => !s.down)
+  // only sources that answered — stored weights also hold retired ones
   const topWeights = Object.entries(data.weights ?? {})
+    .filter(([id]) => upSources.some(s => s.apiId === id))
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([id, w]) => ({ id, name: upSources.find(s => s.apiId === id)?.displayName ?? id, pct: (w * 100).toFixed(1) }))

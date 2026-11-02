@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
-import { updateCityBias } from '@/lib/blend'
+import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { getRegion } from '@/lib/weather'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { parseFeedback, feedbackOriginProblem, FEEDBACK_LEARN_WINDOW_MS } from '@/lib/feedback'
@@ -95,7 +95,9 @@ export const POST = withErrorLog('feedback', async (request) => {
     forecasts.forEach(f => { latestPerApi[f.api_id] ??= f })
     const real = Object.values(latestPerApi).filter(f => f.api_id !== 'metablend')
     if (real.length) {
-      consensusTemp = real.reduce((s, f) => s + f.temp, 0) / real.length
+      // the consensus the reporter was shown (the last 3 hours); else the plain mean
+      consensusTemp = (await shownConsensus(city, new Date(Date.now() - 3 * 3600e3).toISOString()))
+        ?? real.reduce((s, f) => s + f.temp, 0) / real.length
 
       if (Math.abs(actualTemp - consensusTemp) > 20) {
         releaseRateLimit(ip, city)

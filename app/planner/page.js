@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
+import { useUnit } from '@/lib/useUnit'
+import { tempFormatter } from '@/lib/outlook/text'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
@@ -21,6 +23,7 @@ function comfortScore(m) {
 
 export default function Planner() {
   const lang = useLang()
+  const fmtTemp = tempFormatter(useUnit())
   const [city, setCity] = useState('')
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -119,8 +122,8 @@ export default function Planner() {
                   const rainH = ((m.avgRainDays ?? 0) / maxRain) * 100
                   const isBest = best.includes(m.month)
                   return (
-                    <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${m.avgTemp}°C · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
-                      <div className="text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? Math.round(m.avgTemp) + '°' : ''}</div>
+                    <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${fmtTemp(m.avgTemp)} · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
+                      <div className="text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? fmtTemp(m.avgTemp) : ''}</div>
                       <div className="w-full flex gap-px items-end h-full">
                         <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
                         <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
