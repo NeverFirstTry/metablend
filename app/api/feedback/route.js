@@ -4,28 +4,29 @@ import { applyDeltas } from '@/lib/weights'
 import { updateCityBias } from '@/lib/blend'
 import { getRegion } from '@/lib/weather'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
-import { parseFeedback, feedbackOriginProblem, learnsFromReport } from '@/lib/feedback'
-import { withErrorLog } from '@/lib/log'
+import { parseFeedback, feedbackOriginProblem, FEEDBACK_LEARN_WINDOW_MS } from '@/lib/feedback'
+import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
-// Split into check + mark so a report rejected by validation (deviation,
-// nighttime sun, …) doesn't burn the user's one-per-hour slot.
+// Claimed in the same step as the check, so reports sent at the same moment
+// can't all pass; released when validation rejects the report (deviation,
+// nighttime sun, …), which shouldn't burn the user's one-per-hour slot.
 const ipCache = new Map()
 const ONE_HOUR = 60 * 60 * 1000
 
-function isRateLimited(ip, city) {
-  const last = ipCache.get(`${ip}:${city.toLowerCase()}`)
-  return !!(last && Date.now() - last < ONE_HOUR)
-}
-function markRateLimit(ip, city) {
+function claimRateLimit(ip, city) {
+  const key = `${ip}:${city.toLowerCase()}`
+  const now = Date.now()
+  if (now - (ipCache.get(key) ?? 0) < ONE_HOUR) return false
   // occasionally sweep expired entries so the map doesn't grow unbounded
   if (ipCache.size > 1000) {
-    const now = Date.now()
     for (const [k, ts] of ipCache) if (now - ts >= ONE_HOUR) ipCache.delete(k)
   }
-  ipCache.set(`${ip}:${city.toLowerCase()}`, Date.now())
+  ipCache.set(key, now)
+  return true
 }
+const releaseRateLimit = (ip, city) => ipCache.delete(`${ip}:${city.toLowerCase()}`)
 
 // Only daytime-sun values (new i18n key + legacy German). "Clear"/"Klar" is a
 // nighttime answer, so it's allowed around the clock.
@@ -45,8 +46,8 @@ export const POST = withErrorLog('feedback', async (request) => {
   if (!parsed.ok) return Response.json({ error: parsed.error }, { status: parsed.status })
   const { city, actualTemp, actualCond, lat, lon } = parsed.value
 
-  // ── Rate limit (check only; marked after the report is accepted) ──────────
-  if (isRateLimited(ip, city)) {
+  // ── Rate limit (claimed now; released below if the report is rejected) ────
+  if (!claimRateLimit(ip, city)) {
     return Response.json(
       { error: 'You have already submitted feedback for this city in the last hour.' },
       { status: 429 }
@@ -57,6 +58,7 @@ export const POST = withErrorLog('feedback', async (request) => {
   // Judged by the city's clock (estimated from its lon), not the server's UTC
   // clock — otherwise e.g. Sydney can't report sun for most of its day.
   if (isNightAt(lon) && SUNNY_CONDITIONS.has(actualCond)) {
+    releaseRateLimit(ip, city)
     return Response.json(
       { error: 'Sunny conditions cannot be reported between 9 PM and 6 AM.' },
       { status: 422 }
@@ -96,6 +98,7 @@ export const POST = withErrorLog('feedback', async (request) => {
       consensusTemp = real.reduce((s, f) => s + f.temp, 0) / real.length
 
       if (Math.abs(actualTemp - consensusTemp) > 20) {
+        releaseRateLimit(ip, city)
         return Response.json(
           { error: `Temperature deviates more than 20°C from the current forecast consensus (${consensusTemp.toFixed(1)}°C).` },
           { status: 422 }
@@ -107,33 +110,31 @@ export const POST = withErrorLog('feedback', async (request) => {
   }
 
   // ── Save feedback ─────────────────────────────────────────────────────────
-  // lat/lon/accuracy may not exist yet (migration4) — retry without them so a
-  // missing column never blocks a submission.
-  const baseRow = {
+  const { error: insErr } = await supabase.from('feedback').insert({
     city,
     actual_temp: actualTemp,
     actual_cond: actualCond,
     report_date: today,
     processed: false,
-  }
-  const { error: insErr } = await supabase
-    .from('feedback')
-    .insert({ ...baseRow, lat: anchor?.lat ?? null, lon: anchor?.lon ?? null, accuracy })
-  if (insErr) await supabase.from('feedback').insert(baseRow)
+    lat: anchor?.lat ?? null,
+    lon: anchor?.lon ?? null,
+    accuracy,
+  })
+  if (insErr) await logError('feedback.insert', insErr, { city })
 
-  markRateLimit(ip, city)
+  if (!forecasts?.length) {
+    return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })
+  }
 
   // ── One lesson per city per window ────────────────────────────────────────
   // The report is saved (map, accuracy) either way; only the first one in a
-  // window moves the weights and the city's bias (lib/feedback.js).
-  const { data: lastLearned } = await supabase
-    .from('feedback')
-    .select('created_at')
-    .eq('city', city)
-    .eq('processed', true)
-    .order('created_at', { ascending: false })
-    .limit(1)
-  if (!learnsFromReport(lastLearned?.[0]?.created_at ?? null)) {
+  // window moves the weights and the city's bias. Checked and recorded in one
+  // database step (supabase/feedback-lessons.sql), so a burst learns once; if
+  // the claim fails, nothing is learned.
+  const { data: claimed, error: claimErr } = await supabase
+    .rpc('claim_feedback_lesson', { p_city: city, window_ms: FEEDBACK_LEARN_WINDOW_MS })
+  if (claimErr) await logError('feedback.claim', claimErr)
+  if (claimed !== true) {
     return Response.json({ message: 'Thank you! Feedback saved.' })
   }
 
@@ -141,10 +142,6 @@ export const POST = withErrorLog('feedback', async (request) => {
   // city's learned bias (lib/blend.js).
   if (consensusTemp != null) {
     await updateCityBias(city, anchor?.lat ?? lat, anchor?.lon ?? lon, region, actualTemp - consensusTemp)
-  }
-
-  if (!forecasts?.length) {
-    return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })
   }
 
   const latestPerApi = {}

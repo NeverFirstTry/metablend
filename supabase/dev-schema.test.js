@@ -32,10 +32,10 @@ test('dev-schema.sql — applies to a fresh Postgres, twice, with every table an
   await db.exec(sql)
   await db.exec(sql)
   const used = ['api_weights', 'forecasts', 'feedback', 'city_bias', 'consensus_history', 'api_stats', 'outlook_snapshots', 'outlook_weights',
-    'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'tester_signups', 'nominatim_cache', 'summits', 'towns']
+    'error_log', 'push_devices', 'push_log', 'hike_plans', 'route_cache', 'warnings', 'warning_feeds', 'tester_signups', 'nominatim_cache', 'summits', 'towns', 'feedback_lessons']
   for (const t of used) assert.ok((await db.query(`select to_regclass('public.${t}') as r`)).rows[0].r, t)
   for (const v of ['warning_feeds_pending', 'warning_feeds_behind']) assert.ok((await db.query(`select to_regclass('public.${v}') as r`)).rows[0].r, v)
-  for (const f of ['bump_api_stats', 'mark_outlook_verified', 'refresh_warning_feeds', 'trim_warning_feed']) {
+  for (const f of ['bump_api_stats', 'mark_outlook_verified', 'refresh_warning_feeds', 'trim_warning_feed', 'claim_feedback_lesson']) {
     assert.ok((await db.query(`select 1 from pg_proc where proname = '${f}'`)).rows.length, f)
   }
   assert.ok((await db.query("select 1 from information_schema.columns where table_name = 'hike_plans' and column_name = 'route'")).rows.length)

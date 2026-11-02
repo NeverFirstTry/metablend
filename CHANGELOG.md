@@ -52,6 +52,13 @@ All notable changes to MetaBlend. Format loosely follows
 - Route weather: switching the day or pace reuses the forecast fetched a
   moment ago (15 minutes) instead of downloading it again.
 
+### Fixed — 2026-11-02
+- A burst of community reports sent at the same moment can no longer steer
+  the blend: a city's weights and local bias learn from at most one report
+  per half hour, checked and recorded in one database step, and the
+  once-an-hour limit per person is claimed the moment it is checked. (Tested:
+  20 reports at once moved the weights once.)
+
 ### Changed — the site and app answer your finger like an iPhone app
 (nothing looks different at rest)
 - List rows (search results, More, the week's days, suggestions) light up
