@@ -8,7 +8,7 @@ import Footer from '../components/Footer'
 export const metadata = {
   title: 'Mountain Weather — Summit Forecasts for 200 Peaks',
   description:
-    'Summit weather for 200 mountains worldwide: the safe summit window, wind up top, freezing level ' +
+    'Summit weather for 200 mountains worldwide: the favourable summit window, wind up top, freezing level ' +
     'and thunderstorm risk for 7 days, blended from up to 9 weather models.',
   alternates: { canonical: '/mountains' },
 }

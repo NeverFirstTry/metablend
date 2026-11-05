@@ -100,7 +100,7 @@ Check on a device / emulator / simulator:
 - [ ] Settings → City: the home city and the recent cities are listed; pick another → it shows that city.
 - [ ] Two weather widgets with two different cities side by side.
 - [ ] Style: System → plain background in light and dark mode; Living sky → the app's sky.
-- [ ] "Next hike" with a hike planned for tomorrow → summit window (green) or "No safe window"; without a plan → "Plan a hike in the app".
+- [ ] "Next hike" with a hike planned for tomorrow → summit window (green) or "No favourable window"; without a plan → "Plan a hike in the app".
 - [ ] Tap a weather widget → the app opens on that city; tap the hike widget → that peak.
 - [ ] Airplane mode, wait for a refresh → the last data stays with its time.
 - [ ] App language German + °F → widgets follow after leaving the app.
@@ -112,7 +112,7 @@ Check on a device / emulator / simulator:
 New app build needed (the route screens ship with the website, Plan a hike on
 a route and the alert tap need the app).
 
-- [ ] Großglockner → Routes lists "Alter Kalser Weg 712" (there and back); opening it shows the map, the profile and a suggestion or "No safe start".
+- [ ] Großglockner → Routes lists "Alter Kalser Weg 712" (there and back); opening it shows the map, the profile and a suggestion or "No favourable start".
 - [ ] Pace Slow / Fast changes the walking time and the suggestion; another day re-checks.
 - [ ] Own start time (15-min steps) moves the stages; "Use the suggestion" goes back.
 - [ ] Hiking → Import GPX with a Komoot / Outdooractive / Strava file opens it and lists it under My routes; a file without elevations still shows a climb.

@@ -7,7 +7,7 @@ Předpověď
 
 Hory a turistika
 • Předpovědi pro vrchol jakékoli hory: vítr nahoře, nulová izoterma, riziko bouřek
-• Bezpečné okno na vrcholu
+• Příznivé okno na vrcholu
 • 200 vybraných vrcholů světa s obtížností SAC, nejbližší jako první
 • Značené trasy a import GPX s navrženým časem startu
 

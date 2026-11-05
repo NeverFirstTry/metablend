@@ -20,7 +20,7 @@ import LangPack from '../components/LangPack'
 
 export const metadata = {
   title: 'Mountain Weather & Summit Forecasts — MetaBlend App',
-  description: 'Summit forecasts for any peak: wind up top, freezing level, thunderstorm risk and the safe summit window. In the MetaBlend app.',
+  description: 'Summit forecasts for any peak: wind up top, freezing level, thunderstorm risk and the favourable summit window. In the MetaBlend app.',
   alternates: { canonical: '/hike' },
 }
 
