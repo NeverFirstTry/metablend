@@ -614,6 +614,9 @@ html:not([data-app]) .home :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg te
 html:not([data-app]) .home :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
 html:not([data-app]) .home :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
 html:not([data-app]) .home .bg-zinc-900.rounded-2xl { border-radius: 1rem; }
+html:not([data-app]) .home .bg-zinc-900 { box-shadow: none; }
+/* in the light theme the dots keep a pale edge, not the dark panel colour */
+:root[data-theme="light"] .home .home-spread .ring-zinc-900 { --tw-ring-color: rgb(255 255 255 / 0.7); }
 html:not([data-app]) .home :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
 html:not([data-app]) .home .bg-zinc-800\/60.px-4 { padding-inline: 0; }
 /* the search: fields without frames; the white button is the one solid thing */
@@ -631,7 +634,7 @@ html:not([data-app]) .home-spread > * { margin: 0; }
 html:not([data-app]) .home .home-toolbar button { background: none; }
 html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
 /* tabs as words, the active one underlined in gold */
-html:not([data-app]) .home [role="tablist"] { background: none; padding: 0; gap: 1.5rem; margin-top: 2rem; }
+html:not([data-app]) .home [role="tablist"] { background: transparent !important; border-color: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; padding: 0; gap: 1.5rem; margin-top: 2rem; }
 html:not([data-app]) .home [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
 html:not([data-app]) .home [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
 /* quiet motion: a warning stays still; the loader without its glow */
