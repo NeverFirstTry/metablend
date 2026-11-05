@@ -31,6 +31,7 @@ store release); only native changes need a new build.
 - [ ] "Near me" asks for location once and then sorts the popular peaks by distance; denying it changes nothing and doesn't crash.
 - [ ] Share on the forecast opens the native share sheet.
 - [ ] Android back button goes back; on the first screen it closes the app.
+- [ ] iPhone: a swipe from the left edge goes back; on the first screen it does nothing; dragging the hour strip or a map away from the edge still works.
 - [ ] More: switching °C/°F, dark/light and the language applies everywhere.
 - [ ] Airplane mode at launch shows the "No connection" screen; Retry loads the app once online.
 

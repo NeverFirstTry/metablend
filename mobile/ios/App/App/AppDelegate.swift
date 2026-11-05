@@ -1,6 +1,7 @@
 import UIKit
 import Capacitor
 import WidgetKit
+import WebKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -69,9 +70,11 @@ public class WidgetBridgePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
-// The app's web view controller with the in-app plugins registered.
+// The app's web view controller: in-app plugins registered, a swipe from the
+// left edge goes back.
 class MainViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
+        webView?.allowsBackForwardNavigationGestures = true
         bridge?.registerPluginInstance(WidgetBridgePlugin())
         bridge?.registerPluginInstance(AppIconPlugin())
         bridge?.registerPluginInstance(TextScalePlugin())

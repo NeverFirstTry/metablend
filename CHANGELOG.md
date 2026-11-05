@@ -9,6 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Impressum at `/impressum` in all 13 languages, linked in the footer and under More.
 - Disclaimer as the first section of the terms, linked from the hiking and aviation notes.
 - Privacy notice: controller, hosting and server logs, email contact, your rights.
+- iPhone: swipe from the left edge to go back (ships with the next iPhone build).
 
 ### Changed
 - Privacy notice: also names RainViewer, unpkg, Vercel Web Analytics, Apple and Google as notification carriers, and ImprovMX and Gmail for email; says which preferences reach the server as cookies, and that a rounded position is sent with "my location".
@@ -16,7 +17,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The 90-day clean-up of phones is described as it works: neither opened nor sent an alert.
 - The German privacy notice and terms address the reader as "Sie" throughout.
 - The Spanish, Italian, Dutch, Polish, Slovene, Chinese and Korean privacy notice and terms address the reader formally too, like their legal paragraphs.
-- The note on translated privacy notices now names German as the version that applies, not English.
+- Every translated privacy notice now opens with a note that the German version applies. Eight named English, four had no note.
 - The terms now exist in all 13 languages (they had 5). The blanket "not liable" sentence is gone: the new disclaimer limits the exclusion to what the law permits.
 
 ## 2026-11-01
