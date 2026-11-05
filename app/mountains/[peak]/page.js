@@ -105,7 +105,7 @@ export default async function MountainWeather({ params }) {
           {today && <p className="text-xl font-bold">{today.title}</p>}
           {today?.sub && <p className="text-sm text-zinc-400 mt-1">{today.sub}</p>}
           {tomorrow && <p className="text-sm text-zinc-300 mt-4">{tomorrow.title}{tomorrow.sub ? ` — ${tomorrow.sub}` : ''}</p>}
-          <p className="text-xs text-zinc-500 mt-4">{t('en', 'hikeDisclaimer')}</p>
+          <p className="text-xs text-zinc-500 mt-4">{t('en', 'hikeDisclaimer')} <Link href="/terms#disclaimer" className="underline hover:text-emerald-400">{t('en', 'legalDisclaimerLink')}</Link></p>
         </section>
 
         {avaDays.length > 0 && (

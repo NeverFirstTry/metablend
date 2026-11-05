@@ -154,7 +154,7 @@ export default async function AirportPage({ params }) {
 
         <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-200 text-xs mb-6 leading-relaxed">
           <strong>Not for flight planning.</strong> Supplementary information from public NOAA data —
-          always obtain an official preflight briefing.
+          always obtain an official preflight briefing. <Link href="/terms#disclaimer" className="underline">Full disclaimer</Link>
         </div>
 
         {alerts.length > 0 && (

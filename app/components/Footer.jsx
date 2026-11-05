@@ -32,6 +32,7 @@ export default function Footer({ lang = 'en', className = '' }) {
           <Link href="/aviation" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerAviation')}</Link>
           <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPrivacy')}</Link>
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
+          <Link href="/impressum" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerImpressum')}</Link>
         </div>
         <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
       </div>

@@ -35,7 +35,8 @@
     "axe-core": "^4.13.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "^6.0.3"
   },
   "allowScripts": {
     "sharp@0.34.5": true,

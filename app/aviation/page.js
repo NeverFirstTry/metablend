@@ -71,7 +71,7 @@ export default async function AviationHub() {
         <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-200 text-xs mb-8 leading-relaxed">
           <strong>Not for flight planning.</strong> This is supplementary situational awareness built on
           public NOAA data. Always obtain an official preflight briefing from your national aviation
-          weather provider before any flight.
+          weather provider before any flight. <Link href="/terms#disclaimer" className="underline">Full disclaimer</Link>
         </div>
 
         <div className="mb-10">

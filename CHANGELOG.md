@@ -3,6 +3,16 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-05
+
+### Added
+- Impressum at `/impressum` in all 13 languages, linked in the footer and under More.
+- Disclaimer as the first section of the terms, linked from the hiking and aviation notes.
+- Privacy notice: controller, hosting and server logs, email contact, your rights.
+
+### Changed
+- The terms now exist in all 13 languages (they had 5). The blanket "not liable" sentence is gone: the new disclaimer limits the exclusion to what the law permits.
+
 ## 2026-11-01
 
 ### Fixed — from a full code audit

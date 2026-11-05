@@ -15,7 +15,7 @@ import AppIconPicker from '../components/AppIconPicker'
 import FeedbackLink from '../components/FeedbackLink'
 import { isNative } from '@/lib/native'
 
-const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms']]
+const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms'], ['/impressum', 'footerImpressum']]
 const label = s => s.replace(/\s*→$/, '')
 
 
