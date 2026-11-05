@@ -15,6 +15,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Privacy notice: also names RainViewer, unpkg, Vercel Web Analytics, Apple and Google as notification carriers, and ImprovMX and Gmail for email; says which preferences reach the server as cookies, and that a rounded position is sent with "my location".
 - Privacy notice: states the data processing agreement with Vercel.
 - The 90-day clean-up of phones is described as it works: neither opened nor sent an alert.
+- Under the hood, nothing you can see: the blend math now has its own tested file (`lib/consensus.js`), and the duplicate distance formula and no-store helper are one each.
 - The German privacy notice and terms address the reader as "Sie" throughout.
 - The Spanish, Italian, Dutch, Polish, Slovene, Chinese and Korean privacy notice and terms address the reader formally too, like their legal paragraphs.
 - Every translated privacy notice now opens with a note that the German version applies. Eight named English, four had no note.

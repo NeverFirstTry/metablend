@@ -8,6 +8,7 @@ import { places } from '@/lib/places/server'
 import { ownSearch, ownAnswers } from '@/lib/places/search'
 import { resolveHeights } from '@/lib/hike/heights'
 import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOsmHeights, fetchElevations, fetchSummitElevations, fetchGeocodingRaw } from '@/lib/hike/sources'
+import { noStore } from '@/lib/no-store'
 
 // Worldwide peak & hut search, from our own summits, huts and towns
 // (supabase/places.sql) — as you type, too: featured peaks first, then
@@ -25,7 +26,6 @@ import { fetchNominatimSearchRaw, fetchNominatimNearRaw, fetchPhotonRaw, fetchOs
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 // a sent search can ask Nominatim three times (name, summits, huts around)
 const sentLimiter = createRateLimiter({ max: 10, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 const AROUND_KM = 25
 
 export const GET = withErrorLog('peaks', async (request) => {

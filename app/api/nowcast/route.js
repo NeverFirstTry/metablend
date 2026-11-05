@@ -3,6 +3,7 @@ import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { parseNowcastQuery, nowcastUrl, blendSteps } from '@/lib/nowcast'
+import { noStore } from '@/lib/no-store'
 
 // Rain in the next 2 hours for a place: the blended 15-minute steps
 // (lib/nowcast.js). Consumers summarize against their own clock, so the
@@ -10,7 +11,6 @@ import { parseNowcastQuery, nowcastUrl, blendSteps } from '@/lib/nowcast'
 const TTL = 300
 const CACHE = new Map()
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 }) // cache misses per minute, per IP
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 const cdn = ttl => ({ 'Cache-Control': `public, s-maxage=${ttl}, stale-while-revalidate=${TTL}` })
 
 export const GET = withErrorLog('nowcast', async (request) => {

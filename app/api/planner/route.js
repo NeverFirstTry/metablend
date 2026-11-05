@@ -2,6 +2,7 @@ import { geocodeCity } from '@/lib/weather'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
+import { noStore } from '@/lib/no-store'
 
 // Per-month climate normals (avg temp + rainy days) from ~10 years of ERA5 data.
 // Climate doesn't change within a day: the CDN keeps each city's answer for a
@@ -9,7 +10,6 @@ import { createRateLimiter } from '@/lib/ratelimit'
 // request counts as many calls against Open-Meteo's quota.
 const DAY = 86400
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('planner', async (request) => {
   const city = (new URL(request.url).searchParams.get('city') ?? '').trim()

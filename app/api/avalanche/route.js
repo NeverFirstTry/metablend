@@ -4,6 +4,7 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import regionData from '@/lib/avalanche/regions.json'
 import { avalancheLevel, bulletinDates } from '@/lib/avalanche/avalanche'
 import { ratingsFor } from '@/lib/avalanche/fetch'
+import { noStore } from '@/lib/no-store'
 
 // GET /api/avalanche?lat=47.07&lon=12.69 → { region, today, tomorrow, dates }:
 // the official avalanche danger level (1–5) of the spot's avalanche region
@@ -11,7 +12,6 @@ import { ratingsFor } from '@/lib/avalanche/fetch'
 // there, out of season, or tomorrow's bulletin isn't out yet; they come
 // around 17:00). The day's ratings file is cached 30 minutes, the answer too.
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('avalanche', async (request) => {
   const sp = new URL(request.url).searchParams

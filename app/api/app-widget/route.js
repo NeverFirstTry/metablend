@@ -3,6 +3,7 @@ import { clientIp, selfBase } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { hikeApiPath } from '@/lib/hike/params'
 import { parseAppWidgetQuery, weatherPayload, hikePayload } from '@/lib/app-widget'
+import { noStore } from '@/lib/no-store'
 
 // The home-screen widgets' feed: the forecast, outlook and summit forecast
 // the app shows, read through the public domain (the CDN copies — 1 or
@@ -12,7 +13,6 @@ import { parseAppWidgetQuery, weatherPayload, hikePayload } from '@/lib/app-widg
 
 const TTL = 900
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 // the public domain, not the deployment URL (deployment protection 401s
 // server-to-server fetches) — same rule as /api/og/city
 const baseFor = selfBase

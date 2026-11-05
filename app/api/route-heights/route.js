@@ -4,13 +4,13 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { fetchElevations } from '@/lib/hike/sources'
 import { parseHeightsBody } from '@/lib/route/validate'
 import { fillHeights, hasHeights } from '@/lib/route/heights'
+import { noStore } from '@/lib/no-store'
 
 // A saved route's missing heights from the terrain model — the app fills its
 // older saved routes once (lib/route-store.js repairHeights).
 // POST /api/route-heights { points: [[lat, lon, ele|null]…] }  →  { points, heights }
 
 const limiter = createRateLimiter({ max: 10, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const POST = withErrorLog('route-heights', async (request) => {
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)

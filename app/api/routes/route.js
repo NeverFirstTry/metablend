@@ -7,6 +7,7 @@ import { parsePeakQuery } from '@/lib/hike/params'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
 import { findRoutes, healRoutes, withoutGuesses, replacesCache } from '@/lib/route/find'
+import { noStore } from '@/lib/no-store'
 
 // The marked routes up a peak (OpenStreetMap). One OSM lookup per peak a
 // week (route_cache), plus a day on the CDN; an OSM outage serves the stale
@@ -15,7 +16,6 @@ import { findRoutes, healRoutes, withoutGuesses, replacesCache } from '@/lib/rou
 
 const WEEK = 7 * 86400e3
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 const ok = (routes, fresh = 86400) => Response.json({ routes }, { headers: { 'Cache-Control': `public, s-maxage=${fresh}, stale-while-revalidate=${fresh === 86400 ? 604800 : fresh}` } })
 
 export const GET = withErrorLog('routes', async (request) => {

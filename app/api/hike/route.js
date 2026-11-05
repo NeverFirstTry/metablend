@@ -7,13 +7,13 @@ import { parsePeakQuery } from '@/lib/hike/params'
 import { fetchSummitRaw } from '@/lib/hike/sources'
 import { buildHike } from '@/lib/hike/build'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
+import { noStore } from '@/lib/no-store'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
 // height. Language-neutral and CDN-cached per peak for 30 minutes.
 
 const TTL = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('hike', async (request) => {
   const peak = parsePeakQuery(new URL(request.url).searchParams)

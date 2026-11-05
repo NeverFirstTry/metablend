@@ -10,6 +10,7 @@ import { buildOutlook } from '@/lib/outlook/build'
 import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { saveSnapshots } from '@/lib/outlook/snapshots'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
+import { noStore } from '@/lib/no-store'
 
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
@@ -17,7 +18,6 @@ import { lastUpstreamFailure } from '@/lib/outlook/http'
 
 const TTL = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('outlook', async (request) => {
   const sp = new URL(request.url).searchParams

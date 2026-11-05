@@ -7,13 +7,13 @@ import regionData from '@/lib/warnings/regions.json'
 import { warningsIn, warningsAtPoint } from '@/lib/warnings/store'
 import { lookupWarnings } from '@/lib/warnings/lookup'
 import { sortWarnings, warningText } from '@/lib/warnings/text'
+import { noStore } from '@/lib/no-store'
 
 // GET /api/warnings?lat=48.21&lon=16.37&lang=de → the official warnings at
 // that point, most serious first. covered: false outside MeteoAlarm's
 // regions (the page then shows nothing). CDN-cached 5 minutes per URL —
 // the page rounds the position to ~1 km.
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('warnings', async (request) => {
   const sp = new URL(request.url).searchParams

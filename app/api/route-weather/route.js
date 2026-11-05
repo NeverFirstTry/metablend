@@ -7,12 +7,12 @@ import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
 import { parseRouteBody } from '@/lib/route/validate'
 import { routeWeather } from '@/lib/route/weather'
+import { noStore } from '@/lib/no-store'
 
 // Weather along a route, walking times and the suggested start.
 // POST /api/route-weather { points: [[lat, lon, ele|null]…], date, pace?, start?, roundTrip? }
 
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const POST = withErrorLog('route-weather', async (request) => {
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)

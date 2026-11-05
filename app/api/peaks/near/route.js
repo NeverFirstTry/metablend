@@ -7,6 +7,7 @@ import { resolveHeights, withNotability } from '@/lib/hike/heights'
 import { fetchNominatimNearRaw, fetchPhotonNearRaw, fetchOsmTags, fetchSummitElevations as demEle } from '@/lib/hike/sources'
 import { nearCell, uniqueById } from '@/lib/hike/near'
 import { places } from '@/lib/places/server'
+import { noStore } from '@/lib/no-store'
 
 // GET /api/peaks/near?lat=46.85&lon=12.75 → the summits around a spot for the
 // Hiking screen's "Near you": named summits with a height within 50 km, with
@@ -19,7 +20,6 @@ import { places } from '@/lib/places/server'
 // fallback's for 5 minutes, so ours is back as soon as it answers again.
 
 const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
-const noStore = (body, status) => Response.json(body, { status, headers: { 'Cache-Control': 'no-store' } })
 
 export const GET = withErrorLog('peaks.near', async (request) => {
   const sp = new URL(request.url).searchParams
