@@ -19,6 +19,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Disclaimer: new liability paragraph in all 13 languages. The exclusion covers slight negligence; liability exists only under the statutory provisions for intent, gross negligence, and culpable harm to life, body or health.
 - The terms now open with the same note as the privacy notice: in every translation, the German version applies.
 - Wording: a summit window, start time or day is now "favourable", not "safe", in the app, push alerts, widgets, store listings and page descriptions, in all 13 languages. Warnings keep their words. The full list is in `docs/wording-audit-2026-11.md`.
+- For contributors: a project skill at `.claude/skills/metablend/SKILL.md` with the ground rules, release steps, places refresh and legal pages.
 - The German privacy notice and terms address the reader as "Sie" throughout.
 - The Spanish, Italian, Dutch, Polish, Slovene, Chinese and Korean privacy notice and terms address the reader formally too, like their legal paragraphs.
 - Every translated privacy notice now opens with a note that the German version applies. Eight named English, four had no note.
