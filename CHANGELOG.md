@@ -15,6 +15,8 @@ All notable changes to MetaBlend. Format loosely follows
 - Privacy notice: states the data processing agreement with Vercel.
 - The 90-day clean-up of phones is described as it works: neither opened nor sent an alert.
 - The German privacy notice and terms address the reader as "Sie" throughout.
+- The Spanish, Italian, Dutch, Polish, Slovene, Chinese and Korean privacy notice and terms address the reader formally too, like their legal paragraphs.
+- The note on translated privacy notices now names German as the version that applies, not English.
 - The terms now exist in all 13 languages (they had 5). The blanket "not liable" sentence is gone: the new disclaimer limits the exclusion to what the law permits.
 
 ## 2026-11-01

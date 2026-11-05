@@ -92,15 +92,15 @@ const CONTENT = {
     t1: 'Términos', t2: '&Derechos',
     sections: [
       { title: 'Beta — sin garantía', body: <>MetaBlend se ofrece <strong>«tal cual»</strong> y está en desarrollo activo. No garantizamos disponibilidad ni idoneidad para ningún fin.</> },
-      { title: 'No apto para usos críticos de seguridad', body: <>No confíes en MetaBlend para decisiones donde la precisión meteorológica afecte a la seguridad — aviación, navegación, fenómenos severos, medicina o similares. Consulta siempre un servicio meteorológico oficial. Las páginas de Aviación (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) son solo información complementaria — no las uses nunca para planificación de vuelos ni navegación; obtén siempre un briefing prevuelo oficial.</> },
-      { title: 'Uso aceptable', body: <>Por favor, no abuses del servicio: nada de scraping automatizado, ni intentos de sobrecargar las API, ni feedback deliberadamente falso para distorsionar las clasificaciones de precisión.</> },
+      { title: 'No apto para usos críticos de seguridad', body: <>No confíe en MetaBlend para decisiones donde la precisión meteorológica afecte a la seguridad — aviación, navegación, fenómenos severos, medicina o similares. Consulte siempre un servicio meteorológico oficial. Las páginas de Aviación (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) son solo información complementaria — no las use nunca para planificación de vuelos ni navegación; obtenga siempre un briefing prevuelo oficial.</> },
+      { title: 'Uso aceptable', body: <>Por favor, no abuse del servicio: nada de scraping automatizado, ni intentos de sobrecargar las API, ni feedback deliberadamente falso para distorsionar las clasificaciones de precisión.</> },
       { title: 'Derechos de autor', body: <>© {new Date().getFullYear()} MetaBlend. Todos los derechos reservados. El código fuente se publica en <A href={REPO}>GitHub</A> solo por transparencia; esto no concede licencia alguna para copiarlo, modificarlo o redistribuirlo. El nombre y el diseño de MetaBlend son propiedad de su autor.</> },
       { title: 'Fuentes de datos y atribución', body: <>
         <p className="mb-2">Los datos meteorológicos y cartográficos los proporcionan terceros bajo sus propias condiciones; crédito a:</p>
         <AttributionList />
         <p className="mt-2 text-zinc-400">Los datos meteorológicos siguen siendo propiedad de sus respectivos proveedores y se usan bajo sus licencias.</p>
       </> },
-      { title: 'Cambios', body: <>Estos términos pueden cambiar a medida que la app evoluciona. La fecha de «última actualización» de arriba refleja la versión vigente. ¿Preguntas? Abre una incidencia en <A href={ISSUES}>GitHub</A>.</> },
+      { title: 'Cambios', body: <>Estos términos pueden cambiar a medida que la app evoluciona. La fecha de «última actualización» de arriba refleja la versión vigente. ¿Preguntas? Abra una incidencia en <A href={ISSUES}>GitHub</A>.</> },
     ],
   },
 
@@ -109,15 +109,15 @@ const CONTENT = {
     t1: 'Termini', t2: '&Copyright',
     sections: [
       { title: 'Beta — nessuna garanzia', body: <>MetaBlend è fornito <strong>«così com’è»</strong> ed è in sviluppo attivo. Non garantiamo disponibilità o idoneità ad alcuno scopo.</> },
-      { title: 'Non per usi critici per la sicurezza', body: <>Non affidarti a MetaBlend per decisioni in cui la precisione meteo riguarda la sicurezza — aviazione, navigazione, eventi severi, ambito medico o simili. Consulta sempre un servizio meteorologico ufficiale. Le pagine Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sono solo informazioni supplementari — non usarle mai per la pianificazione dei voli né per la navigazione; ottieni sempre un briefing pre-volo ufficiale.</> },
-      { title: 'Uso accettabile', body: <>Per favore non abusare del servizio: niente scraping automatizzato, niente tentativi di sovraccaricare le API e niente feedback deliberatamente falso per alterare le classifiche di precisione.</> },
+      { title: 'Non per usi critici per la sicurezza', body: <>Non si affidi a MetaBlend per decisioni in cui la precisione meteo riguarda la sicurezza — aviazione, navigazione, eventi severi, ambito medico o simili. Consulti sempre un servizio meteorologico ufficiale. Le pagine Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sono solo informazioni supplementari — non le usi mai per la pianificazione dei voli né per la navigazione; ottenga sempre un briefing pre-volo ufficiale.</> },
+      { title: 'Uso accettabile', body: <>La preghiamo di non abusare del servizio: niente scraping automatizzato, niente tentativi di sovraccaricare le API e niente feedback deliberatamente falso per alterare le classifiche di precisione.</> },
       { title: 'Copyright', body: <>© {new Date().getFullYear()} MetaBlend. Tutti i diritti riservati. Il codice sorgente è pubblicato su <A href={REPO}>GitHub</A> solo per trasparenza; ciò non concede alcuna licenza di copia, modifica o ridistribuzione. Il nome e il design di MetaBlend sono proprietà del loro autore.</> },
       { title: 'Fonti dei dati e attribuzione', body: <>
         <p className="mb-2">I dati meteo e cartografici sono forniti da terze parti secondo le loro condizioni; si ringraziano:</p>
         <AttributionList />
         <p className="mt-2 text-zinc-400">I dati meteo restano di proprietà dei rispettivi fornitori e sono usati secondo le loro licenze.</p>
       </> },
-      { title: 'Modifiche', body: <>Questi termini possono cambiare con l’evolversi dell’app. La data di «ultimo aggiornamento» in alto riflette la versione corrente. Domande? Apri una issue su <A href={ISSUES}>GitHub</A>.</> },
+      { title: 'Modifiche', body: <>Questi termini possono cambiare con l’evolversi dell’app. La data di «ultimo aggiornamento» in alto riflette la versione corrente. Domande? Apra una issue su <A href={ISSUES}>GitHub</A>.</> },
     ],
   },
 
@@ -127,7 +127,7 @@ const CONTENT = {
     sections: [
       { title: 'Beta — geen garantie', body: <>MetaBlend wordt <strong>„zoals het is”</strong> aangeboden en is in actieve ontwikkeling. Wij geven geen garantie voor beschikbaarheid of geschiktheid voor enig doel.</> },
       { title: 'Niet voor veiligheidskritisch gebruik', body: <>Vertrouw niet op MetaBlend voor beslissingen waarbij de nauwkeurigheid van het weer van belang is voor de veiligheid — luchtvaart, scheepvaart, zwaar weer, medisch of vergelijkbaar. Raadpleeg altijd een officiële meteorologische dienst. De Aviation-pagina’s (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) zijn uitsluitend aanvullende informatie — gebruik ze nooit voor vluchtplanning of navigatie; vraag altijd een officiële preflight-briefing aan.</> },
-      { title: 'Aanvaardbaar gebruik', body: <>Misbruik de dienst alsjeblieft niet: geen geautomatiseerd scrapen, geen pogingen om de API’s te overbelasten en geen opzettelijk onjuiste feedback om de nauwkeurigheidsranglijsten te beïnvloeden.</> },
+      { title: 'Aanvaardbaar gebruik', body: <>Misbruik de dienst alstublieft niet: geen geautomatiseerd scrapen, geen pogingen om de API’s te overbelasten en geen opzettelijk onjuiste feedback om de nauwkeurigheidsranglijsten te beïnvloeden.</> },
       { title: 'Auteursrecht', body: <>© {new Date().getFullYear()} MetaBlend. Alle rechten voorbehouden. De broncode is op <A href={REPO}>GitHub</A> gepubliceerd, uitsluitend voor transparantie; dit verleent geen licentie om deze te kopiëren, te wijzigen of te verspreiden. De naam en het ontwerp van MetaBlend zijn eigendom van hun auteur.</> },
       { title: 'Gegevensbronnen en vermelding', body: <>
         <p className="mb-2">Weer- en kaartgegevens worden door derden geleverd onder hun eigen voorwaarden; met dank aan:</p>
@@ -143,7 +143,7 @@ const CONTENT = {
     t1: 'Warunki', t2: '&Prawa autorskie',
     sections: [
       { title: 'Beta — brak gwarancji', body: <>MetaBlend jest udostępniany <strong>„w stanie, w jakim jest”</strong> i jest w aktywnym rozwoju. Nie gwarantujemy dostępności ani przydatności do jakiegokolwiek celu.</> },
-      { title: 'Nie do zastosowań krytycznych dla bezpieczeństwa', body: <>Nie polegaj na MetaBlend przy decyzjach, w których dokładność pogody ma znaczenie dla bezpieczeństwa — lotnictwo, żegluga, groźne zjawiska, medycyna lub podobne. Zawsze korzystaj z oficjalnej służby meteorologicznej. Strony Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) to wyłącznie informacje uzupełniające — nigdy nie używaj ich do planowania lotów ani nawigacji; zawsze uzyskaj oficjalny briefing przedlotowy.</> },
+      { title: 'Nie do zastosowań krytycznych dla bezpieczeństwa', body: <>Nie należy polegać na MetaBlend przy decyzjach, w których dokładność pogody ma znaczenie dla bezpieczeństwa — lotnictwo, żegluga, groźne zjawiska, medycyna lub podobne. Należy zawsze korzystać z oficjalnej służby meteorologicznej. Strony Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) to wyłącznie informacje uzupełniające — nigdy nie należy ich używać do planowania lotów ani nawigacji; należy zawsze uzyskać oficjalny briefing przedlotowy.</> },
       { title: 'Dopuszczalne użycie', body: <>Prosimy nie nadużywać usługi: żadnego automatycznego scrapingu, prób przeciążania API ani celowo fałszywych zgłoszeń zniekształcających rankingi dokładności.</> },
       { title: 'Prawa autorskie', body: <>© {new Date().getFullYear()} MetaBlend. Wszelkie prawa zastrzeżone. Kod źródłowy jest opublikowany na <A href={REPO}>GitHub</A> wyłącznie dla przejrzystości; nie daje to żadnej licencji na jego kopiowanie, modyfikowanie ani rozpowszechnianie. Nazwa i projekt MetaBlend są własnością ich autora.</> },
       { title: 'Źródła danych i atrybucja', body: <>
@@ -151,7 +151,7 @@ const CONTENT = {
         <AttributionList />
         <p className="mt-2 text-zinc-400">Dane pogodowe pozostają własnością ich dostawców i są używane na podstawie ich licencji.</p>
       </> },
-      { title: 'Zmiany', body: <>Te warunki mogą się zmieniać wraz z rozwojem aplikacji. Data „ostatniej aktualizacji” powyżej wskazuje aktualną wersję. Pytania? Zgłoś sprawę na <A href={ISSUES}>GitHub</A>.</> },
+      { title: 'Zmiany', body: <>Te warunki mogą się zmieniać wraz z rozwojem aplikacji. Data „ostatniej aktualizacji” powyżej wskazuje aktualną wersję. Pytania? Prosimy zgłosić sprawę na <A href={ISSUES}>GitHub</A>.</> },
     ],
   },
 
@@ -177,15 +177,15 @@ const CONTENT = {
     t1: 'Pogoji', t2: '&Avtorske pravice',
     sections: [
       { title: 'Beta — brez jamstva', body: <>MetaBlend je na voljo <strong>»tak, kot je«</strong> in je v aktivnem razvoju. Ne jamčimo za razpoložljivost ali primernost za kakršen koli namen.</> },
-      { title: 'Ni za varnostno kritično uporabo', body: <>Ne zanašaj se na MetaBlend pri odločitvah, pri katerih je natančnost vremena pomembna za varnost — letalstvo, plovba, nevarni pojavi, medicina ali podobno. Vedno se posvetuj z uradno meteorološko službo. Strani Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) so le dopolnilne informacije — nikoli jih ne uporabljaj za načrtovanje letov ali navigacijo; vedno pridobi uradni predpoletni brifing.</> },
-      { title: 'Sprejemljiva uporaba', body: <>Prosimo, ne zlorabljaj storitve: brez samodejnega zajemanja podatkov, brez poskusov preobremenitve API-jev in brez namerno lažnih odzivov, ki bi popačili lestvice natančnosti.</> },
+      { title: 'Ni za varnostno kritično uporabo', body: <>Ne zanašajte se na MetaBlend pri odločitvah, pri katerih je natančnost vremena pomembna za varnost — letalstvo, plovba, nevarni pojavi, medicina ali podobno. Vedno se posvetujte z uradno meteorološko službo. Strani Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) so le dopolnilne informacije — nikoli jih ne uporabljajte za načrtovanje letov ali navigacijo; vedno pridobite uradni predpoletni brifing.</> },
+      { title: 'Sprejemljiva uporaba', body: <>Prosimo, ne zlorabljajte storitve: brez samodejnega zajemanja podatkov, brez poskusov preobremenitve API-jev in brez namerno lažnih odzivov, ki bi popačili lestvice natančnosti.</> },
       { title: 'Avtorske pravice', body: <>© {new Date().getFullYear()} MetaBlend. Vse pravice pridržane. Izvorna koda je na <A href={REPO}>GitHub</A> objavljena samo zaradi preglednosti; to ne daje nobene licence za kopiranje, spreminjanje ali razširjanje. Ime in oblikovanje MetaBlenda sta last njunega avtorja.</> },
       { title: 'Viri podatkov in navedba avtorstva', body: <>
         <p className="mb-2">Vremenske in kartografske podatke zagotavljajo tretje osebe pod svojimi pogoji; zahvala gre:</p>
         <AttributionList />
         <p className="mt-2 text-zinc-400">Vremenski podatki ostajajo last njihovih ponudnikov in se uporabljajo pod njihovimi licencami.</p>
       </> },
-      { title: 'Spremembe', body: <>Ti pogoji se lahko spremenijo z razvojem aplikacije. Datum »zadnja posodobitev« zgoraj ustreza trenutni različici. Vprašanja? Odpri zadevo na <A href={ISSUES}>GitHub</A>.</> },
+      { title: 'Spremembe', body: <>Ti pogoji se lahko spremenijo z razvojem aplikacije. Datum »zadnja posodobitev« zgoraj ustreza trenutni različici. Vprašanja? Odprite zadevo na <A href={ISSUES}>GitHub</A>.</> },
     ],
   },
 
