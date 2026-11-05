@@ -5,6 +5,7 @@ import { ChevronDown, Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } fr
 import { t, translateCondition } from '@/lib/i18n'
 import { MetricCard } from '../ui'
 import { conditionIcon, heroCondition } from '@/lib/conditions'
+import Glyph from '../Glyph'
 
 const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
 const cloudColor = v => (v == null ? MUTED : v < 30 ? GREEN : v < 70 ? YELLOW : RED)
@@ -35,7 +36,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
           <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
             {condition && (
               <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
-                <span aria-hidden>{conditionIcon(condition, data.lon, dark)}</span>
+                <span aria-hidden><Glyph emoji={conditionIcon(condition, data.lon, dark)} /></span>
                 <span className="truncate">{translateCondition(lang, condition)}</span>
               </span>
             )}
@@ -44,7 +45,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
             )}
             <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
               <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
-              {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · 🌧 {c.rainPct}%</span>}
+              {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
             </span>
             {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
           </span>

@@ -6,6 +6,7 @@ import { headlineText, headlineTone } from '@/lib/outlook/text'
 import { todayHours } from '@/lib/outlook/headlines'
 import WarningsCard from './WarningsCard'
 import { MetricCard, SectionTitle, Fold } from '../ui'
+import Glyph from '../Glyph'
 import RainRadar from '../RainRadar'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
@@ -43,7 +44,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
           <MetricCard
             icon={Sun}
             label={t(lang, 'bestTimeOut')}
-            value={`${best.icon ?? ''} ${best.t.slice(11, 16)}`}
+            value={<><Glyph emoji={best.icon} size={22} /> {best.t.slice(11, 16)}</>}
             sub={`${fmt.fmtTemp(best.temp)} · ${best.rainPct ?? '–'}%`}
             color="var(--ok)"
           />

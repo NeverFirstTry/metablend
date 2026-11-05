@@ -602,3 +602,40 @@ button, a, summary, h1, h2, h3 { overflow-wrap: break-word; }
 .scroll-x[data-dragging] { cursor: grabbing; user-select: none; }
 .scroll-track { background: color-mix(in srgb, var(--muted) 28%, transparent); }
 .scroll-thumb { background: var(--muted); }
+
+/* ── The website's home page ─────────────────────────────────────────────
+   Scoped to .home outside the app, so the in-app Forecast tab keeps its look.
+   Type: 12, 14, 16 and 24 px plus the big numeral. Spacing on an 8 px grid.
+   One card: a tint on the sky with no border; nothing inside it is a card. */
+html:not([data-app]) .home-col { max-width: 64rem; }
+html:not([data-app]) .home :is(h1, h2, .text-2xl, .text-3xl, .text-4xl, .sm\:text-2xl, .sm\:text-3xl, .sm\:text-4xl) { font-size: 1.5rem; line-height: 2rem; }
+html:not([data-app]) .home :is(.text-base, .text-lg, .text-xl, .sm\:text-base, .sm\:text-lg, .sm\:text-xl) { font-size: 1rem; line-height: 1.5rem; }
+html:not([data-app]) .home :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg text) { font-size: 0.75rem; }
+html:not([data-app]) .home :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
+html:not([data-app]) .home :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
+html:not([data-app]) .home .bg-zinc-900.rounded-2xl { border-radius: 1rem; }
+html:not([data-app]) .home :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
+html:not([data-app]) .home .bg-zinc-800\/60.px-4 { padding-inline: 0; }
+/* the search: fields without frames; the white button is the one solid thing */
+html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
+/* the answer in words, straight on the sky */
+html:not([data-app]) .home .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
+html:not([data-app]) .home .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
+/* the numeral beside every source as a dot */
+html:not([data-app]) .home-hero { display: grid; gap: 2rem; }
+html:not([data-app]) .home-spread { order: 2; min-width: 0; }
+html:not([data-app]) .home-spread > * { margin: 0; }
+@media (min-width: 64rem) {
+  html:not([data-app]) .home-hero { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 3rem; align-items: end; }
+}
+html:not([data-app]) .home .home-toolbar button { background: none; }
+html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
+/* tabs as words, the active one underlined in gold */
+html:not([data-app]) .home [role="tablist"] { background: none; padding: 0; gap: 1.5rem; margin-top: 2rem; }
+html:not([data-app]) .home [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+html:not([data-app]) .home [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+/* quiet motion: a warning stays still; the loader without its glow */
+html:not([data-app]) .home-warning { animation: none; }
+html:not([data-app]) .home .mb-loader .glow { display: none; }
+.home-bar { background: var(--muted); opacity: 0.6; }
+.home-bar-lead { background: var(--accent); }

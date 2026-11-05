@@ -16,7 +16,7 @@ export default function Headline({ text, tone = 'neutral', onClick = null }) {
   return (
     // keyed by the answer: a new answer (another tab, another city) arrives with the entrance again
     <Box key={text.title} type={onClick ? 'button' : undefined} onClick={onClick ?? undefined}
-      className={`mb-rise-3 block w-full text-left rounded-2xl border px-5 py-4 ${t.box}${onClick ? ' press' : ''}`}>
+      className={`home-headline mb-rise-3 block w-full text-left rounded-2xl border px-5 py-4 ${t.box}${onClick ? ' press' : ''}`}>
       <span className="block text-xl sm:text-2xl font-semibold leading-snug tracking-tight" style={{ color: t.color }}>{text.title}</span>
       {text.sub && (
         <span className="flex items-center gap-1 text-zinc-400 text-sm mt-1.5">

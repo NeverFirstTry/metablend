@@ -10,16 +10,7 @@ import { useLang } from '@/lib/useLang'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
-
-const REGION_KEYS = {
-  global:        'regionGlobal',
-  europe:        'regionEurope',
-  north_america: 'regionNorthAmerica',
-  south_america: 'regionSouthAmerica',
-  asia:          'regionAsia',
-  africa:        'regionAfrica',
-  oceania:       'regionOceania',
-}
+import { REGION_KEYS } from '@/lib/trusted'
 
 function name(id, fallback) {
   const n = sourceName(id)

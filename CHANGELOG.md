@@ -10,6 +10,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-05
 
+### Changed — the website's home page (preview branch)
+- The home page opens on a real forecast: your last city, or Lienz on a first visit. The explanation sits below it, with the sources trusted most in that region right now.
+- A concrete line replaces the tagline; drawn icons replace emoji; the feature grid, sparkle, banner and badge are gone, with one quiet beta note left. Left-aligned, one card style, an 8 px grid. The app's Forecast tab is unchanged.
+
+
 ### Added
 - Impressum at `/impressum` in all 13 languages, linked in the footer and under More.
 - Disclaimer as the first section of the terms, linked from the hiking and aviation notes.

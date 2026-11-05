@@ -6,9 +6,9 @@ import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
-  Trophy, Map as MapIcon, CalendarDays, AlertTriangle, WifiOff, Loader2,
+  AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
-  Sparkles, Plane, MountainSnow, Smartphone, ChevronDown,
+  Sparkles, ChevronDown,
 } from 'lucide-react'
 import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -26,7 +26,6 @@ import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
-import BetaBanner from './components/BetaBanner'
 import Footer from './components/Footer'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
@@ -39,6 +38,8 @@ import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
+import SourceSpread from './components/SourceSpread'
+import HowItWorks from './components/HowItWorks'
 import { Countdown, DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
@@ -358,6 +359,12 @@ export default function Home() {
     setOutlook(null)
     setOutlookError(null)
     setNextRefreshAt(null)
+    // the website has no empty start screen: back to the visitor's own city
+    if (document.documentElement.dataset.app !== '1') {
+      const home = startCity({ deepLink: null, inApp: false, recent: getRecent() })
+      setCity(home)
+      loadForecast(home, { remember: false })
+    }
   }
 
   function changeTab(next) {
@@ -625,8 +632,8 @@ ${url}`)
   const generatedAt = outlook?.generatedAt ?? data?.generatedAt
 
   return (
-    <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
-      <div className="max-w-3xl mx-auto">
+    <main className="home min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
+      <div className="home-col max-w-3xl mx-auto">
 
         {/* Header */}
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
@@ -638,21 +645,28 @@ ${url}`)
             >
               Meta<span className="text-emerald-400">Blend</span>
             </button>
-            <span className="text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
+            <span className="app-only text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
               Beta
             </span>
           </h1>
           {/* in the app these live in the tab bar and the More tab */}
-          <div className="web-only flex items-center gap-2 sm:gap-3 flex-wrap">
+          <nav aria-label={t(lang, 'homeNavLabel')} className="web-only order-last w-full lg:order-none lg:w-auto flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            <Link href="/leaderboard" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'leaderboard')}</Link>
+            <Link href="/heatmap" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'heatmap')}</Link>
+            <Link href="/planner" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'planner')}</Link>
+            <Link href="/hike" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'hiking')}</Link>
+            <Link href="/aviation" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'aviation')}</Link>
+          </nav>
+          <div className="web-only flex items-center gap-2 shrink-0">
             {/* Unit toggle */}
-            <div className="flex rounded-lg overflow-hidden border border-zinc-800 shrink-0">
+            <div className="flex shrink-0">
               {['C', 'F'].map(u => (
                 <button
                   key={u}
                   onClick={() => changeUnit(u)}
                   aria-pressed={unit === u}
-                  className={`w-9 py-1 text-xs leading-none text-center transition-colors ${
-                    unit === u ? 'bg-emerald-400 text-black font-bold' : 'bg-zinc-900 text-zinc-400 hover:text-emerald-400'
+                  className={`w-8 py-2 text-sm leading-none text-center transition-colors ${
+                    unit === u ? 'font-bold' : 'text-zinc-400 hover:text-emerald-400'
                   }`}
                 >
                   °{u}
@@ -664,57 +678,40 @@ ${url}`)
               onClick={toggleTheme}
               title={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
               aria-label={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
-              className="press w-7 h-7 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-emerald-400 hover:border-emerald-400 flex items-center justify-center shrink-0"
+              className="press w-8 h-8 rounded-lg text-zinc-400 hover:text-emerald-400 flex items-center justify-center shrink-0"
             >
               {theme === 'dark'
-                ? <Sun size={14} aria-hidden />
-                : <Moon size={14} aria-hidden />}
+                ? <Sun size={16} aria-hidden />
+                : <Moon size={16} aria-hidden />}
             </button>
             {/* Language switcher */}
             <select
               value={langPick}
               onChange={e => changeLang(e.target.value)}
               aria-label={t(lang, 'langLabel')}
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-2 py-1 text-xs text-zinc-400 outline-none focus:border-emerald-400 transition-colors cursor-pointer"
+              className="bg-transparent border-0 rounded-lg py-2 text-sm text-zinc-400 hover:text-emerald-400 outline-none cursor-pointer max-w-28"
             >
               <option value={LANG_SYSTEM}>{t(lang, 'themeSystemName')}</option>
               {LANGUAGES.map(l => (
                 <option key={l.code} value={l.code}>{l.label}</option>
               ))}
             </select>
-            <Link href="/leaderboard" aria-label={t(lang, 'leaderboard')} title={t(lang, 'leaderboard')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
-              <Trophy size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'leaderboard')}</span>
-            </Link>
-            <Link href="/heatmap" aria-label={t(lang, 'heatmap')} title={t(lang, 'heatmap')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
-              <MapIcon size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'heatmap')}</span>
-            </Link>
-            <Link href="/planner" aria-label={t(lang, 'planner')} title={t(lang, 'planner')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
-              <CalendarDays size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'planner')}</span>
-            </Link>
-            <Link href="/hike" aria-label={t(lang, 'hiking')} title={t(lang, 'hiking')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
-              <MountainSnow size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'hiking')}</span>
-            </Link>
-            <Link href="/aviation" aria-label={t(lang, 'aviation')} title={t(lang, 'aviation')} className="text-zinc-500 text-xs hover:text-emerald-400 transition-colors tracking-widest uppercase inline-flex items-center gap-1.5 p-1 sm:p-0">
-              <Plane size={15} aria-hidden /><span className="hidden sm:inline">{t(lang, 'aviation')}</span>
-            </Link>
             {installPrompt && (
               <button
                 onClick={installApp}
                 aria-label={t(lang, 'installApp')}
                 title={t(lang, 'installApp')}
-                className="web-only press text-emerald-400 text-xs border border-emerald-400/40 rounded-lg px-2 py-1 hover:bg-emerald-400/10 tracking-widest uppercase inline-flex items-center gap-1.5"
+                className="press text-emerald-400 w-8 h-8 inline-flex items-center justify-center"
               >
-                <Download size={14} aria-hidden /><span className="hidden sm:inline">{t(lang, 'installApp')}</span>
+                <Download size={16} aria-hidden />
               </button>
             )}
           </div>
         </div>
-        <p className="text-zinc-500 text-sm mb-4 tracking-widest uppercase">
+        <p className="app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>
-
-        {/* In-development disclaimer */}
-        <BetaBanner lang={lang} className="mb-8 web-only" />
+        <p className="web-only text-zinc-400 mt-4 mb-8 max-w-prose">{t(lang, 'homeLead')}</p>
 
         {/* First use in the app (no city yet): one clear way to start. Only CSS shows it
             (html[data-first-use], set before first paint), so it's there from the first
@@ -735,7 +732,7 @@ ${url}`)
         )}
 
         {/* Search (large text: the field on its own line above the buttons) */}
-        <div className="@container relative flex flex-wrap gap-2 mb-8">
+        <div className="home-search @container relative flex flex-wrap gap-2 mb-8">
           <button
             onClick={handleLocation}
             disabled={locating || loading}
@@ -840,13 +837,6 @@ ${url}`)
           </div>
         )}
 
-        {/* website only, until the store listings exist: point people at the beta */}
-        {!(STORES.ios && STORES.android) && !compareMode && (
-          <Link href="/testers" className="web-only -mt-2 mb-6 inline-flex items-center gap-1.5 text-sm text-emerald-400 hover:underline">
-            <Smartphone size={15} aria-hidden /> {t(lang, 'testersTryApp')}
-          </Link>
-        )}
-
         {/* Compare second city */}
         {compareMode && (
           <div className="flex gap-2 mb-10 -mt-6">
@@ -897,7 +887,11 @@ ${url}`)
 
         {/* Welcome / empty state — before any city has been searched */}
         {!data && !loading && !error && !compareMode && (
-          <WelcomeState lang={lang} onPick={c => { setCity(c); loadForecast(c) }} />
+          <>
+            {/* the website opens on a forecast (first paint, until the effect starts it) */}
+            <div className="web-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
+            <div className="app-only"><WelcomeState lang={lang} onPick={c => { setCity(c); loadForecast(c) }} /></div>
+          </>
         )}
 
         {/* Offline banner */}
@@ -913,9 +907,9 @@ ${url}`)
 
             {/* Severe-weather warning */}
             {data.warning?.active && (
-              <div className="bg-red-600/20 border-2 border-red-500 rounded-2xl p-5 sm:p-6 animate-pulse">
+              <div className="home-warning bg-red-600/20 border-2 border-red-500 rounded-2xl p-5 sm:p-6 animate-pulse">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl">{data.warning.type === 'thunderstorm' ? '⛈' : '🌧'}</span>
+                  <span className="app-only text-3xl">{data.warning.type === 'thunderstorm' ? '⛈' : '🌧'}</span>
                   <div>
                     <div className="text-red-400 font-bold text-lg uppercase tracking-wide flex items-center gap-2">
                       <AlertTriangle size={18} className="shrink-0" aria-hidden /> {t(lang, 'warningTitle')}
@@ -928,8 +922,13 @@ ${url}`)
               </div>
             )}
 
+            <div className="home-hero">
+            <div className="web-only home-spread">
+              <SourceSpread sources={data.sources} consensusC={data.consensus.temp} unit={unit} title={t(lang, 'spreadTitle')} hint={t(lang, 'spreadHint')} />
+            </div>
+            <div className="space-y-4">
             {/* Toolbar: city, refresh + data age, share / embed */}
-            <div className="flex items-start justify-between gap-3">
+            <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">
@@ -971,6 +970,8 @@ ${url}`)
             {outlook && <WarningStrip lat={data.lat} lon={data.lon} cc={outlook.cc} lang={lang} todayLocal={outlook.nowLocal.slice(0, 10)}
               onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
             <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
+            </div>
+            </div>
 
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
@@ -997,6 +998,12 @@ ${url}`)
 
           </div>
         )}
+
+        <HowItWorks lang={lang} data={data} />
+        <div className="web-only mt-12 max-w-prose space-y-2 text-sm text-zinc-400">
+          <p>{t(lang, 'betaDisclaimer')}</p>
+          {!(STORES.ios && STORES.android) && <Link href="/testers" className="inline-block text-emerald-400 hover:underline">{t(lang, 'testersTryApp')}</Link>}
+        </div>
 
         {/* Plain-language explainer: comprehension for new visitors and the
             only real prose on an otherwise UI-heavy page (search engines

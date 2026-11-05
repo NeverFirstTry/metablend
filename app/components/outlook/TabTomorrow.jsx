@@ -5,6 +5,7 @@ import { t } from '@/lib/i18n'
 import { addDays } from '@/lib/localtime'
 import { headlineText, headlineTone } from '@/lib/outlook/text'
 import { MetricCard, SectionTitle } from '../ui'
+import Glyph from '../Glyph'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
 import HourStrip from './HourStrip'
@@ -35,7 +36,7 @@ export default function TabTomorrow({ outlook, unit, lang, fmt }) {
           <MetricCard
             icon={Sun}
             label={t(lang, 'bestTimeOut')}
-            value={`${best.icon ?? ''} ${best.t.slice(11, 16)}`}
+            value={<><Glyph emoji={best.icon} size={22} /> {best.t.slice(11, 16)}</>}
             sub={`${fmt.fmtTemp(best.temp)} · ${best.rainPct ?? '–'}%`}
             color="var(--ok)"
           />

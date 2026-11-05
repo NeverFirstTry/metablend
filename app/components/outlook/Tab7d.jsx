@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, headlineTone, dayPhrase, fill } from '@/lib/outlook/text'
 import { MetricCard } from '../ui'
+import Glyph from '../Glyph'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
 import Notes from './Notes'
@@ -46,7 +47,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                 className="press-row w-full flex items-center gap-2 sm:gap-3 px-2 py-3 text-sm text-left rounded-xl hover:bg-zinc-800/40 disabled:cursor-default @max-[19rem]:flex-wrap"
               >
                 <span className="w-12 sm:w-16 shrink-0">{d.date === todayLocal ? t(lang, 'todayLabel') : formatCalendarDate(d.date, lang, { weekday: 'short' })}</span>
-                <span className="w-6 shrink-0 text-center text-lg" aria-hidden>{d.icon ?? '·'}</span>
+                <span className="w-6 shrink-0 text-center text-lg" aria-hidden><Glyph emoji={d.icon} fallback="·" /></span>
                 <span className="w-9 shrink-0 text-right text-zinc-500 tabular-nums">{fmt.fmtTemp(d.tempMin)}</span>
                 <span className="relative flex-1 h-1.5 bg-zinc-800 rounded-full @max-[19rem]:basis-full @max-[19rem]:order-last">
                   <span
@@ -64,7 +65,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
               </button>
               {d.spread > 4 && (
                 <div className="px-2 pb-2 -mt-1 text-xs" style={{ color: 'var(--warn)' }}>
-                  ⚠ {fill(t(lang, 'hlSplit'), { spread: fmt.fmtSpan(d.spread), when: dayPhrase(lang, d.date, todayLocal) })}
+                  <span className="app-only">⚠ </span>{fill(t(lang, 'hlSplit'), { spread: fmt.fmtSpan(d.spread), when: dayPhrase(lang, d.date, todayLocal) })}
                 </div>
               )}
               {open && <div className="px-2 pb-4"><HourlyChart hours={dayHours} unit={unit} lang={lang} height={140} /></div>}
