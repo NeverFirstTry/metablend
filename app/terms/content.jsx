@@ -58,15 +58,15 @@ const CONTENT = {
     t1: 'Nutzung', t2: '&Urheberrecht',
     sections: [
       { title: 'Beta — keine Gewährleistung', body: <>MetaBlend wird <strong>„wie besehen“</strong> bereitgestellt und befindet sich in aktiver Entwicklung. Wir übernehmen keine Gewähr für Verfügbarkeit oder Eignung für irgendeinen Zweck.</> },
-      { title: 'Nicht für sicherheitskritische Zwecke', body: <>Verlass dich nicht auf MetaBlend, wenn Wettergenauigkeit sicherheitsrelevant ist — Luftfahrt, Seefahrt, Unwetter, Medizin oder Ähnliches. Ziehe immer einen offiziellen Wetterdienst zurate. Die Aviation-Seiten (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sind reine Zusatzinformation — niemals für Flugplanung oder Navigation verwenden; hole immer ein offizielles Preflight-Briefing ein.</> },
-      { title: 'Zulässige Nutzung', body: <>Bitte missbrauche den Dienst nicht: kein automatisiertes Scraping, keine Versuche, die APIs zu überlasten, und kein absichtlich falsches Feedback, um die Genauigkeits-Ranglisten zu verzerren.</> },
+      { title: 'Nicht für sicherheitskritische Zwecke', body: <>Verlassen Sie sich nicht auf MetaBlend, wenn Wettergenauigkeit sicherheitsrelevant ist — Luftfahrt, Seefahrt, Unwetter, Medizin oder Ähnliches. Ziehen Sie immer einen offiziellen Wetterdienst zurate. Die Aviation-Seiten (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sind reine Zusatzinformation — niemals für Flugplanung oder Navigation verwenden; holen Sie immer ein offizielles Preflight-Briefing ein.</> },
+      { title: 'Zulässige Nutzung', body: <>Bitte missbrauchen Sie den Dienst nicht: kein automatisiertes Scraping, keine Versuche, die APIs zu überlasten, und kein absichtlich falsches Feedback, um die Genauigkeits-Ranglisten zu verzerren.</> },
       { title: 'Urheberrecht', body: <>© {new Date().getFullYear()} MetaBlend. Alle Rechte vorbehalten. Der Quellcode ist auf <A href={REPO}>GitHub</A> nur der Transparenz halber veröffentlicht; daraus ergibt sich keine Lizenz zum Kopieren, Verändern oder Weiterverbreiten. Name und Design von MetaBlend sind Eigentum ihres Urhebers.</> },
       { title: 'Datenquellen & Attribution', body: <>
         <p className="mb-2">Wetter- und Kartendaten stammen von Dritten und unterliegen deren Bedingungen; Dank an:</p>
         <AttributionList />
         <p className="mt-2 text-zinc-400">Wetterdaten bleiben Eigentum der jeweiligen Anbieter und werden unter deren Lizenzen genutzt.</p>
       </> },
-      { title: 'Änderungen', body: <>Diese Bedingungen können sich mit der Weiterentwicklung der App ändern. Das Datum „zuletzt aktualisiert“ oben zeigt die aktuelle Fassung. Fragen? Öffne ein Issue auf <A href={ISSUES}>GitHub</A>.</> },
+      { title: 'Änderungen', body: <>Diese Bedingungen können sich mit der Weiterentwicklung der App ändern. Das Datum „zuletzt aktualisiert“ oben zeigt die aktuelle Fassung. Fragen? Öffnen Sie ein Issue auf <A href={ISSUES}>GitHub</A>.</> },
     ],
   },
 
