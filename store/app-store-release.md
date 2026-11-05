@@ -26,7 +26,7 @@ For **each language** (switch at the top right):
 - **Support URL / Marketing URL:** `support_url.txt` / `marketing_url.txt` (both https://metablend.app)
 
 Once, for all languages:
-- **Build:** pick the newest TestFlight build (build 2 is fine — the app loads its pages live)
+- **Build:** pick the newest TestFlight build (it needs the one with swipe-back; the pages load live)
 - **Copyright:** `2026 <your full name>`
 - **Version release:** "Manually release this version" (you press the button after approval)
 

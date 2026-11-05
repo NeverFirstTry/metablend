@@ -32,7 +32,7 @@ const SCREENS = [
   // for Vienna — this PC's own lookups can be throttled by the public geocoder
   { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
   { path: '/hike?peak=grossglockner', ready: `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` }, // the hour strip, in any language (French says CAS, not SAC)
-  // tomorrow: by the afternoon today has no safe start left, whenever the script runs
+  // tomorrow: by the afternoon today has no favourable start left, whenever the script runs
   { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`, pickTomorrow: true },
 ]
 const sleep = ms => new Promise(r => setTimeout(r, ms))

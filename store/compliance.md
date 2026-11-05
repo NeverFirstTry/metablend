@@ -7,12 +7,14 @@ when one changes, change the other.
 Facts behind every answer:
 - No accounts, no sign-up, no ads, no in-app purchases, no tracking across apps or sites.
 - Location: the phone's position never leaves the phone except (a) "Near me" peak
-  search, rounded to about 10 km, and (b) "my location" for a city name, sent from
-  the phone straight to BigDataCloud for that lookup. Nothing precise is stored.
+  search, rounded to about 10 km, (b) "my location" for a city name, sent from
+  the phone straight to BigDataCloud for that lookup, and (c) "my location" sends
+  our server the position rounded to about 10 km, to pick the right town with
+  that name. Nothing precise is stored.
 - Push notifications (opt-in): push token, a hash of a random app key, home city,
   alert choices, briefing hour, planned peaks/dates/routes, language, unit, 14-day send log.
 - Weather feedback (opt-in): city, temperature, condition, date, the city's map coordinates.
-- Analytics: Plausible (cookieless, aggregate) and Vercel Speed Insights (anonymous load times).
+- Analytics: Plausible and Vercel Web Analytics (cookieless, aggregate page counts) and Vercel Speed Insights (anonymous load times).
 - Everything travels over HTTPS.
 
 ## App Store — App Privacy
@@ -21,10 +23,10 @@ Facts behind every answer:
 - **Data used to track you:** none.
 - **Data linked to you:** none.
 - **Data not linked to you:**
-  - Location → **Coarse Location** — purpose: App Functionality (peak search near you, rounded to ~10 km).
+  - Location → **Coarse Location** — purpose: App Functionality (peak search near you and the right town for "my location", rounded to ~10 km).
   - Identifiers → **Device ID** — purpose: App Functionality (push token, only when notifications are on).
   - User Content → **Other User Content** — purpose: App Functionality (weather feedback: city, temperature, condition).
-  - Usage Data → **Product Interaction** — purpose: Analytics (Plausible, cookieless, aggregate counts).
+  - Usage Data → **Product Interaction** — purpose: Analytics (Plausible and Vercel Web Analytics, cookieless, aggregate counts).
   - Diagnostics → **Performance Data** — purpose: Analytics (Vercel Speed Insights, anonymous load times).
 - **Precise Location:** not collected (the reverse-geocoding call goes from the phone to BigDataCloud; nothing is stored).
 - **Privacy Policy URL:** https://metablend.app/privacy
@@ -48,10 +50,10 @@ Grow users → Store presence → Store settings.
 
 | Type | What it is | Purpose | Ephemeral |
 |---|---|---|---|
-| Location → Approximate location | Near you, peak search (~5–10 km) | App functionality | Yes |
+| Location → Approximate location | Near you, peak search, the right town for "my location" (~5–10 km) | App functionality | Yes |
 | Location → Precise location | "My location" → BigDataCloud city lookup | App functionality | Yes |
 | Device or other IDs | Push token | App functionality | No |
-| App activity → App interactions | Plausible page counts | Analytics | No |
+| App activity → App interactions | Plausible and Vercel Web Analytics page counts | Analytics | No |
 | App activity → Other user-generated content | Weather feedback, planned hikes | App functionality | No |
 | App info and performance → Diagnostics | Speed Insights load times | Analytics | No |
 
