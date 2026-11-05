@@ -6,6 +6,7 @@ import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import Footer from '../components/Footer'
 import { DISCLAIMER } from './disclaimer'
+import { TRANSLATION_NOTE } from '@/lib/legal-note'
 
 const REPO = 'https://github.com/NeverFirstTry/metablend'
 const ISSUES = `${REPO}/issues`
@@ -277,6 +278,7 @@ export function TermsBody({ lang }) {
         <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">{c.updated}</p>
 
         <div className="space-y-6 text-sm leading-relaxed text-zinc-300">
+          {TRANSLATION_NOTE[lang] && <p className="text-zinc-400"><em className="text-zinc-500">{TRANSLATION_NOTE[lang]}</em></p>}
           <Section id="disclaimer" title={d.title}>
             {d.paragraphs.map(p => <p key={p} className="mb-2 last:mb-0">{p}</p>)}
           </Section>

@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import Footer from '../components/Footer'
+import { TRANSLATION_NOTE } from '@/lib/legal-note'
 
 const ISSUES = 'https://github.com/NeverFirstTry/metablend/issues'
 const PLAUSIBLE = 'https://plausible.io/privacy'
@@ -20,7 +21,7 @@ const CONTENT = {
   en: {
     updated: 'Last updated November 2026',
     t1: 'Privacy', t2: 'Notice',
-    intro: <><em className="text-zinc-500">This is a translation; if the versions differ, the German version applies.</em><br /><br />MetaBlend is a free, in-development weather app with <strong>no accounts</strong> (the only sign-up is the optional Android tester list). We keep data collection to the minimum needed to run the service and to measure how accurate each weather source is. This is a plain-language summary, not legal advice.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.en}</em><br /><br />MetaBlend is a free, in-development weather app with <strong>no accounts</strong> (the only sign-up is the optional Android tester list). We keep data collection to the minimum needed to run the service and to measure how accurate each weather source is. This is a plain-language summary, not legal advice.</>,
     sections: [
       { title: 'Controller', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />Email: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'What stays on your device', body: <>We store a few small preferences locally so the app remembers your choices: language, temperature unit, theme, your selected forecast range, your consent to this notice, and your recently searched and saved cities. The last forecast you viewed is cached so the app still works offline. Language, unit, theme, your consent and recent cities are kept as cookies, so they reach our server with each page request; it does not store them. Everything else stays in your browser. You can clear it all anytime by clearing your site data.</> },
@@ -90,7 +91,7 @@ const CONTENT = {
   fr: {
     updated: 'Dernière mise à jour : novembre 2026',
     t1: 'Politique', t2: 'Confidentialité',
-    intro: <><em className="text-zinc-500">Ceci est une traduction ; si les versions diffèrent, la version allemande prévaut.</em><br /><br />MetaBlend est une application météo gratuite, en cours de développement, <strong>sans compte</strong> (la seule inscription est la liste facultative des testeurs Android). Nous limitons la collecte de données au strict nécessaire pour faire fonctionner le service et mesurer la précision de chaque source météo. Ceci est un résumé en langage clair, pas un avis juridique.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.fr}</em><br /><br />MetaBlend est une application météo gratuite, en cours de développement, <strong>sans compte</strong> (la seule inscription est la liste facultative des testeurs Android). Nous limitons la collecte de données au strict nécessaire pour faire fonctionner le service et mesurer la précision de chaque source météo. Ceci est un résumé en langage clair, pas un avis juridique.</>,
     sections: [
       { title: 'Responsable du traitement', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Autriche<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Ce qui reste sur votre appareil', body: <>Quelques petites préférences sont stockées localement pour que l’application retienne vos choix : langue, unité de température, thème, la période de prévision choisie, votre consentement à cette notice, ainsi que vos villes recherchées et enregistrées. La dernière prévision consultée est mise en cache pour que l’application fonctionne hors ligne. La langue, l’unité, le thème, votre consentement et les villes récentes sont conservés dans des cookies et parviennent donc à notre serveur à chaque chargement de page ; il ne les enregistre pas. Tout le reste demeure dans votre navigateur. Vous pouvez tout effacer à tout moment via les données de site de votre navigateur.</> },
@@ -125,7 +126,7 @@ const CONTENT = {
   es: {
     updated: 'Última actualización: noviembre de 2026',
     t1: 'Aviso', t2: 'Privacidad',
-    intro: <><em className="text-zinc-500">Esta es una traducción; si las versiones difieren, prevalece la versión alemana.</em><br /><br />MetaBlend es una app del tiempo gratuita y en desarrollo, <strong>sin cuentas</strong> (la única inscripción es la lista opcional de probadores de Android). Recogemos los datos mínimos necesarios para operar el servicio y medir la precisión de cada fuente meteorológica. Esto es un resumen en lenguaje claro, no asesoramiento legal.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.es}</em><br /><br />MetaBlend es una app del tiempo gratuita y en desarrollo, <strong>sin cuentas</strong> (la única inscripción es la lista opcional de probadores de Android). Recogemos los datos mínimos necesarios para operar el servicio y medir la precisión de cada fuente meteorológica. Esto es un resumen en lenguaje claro, no asesoramiento legal.</>,
     sections: [
       { title: 'Responsable del tratamiento', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />Correo electrónico: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Lo que se queda en su dispositivo', body: <>Guardamos localmente unas pocas preferencias para que la app recuerde sus elecciones: idioma, unidad de temperatura, tema, el periodo de previsión elegido, su consentimiento a este aviso y sus ciudades buscadas y guardadas. La última previsión que vio se guarda en caché para que la app funcione sin conexión. El idioma, la unidad, el tema, su consentimiento y las ciudades recientes se guardan en cookies, así que llegan a nuestro servidor con cada carga de página; no las almacena. Todo lo demás se queda en su navegador. Puede borrarlo todo cuando quiera limpiando los datos del sitio.</> },
@@ -160,7 +161,7 @@ const CONTENT = {
   it: {
     updated: 'Ultimo aggiornamento: novembre 2026',
     t1: 'Informativa', t2: 'Privacy',
-    intro: <><em className="text-zinc-500">Questa è una traduzione; se le versioni differiscono, prevale la versione tedesca.</em><br /><br />MetaBlend è un’app meteo gratuita e in sviluppo, <strong>senza account</strong> (l’unica iscrizione è la lista facoltativa dei tester Android). Raccogliamo il minimo di dati necessario per far funzionare il servizio e misurare la precisione di ogni fonte meteo. Questo è un riepilogo in linguaggio semplice, non una consulenza legale.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.it}</em><br /><br />MetaBlend è un’app meteo gratuita e in sviluppo, <strong>senza account</strong> (l’unica iscrizione è la lista facoltativa dei tester Android). Raccogliamo il minimo di dati necessario per far funzionare il servizio e misurare la precisione di ogni fonte meteo. Questo è un riepilogo in linguaggio semplice, non una consulenza legale.</>,
     sections: [
       { title: 'Titolare del trattamento', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Cosa resta sul suo dispositivo', body: <>Salviamo localmente alcune piccole preferenze perché l’app ricordi le sue scelte: lingua, unità di temperatura, tema, il periodo di previsione scelto, il suo consenso a questa informativa e le città cercate e salvate di recente. L’ultima previsione visualizzata viene messa in cache così l’app funziona anche offline. Lingua, unità, tema, il suo consenso e le città recenti sono salvati in cookie, quindi raggiungono il nostro server a ogni caricamento di pagina; il server non li conserva. Tutto il resto rimane nel suo browser. Può cancellare tutto in qualsiasi momento eliminando i dati del sito.</> },
@@ -194,7 +195,7 @@ const CONTENT = {
   nl: {
     updated: 'Laatst bijgewerkt november 2026',
     t1: 'Privacy', t2: 'verklaring',
-    intro: <><em className="text-zinc-500">Dit is een vertaling; als de versies verschillen, geldt de Duitse versie.</em><br /><br />MetaBlend is een gratis weer-app in ontwikkeling <strong>zonder accounts</strong> (de enige aanmelding is de vrijwillige lijst met Android-testers). We verzamelen alleen de gegevens die nodig zijn om de dienst te laten werken en om te meten hoe nauwkeurig elke weerbron is. Dit is een samenvatting in gewone taal, geen juridisch advies.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.nl}</em><br /><br />MetaBlend is een gratis weer-app in ontwikkeling <strong>zonder accounts</strong> (de enige aanmelding is de vrijwillige lijst met Android-testers). We verzamelen alleen de gegevens die nodig zijn om de dienst te laten werken en om te meten hoe nauwkeurig elke weerbron is. Dit is een samenvatting in gewone taal, geen juridisch advies.</>,
     sections: [
       { title: 'Verwerkingsverantwoordelijke', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Oostenrijk<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Wat op uw apparaat blijft', body: <>We bewaren een paar kleine voorkeuren lokaal zodat de app uw keuzes onthoudt: taal, temperatuureenheid, weergave, de gekozen verwachtingsperiode, uw toestemming voor deze verklaring en uw recent gezochte en bewaarde steden. De laatst bekeken verwachting wordt opgeslagen zodat de app ook offline werkt. Taal, eenheid, thema, uw toestemming en recente steden staan in cookies en bereiken daardoor bij elk paginaverzoek onze server, die ze niet opslaat. Al het andere blijft in uw browser. U kunt alles altijd wissen door uw sitegegevens te wissen.</> },
@@ -228,7 +229,7 @@ const CONTENT = {
   pl: {
     updated: 'Ostatnia aktualizacja: listopad 2026',
     t1: 'Polityka ', t2: 'prywatności',
-    intro: <><em className="text-zinc-500">To jest tłumaczenie; w razie rozbieżności obowiązuje wersja niemiecka.</em><br /><br />MetaBlend to darmowa, rozwijana aplikacja pogodowa <strong>bez kont</strong> (jedynym zapisem jest dobrowolna lista testerów na Androida). Zbieramy tylko te dane, które są potrzebne do działania usługi i do mierzenia, jak dokładne jest każde źródło pogody. To podsumowanie prostym językiem, a nie porada prawna.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.pl}</em><br /><br />MetaBlend to darmowa, rozwijana aplikacja pogodowa <strong>bez kont</strong> (jedynym zapisem jest dobrowolna lista testerów na Androida). Zbieramy tylko te dane, które są potrzebne do działania usługi i do mierzenia, jak dokładne jest każde źródło pogody. To podsumowanie prostym językiem, a nie porada prawna.</>,
     sections: [
       { title: 'Administrator danych', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Co zostaje na Państwa urządzeniu', body: <>Przechowujemy lokalnie kilka drobnych ustawień, aby aplikacja pamiętała Państwa wybory: język, jednostkę temperatury, wygląd, wybrany zakres prognozy, Państwa zgodę na tę politykę oraz ostatnio wyszukiwane i zapisane miasta. Ostatnio oglądana prognoza jest zapisywana, aby aplikacja działała offline. Język, jednostka, motyw, Państwa zgoda i ostatnie miasta są zapisane w plikach cookie, więc przy każdym otwarciu strony trafiają na nasz serwer, który ich nie przechowuje. Cała reszta zostaje w Państwa przeglądarce. Mogą Państwo to wszystko w każdej chwili usunąć, czyszcząc dane witryny.</> },
@@ -262,7 +263,7 @@ const CONTENT = {
   cs: {
     updated: 'Naposledy aktualizováno v listopadu 2026',
     t1: 'Ochrana ', t2: 'soukromí',
-    intro: <><em className="text-zinc-500">Toto je překlad; pokud se verze liší, platí německá verze.</em><br /><br />MetaBlend je bezplatná aplikace o počasí ve vývoji <strong>bez účtů</strong> (jedinou registrací je dobrovolný seznam testerů pro Android). Sbíráme jen data nezbytná pro provoz služby a pro měření přesnosti jednotlivých zdrojů počasí. Toto je shrnutí srozumitelným jazykem, nikoli právní rada.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.cs}</em><br /><br />MetaBlend je bezplatná aplikace o počasí ve vývoji <strong>bez účtů</strong> (jedinou registrací je dobrovolný seznam testerů pro Android). Sbíráme jen data nezbytná pro provoz služby a pro měření přesnosti jednotlivých zdrojů počasí. Toto je shrnutí srozumitelným jazykem, nikoli právní rada.</>,
     sections: [
       { title: 'Správce údajů', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Rakousko<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Co zůstává ve vašem zařízení', body: <>Lokálně ukládáme několik drobných nastavení, aby si aplikace pamatovala vaše volby: jazyk, jednotku teploty, vzhled, zvolený rozsah předpovědi, váš souhlas s tímto oznámením a nedávno hledaná a uložená města. Naposledy zobrazená předpověď se ukládá, aby aplikace fungovala i offline. Jazyk, jednotka, motiv, váš souhlas a nedávná města jsou uložené v cookies, takže se při každém načtení stránky dostanou na náš server, který je neukládá. Vše ostatní zůstává ve vašem prohlížeči. Kdykoli to všechno smažete vymazáním dat webu.</> },
@@ -296,7 +297,7 @@ const CONTENT = {
   sl: {
     updated: 'Zadnja posodobitev: november 2026',
     t1: 'Varstvo ', t2: 'zasebnosti',
-    intro: <><em className="text-zinc-500">To je prevod; če se različici razlikujeta, velja nemška različica.</em><br /><br />MetaBlend je brezplačna vremenska aplikacija v razvoju <strong>brez računov</strong> (edina prijava je neobvezen seznam preizkuševalcev za Android). Zbiramo le podatke, ki so potrebni za delovanje storitve in za merjenje natančnosti posameznih vremenskih virov. To je povzetek v preprostem jeziku, ne pravni nasvet.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.sl}</em><br /><br />MetaBlend je brezplačna vremenska aplikacija v razvoju <strong>brez računov</strong> (edina prijava je neobvezen seznam preizkuševalcev za Android). Zbiramo le podatke, ki so potrebni za delovanje storitve in za merjenje natančnosti posameznih vremenskih virov. To je povzetek v preprostem jeziku, ne pravni nasvet.</>,
     sections: [
       { title: 'Upravljavec', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Avstrija<br />E-pošta: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'Kaj ostane na vaši napravi', body: <>Lokalno shranimo nekaj majhnih nastavitev, da si aplikacija zapomni vaše izbire: jezik, enoto temperature, videz, izbrano obdobje napovedi, vašo privolitev v to obvestilo ter nedavno iskana in shranjena mesta. Zadnja ogledana napoved se shrani, da aplikacija deluje tudi brez povezave. Jezik, enota, tema, vaše soglasje in nedavna mesta so shranjeni v piškotkih, zato ob vsakem nalaganju strani pridejo do našega strežnika, ki jih ne shranjuje. Vse drugo ostane v vašem brskalniku. Vse lahko kadarkoli izbrišete z brisanjem podatkov spletnega mesta.</> },
@@ -330,7 +331,7 @@ const CONTENT = {
   pt: {
     updated: 'Última atualização: novembro de 2026',
     t1: 'Aviso de ', t2: 'privacidade',
-    intro: <><em className="text-zinc-500">Esta é uma tradução; se as versões divergirem, vale a versão em alemão.</em><br /><br />O MetaBlend é um app de previsão do tempo gratuito, em desenvolvimento, <strong>sem contas</strong> (a única inscrição é a lista opcional de testadores do Android). Coletamos apenas os dados necessários para o serviço funcionar e para medir o quão precisa é cada fonte meteorológica. Este é um resumo em linguagem simples, não uma orientação jurídica.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.pt}</em><br /><br />O MetaBlend é um app de previsão do tempo gratuito, em desenvolvimento, <strong>sem contas</strong> (a única inscrição é a lista opcional de testadores do Android). Coletamos apenas os dados necessários para o serviço funcionar e para medir o quão precisa é cada fonte meteorológica. Este é um resumo em linguagem simples, não uma orientação jurídica.</>,
     sections: [
       { title: 'Controlador', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Áustria<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: 'O que fica no seu dispositivo', body: <>Guardamos algumas pequenas preferências localmente para o app lembrar suas escolhas: idioma, unidade de temperatura, aparência, o período de previsão escolhido, seu consentimento a este aviso e as cidades buscadas e salvas recentemente. A última previsão vista fica armazenada para o app funcionar offline. Idioma, unidade, tema, seu consentimento e cidades recentes ficam em cookies e, por isso, chegam ao nosso servidor a cada carregamento de página; ele não os armazena. Todo o resto fica no seu navegador. Você pode apagar tudo a qualquer momento limpando os dados do site.</> },
@@ -364,7 +365,7 @@ const CONTENT = {
   ja: {
     updated: '最終更新：2026年11月',
     t1: 'プライバシー', t2: 'ポリシー',
-    intro: <><em className="text-zinc-500">これは翻訳です。内容に相違がある場合はドイツ語版が優先されます。</em><br /><br />MetaBlendは開発中の無料天気アプリで、<strong>アカウントは不要</strong>（登録は任意の Android テスター名簿だけ）です。サービスの運営と、各気象ソースの精度の測定に必要な最小限のデータだけを集めています。これはわかりやすい言葉でまとめた概要であり、法的な助言ではありません。</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.ja}</em><br /><br />MetaBlendは開発中の無料天気アプリで、<strong>アカウントは不要</strong>（登録は任意の Android テスター名簿だけ）です。サービスの運営と、各気象ソースの精度の測定に必要な最小限のデータだけを集めています。これはわかりやすい言葉でまとめた概要であり、法的な助言ではありません。</>,
     sections: [
       { title: '管理者', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, オーストリア<br />メール: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: '端末に保存されるもの', body: <>アプリが選択内容を覚えておけるよう、いくつかの小さな設定を端末に保存します：言語、温度の単位、外観、選択した予報期間、このポリシーへの同意、最近検索・保存した都市。最後に表示した予報はオフラインでも使えるよう保存されます。言語、単位、テーマ、同意、最近の都市はCookieに保存されるため、ページを読み込むたびに当社のサーバーに送られますが、サーバーには保存されません。それ以外はブラウザの外に出ることはありません。サイトデータを消去すればいつでもすべて削除できます。</> },
@@ -398,7 +399,7 @@ const CONTENT = {
   zh: {
     updated: '最后更新：2026 年 11 月',
     t1: '隐私', t2: '声明',
-    intro: <><em className="text-zinc-500">本文为译文；如各版本有出入，以德文版为准。</em><br /><br />MetaBlend 是一款免费、仍在开发中的天气应用，<strong>无需账号</strong>（唯一的报名是可选的 Android 测试者名单）。我们只收集运行服务和衡量各天气来源准确度所需的最少数据。这是一份通俗的概述，并非法律建议。</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.zh}</em><br /><br />MetaBlend 是一款免费、仍在开发中的天气应用，<strong>无需账号</strong>（唯一的报名是可选的 Android 测试者名单）。我们只收集运行服务和衡量各天气来源准确度所需的最少数据。这是一份通俗的概述，并非法律建议。</>,
     sections: [
       { title: '数据控制者', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, 奥地利<br />电子邮件: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: '保存在您设备上的内容', body: <>我们在本地保存少量偏好设置，让应用记住您的选择：语言、温度单位、外观、所选预报范围、您对本声明的同意，以及最近搜索和保存的城市。您最后查看的预报会被缓存，以便离线使用。语言、单位、主题、您的同意和最近的城市保存在 Cookie 中，因此每次加载页面时都会发送到我们的服务器，但服务器不会保存。其他内容都不会离开您的浏览器。您随时可以通过清除网站数据来全部删除。</> },
@@ -432,7 +433,7 @@ const CONTENT = {
   ko: {
     updated: '최종 업데이트: 2026년 11월',
     t1: '개인정보 ', t2: '처리방침',
-    intro: <><em className="text-zinc-500">이 문서는 번역본이며, 내용이 다를 경우 독일어 원문이 우선합니다.</em><br /><br />MetaBlend는 개발 중인 무료 날씨 앱으로, <strong>계정이 필요 없습니다</strong>(가입은 선택 사항인 Android 테스터 명단뿐입니다). 서비스를 운영하고 각 기상 출처의 정확도를 측정하는 데 필요한 최소한의 데이터만 수집합니다. 이 문서는 쉬운 말로 정리한 요약이며 법률 자문이 아닙니다.</>,
+    intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.ko}</em><br /><br />MetaBlend는 개발 중인 무료 날씨 앱으로, <strong>계정이 필요 없습니다</strong>(가입은 선택 사항인 Android 테스터 명단뿐입니다). 서비스를 운영하고 각 기상 출처의 정확도를 측정하는 데 필요한 최소한의 데이터만 수집합니다. 이 문서는 쉬운 말로 정리한 요약이며 법률 자문이 아닙니다.</>,
     sections: [
       { title: '개인정보 처리 책임자', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, 오스트리아<br />이메일: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
       { title: '기기에 남는 정보', body: <>앱이 선택을 기억할 수 있도록 몇 가지 작은 설정을 기기에 저장합니다: 언어, 온도 단위, 화면 모드, 선택한 예보 기간, 이 방침에 대한 동의, 최근 검색하고 저장한 도시. 마지막으로 본 예보는 오프라인에서도 쓸 수 있도록 저장됩니다. 언어, 단위, 테마, 동의 여부, 최근 도시는 쿠키에 저장되므로 페이지를 불러올 때마다 서버로 전송되지만 서버에는 저장되지 않습니다. 그 밖의 정보는 브라우저 밖으로 나가지 않습니다. 사이트 데이터를 지우면 언제든 모두 삭제할 수 있습니다.</> },
