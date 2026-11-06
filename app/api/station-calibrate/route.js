@@ -6,6 +6,10 @@ import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { withErrorLog, logError } from '@/lib/log'
 import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
+import { localHourIso } from '@/lib/localtime'
+import { parseSummitMulti } from '@/lib/hike/parse'
+import { OM_MODELS } from '@/lib/outlook/models'
+import { SUMMITS, nearestStation, chooseTruth, summitErrors, stationTemps } from '@/lib/shadow'
 
 // Ground-truth calibration from aviation METAR observations (NOAA Aviation
 // Weather Center — free, no key). For each city with a recent forecast, pull
@@ -26,7 +30,8 @@ const MAX_STATIONS = 4         // nearest N fresh reports (median of these)
 const MAX_OBS_AGE_MIN = 90     // METARs are hourly; skip anything staler
 
 // Fresh METAR observations within RADIUS_KM of the point, nearest first.
-// Returns { temps, winds } — temps in °C, winds in km/h (METAR wspd is knots).
+// Returns { temps, winds, km } — temps in °C, winds in km/h (METAR wspd is knots),
+// km to the nearest report.
 async function metarObs(lat, lon) {
   const bbox = `${(lat - 0.7).toFixed(2)},${(lon - 1.0).toFixed(2)},${(lat + 0.7).toFixed(2)},${(lon + 1.0).toFixed(2)}`
   try {
@@ -47,10 +52,44 @@ async function metarObs(lat, lon) {
     return {
       temps: nearest.map(r => r.temp),
       winds: nearest.filter(r => typeof r.wspd === 'number').map(r => r.wspd * 1.852),
+      km: nearest.length ? Math.round(nearest[0].distanceKm * 10) / 10 : null,
     }
   } catch {
     return { temps: [], winds: [] }
   }
+}
+
+// Formula shadow run (supabase/station-errors.sql): every source's raw error, also where
+// no airport is near (a town's official station) and on summits with a station on top.
+// The weights below don't use any of it, and until the table exists (PGRST205) there's nothing to log.
+async function saveShadow(cities, forecasts, observations, since) {
+  const { default: stations } = await import('@/lib/shadow-stations.json')
+  const near = cities.map(c => nearestStation(stations, c.lat, c.lon))
+  const ids = [...new Set([...near.filter(Boolean).map(s => s.id), ...SUMMITS.map(s => s.station)])]
+  const res = await fetch(`https://dataset.api.hub.geosphere.at/v1/station/current/tawes-v1-10min?parameters=TL&station_ids=${ids.join(',')}`, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+  const temps = stationTemps(res?.ok ? await res.json() : null)
+
+  const rows = []
+  for (const [i, { city, region }] of cities.entries()) {
+    const reading = chooseTruth({ stationTemp: temps.get(near[i]?.id), stationKm: near[i]?.km, metarTemps: observations[i].temps, metarKm: observations[i].km })
+    if (!reading) continue
+    const latest = {}
+    forecasts.filter(f => f.city === city).forEach(f => { latest[f.api_id] = f })
+    rows.push({ city, region, truth: reading.truth, truth_km: reading.km ?? null, actual: reading.actual, shown: await shownConsensus(city, since), errors: rawErrors(Object.values(latest), reading.actual) })
+  }
+  await Promise.all(SUMMITS.filter(s => temps.has(s.station)).map(async s => {
+    // temperature only, one day: the app's summit request is far bigger than this needs
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&elevation=${s.elev}&hourly=temperature_2m&models=${OM_MODELS.map(m => m.model).join(',')}&forecast_days=1&timezone=auto`
+    const answer = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+    const parsed = answer?.ok ? parseSummitMulti(await answer.json()) : null
+    if (!parsed) return
+    const actual = temps.get(s.station)
+    const errors = summitErrors(parsed, localHourIso(parsed.utcOffsetSec).slice(0, 13), actual)
+    if (Object.keys(errors).length) rows.push({ city: s.name, region: 'europe', truth: 'summit', truth_km: 0, actual, shown: null, errors })
+  }))
+  if (!rows.length) return
+  const { error } = await supabase.from('station_errors').insert(rows)
+  if (error && error.code !== 'PGRST205') await logError('station-errors', error)
 }
 
 export const GET = withErrorLog('station-calibrate', async (request) => {
@@ -83,7 +122,6 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   }
 
   const results = []
-  const shadow = []
   let calibrated = 0
 
   // The slow network part runs in parallel up front; the DB scoring below
@@ -112,7 +150,6 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     if (real.length) {
       const shown = await shownConsensus(city, since)
       await updateCityBias(city, lat, lon, region, actualTemp - (shown ?? median(real.map(f => f.temp))))
-      shadow.push({ city, region, actual: actualTemp, shown, errors: rawErrors(real, actualTemp) })
     }
 
     // 5. Score + re-weight (identical math to the feedback / calibrate routes).
@@ -143,12 +180,8 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     calibrated++
   }
 
-  // Formula shadow run (supabase/station-errors.sql). The weights above don't
-  // depend on it, and until the table exists (PGRST205) there's nothing to log.
-  if (shadow.length) {
-    const { error } = await supabase.from('station_errors').insert(shadow)
-    if (error && error.code !== 'PGRST205') await logError('station-errors', error)
-  }
+  // the weights are saved by now: whatever happens in here can't touch them
+  await saveShadow(cities, forecasts, observations, since).catch(e => logError('station-errors', e))
 
   return Response.json({ calibrated, since, radiusKm: RADIUS_KM, results })
 })

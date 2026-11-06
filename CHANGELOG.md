@@ -34,7 +34,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added
 - Styled "page not found" and error pages in all 13 languages: what happened, a search, and a link back to the forecast.
-- Behind the scenes: the hourly airport check also stores each source's raw temperature error, kept for 30 days, so a better weighting formula can be tried on all sources. The forecast and the weights are unchanged.
+- Behind the scenes: the hourly check also stores each source's raw temperature error, kept for 30 days, so a better weighting formula can be tried on all sources. Besides airports it uses official Austrian stations in town and on five summits. The forecast and the weights are unchanged.
 
 ### Fixed
 - The search button in the planner and in compare mode now has a translated label for screen readers.
