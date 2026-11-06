@@ -5,7 +5,21 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-06
 
+### Changed — the light theme, website and app
+- A new light theme replaces the lavender and blue one: a near-white sky, white cards with a soft edge, and the gold as the only accent, dark enough to read on white. Status colours are darkened just enough for AA contrast, the chart band is a light neutral, and the search and other filled buttons are a pale gold. The sky no longer changes with the weather in light. The app has the same colours and keeps its layout and sizes. The Android widget's light colours follow with the next app build.
+
+### Changed — the whole website
+- Every page now follows the home page's design: one type scale, one card style, the page width, plain section titles, and gold as the only accent. Legal texts are word for word as before. The app keeps its own design.
+- Rankings: one row per source with the same numbers, rank numbers instead of medals, and no emoji in the region buttons. The app keeps its cards.
+- Planner: temperature bars in gold and rain in the rain colour, with labels in plain text.
+- City and summit pages: whole degrees and drawn weather icons. The embedded widget has drawn icons too, and compare mode shows whole degrees on the website.
+- On a phone, search suggestions use the whole row instead of a narrow column.
+
+### Added
+- Styled "page not found" and error pages in all 13 languages: what happened, a search, and a link back to the forecast.
+
 ### Fixed
+- The search button in the planner and in compare mode now has a translated label for screen readers.
 - "Trusted most right now" no longer shows five sources at the same percentage as if that ranked them. Most good sources tie on the same weight, so the list now ranks by how close each has been lately, best first, without percentages. The forecast itself is unchanged.
 - Changing language no longer loses or swaps your city. A name saved in one language could find nothing in the next ("リエンツ" in English: "could not load the forecast") or another town ("Wien" in English: Wien, Missouri). The site and app now remember each translated name's English one and ask by that in any other language.
 

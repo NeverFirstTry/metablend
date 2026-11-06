@@ -622,37 +622,74 @@ html:not([data-app]) :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg text, .l
 :root { --page-width: 64rem; --reading-width: 46rem; --radius-card: 1rem; --radius-control: 0.5rem; --chart-temp: var(--hot); }
 html:not([data-app]) { --chart-temp: var(--accent); }
 .site-col { max-width: var(--page-width); margin-inline: auto; }
-html:not([data-app]) main > :is(.max-w-2xl, .max-w-3xl, .max-w-4xl) { max-width: var(--page-width); }
-html:not([data-app]) main p { max-width: var(--reading-width); }
-/* the beta note: one quiet line, not a box */
-html:not([data-app]) main .bg-amber-900\/20 { background: none; border: 0; padding: 0; border-radius: 0; color: var(--muted); }
-html:not([data-app]) .home-col { max-width: 64rem; }
-html:not([data-app]) main :is(h1, h2, .text-2xl, .text-3xl, .text-4xl, .sm\:text-2xl, .sm\:text-3xl, .sm\:text-4xl) { font-size: 1.5rem; line-height: 2rem; }
-html:not([data-app]) main :is(.text-base, .text-lg, .text-xl, .sm\:text-base, .sm\:text-lg, .sm\:text-xl) { font-size: 1rem; line-height: 1.5rem; }
-html:not([data-app]) main :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
-html:not([data-app]) main :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
-html:not([data-app]) main .bg-zinc-900.rounded-2xl { border-radius: 1rem; }
-html:not([data-app]) main .bg-zinc-900 { box-shadow: none; }
-html:not([data-app]) main :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
-html:not([data-app]) main .bg-zinc-800\/60.px-4 { padding-inline: 0; }
+/* Raised by the two :not()s, so the theme remaps above never win over the design layer */
+html:not([data-app]):not(.\#):not(.\#) main {
+  & > :is(.max-w-2xl, .max-w-3xl, .max-w-4xl) { max-width: var(--page-width); }
+  & p, & :is(ul, ol):not(.divide-y, .rank-list) > li { max-width: var(--reading-width); }
+  /* the beta note: one quiet line, not a box */
+  & .bg-amber-900\/20 { background: none; border: 0; padding: 0; border-radius: 0; color: var(--muted); }
+  /* type: a page title and section titles at 24, titles inside a card or a list at 16, a headline's accent word in plain ink */
+  & :is(h1, h2, .text-2xl, .text-3xl, .text-4xl, .sm\:text-2xl, .sm\:text-3xl, .sm\:text-4xl) { font-size: 1.5rem; line-height: 2rem; }
+  & :is(.text-base, .text-lg, .text-xl, .sm\:text-base, .sm\:text-lg, .sm\:text-xl) { font-size: 1rem; line-height: 1.5rem; }
+  & :is(h2, h3):is(.text-xs, .text-\[0\.625rem\]) { font-size: 1rem; line-height: 1.5rem; font-weight: 600; color: var(--foreground); }
+  & .bg-zinc-900 h2 { font-size: 1rem; line-height: 1.5rem; font-weight: 600; }
+  & h1.tracking-tight > .text-emerald-400 { color: inherit; }
+  & :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
+  /* one card: a tint on the sky, no border, no shadow, nothing inside it is a card */
+  & :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
+  & .bg-zinc-900.rounded-2xl { border-radius: var(--radius-card); }
+  & .bg-zinc-900 { box-shadow: none; }
+  & :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
+  & .bg-zinc-800\/60.px-4 { padding-inline: 0; }
+  /* the answer in words, straight on the sky */
+  & .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
+  & .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
+  & .home-toolbar button { background: none; }
+  /* tabs as words, the active one underlined in gold */
+  & [role="tablist"] { background: transparent; border-color: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; gap: 1.5rem; margin-top: 2rem; }
+  & [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  & [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+  /* quiet motion: the loader without its glow */
+  & .mb-loader .glow { display: none; }
+  /* charts: temperature in the gold, rain in the rain colour, labels in plain text */
+  & .bg-orange-400\/80 { background-color: var(--chart-temp); }
+  & .bg-blue-400\/70 { background-color: var(--info); }
+  & .text-orange-400 { color: var(--chart-temp); }
+  & .text-blue-400 { color: var(--info); }
+  & .legend-label { color: var(--muted); }
+  /* a phone keeps more of the card for the content */
+  @media (max-width: 639px) { & section.bg-zinc-900.p-6 { padding: 1rem; } }
+}
 /* in the light theme a card keeps its soft edge: white on near-white needs one */
-html:not([data-app])[data-theme="light"] main .bg-zinc-900:not([role="tablist"]) { box-shadow: var(--lift); border-color: var(--hairline); }
-html:not([data-app])[data-theme="light"] main input { background-color: #ffffff; border: 1px solid rgb(20 28 43 / 0.12); }
-/* the search: fields without frames; the white button is the one solid thing */
-html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
-/* the answer in words, straight on the sky */
-html:not([data-app]) main .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
-html:not([data-app]) main .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
-html:not([data-app]) main .home-toolbar button { background: none; }
+html:not([data-app]):not(.\#):not(.\#)[data-theme="light"] main .bg-zinc-900:not([role="tablist"]) { box-shadow: var(--lift); border-color: var(--hairline); }
+html:not([data-app]):not(.\#):not(.\#)[data-theme="light"] main input { background-color: #ffffff; border: 1px solid rgb(20 28 43 / 0.12); }
+html:not([data-app]) .home-col { max-width: var(--page-width); }
 html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
-/* tabs as words, the active one underlined in gold */
-html:not([data-app]) main [role="tablist"] { background: transparent !important; border-color: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; padding: 0; gap: 1.5rem; margin-top: 2rem; }
-html:not([data-app]) main [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
-html:not([data-app]) main [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
-/* quiet motion: a warning stays still; the loader without its glow */
+/* the search: fields without frames; the filled button is the one solid thing. On a phone the suggestions use the whole row */
+html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
+html:not([data-app]) .home-search > .relative { position: static; }
+/* a warning stays still */
 html:not([data-app]) .home-warning { animation: none; }
-html:not([data-app]) main .mb-loader .glow { display: none; }
 /* the Sources panel: one quiet row per source, a hairline between rows */
+/* Rankings: the source list with more columns. A phone stacks each row and labels its numbers;
+   from 56rem it is one line per source under one header. */
+.rank-list { list-style: none; margin: 0; padding: 0; }
+.rank-row { display: grid; grid-template-columns: 1.5rem minmax(0, 1fr); gap: 0.5rem 0.5rem; padding-block: 1rem; border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
+.rank-head { display: none; }
+.rank-weight { grid-column: 2; display: flex; align-items: center; gap: 0.75rem; }
+.rank-stats { grid-column: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem 0.5rem; }
+.rank-stat { display: flex; flex-direction: column; min-width: 0; }
+.rank-spark { grid-column: 1 / -1; gap: 0.25rem; }
+@media (min-width: 56rem) {
+  .rank-row { grid-template-columns: 1.5rem minmax(0, 1.2fr) minmax(0, 1fr) 4rem 4rem 4rem 4rem 4.5rem 7.5rem; align-items: center; gap: 0 1rem; padding-block: 0.75rem; }
+  .rank-head { display: grid; align-items: end; border-top: 0; padding-block: 0 0.5rem; }
+  .rank-weight { grid-column: 3; }
+  .rank-stats { display: contents; }
+  .rank-head .rank-stats > span, .rank-stat { text-align: right; }
+  .rank-head .rank-stats > span:last-child, .rank-spark { text-align: left; }
+  .rank-spark { grid-column: auto; }
+  .rank-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
 .source-list tbody tr { border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
 @media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
