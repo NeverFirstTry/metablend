@@ -8,6 +8,13 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed
 - Changing language no longer loses or swaps your city. A name saved in one language could find nothing in the next ("リエンツ" in English: "could not load the forecast") or another town ("Wien" in English: Wien, Missouri). The site and app now remember each translated name's English one and ask by that in any other language.
 
+### Changed — the website's home page (preview branch)
+- One sentence under "% agree" says how far the sources agree, following the same value: from 70% "reliable", 45 to 69% "fairly reliable", below 45% the whole range and "expect changes". With one source, a few sources, or all within 1°, it says that instead, and a range never shows the same number twice. The dots left the hero, and the countdown left the website's hero.
+- The arrow on the hero is gone from the website. Wind, cloud cover, visibility, precipitation, snowfall, ground temperature and the comparison with yesterday are a new "Current details" row below the tiles, collapsed at first, in one colour. The app keeps its arrow.
+- The dots in the Sources panel are one quiet row with a gold tick and "MetaBlend 3°", nothing stacked. The app keeps its chart.
+- The chart's hint reads "Shaded band: where most sources sit", in all 13 languages. The app keeps its wording.
+- 13 px is now the smallest text on every page of the website, chart labels and tiles included. The app keeps its sizes.
+
 ## 2026-11-05
 
 ### Changed — the website's home page (preview branch)

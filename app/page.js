@@ -38,7 +38,7 @@ import SourcesPanel from './components/outlook/SourcesPanel'
 import FeedbackPanel from './components/outlook/FeedbackPanel'
 import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
-import SourceSpread from './components/SourceSpread'
+import NowDetails from './components/outlook/NowDetails'
 import HowItWorks from './components/HowItWorks'
 import { Countdown, DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
@@ -922,10 +922,6 @@ ${url}`)
               </div>
             )}
 
-            <div className="home-hero">
-            <div className="web-only home-spread">
-              <SourceSpread sources={data.sources} consensusC={data.consensus.temp} unit={unit} title={t(lang, 'spreadTitle')} hint={t(lang, 'spreadHint')} />
-            </div>
             <div className="space-y-4">
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
@@ -971,7 +967,6 @@ ${url}`)
               onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
             <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
             </div>
-            </div>
 
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
@@ -986,6 +981,12 @@ ${url}`)
             )}
 
             <PushPrompt lang={lang} unit={unit} />
+
+            <div className="web-only">
+              <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
+                <NowDetails data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
+              </Fold>
+            </div>
 
             {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
             <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"

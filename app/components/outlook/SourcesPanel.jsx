@@ -3,20 +3,32 @@
 import Link from 'next/link'
 import { Trophy } from 'lucide-react'
 import { t, translateCondition } from '@/lib/i18n'
+import { isAppView } from '@/lib/app-client'
 import SourceSpread from '../SourceSpread'
+import SourceDots from '../SourceDots'
 
 // "Who's right now": every live source's current reading and its learned
 // weight, with the spread strip on top. Folded away on the forecast page.
 export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
   return (
     <div className="space-y-4">
-      <SourceSpread
-        sources={data.sources}
-        consensusC={data.consensus.temp}
-        unit={unit}
-        title={t(lang, 'spreadTitle')}
-        hint={t(lang, 'spreadHint')}
-      />
+      {isAppView() ? (
+        <SourceSpread
+          sources={data.sources}
+          consensusC={data.consensus.temp}
+          unit={unit}
+          title={t(lang, 'spreadTitle')}
+          hint={t(lang, 'spreadHint')}
+        />
+      ) : (
+        <SourceDots
+          sources={data.sources}
+          consensusC={data.consensus.temp}
+          unit={unit}
+          title={t(lang, 'spreadTitle')}
+          hint={t(lang, 'spreadDotsHint')}
+        />
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* house model first — the API appends it last */}
         {[...data.sources].sort((a, b) => (b.apiId === 'metablend') - (a.apiId === 'metablend')).map(src => {

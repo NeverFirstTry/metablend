@@ -20,7 +20,7 @@ function useNow() {
 export function Countdown({ at, lang }) {
   const ms = Math.max(0, at - useNow())
   return (
-    <span className="text-zinc-500 text-[0.6875rem] tabular-nums">
+    <span className="app-only text-zinc-500 text-[0.6875rem] tabular-nums">
       {t(lang, 'refreshesIn')} {Math.floor(ms / 60000)}:{String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}
     </span>
   )

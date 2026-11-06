@@ -5,30 +5,36 @@ import { ChevronDown, Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } fr
 import { t, translateCondition } from '@/lib/i18n'
 import { MetricCard } from '../ui'
 import { conditionIcon, heroCondition } from '@/lib/conditions'
+import { isAppView } from '@/lib/app-client'
+import { tempFormatter } from '@/lib/outlook/text'
+import { liveSources, spreadSentence } from '@/lib/spread'
 import Glyph from '../Glyph'
 
 const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
 const cloudColor = v => (v == null ? MUTED : v < 30 ? GREEN : v < 70 ? YELLOW : RED)
 const visColor = v => (v == null ? MUTED : v >= 10 ? GREEN : v >= 4 ? YELLOW : RED)
 
+export const yesterdayDelta = data => (data.yesterdayTemp != null ? Math.round((data.consensus.temp - data.yesterdayTemp) * 10) / 10 : null)
+
 // "Right now", reduced to one line — the future tabs below are the main
-// event. Tapping it opens everything the old hero showed.
+// event. In the app, tapping it opens everything the old hero showed; on the
+// website that is a row further down (NowDetails) and the line says how far
+// the sources agree instead.
 export default function NowLine({ data, unit, lang, showT, showDelta, dark = null }) {
   const [open, setOpen] = useState(false)
   const c = data.consensus
   const condition = heroCondition(data)
   const agreeColor = c.confidencePct >= 70 ? 'var(--ok)' : c.confidencePct >= 45 ? 'var(--warn)' : 'var(--bad)'
   const d = data.details
-  const yd = data.yesterdayTemp != null ? Math.round((c.temp - data.yesterdayTemp) * 10) / 10 : null
+  const yd = yesterdayDelta(data)
+  const inApp = isAppView()
   const rainingHint = data.rainingNow?.count > 0
     ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
-  return (
-    <div className="@container">
-      {/* the hero: the temperature as a big light numeral, straight on the sky
-          (large text: the details drop below the numeral) */}
-      <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-end justify-between gap-4 text-left group">
-        <span className="flex items-end gap-4 min-w-0 @max-[18rem]:flex-wrap">
+  // the hero: the temperature as a big light numeral, straight on the sky
+  // (large text: the details drop below the numeral)
+  const hero = (
+        <span className={`flex ${inApp ? 'items-end' : 'items-start'} gap-4 min-w-0 @max-[18rem]:flex-wrap`}>
           {/* whole degrees in the hero — the tenths live in the details */}
           <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
             {Math.round(Number(showT(c.temp)))}°
@@ -43,13 +49,23 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
             {c.feelsLike != null && (
               <span className="block text-zinc-400 tabular-nums">{t(lang, 'feelsLike')} {Math.round(Number(showT(c.feelsLike)))}°</span>
             )}
-            <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
-              <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
-              {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
-            </span>
+            {/* one source can't agree with anything: its 100% would mislead (the app keeps it) */}
+            {(inApp || liveSources(data.sources).length !== 1) && (
+              <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
+                <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
+                {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
+              </span>
+            )}
             {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
+            {!inApp && <span className="block mt-2 max-w-md text-zinc-300">{spreadSentence(lang, data.sources, tempFormatter(unit), c.confidencePct)}</span>}
           </span>
         </span>
+  )
+  if (!inApp) return <div className="@container">{hero}</div>
+  return (
+    <div className="@container">
+      <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-end justify-between gap-4 text-left group">
+        {hero}
         <ChevronDown size={18} className={`mb-2 shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
       {open && (
