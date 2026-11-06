@@ -16,7 +16,7 @@ import { countSources } from '@/lib/sources'
 import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
-import { nearParam, withNear } from '@/lib/geo'
+import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -118,6 +118,11 @@ const NEAR_KEY = 'metablend_near'
 const nearMap = () => { try { return JSON.parse(localStorage.getItem(NEAR_KEY)) ?? {} } catch { return {} } }
 const nearOf = q => nearMap()[q.trim().toLowerCase()] ?? null
 const rememberNear = (q, near) => { try { localStorage.setItem(NEAR_KEY, JSON.stringify(withNear(nearMap(), q, near))) } catch { /* private mode */ } }
+// The English name of each translated one, so another language still finds the
+// place (lib/geo.js). Filled by every successful load.
+const NAMES_KEY = 'metablend_names'
+const nameMap = () => { try { return JSON.parse(localStorage.getItem(NAMES_KEY)) ?? {} } catch { return {} } }
+const keepName = (json, lang) => { try { localStorage.setItem(NAMES_KEY, JSON.stringify(rememberName(nameMap(), json.city, json.learnCity, lang))) } catch { /* private mode */ } }
 const TAB_KEY = 'mb_tab'
 
 // ── Welcome / empty state ────────────────────────────────────────────────────
@@ -269,7 +274,7 @@ export default function Home() {
         recent: getRecent(),
       })
       if (first) {
-        setCity(first)
+        setCity(askName(nameMap(), first, detectedLang))
         loadForecast(first, { lang: detectedLang, remember: false })
       }
     }
@@ -418,6 +423,8 @@ export default function Home() {
     const q = targetCity ?? city
     if (!q.trim()) return
     const near = nearAt ?? nearOf(q)
+    // a place just picked or located keeps its name: it comes in the current language
+    const ask = nearAt ? q : askName(nameMap(), q, asLang)
     if (nearAt) rememberNear(q, nearAt) // kept at once: a load left half-way resumes with it
     // only the latest load shows or keeps its answer (lib/forecast-session.js)
     const load = startLoad()
@@ -432,8 +439,8 @@ export default function Home() {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q) } : j))),
-        fetch(`/api/outlook?city=${cityKey(q)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
+        fetch(`/api/forecast?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q) } : j))),
+        fetch(`/api/outlook?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
       ])
       if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: loadError(asLang, 0, q) }
@@ -443,6 +450,7 @@ export default function Home() {
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
       rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
       if (near) rememberNear(json.city ?? q, near)
+      keepName(json, asLang)
       if (out) { setOutlook(out); setOutlookError(null) }
       else {
         setOutlookError(outRes.status === 'fulfilled' ? outRes.value?.error ?? 'error' : 'network')
@@ -501,7 +509,7 @@ export default function Home() {
     // another city loaded meanwhile: this answer is stale (lib/forecast-session.js)
     const load = currentLoad()
     try {
-      const out = await fetch(`/api/outlook?city=${cityKey(data.city)}&lang=${lang}${nearQuery(nearOf(data.city))}`).then(r => r.json())
+      const out = await fetch(`/api/outlook?city=${cityKey(askName(nameMap(), data.city, lang))}&lang=${lang}${nearQuery(nearOf(data.city))}`).then(r => r.json())
       if (out.error) throw new Error(out.error)
       if (isLatestLoad(load)) setOutlook(out)
     } catch (e) {

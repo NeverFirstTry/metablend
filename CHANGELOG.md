@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-06
+
+### Fixed
+- Changing language no longer loses or swaps your city. A name saved in one language could find nothing in the next ("リエンツ" in English: "could not load the forecast") or another town ("Wien" in English: Wien, Missouri). The site and app now remember each translated name's English one and ask by that in any other language.
+
 ## 2026-11-05
 
 ### Added
