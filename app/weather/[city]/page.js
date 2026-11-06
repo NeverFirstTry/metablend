@@ -7,6 +7,7 @@ import { headlineText, deltaFormatter } from '@/lib/outlook/text'
 import { heroCondition } from '@/lib/conditions'
 import { readForecast } from '@/lib/weather-page'
 import Footer from '../../components/Footer'
+import Glyph from '../../components/Glyph'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
 // HTML. No build-time generation (that would burn upstream API quota on every
@@ -124,11 +125,11 @@ export default async function CityWeather({ params }) {
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">Right now</h2>
           <div className="flex flex-wrap items-end gap-6">
             <div className="text-6xl sm:text-7xl font-bold tabular-nums leading-none">
-              {data.consensus.temp}°C
+              {Math.round(data.consensus.temp)}°C
             </div>
             <div className="text-zinc-300 pb-1">
               {condition && <div className="text-lg font-bold">{condition}</div>}
-              <div className="text-sm text-zinc-500">feels like {data.consensus.feelsLike}°C</div>
+              <div className="text-sm text-zinc-500">feels like {Math.round(data.consensus.feelsLike)}°C</div>
             </div>
           </div>
           <dl className="flex flex-wrap gap-x-8 gap-y-2 mt-6 text-sm">
@@ -166,7 +167,7 @@ export default async function CityWeather({ params }) {
                 {week.map(d => (
                   <tr key={d.date} className="border-t border-zinc-800">
                     <td className="py-2 pr-3 sm:pr-4 whitespace-nowrap">{weekday(d.date)}</td>
-                    <td className="py-2 pr-3 sm:pr-4">{d.icon ?? ''} <span className="sr-only sm:not-sr-only">{d.condition ?? ''}</span></td>
+                    <td className="py-2 pr-3 sm:pr-4"><Glyph emoji={d.icon} size={16} /> <span className="sr-only sm:not-sr-only">{d.condition ?? ''}</span></td>
                     <td className="py-2 pr-3 sm:pr-4 tabular-nums whitespace-nowrap">{Math.round(d.tempMax)}° / {Math.round(d.tempMin)}°</td>
                     <td className="py-2 pr-3 sm:pr-4 tabular-nums">{d.rainPct != null ? `${d.rainPct}%` : '–'}</td>
                     <td className="py-2 tabular-nums whitespace-nowrap">{d.windKmh != null ? `${d.windKmh} km/h` : '–'}</td>
@@ -196,7 +197,7 @@ export default async function CityWeather({ params }) {
           )}
           {outlook?.vsNormal?.week1 != null && (
             <p className="text-sm text-zinc-400 leading-relaxed mt-3">
-              This week runs {deltaFormatter('C')(outlook.vsNormal.week1)}C against the 10-year normal for {name};{' '}
+              This week runs {deltaFormatter('C')(Math.round(outlook.vsNormal.week1))}C against the 10-year normal for {name};{' '}
               {outlook.rainyDays.forecast} of the next {outlook.rainyDays.of} days look rainy
               {outlook.rainyDays.normal != null ? ` (normal: ${outlook.rainyDays.normal})` : ''}.
             </p>

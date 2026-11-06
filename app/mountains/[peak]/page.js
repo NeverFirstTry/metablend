@@ -9,6 +9,7 @@ import { jsonForScript } from '@/lib/html'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
+import Glyph from '../../components/Glyph'
 
 // Server-rendered summit weather for each featured peak: the summit window,
 // a 7-day summit table and (in winter) the avalanche danger, in crawlable
@@ -141,7 +142,7 @@ export default async function MountainWeather({ params }) {
               <tbody>
                 {d.days.map(x => (
                   <tr key={x.date} className="border-t border-zinc-800">
-                    <td className="py-2 pr-4 whitespace-nowrap">{x.icon ?? ''} {day(x.date)}</td>
+                    <td className="py-2 pr-4 whitespace-nowrap"><Glyph emoji={x.icon} size={16} /> {day(x.date)}</td>
                     <td className="py-2 pr-4 tabular-nums">{Math.round(x.tempMin)}° / {Math.round(x.tempMax)}°</td>
                     <td className="py-2 pr-4 tabular-nums">{x.windMax != null ? `${x.windMax} km/h` : '–'}</td>
                     <td className="py-2 pr-4 tabular-nums">{x.rainPct != null ? `${x.rainPct}%` : '–'}</td>

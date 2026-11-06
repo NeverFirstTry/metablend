@@ -11,6 +11,7 @@ import { SITE, pickLang, pickUnit, pickTheme } from '@/lib/share'
 import { countSources } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import SkyLoader from '../../components/SkyLoader'
+import Glyph from '../../components/Glyph'
 
 // The embeddable card (an iframe on other sites): the city's weather right
 // now on its sky. ?lang= ?unit=F ?theme=dark|light (default: the visitor's
@@ -69,14 +70,14 @@ export default function Widget() {
             <div className="text-base font-semibold tracking-tight truncate">{now.city}</div>
             {now.country && <div className="text-xs text-zinc-400 truncate">{now.country}</div>}
           </div>
-          {icon && <div className="text-2xl leading-none min-[440px]:hidden" aria-hidden>{icon}</div>}
+          {icon && <div className="text-2xl leading-none min-[440px]:hidden" aria-hidden><Glyph emoji={icon} size={24} /></div>}
         </div>
         <div className="hidden min-[440px]:flex flex-col gap-1 mt-3 text-[0.6875rem] text-zinc-400">{sourcesLine}{brand}</div>
       </div>
       <div className="flex items-end gap-3 min-[440px]:items-center">
         <span className="text-6xl font-extralight tabular-nums leading-[0.85] tracking-tight">{fmt(now.consensus.temp)}</span>
         <div className="pb-0.5 text-sm min-w-0">
-          <div className="flex items-center gap-1.5 truncate">{icon && <span className="hidden min-[440px]:inline" aria-hidden>{icon}</span>}{condition}</div>
+          <div className="flex items-center gap-1.5 truncate">{icon && <span className="hidden min-[440px]:inline" aria-hidden><Glyph emoji={icon} size={16} /></span>}{condition}</div>
           {day && <div className="text-zinc-400 tabular-nums whitespace-nowrap">↑ {fmt(day.tempMax)}  ↓ {fmt(day.tempMin)}</div>}
         </div>
       </div>
