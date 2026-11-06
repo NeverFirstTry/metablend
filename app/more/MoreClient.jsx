@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Settings, Compass, ChevronRight, ArrowLeft } from 'lucide-react'
+import { Settings, Compass, ChevronRight } from 'lucide-react'
 import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
@@ -53,10 +53,6 @@ export default function MoreClient() {
 
   return (
     <div className="space-y-6">
-      {/* on the web there is no tab bar to leave by */}
-      <Link href="/" className="web-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-        <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-      </Link>
       <h1 className="text-3xl font-bold tracking-tight">{t(lang, 'more')}</h1>
       <section className="space-y-3">
         <SectionTitle icon={Settings}>{t(lang, 'settingsTitle')}</SectionTitle>

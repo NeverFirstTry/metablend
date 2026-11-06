@@ -5,20 +5,68 @@ import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
+import { isAppView } from '@/lib/app-client'
 import { useUnit } from '@/lib/useUnit'
 import { tempFormatter } from '@/lib/outlook/text'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
 
-// localized short month name (any non-leap year works as the anchor)
-const monthName = (lang, m) => new Date(2001, m - 1, 1).toLocaleDateString(lang, { month: 'short' })
+// localized month name (any non-leap year works as the anchor)
+const monthName = (lang, m, month = 'short') => new Date(2001, m - 1, 1).toLocaleDateString(lang, { month })
 
 // score a month for "nice to visit": mild temp (18-26° ideal) and few rainy days
 function comfortScore(m) {
   if (m.avgTemp == null) return -Infinity
   const tempMiss = m.avgTemp < 18 ? 18 - m.avgTemp : m.avgTemp > 26 ? m.avgTemp - 26 : 0
   return -(tempMiss * 2 + (m.avgRainDays ?? 0))
+}
+
+// The website's chart: one measure with its own axis, so a cold month's bar reads as cold and
+// nothing is compared across two scales. Bars grow from zero, down for frost. On a phone the
+// axis carries the numbers, because twelve labels don't fit, and the months are single letters.
+function MonthChart({ title, rows, format, barClass, best, lang }) {
+  const values = rows.map(r => r.value).filter(v => v != null)
+  const hi = Math.max(0, ...values)
+  const lo = Math.min(0, ...values)
+  const top = v => ((hi - v) / ((hi - lo) || 1)) * 100
+  const ticks = lo < 0 && hi > 0 ? [hi, 0, lo] : [hi, (hi + lo) / 2, lo]
+  const said = rows.filter(r => r.value != null).map(r => `${monthName(lang, r.month, 'long')} ${format(r.value)}`).join(', ')
+  return (
+    <figure role="img" aria-label={`${title}: ${said}`} className="min-w-0">
+      <figcaption className="text-sm mb-6">{title}</figcaption>
+      <div className="flex gap-2">
+        <div className="relative w-10 h-40 shrink-0 text-xs text-zinc-400 tabular-nums" aria-hidden>
+          {ticks.map(v => <span key={v} className="absolute right-0 -translate-y-1/2" style={{ top: `${top(v)}%` }}>{format(v)}</span>)}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="relative h-40">
+            {ticks.map(v => <div key={v} className="chart-line absolute left-0 right-0" style={{ top: `${top(v)}%` }} />)}
+            <div className="absolute inset-0 grid grid-cols-12 gap-1">
+              {rows.map(r => (
+                <div key={r.month} className="relative" title={r.value != null ? format(r.value) : ''}>
+                  {r.value != null && (
+                    <>
+                      <div className={`absolute inset-x-0 rounded-sm ${barClass}`} style={{ top: `${Math.min(top(r.value), top(0))}%`, height: `${Math.max(1, Math.abs(top(r.value) - top(0)))}%` }} />
+                      <div className="hidden sm:block absolute inset-x-0 -translate-y-full text-center text-xs tabular-nums pb-0.5" style={{ top: `${Math.min(top(r.value), top(0))}%` }}>{format(r.value)}</div>
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="grid grid-cols-12 gap-1 mt-2 text-xs text-center">
+            {rows.map(r => (
+              <div key={r.month} className={best.includes(r.month) ? 'text-emerald-400 font-bold' : 'text-zinc-400'}>
+                <span className="hidden sm:inline">{monthName(lang, r.month)}</span>
+                <span className="sm:hidden">{monthName(lang, r.month, 'narrow')}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </figure>
+  )
 }
 
 export default function Planner() {
@@ -56,7 +104,7 @@ export default function Planner() {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+        <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 
@@ -110,8 +158,15 @@ export default function Planner() {
               </div>
             )}
 
-            {/* 12-month chart */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
+            {!isAppView() && (
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
+                <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-orange-400/80" best={best} lang={lang} />
+                <MonthChart title={t(lang, 'plRainyDays')} rows={months.map(m => ({ month: m.month, value: m.avgRainDays ?? null }))} format={v => String(Math.round(v))} barClass="bg-blue-400/70" best={best} lang={lang} />
+              </div>
+            )}
+
+            {/* 12-month chart, in the app */}
+            {isAppView() && <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <div className="flex gap-4 text-xs mb-5">
                 <span className="text-orange-400">■ <span className="legend-label">{t(lang, 'plAvgTemp')}</span></span>
                 <span className="text-blue-400">■ <span className="legend-label">{t(lang, 'plRainyDays')}</span></span>
@@ -135,7 +190,7 @@ export default function Planner() {
                   )
                 })}
               </div>
-            </div>
+            </div>}
           </div>
         )}
 

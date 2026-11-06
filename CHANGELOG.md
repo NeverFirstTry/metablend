@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-06
 
+### Changed — follow-ups across the website
+- Every page now has the same header as the home page: Rankings, Heatmap, Planner, Hiking, Aviation, plus unit, theme and language. The "Back" links are gone from the website. The app keeps its tab bar and its Back links.
+- The mountain, city and aviation pages are now in all 13 languages, at the same addresses. METAR, TAF and flight-category codes stay as the international codes they are. Temperatures on the mountain and city pages follow your °C or °F setting.
+- Hiking and summit pages say "Beta on iPhone & Android" instead of "Coming soon".
+- The summit 7-day table fits a phone without sideways scrolling.
+- Planner: temperature and rainy days are two charts, each with its own axis, so a cold month reads as cold.
+- Rankings: one line explains Score and Reports, and "Recalibrate weights" is gone from the website.
+- Legal page titles have their missing spaces: "Terms & Copyright", "Privacy Notice". The text below them is unchanged.
+
 ### Changed — the light theme, website and app
 - A new light theme replaces the lavender and blue one: a near-white sky, white cards with a soft edge, and the gold as the only accent, dark enough to read on white. Status colours are darkened just enough for AA contrast, the chart band is a light neutral, and the search and other filled buttons are a pale gold. The sky no longer changes with the weather in light. The app has the same colours and keeps its layout and sizes. The Android widget's light colours follow with the next app build.
 - With the next app build, the Android notification tint and the Retry button on the app's no-connection page turn from the old green to the gold.

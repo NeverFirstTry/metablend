@@ -5,16 +5,14 @@ import Link from 'next/link'
 import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
-  Search, Navigation, ArrowLeftRight, Star, Share2, Code2, Download,
+  Search, Navigation, ArrowLeftRight, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
-  CheckCircle2, Send, Gauge, Sun, Moon, CloudRain, Layers,
+  CheckCircle2, Send, Gauge, CloudRain, Layers,
   Sparkles, ChevronDown,
 } from 'lucide-react'
-import { t, LANGUAGES, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
+import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { countSources } from '@/lib/sources'
-import { THEME_COOKIE, applyTheme } from '@/lib/theme'
-import { useShownTheme } from '@/lib/useTheme'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
@@ -27,6 +25,7 @@ import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import Footer from './components/Footer'
+import SiteHeader from './components/SiteHeader'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
 import WarningStrip from './components/outlook/WarningStrip'
@@ -209,7 +208,6 @@ export default function Home() {
   // the two can't disagree (a load finishing in between left a loader stuck)
   const [resume] = useState(() => resumeForecast({ deepLink: typeof window === 'undefined' ? null : new URLSearchParams(window.location.search).get('city') }))
   const router = useRouter()
-  const theme = useShownTheme() // the device's setting unless the visitor chose one
   const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
   const [recent, setRecent] = useState([])
@@ -339,14 +337,6 @@ export default function Home() {
     setUnit(u)
     setCookie('metablend_unit', u)
     publishPrefs({ unit: u })
-  }
-
-  // the header button flips what's on screen and keeps that as an explicit
-  // choice; More → Appearance → System goes back to following the device
-  function toggleTheme() {
-    const next = theme === 'dark' ? 'light' : 'dark'
-    setCookie(THEME_COOKIE, next)
-    applyTheme(next)
   }
 
   // Logo click: back to the start view (clear the loaded forecast + compare)
@@ -636,78 +626,23 @@ ${url}`)
       <div className="home-col max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex flex-wrap items-center gap-2">
-            <button
-              onClick={resetToStart}
-              title={t(lang, 'backToStart')}
-              className="cursor-pointer hover:opacity-80 transition-opacity"
-            >
-              Meta<span className="text-emerald-400">Blend</span>
-            </button>
-            <span className="app-only text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
-              Beta
-            </span>
-          </h1>
-          {/* in the app these live in the tab bar and the More tab */}
-          <nav aria-label={t(lang, 'homeNavLabel')} className="web-only order-last w-full lg:order-none lg:w-auto flex flex-wrap gap-x-4 gap-y-2 text-sm">
-            <Link href="/leaderboard" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'leaderboard')}</Link>
-            <Link href="/heatmap" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'heatmap')}</Link>
-            <Link href="/planner" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'planner')}</Link>
-            <Link href="/hike" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'hiking')}</Link>
-            <Link href="/aviation" className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, 'aviation')}</Link>
-          </nav>
-          <div className="web-only flex items-center gap-2 shrink-0">
-            {/* Unit toggle */}
-            <div className="flex shrink-0">
-              {['C', 'F'].map(u => (
-                <button
-                  key={u}
-                  onClick={() => changeUnit(u)}
-                  aria-pressed={unit === u}
-                  className={`w-8 py-2 text-sm leading-none text-center transition-colors ${
-                    unit === u ? 'font-bold' : 'text-zinc-400 hover:text-emerald-400'
-                  }`}
-                >
-                  °{u}
-                </button>
-              ))}
-            </div>
-            {/* Theme toggle — dark is the default, light is the print view */}
-            <button
-              onClick={toggleTheme}
-              title={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
-              aria-label={t(lang, theme === 'dark' ? 'themeLight' : 'themeDark')}
-              className="press w-8 h-8 rounded-lg text-zinc-400 hover:text-emerald-400 flex items-center justify-center shrink-0"
-            >
-              {theme === 'dark'
-                ? <Sun size={16} aria-hidden />
-                : <Moon size={16} aria-hidden />}
-            </button>
-            {/* Language switcher */}
-            <select
-              value={langPick}
-              onChange={e => changeLang(e.target.value)}
-              aria-label={t(lang, 'langLabel')}
-              className="bg-transparent border-0 rounded-lg py-2 text-sm text-zinc-400 hover:text-emerald-400 outline-none cursor-pointer max-w-28"
-            >
-              <option value={LANG_SYSTEM}>{t(lang, 'themeSystemName')}</option>
-              {LANGUAGES.map(l => (
-                <option key={l.code} value={l.code}>{l.label}</option>
-              ))}
-            </select>
-            {installPrompt && (
+        <SiteHeader
+          lang={lang} langPick={langPick} onLang={changeLang} unit={unit} onUnit={changeUnit} onInstall={installPrompt ? installApp : null}
+          logo={
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight flex flex-wrap items-center gap-2">
               <button
-                onClick={installApp}
-                aria-label={t(lang, 'installApp')}
-                title={t(lang, 'installApp')}
-                className="press text-emerald-400 w-8 h-8 inline-flex items-center justify-center"
+                onClick={resetToStart}
+                title={t(lang, 'backToStart')}
+                className="cursor-pointer hover:opacity-80 transition-opacity"
               >
-                <Download size={16} aria-hidden />
+                Meta<span className="text-emerald-400">Blend</span>
               </button>
-            )}
-          </div>
-        </div>
+              <span className="app-only text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
+                Beta
+              </span>
+            </h1>
+          }
+        />
         <p className="app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>

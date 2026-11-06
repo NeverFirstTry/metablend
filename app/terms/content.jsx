@@ -39,7 +39,7 @@ function AttributionList() {
 const CONTENT = {
   en: {
     updated: 'Last updated November 2026',
-    t1: 'Terms', t2: '&Copyright',
+    t1: 'Terms ', t2: '& Copyright',
     sections: [
       { title: 'Beta — no warranty', body: <>MetaBlend is provided <strong>“as is”</strong> and is under active development. We make no warranty of availability or fitness for any purpose.</> },
       { title: 'Not for safety-critical use', body: <>Do not rely on MetaBlend for decisions where weather accuracy matters to safety — aviation, marine, severe-weather, medical, or similar. Always consult an official meteorological service. The Aviation pages (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) are supplementary information only — never use them for flight planning or navigation; always obtain an official preflight briefing.</> },
@@ -56,7 +56,7 @@ const CONTENT = {
 
   de: {
     updated: 'Zuletzt aktualisiert November 2026',
-    t1: 'Nutzung', t2: '&Urheberrecht',
+    t1: 'Nutzung ', t2: '& Urheberrecht',
     sections: [
       { title: 'Beta — keine Gewährleistung', body: <>MetaBlend wird <strong>„wie besehen“</strong> bereitgestellt und befindet sich in aktiver Entwicklung. Wir übernehmen keine Gewähr für Verfügbarkeit oder Eignung für irgendeinen Zweck.</> },
       { title: 'Nicht für sicherheitskritische Zwecke', body: <>Verlassen Sie sich nicht auf MetaBlend, wenn Wettergenauigkeit sicherheitsrelevant ist — Luftfahrt, Seefahrt, Unwetter, Medizin oder Ähnliches. Ziehen Sie immer einen offiziellen Wetterdienst zurate. Die Aviation-Seiten (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sind reine Zusatzinformation — niemals für Flugplanung oder Navigation verwenden; holen Sie immer ein offizielles Preflight-Briefing ein.</> },
@@ -73,7 +73,7 @@ const CONTENT = {
 
   fr: {
     updated: 'Dernière mise à jour : novembre 2026',
-    t1: 'Conditions', t2: '&Droits',
+    t1: 'Conditions ', t2: '& Droits',
     sections: [
       { title: 'Bêta — aucune garantie', body: <>MetaBlend est fourni <strong>« en l’état »</strong> et est en cours de développement actif. Nous ne garantissons ni la disponibilité, ni l’adéquation à un quelconque usage.</> },
       { title: 'Pas pour un usage critique pour la sécurité', body: <>Ne vous fiez pas à MetaBlend pour des décisions où la précision météo touche à la sécurité — aviation, navigation, phénomènes violents, médical ou similaire. Consultez toujours un service météorologique officiel. Les pages Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) ne sont qu’une information complémentaire — ne les utilisez jamais pour la préparation des vols ni la navigation ; obtenez toujours un briefing prévol officiel.</> },
@@ -90,7 +90,7 @@ const CONTENT = {
 
   es: {
     updated: 'Última actualización: noviembre de 2026',
-    t1: 'Términos', t2: '&Derechos',
+    t1: 'Términos ', t2: '& Derechos',
     sections: [
       { title: 'Beta — sin garantía', body: <>MetaBlend se ofrece <strong>«tal cual»</strong> y está en desarrollo activo. No garantizamos disponibilidad ni idoneidad para ningún fin.</> },
       { title: 'No apto para usos críticos de seguridad', body: <>No confíe en MetaBlend para decisiones donde la precisión meteorológica afecte a la seguridad — aviación, navegación, fenómenos severos, medicina o similares. Consulte siempre un servicio meteorológico oficial. Las páginas de Aviación (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) son solo información complementaria — no las use nunca para planificación de vuelos ni navegación; obtenga siempre un briefing prevuelo oficial.</> },
@@ -107,7 +107,7 @@ const CONTENT = {
 
   it: {
     updated: 'Ultimo aggiornamento: novembre 2026',
-    t1: 'Termini', t2: '&Copyright',
+    t1: 'Termini ', t2: '& Copyright',
     sections: [
       { title: 'Beta — nessuna garanzia', body: <>MetaBlend è fornito <strong>«così com’è»</strong> ed è in sviluppo attivo. Non garantiamo disponibilità o idoneità ad alcuno scopo.</> },
       { title: 'Non per usi critici per la sicurezza', body: <>Non si affidi a MetaBlend per decisioni in cui la precisione meteo riguarda la sicurezza — aviazione, navigazione, eventi severi, ambito medico o simili. Consulti sempre un servizio meteorologico ufficiale. Le pagine Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) sono solo informazioni supplementari — non le usi mai per la pianificazione dei voli né per la navigazione; ottenga sempre un briefing pre-volo ufficiale.</> },
@@ -124,7 +124,7 @@ const CONTENT = {
 
   nl: {
     updated: 'Laatst bijgewerkt november 2026',
-    t1: 'Voorwaarden', t2: '&Auteursrecht',
+    t1: 'Voorwaarden ', t2: '& Auteursrecht',
     sections: [
       { title: 'Beta — geen garantie', body: <>MetaBlend wordt <strong>„zoals het is”</strong> aangeboden en is in actieve ontwikkeling. Wij geven geen garantie voor beschikbaarheid of geschiktheid voor enig doel.</> },
       { title: 'Niet voor veiligheidskritisch gebruik', body: <>Vertrouw niet op MetaBlend voor beslissingen waarbij de nauwkeurigheid van het weer van belang is voor de veiligheid — luchtvaart, scheepvaart, zwaar weer, medisch of vergelijkbaar. Raadpleeg altijd een officiële meteorologische dienst. De Aviation-pagina’s (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) zijn uitsluitend aanvullende informatie — gebruik ze nooit voor vluchtplanning of navigatie; vraag altijd een officiële preflight-briefing aan.</> },
@@ -141,7 +141,7 @@ const CONTENT = {
 
   pl: {
     updated: 'Ostatnia aktualizacja: listopad 2026',
-    t1: 'Warunki', t2: '&Prawa autorskie',
+    t1: 'Warunki ', t2: '& Prawa autorskie',
     sections: [
       { title: 'Beta — brak gwarancji', body: <>MetaBlend jest udostępniany <strong>„w stanie, w jakim jest”</strong> i jest w aktywnym rozwoju. Nie gwarantujemy dostępności ani przydatności do jakiegokolwiek celu.</> },
       { title: 'Nie do zastosowań krytycznych dla bezpieczeństwa', body: <>Nie należy polegać na MetaBlend przy decyzjach, w których dokładność pogody ma znaczenie dla bezpieczeństwa — lotnictwo, żegluga, groźne zjawiska, medycyna lub podobne. Należy zawsze korzystać z oficjalnej służby meteorologicznej. Strony Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) to wyłącznie informacje uzupełniające — nigdy nie należy ich używać do planowania lotów ani nawigacji; należy zawsze uzyskać oficjalny briefing przedlotowy.</> },
@@ -158,7 +158,7 @@ const CONTENT = {
 
   cs: {
     updated: 'Naposledy aktualizováno v listopadu 2026',
-    t1: 'Podmínky', t2: '&Autorská práva',
+    t1: 'Podmínky ', t2: '& Autorská práva',
     sections: [
       { title: 'Beta — bez záruky', body: <>MetaBlend je poskytován <strong>„tak, jak je“</strong> a je v aktivním vývoji. Neposkytujeme záruku dostupnosti ani vhodnosti pro jakýkoli účel.</> },
       { title: 'Ne pro bezpečnostně kritické použití', body: <>Nespoléhejte na MetaBlend při rozhodnutích, kde přesnost počasí ovlivňuje bezpečnost — letectví, námořní doprava, nebezpečné jevy, zdravotnictví a podobně. Vždy se obraťte na oficiální meteorologickou službu. Stránky Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) jsou pouze doplňkové informace — nikdy je nepoužívejte k plánování letů ani navigaci; vždy si opatřete oficiální předletový briefing.</> },
@@ -175,7 +175,7 @@ const CONTENT = {
 
   sl: {
     updated: 'Zadnja posodobitev: november 2026',
-    t1: 'Pogoji', t2: '&Avtorske pravice',
+    t1: 'Pogoji ', t2: '& Avtorske pravice',
     sections: [
       { title: 'Beta — brez jamstva', body: <>MetaBlend je na voljo <strong>»tak, kot je«</strong> in je v aktivnem razvoju. Ne jamčimo za razpoložljivost ali primernost za kakršen koli namen.</> },
       { title: 'Ni za varnostno kritično uporabo', body: <>Ne zanašajte se na MetaBlend pri odločitvah, pri katerih je natančnost vremena pomembna za varnost — letalstvo, plovba, nevarni pojavi, medicina ali podobno. Vedno se posvetujte z uradno meteorološko službo. Strani Aviation (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) so le dopolnilne informacije — nikoli jih ne uporabljajte za načrtovanje letov ali navigacijo; vedno pridobite uradni predpoletni brifing.</> },
@@ -192,7 +192,7 @@ const CONTENT = {
 
   pt: {
     updated: 'Última atualização: novembro de 2026',
-    t1: 'Termos', t2: '&Direitos autorais',
+    t1: 'Termos ', t2: '& Direitos autorais',
     sections: [
       { title: 'Beta — sem garantia', body: <>O MetaBlend é fornecido <strong>“no estado em que se encontra”</strong> e está em desenvolvimento ativo. Não garantimos disponibilidade nem adequação a qualquer finalidade.</> },
       { title: 'Não use para fins críticos de segurança', body: <>Não confie no MetaBlend para decisões em que a precisão do tempo afete a segurança — aviação, navegação marítima, fenômenos severos, medicina ou semelhantes. Consulte sempre um serviço meteorológico oficial. As páginas de Aviação (<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>) são apenas informação complementar — nunca as use para planejamento de voo ou navegação; obtenha sempre um briefing pré-voo oficial.</> },
@@ -209,7 +209,7 @@ const CONTENT = {
 
   ja: {
     updated: '最終更新：2026年11月',
-    t1: '利用規約', t2: '&著作権',
+    t1: '利用規約 ', t2: '& 著作権',
     sections: [
       { title: 'ベータ版 — 保証なし', body: <>MetaBlendは<strong>「現状のまま」</strong>提供され、現在も開発中です。可用性や特定目的への適合性については保証しません。</> },
       { title: '安全に関わる用途には使用不可', body: <>航空、海事、荒天、医療など、気象の正確さが安全に関わる判断にMetaBlendを頼らないでください。必ず公式の気象機関を確認してください。航空ページ（<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>）は補足情報にすぎません。飛行計画やナビゲーションには絶対に使用せず、必ず公式の飛行前ブリーフィングを受けてください。</> },
@@ -226,7 +226,7 @@ const CONTENT = {
 
   zh: {
     updated: '最后更新：2026 年 11 月',
-    t1: '条款', t2: '&版权',
+    t1: '条款 ', t2: '& 版权',
     sections: [
       { title: '测试版 — 不作保证', body: <>MetaBlend 按<strong>“现状”</strong>提供，仍在积极开发中。我们不保证可用性或对任何用途的适用性。</> },
       { title: '不适用于安全攸关的用途', body: <>请勿在天气准确性关系到安全的决策中依赖 MetaBlend，例如航空、航海、恶劣天气、医疗或类似情况。请始终查询官方气象服务。航空页面（<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>）仅为补充信息，切勿用于飞行计划或导航；请始终获取官方飞行前简报。</> },
@@ -243,7 +243,7 @@ const CONTENT = {
 
   ko: {
     updated: '최종 업데이트: 2026년 11월',
-    t1: '이용약관', t2: '&저작권',
+    t1: '이용약관 ', t2: '& 저작권',
     sections: [
       { title: '베타 — 보증 없음', body: <>MetaBlend는 <strong>“있는 그대로”</strong> 제공되며 활발히 개발 중입니다. 가용성이나 특정 목적에 대한 적합성을 보증하지 않습니다.</> },
       { title: '안전이 중요한 용도에는 사용 불가', body: <>항공, 해상, 악천후, 의료 등 날씨의 정확성이 안전에 영향을 주는 결정에 MetaBlend를 의존하지 마십시오. 항상 공식 기상 서비스를 확인하십시오. 항공 페이지(<Link href="/aviation" className="text-emerald-400 hover:underline">/aviation</Link>)는 보조 정보일 뿐이며, 비행 계획이나 항법에 절대 사용하지 마십시오. 항상 공식 비행 전 브리핑을 받으십시오.</> },
@@ -270,7 +270,7 @@ export function TermsBody({ lang }) {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-2xl mx-auto">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+        <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 

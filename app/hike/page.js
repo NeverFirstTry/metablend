@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { headers, cookies } from 'next/headers'
-import { ArrowLeft, MountainSnow } from 'lucide-react'
+import { MountainSnow } from 'lucide-react'
 import featured from '@/lib/hike/featured.json'
 import { isAppRequest } from '@/lib/app-client'
 import { hikeApiPath } from '@/lib/hike/params'
@@ -76,11 +76,6 @@ export default async function HikePage({ searchParams }) {
     <AppRescue lang={lang} />
     <div className="web-only">
       <AppFlag value={appParam} />
-      <div className="flex items-center justify-between mb-6">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-          <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-        </Link>
-      </div>
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 inline-flex items-center gap-3">
         <MountainSnow size={32} className="text-emerald-400 shrink-0" aria-hidden /> {t(lang, 'hikeTeaserTitle')}
       </h1>

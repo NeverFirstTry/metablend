@@ -307,6 +307,11 @@ body { padding: var(--sa-top) var(--sa-right) var(--sa-bottom) var(--sa-left); }
 html[data-app] body { padding-bottom: calc(4rem + var(--sa-bottom)); }
 html[data-app] .web-only { display: none !important; }
 html:not([data-app]) .app-only { display: none !important; }
+/* the website's header above each page; the page itself no longer needs to fill the screen */
+.site-header { padding: 1rem 1rem 0; }
+@media (min-width: 40rem) { .site-header { padding: 2rem 2rem 0; } }
+.site-logo { font-size: 1.5rem; line-height: 2rem; font-weight: 700; }
+.site-header ~ main { min-height: 0; flex: 1 0 auto; }
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }
@@ -668,6 +673,14 @@ html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
 /* the search: fields without frames; the filled button is the one solid thing. On a phone the suggestions use the whole row */
 html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
 html:not([data-app]) .home-search > .relative { position: static; }
+/* a table too wide for a phone: each row stacks in three columns, with a label above each value */
+@media (max-width: 39.99rem) {
+  html:not([data-app]) .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  html:not([data-app]) .stack-table tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding-block: 0.75rem; }
+  html:not([data-app]) .stack-table td { padding: 0; }
+  html:not([data-app]) .stack-table td:first-child { grid-column: 1 / -1; font-weight: 600; }
+  html:not([data-app]) .stack-table td[data-label]::before { content: attr(data-label); display: block; color: var(--muted); font-size: 0.8125rem; }
+}
 /* a warning stays still */
 html:not([data-app]) .home-warning { animation: none; }
 /* the Sources panel: one quiet row per source, a hairline between rows */
@@ -691,6 +704,7 @@ html:not([data-app]) .home-warning { animation: none; }
   .rank-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 .source-list tbody tr { border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
+.chart-line { border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
 @media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
 .home-bar { background: var(--muted); opacity: 0.6; }

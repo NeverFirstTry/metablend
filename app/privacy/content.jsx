@@ -20,7 +20,7 @@ const A = ({ href, children }) => (
 const CONTENT = {
   en: {
     updated: 'Last updated November 2026',
-    t1: 'Privacy', t2: 'Notice',
+    t1: 'Privacy ', t2: 'Notice',
     intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.en}</em><br /><br />MetaBlend is a free, in-development weather app with <strong>no accounts</strong> (the only sign-up is the optional Android tester list). We keep data collection to the minimum needed to run the service and to measure how accurate each weather source is. This is a plain-language summary, not legal advice.</>,
     sections: [
       { title: 'Controller', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />Email: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
@@ -55,7 +55,7 @@ const CONTENT = {
 
   de: {
     updated: 'Zuletzt aktualisiert November 2026',
-    t1: 'Datenschutz', t2: 'Erklärung',
+    t1: 'Datenschutz', t2: 'erklärung',
     intro: <>MetaBlend ist eine kostenlose Wetter-App in Entwicklung — <strong>ohne Konten</strong> (die einzige Anmeldung ist die freiwillige Android-Testerliste). Wir sammeln nur so wenige Daten, wie für den Betrieb und die Genauigkeitsmessung der Wetterquellen nötig sind. Dies ist eine Zusammenfassung in einfacher Sprache, keine Rechtsberatung.</>,
     sections: [
       { title: 'Verantwortlicher', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Österreich<br />E-Mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
@@ -90,7 +90,7 @@ const CONTENT = {
 
   fr: {
     updated: 'Dernière mise à jour : novembre 2026',
-    t1: 'Politique', t2: 'Confidentialité',
+    t1: 'Politique de ', t2: 'confidentialité',
     intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.fr}</em><br /><br />MetaBlend est une application météo gratuite, en cours de développement, <strong>sans compte</strong> (la seule inscription est la liste facultative des testeurs Android). Nous limitons la collecte de données au strict nécessaire pour faire fonctionner le service et mesurer la précision de chaque source météo. Ceci est un résumé en langage clair, pas un avis juridique.</>,
     sections: [
       { title: 'Responsable du traitement', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Autriche<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
@@ -125,7 +125,7 @@ const CONTENT = {
 
   es: {
     updated: 'Última actualización: noviembre de 2026',
-    t1: 'Aviso', t2: 'Privacidad',
+    t1: 'Aviso de ', t2: 'privacidad',
     intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.es}</em><br /><br />MetaBlend es una app del tiempo gratuita y en desarrollo, <strong>sin cuentas</strong> (la única inscripción es la lista opcional de probadores de Android). Recogemos los datos mínimos necesarios para operar el servicio y medir la precisión de cada fuente meteorológica. Esto es un resumen en lenguaje claro, no asesoramiento legal.</>,
     sections: [
       { title: 'Responsable del tratamiento', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />Correo electrónico: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
@@ -160,7 +160,7 @@ const CONTENT = {
 
   it: {
     updated: 'Ultimo aggiornamento: novembre 2026',
-    t1: 'Informativa', t2: 'Privacy',
+    t1: 'Informativa ', t2: 'Privacy',
     intro: <><em className="text-zinc-500">{TRANSLATION_NOTE.it}</em><br /><br />MetaBlend è un’app meteo gratuita e in sviluppo, <strong>senza account</strong> (l’unica iscrizione è la lista facoltativa dei tester Android). Raccogliamo il minimo di dati necessario per far funzionare il servizio e misurare la precisione di ogni fonte meteo. Questo è un riepilogo in linguaggio semplice, non una consulenza legale.</>,
     sections: [
       { title: 'Titolare del trattamento', body: <>Rene Kostmann, Siedlerstraße 19, 9900 Lienz, Austria<br />E-mail: <A href="mailto:info@metablend.app">info@metablend.app</A></> },
@@ -476,7 +476,7 @@ export function PrivacyBody({ lang }) {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-2xl mx-auto">
-        <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+        <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
           <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
         </Link>
 

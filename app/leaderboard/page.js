@@ -92,6 +92,7 @@ function RankList({ apis, lang }) {
           </li>
         ))}
       </ol>
+      <p className="text-zinc-400 text-sm mt-4">{t(lang, 'lbScoreHint')}</p>
     </div>
   )
 }
@@ -105,6 +106,7 @@ export default function Leaderboard() {
   const [error, setError] = useState(null)
   const [active, setActive] = useState('global')
   const [recal, setRecal] = useState(null) // { busy, msg, ok }
+  const [inApp, setInApp] = useState(false)
 
   function loadLeaderboard() {
     return fetch('/api/leaderboard')
@@ -119,10 +121,12 @@ export default function Leaderboard() {
 
   useEffect(() => {
     loadLeaderboard().finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- known only in the browser
+    setInApp(isAppView())
   }, [])
 
-  // Admin-only: needs the CALIBRATE_SECRET. Anyone without it just gets a 401,
-  // so the button is safe to ship publicly.
+  // Admin-only: needs the CALIBRATE_SECRET. The website doesn't show it at all; an
+  // admin there calls POST /api/self-calibrate with the key.
   async function recalibrate() {
     const key = window.prompt('Admin key to recalibrate weights:')
     if (!key) return
@@ -151,7 +155,7 @@ export default function Leaderboard() {
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-2xl mx-auto">
 
-        <div className="flex items-center justify-between mb-6">
+        <div className="app-only flex items-center justify-between mb-6">
           <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
             <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
           </Link>
@@ -188,7 +192,7 @@ export default function Leaderboard() {
           </p>
         )}
 
-        <div className={`mb-8 flex items-center gap-3 flex-wrap ${horizon === 'now' ? '' : 'hidden'}`}>
+        {inApp && <div className={`mb-8 flex items-center gap-3 flex-wrap ${horizon === 'now' ? '' : 'hidden'}`}>
           <button
             onClick={recalibrate}
             disabled={recal?.busy}
@@ -204,7 +208,7 @@ export default function Leaderboard() {
               {recal.ok ? <CheckCircle2 size={13} aria-hidden /> : <AlertTriangle size={13} aria-hidden />}{recal.msg}
             </span>
           )}
-        </div>
+        </div>}
 
         {loading && <SkyLoader lang={lang} title={t(lang, 'lbLoading')} names={[]} />}
 

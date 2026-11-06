@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
+import { PageHeader } from './components/SiteHeader'
 import ThemeSync from './components/ThemeSync'
 import ScrollReset from './components/ScrollReset'
 import { APP_BOOT_SCRIPT } from '@/lib/app-client'
@@ -124,6 +125,7 @@ export default function RootLayout({ children }) {
             }),
           }}
         />
+        <PageHeader />
         {children}
         <AppChrome />
         <ThemeSync />

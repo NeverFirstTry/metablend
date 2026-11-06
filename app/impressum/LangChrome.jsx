@@ -16,7 +16,7 @@ export function VisibleLang() {
 export function BackLink() {
   const lang = useLang()
   return (
-    <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
+    <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
       <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
     </Link>
   )
