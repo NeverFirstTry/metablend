@@ -95,6 +95,7 @@ export default async function CityWeather({ params }) {
       />
       {/* only what the page shows goes into its HTML, not the whole forecast */}
       <CityPage
+        slug={city}
         name={name}
         country={data.country}
         consensus={{ temp, feelsLike, rainPct, windKmh, confidencePct }}
@@ -104,6 +105,7 @@ export default async function CityWeather({ params }) {
         others={others}
         outlook={outlook && {
           nowLocal: outlook.nowLocal,
+          cc: outlook.cc,
           headlines: outlook.headlines,
           sun: outlook.sun,
           vsNormal: outlook.vsNormal,

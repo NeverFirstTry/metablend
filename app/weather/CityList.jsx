@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
+import { cityName } from '@/lib/city-names'
 import Footer from '../components/Footer'
 
 // The city list in the visitor's language; English in the server's HTML, one URL for all.
@@ -27,7 +28,7 @@ export default function CityList({ cities }) {
               href={`/weather/${c.slug}`}
               className="press-soft bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
             >
-              {c.name}
+              {cityName(c.slug, lang, c.name)}
             </Link>
           ))}
         </div>

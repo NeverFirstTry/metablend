@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Map as MapIcon, Scale, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, Map as MapIcon, AlertTriangle } from 'lucide-react'
 import { t, tn } from '@/lib/i18n'
 import { sparkLabel } from '@/lib/a11y-text'
 import { sourceName } from '@/lib/sources'
@@ -105,8 +105,6 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [active, setActive] = useState('global')
-  const [recal, setRecal] = useState(null) // { busy, msg, ok }
-  const [inApp, setInApp] = useState(false)
 
   function loadLeaderboard() {
     return fetch('/api/leaderboard')
@@ -121,26 +119,7 @@ export default function Leaderboard() {
 
   useEffect(() => {
     loadLeaderboard().finally(() => setLoading(false))
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- known only in the browser
-    setInApp(isAppView())
   }, [])
-
-  // Admin-only: needs the CALIBRATE_SECRET. The website doesn't show it at all; an
-  // admin there calls POST /api/self-calibrate with the key.
-  async function recalibrate() {
-    const key = window.prompt('Admin key to recalibrate weights:')
-    if (!key) return
-    setRecal({ busy: true, msg: 'Recalibrating against the live consensus…' })
-    try {
-      const res = await fetch('/api/self-calibrate', { method: 'POST', headers: { 'x-calibrate-key': key } })
-      const d = await res.json()
-      if (!res.ok) throw new Error(d.error ?? `HTTP ${res.status}`)
-      await loadLeaderboard()
-      setRecal({ busy: false, ok: true, msg: `Rebalanced ${Object.keys(d.rebalanced ?? {}).length} region(s) from ${d.citiesScored}/${d.citiesProbed} cities · seeded ${d.forecastsSeeded} forecasts.` })
-    } catch (e) {
-      setRecal({ busy: false, ok: false, msg: e.message })
-    }
-  }
 
   const list = horizon === 'now' ? regions : horizons?.[horizon] ?? []
   const current = list?.find(r => r.region === active) ?? list?.[0]
@@ -191,24 +170,6 @@ export default function Leaderboard() {
             {checks < LEARNING_BELOW && list?.length > 0 && <span className="block mt-1" style={{ color: 'var(--warn)' }}>{tn(lang, 'lbLearning', checks)}</span>}
           </p>
         )}
-
-        {inApp && <div className={`mb-8 flex items-center gap-3 flex-wrap ${horizon === 'now' ? '' : 'hidden'}`}>
-          <button
-            onClick={recalibrate}
-            disabled={recal?.busy}
-            className="press text-xs px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-50 inline-flex items-center gap-1.5"
-          >
-            {recal?.busy
-              ? <Loader2 size={13} className="animate-spin-slow" aria-hidden />
-              : <Scale size={13} aria-hidden />}
-            {recal?.busy ? t(lang, 'lbRecalibrating') : t(lang, 'lbRecalibrate')}
-          </button>
-          {recal && !recal.busy && (
-            <span className={`text-xs inline-flex items-center gap-1.5 ${recal.ok ? 'text-emerald-400' : 'text-red-400'}`}>
-              {recal.ok ? <CheckCircle2 size={13} aria-hidden /> : <AlertTriangle size={13} aria-hidden />}{recal.msg}
-            </span>
-          )}
-        </div>}
 
         {loading && <SkyLoader lang={lang} title={t(lang, 'lbLoading')} names={[]} />}
 

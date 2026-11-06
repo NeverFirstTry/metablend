@@ -6,8 +6,14 @@ import { fill, headlineText, tempFormatter, spanFormatter } from '@/lib/outlook/
 import { formatCalendarDate } from '@/lib/localtime'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
+import { cityName } from '@/lib/city-names'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
+
+// The country in the visitor's language where its code is known. The browser has the names.
+const regionName = (lang, cc, fallback) => {
+  try { return (cc && new Intl.DisplayNames([lang], { type: 'region' }).of(cc.toUpperCase())) || fallback } catch { return fallback }
+}
 
 // A gap to normal in whole degrees, with a real minus sign and the unit's scale.
 const wholeDelta = (d, unit) => {
@@ -17,10 +23,11 @@ const wholeDelta = (d, unit) => {
 
 // One city in the visitor's language and unit. The server renders it in English for
 // search engines; the URL stays the same in every language.
-export default function CityPage({ name, country, consensus, condition, sourceCount, topWeights, others, outlook }) {
+export default function CityPage({ slug, name: englishName, country, consensus, condition, sourceCount, topWeights, others, outlook }) {
   const lang = useLang()
   const unit = useUnit()
   const fmt = tempFormatter(unit)
+  const name = cityName(slug, lang, englishName)
   const todayLocal = outlook?.nowLocal?.slice(0, 10)
   const words = { todayLocal, fmtTemp: fmt, fmtSpan: spanFormatter(unit) }
   const today = outlook ? headlineText(lang, 'today', outlook.headlines?.today, words) : null
@@ -42,7 +49,7 @@ export default function CityPage({ name, country, consensus, condition, sourceCo
 
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">{fill(t(lang, 'shareTitle'), { city: name })}</h1>
         <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
-          {fill(t(lang, 'citySub'), { n: sourceCount })}{country ? ` · ${country}` : ''}
+          {fill(t(lang, 'citySub'), { n: sourceCount })}{country ? ` · ${regionName(lang, outlook?.cc, country)}` : ''}
         </p>
 
         {/* Current consensus */}
@@ -120,7 +127,7 @@ export default function CityPage({ name, country, consensus, condition, sourceCo
 
         {/* CTA into the interactive app */}
         <Link
-          href={`/?city=${encodeURIComponent(name)}`}
+          href={`/?city=${encodeURIComponent(englishName)}`}
           className="press block text-center bg-emerald-400 text-black font-bold rounded-xl px-6 py-4 text-sm hover:bg-emerald-300 mb-10"
         >
           {fill(t(lang, 'cityOpen'), { name, n: sourceCount })}
@@ -136,7 +143,7 @@ export default function CityPage({ name, country, consensus, condition, sourceCo
                 href={`/weather/${c.slug}`}
                 className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
               >
-                {c.name}
+                {cityName(c.slug, lang, c.name)}
               </Link>
             ))}
             <Link href="/weather" className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-emerald-400 hover:border-emerald-400">

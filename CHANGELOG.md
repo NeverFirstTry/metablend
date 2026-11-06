@@ -7,11 +7,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed — follow-ups across the website
 - Every page now has the same header as the home page: Rankings, Heatmap, Planner, Hiking, Aviation, plus unit, theme and language. The "Back" links are gone from the website. The app keeps its tab bar and its Back links.
-- The mountain, city and aviation pages are now in all 13 languages, at the same addresses. METAR, TAF and flight-category codes stay as the international codes they are. Temperatures on the mountain and city pages follow your °C or °F setting.
+- The mountain and city pages are now in all 13 languages, at the same addresses, and the 54 listed cities show their local names ("Wetter in Wien"). Temperatures there follow your °C or °F setting. The aviation pages stay in English, as is usual in aviation, with the translated header.
 - Hiking and summit pages say "Beta on iPhone & Android" instead of "Coming soon".
 - The summit 7-day table fits a phone without sideways scrolling.
 - Planner: temperature and rainy days are two charts, each with its own axis, so a cold month reads as cold.
-- Rankings: one line explains Score and Reports, and "Recalibrate weights" is gone from the website.
+- Rankings: one line explains Score and Reports, and "Recalibrate weights" is gone from the website and the app.
 - Legal page titles have their missing spaces: "Terms & Copyright", "Privacy Notice". The text below them is unchanged.
 
 ### Changed — the light theme, website and app
