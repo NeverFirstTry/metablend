@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 // Branded 1200×630 social-share card, generated at the edge (no static asset to
 // keep in sync). Next wires this into <meta property="og:image"> automatically.
-export const alt = 'MetaBlend — weather truth through consensus'
+export const alt = 'MetaBlend: one forecast from up to 20 sources'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -40,7 +40,7 @@ export default function OpengraphImage() {
             <span style={{ color: '#ffd98a' }}>Blend</span>
           </div>
           <div style={{ display: 'flex', fontSize: 46, color: '#a1a1aa', marginTop: 18 }}>
-            Weather truth through consensus.
+            One forecast from up to 20 sources.
           </div>
         </div>
 

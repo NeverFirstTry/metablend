@@ -8,7 +8,7 @@ La prévision
 Montagne et randonnée
 • Prévisions au sommet pour n’importe quelle montagne : vent, isotherme 0 °C, risque d’orage
 • Le créneau favorable pour être au sommet
-• 200 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
+• 195 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
 • Itinéraires balisés et import GPX avec une heure de départ conseillée
 
 Toujours à jour

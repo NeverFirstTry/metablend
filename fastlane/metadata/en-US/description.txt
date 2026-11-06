@@ -8,7 +8,7 @@ The forecast
 Mountains and hiking
 • Summit forecasts for any peak: wind on top, freezing level, storm risk
 • The favourable window to be on the summit
-• 200 featured peaks worldwide with SAC grades, the nearest first
+• 195 featured peaks worldwide with SAC grades, the nearest first
 • Marked routes and GPX import with a suggested start time
 
 Always up to date

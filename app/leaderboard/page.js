@@ -12,6 +12,7 @@ import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
 import { REGION_KEYS } from '@/lib/trusted'
 import { isAppView } from '@/lib/app-client'
+import { visitorRegion } from '@/lib/visitor-region'
 
 function name(id, fallback) {
   const n = sourceName(id)
@@ -61,7 +62,7 @@ function RankList({ apis, lang }) {
         <span /><span />
         <span>{t(lang, 'lbWeight')}</span>
         <span className="rank-stats">
-          {['lbScore', 'lbReports', 'lbAvgScore', 'lbUptime', 'lbAvgResponse', 'lbRecent'].map(k => <span key={k}>{t(lang, k)}</span>)}
+          {['lbScore', 'lbReports', 'lbAvgScore', 'lbAvgResponse', 'lbRecent'].map(k => <span key={k}>{t(lang, k)}</span>)}
         </span>
       </div>
       <ol className="rank-list">
@@ -82,7 +83,6 @@ function RankList({ apis, lang }) {
               {stat('lbScore', api.score ?? 0)}
               {stat('lbReports', api.reports ?? 0)}
               {stat('lbAvgScore', api.reports > 0 ? (api.score / api.reports).toFixed(2) : '–')}
-              {stat('lbUptime', api.uptime != null ? `${api.uptime}%` : '–', { color: uptimeColor(api.uptime) })}
               {stat('lbAvgResponse', api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–')}
               <div className="rank-stat rank-spark">
                 {api.delta_history?.length > 1 ? <Sparkline data={api.delta_history} lang={lang} /> : <span aria-hidden>–</span>}
@@ -104,7 +104,7 @@ export default function Leaderboard() {
   const [horizon, setHorizon] = useState('now')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [active, setActive] = useState('global')
+  const [active, setActive] = useState(() => visitorRegion())
 
   function loadLeaderboard() {
     return fetch('/api/leaderboard')

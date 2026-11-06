@@ -8,7 +8,7 @@ A previsão
 Montanha e trilhas
 • Previsões de cume para qualquer montanha: vento no topo, nível de congelamento, risco de tempestade
 • A janela favorável para estar no cume
-• 200 picos em destaque no mundo com grau SAC, os mais próximos primeiro
+• 195 picos em destaque no mundo com grau SAC, os mais próximos primeiro
 • Rotas sinalizadas e importação de GPX com horário de saída sugerido
 
 Sempre atualizado

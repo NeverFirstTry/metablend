@@ -1,4 +1,5 @@
 import { recentMean } from '@/lib/scoring'
+import { statRows } from '@/lib/api-stats'
 import { supabase } from '@/lib/supabase'
 import { after } from 'next/server'
 import { withErrorLog, logError } from '@/lib/log'
@@ -15,7 +16,7 @@ import {
 import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { createRateLimiter } from '@/lib/ratelimit'
-import { sourceName } from '@/lib/sources'
+import { sourceName, isRetired } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
@@ -114,7 +115,7 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   // successful sources, tagged with their response time
   const results = timed
-    .filter(t => t.value !== null)
+    .filter(t => t.value != null)
     .map(t => ({ ...t.value, responseMs: t.ms }))
     .concat((models.value ?? []).map(v => ({ ...v, responseMs: models.ms })))
 
@@ -131,13 +132,13 @@ export const GET = withErrorLog('forecast', async (request) => {
     .select('id, weight, delta_history')
     .eq('region', region)
 
-  let weightRows = (!rwErr && regionWeights?.length) ? regionWeights : null
+  let weightRows = (!rwErr && regionWeights?.length) ? regionWeights.filter(w => !isRetired(w.id)) : null
 
   if (!weightRows) {
     const { data: globalWeights } = await supabase
       .from('api_weights')
       .select('id, weight, delta_history')
-    weightRows = globalWeights ?? []
+    weightRows = (globalWeights ?? []).filter(w => !isRetired(w.id))
   }
 
   // 4. Gewichteten Durchschnitt berechnen
@@ -207,10 +208,10 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   // Response-time + uptime stats (EMA on the response time, running up/down
   // counts), atomic via the bump_api_stats DB function.
-  const attempts = timed.filter(t => t.value !== null || t.down)
+  const attempts = statRows(timed)
   if (attempts.length) {
     const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
-      rows: attempts.map(t => ({ api_id: t.id, ms: t.ms, up: t.value !== null })),
+      rows: attempts,
     })
     if (rpcErr) logError('forecast.stats', rpcErr)
   }

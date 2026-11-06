@@ -8,7 +8,7 @@ Die Vorhersage
 Berge und Wandern
 • Gipfelprognosen für jeden Berg: Wind oben, Nullgradgrenze, Gewitterrisiko
 • Das günstige Zeitfenster am Gipfel
-• 200 ausgewählte Gipfel weltweit mit SAC-Skala, die nächsten zuerst
+• 195 ausgewählte Gipfel weltweit mit SAC-Skala, die nächsten zuerst
 • Markierte Routen und GPX-Import mit vorgeschlagener Startzeit
 
 Immer auf dem Laufenden

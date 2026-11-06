@@ -8,7 +8,7 @@ Prognoza
 Góry i wędrówki
 • Prognozy na szczytach dowolnej góry: wiatr na górze, granica zamarzania, ryzyko burzy
 • Korzystne okno na pobyt na szczycie
-• 200 wybranych szczytów na świecie ze skalą SAC, najbliższe najpierw
+• 195 wybranych szczytów na świecie ze skalą SAC, najbliższe najpierw
 • Oznakowane trasy i import GPX z proponowaną godziną wyjścia
 
 Zawsze na bieżąco

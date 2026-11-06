@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 // which counts against new domains in its indexing-quality checks.
 const DESCRIPTION =
   'Free weather app blending up to 20 weather sources at once — ECMWF, GFS, ICON and more — ' +
-  'into one consensus that learns which source to trust in your city.'
+  'into one forecast, weighted by each source’s past accuracy, and shows when they disagree.'
 
 export const metadata = {
   metadataBase: new URL('https://metablend.app'),
@@ -37,10 +37,10 @@ export const metadata = {
   applicationName: 'MetaBlend',
   category: 'weather',
   keywords: [
-    'weather forecast', 'weather consensus', 'multi-source weather forecast',
-    'accurate weather forecast', 'compare weather forecasts', 'weather model comparison',
+    'weather forecast', 'weather consensus', 'multi-model forecast', 'multi-source weather forecast',
+    'summit forecast', 'compare weather forecasts', 'weather model comparison',
     'ECMWF forecast', 'GFS forecast', 'ICON model', 'weather API accuracy',
-    'rain radar', '7 day forecast', 'will it rain today', 'best weather app',
+    'rain radar', '7 day forecast', 'will it rain today',
     'Wettervorhersage', 'prévisions météo', 'previsión del tiempo', 'previsioni meteo',
   ],
   alternates: { canonical: '/' },

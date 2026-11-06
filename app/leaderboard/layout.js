@@ -2,8 +2,8 @@
 export const metadata = {
   title: 'Weather API Leaderboard — Which Forecast Is Most Accurate?',
   description:
-    'Which weather source is most accurate? Live per-region rankings of 16 ' +
-    'providers, scored hourly against real station observations.',
+    'Which weather source is most accurate? Live per-region rankings of up to 20 ' +
+    'sources, scored hourly against real station observations.',
   alternates: { canonical: '/leaderboard' },
 }
 

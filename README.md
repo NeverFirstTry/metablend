@@ -3,12 +3,9 @@
 
 
 
-**Weather truth through consensus.**
+**One forecast from up to 20 sources.**
 
-Every weather app gives you one number and asks you to trust it. MetaBlend asks up
-to 20 weather sources at once the same question, weighs each one by how accurate it's actually
-been, and gives you the blended answer — plus how confident the sources are that
-they agree.
+MetaBlend asks up to 20 weather sources the same question, weights each by its past accuracy and tells you when they disagree.
 
 🔗 Live: https://metablend.app 
   "For issues or support either open an issue in github or contact me using info@metablend.app"

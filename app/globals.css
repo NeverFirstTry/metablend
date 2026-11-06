@@ -694,7 +694,7 @@ html:not([data-app]) .home-warning { animation: none; }
 .rank-stat { display: flex; flex-direction: column; min-width: 0; }
 .rank-spark { grid-column: 1 / -1; gap: 0.25rem; }
 @media (min-width: 56rem) {
-  .rank-row { grid-template-columns: 1.5rem minmax(0, 1.2fr) minmax(0, 1fr) 4rem 4rem 4rem 4rem 4.5rem 7.5rem; align-items: center; gap: 0 1rem; padding-block: 0.75rem; }
+  .rank-row { grid-template-columns: 1.5rem minmax(0, 1.2fr) minmax(0, 1fr) 4rem 4rem 4rem 4.5rem 7.5rem; align-items: center; gap: 0 1rem; padding-block: 0.75rem; }
   .rank-head { display: grid; align-items: end; border-top: 0; padding-block: 0 0.5rem; }
   .rank-weight { grid-column: 3; }
   .rank-stats { display: contents; }

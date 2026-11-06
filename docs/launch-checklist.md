@@ -1,5 +1,7 @@
 # Launch checklist: both stores live by 2026-12-15
 
+**Before any monetisation:** Open-Meteo's and RainViewer's free tiers are non-commercial. Subscriptions or ads count as commercial use for Open-Meteo, and RainViewer's free API is for small-scale community use. Move to their paid plans first.
+
 State as of 2026-11-05. **Done** = finished and in the repo. **Open** = Claude can do it. **Needs you** = your account, device or decision.
 
 "Done" for a listing item means the text or image is ready in the repo. Anything already pasted into a store console is out of date until you upload it again.

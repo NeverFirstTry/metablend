@@ -20,7 +20,7 @@ import LangPack from '../components/LangPack'
 
 export const metadata = {
   title: 'Mountain Weather & Summit Forecasts — MetaBlend App',
-  description: 'Summit forecasts for any peak: wind up top, freezing level, thunderstorm risk and the favourable summit window. In the MetaBlend app.',
+  description: 'Summit forecasts for 195 peaks: wind up top, freezing level, thunderstorm risk and the favourable summit window. In the MetaBlend app.',
   alternates: { canonical: '/hike' },
 }
 
@@ -28,6 +28,7 @@ export const metadata = {
 // shares the peak's CDN entry with every app user looking at it.
 const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
 const PEAKS = featured.filter(p => p.kind === 'peak')
+const SUMMITS = featured.filter(p => p.kind !== 'hut').length
 // the teaser lists them without links or distances: only what a row shows
 // goes to the browser (PeakDirectory is a client component)
 const TEASER_PEAKS = featured.map(({ id, name, elev, country, kind, region, grade }) => ({ id, name, elev, country, kind, region, grade }))
@@ -79,7 +80,7 @@ export default async function HikePage({ searchParams }) {
       <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3 inline-flex items-center gap-3">
         <MountainSnow size={32} className="text-emerald-400 shrink-0" aria-hidden /> {t(lang, 'hikeTeaserTitle')}
       </h1>
-      <p className="text-zinc-400 text-sm leading-relaxed mb-6">{t(lang, 'hikeTeaserSub')}</p>
+      <p className="text-zinc-400 text-sm leading-relaxed mb-6">{fill(t(lang, 'hikeTeaserSub'), { n: SUMMITS })}</p>
       <StoreBadges lang={lang} />
 
       <section className="mt-8 space-y-3">

@@ -1,25 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { logError } from '@/lib/log'
 import { HORIZONS } from '@/lib/outlook/weights'
-
-const REGION_ORDER = ['global', 'europe', 'north_america', 'south_america', 'asia', 'africa', 'oceania']
-
-// Rows → [{ region, apis, leader }], best-weighted first, stats attached.
-function groupByRegion(rows, stats) {
-  const byRegion = {}
-  for (const row of rows) {
-    const region = row.region ?? 'global'
-    ;(byRegion[region] ??= []).push({ ...row, ...stats[row.id] })
-  }
-  for (const region of Object.keys(byRegion)) {
-    byRegion[region].sort((a, b) => b.weight - a.weight)
-  }
-  return REGION_ORDER.filter(r => byRegion[r]?.length).map(region => ({
-    region,
-    apis: byRegion[region],
-    leader: byRegion[region][0] ?? null,
-  }))
-}
+import { groupByRegion } from '@/lib/rankings'
 
 export async function GET() {
   const { data, error } = await supabase
@@ -46,9 +28,6 @@ export async function GET() {
 
   const regions = groupByRegion(data ?? [], stats)
 
-  // flat global list, kept around for older clients
-  const apis = regions.find(r => r.region === 'global')?.apis ?? data ?? []
-
   // Outlook rankings per range. api_stats timings belong to the live
   // endpoints, so they're deliberately not attached here.
   const { data: ow } = await supabase
@@ -60,5 +39,5 @@ export async function GET() {
   )
 
   // weights change with the hourly calibration: one copy per 5 minutes
-  return Response.json({ regions, apis, horizons }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } })
+  return Response.json({ regions, horizons }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } })
 }
