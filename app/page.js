@@ -984,7 +984,7 @@ ${url}`)
 
             <div className="web-only">
               <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
-                <NowDetails data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
+                <NowDetails data={data} unit={unit} lang={lang} />
               </Fold>
             </div>
 

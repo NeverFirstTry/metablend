@@ -6,21 +6,20 @@ import { t, translateCondition } from '@/lib/i18n'
 import { isAppView } from '@/lib/app-client'
 import SourceSpread from '../SourceSpread'
 import SourceDots from '../SourceDots'
+import SourceList from '../SourceList'
 
 // "Who's right now": every live source's current reading and its learned
-// weight, with the spread strip on top. Folded away on the forecast page.
+// weight, with the spread on top. Folded away on the forecast page. The website
+// shows one quiet row per source; the app keeps its strip and cards.
 export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
-  return (
-    <div className="space-y-4">
-      {isAppView() ? (
-        <SourceSpread
-          sources={data.sources}
-          consensusC={data.consensus.temp}
-          unit={unit}
-          title={t(lang, 'spreadTitle')}
-          hint={t(lang, 'spreadHint')}
-        />
-      ) : (
+  const rankings = (
+    <Link href="/leaderboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-emerald-400 transition-colors uppercase tracking-widest">
+      <Trophy size={13} aria-hidden /> {t(lang, 'leaderboard')}
+    </Link>
+  )
+  if (!isAppView()) {
+    return (
+      <div className="space-y-6">
         <SourceDots
           sources={data.sources}
           consensusC={data.consensus.temp}
@@ -28,7 +27,20 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
           title={t(lang, 'spreadTitle')}
           hint={t(lang, 'spreadDotsHint')}
         />
-      )}
+        <SourceList data={data} unit={unit} lang={lang} />
+        {rankings}
+      </div>
+    )
+  }
+  return (
+    <div className="space-y-4">
+      <SourceSpread
+        sources={data.sources}
+        consensusC={data.consensus.temp}
+        unit={unit}
+        title={t(lang, 'spreadTitle')}
+        hint={t(lang, 'spreadHint')}
+      />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* house model first — the API appends it last */}
         {[...data.sources].sort((a, b) => (b.apiId === 'metablend') - (a.apiId === 'metablend')).map(src => {
@@ -89,9 +101,7 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
           )
         })}
       </div>
-      <Link href="/leaderboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-emerald-400 transition-colors uppercase tracking-widest">
-        <Trophy size={13} aria-hidden /> {t(lang, 'leaderboard')}
-      </Link>
+      {rankings}
     </div>
   )
 }

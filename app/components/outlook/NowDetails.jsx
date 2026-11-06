@@ -2,12 +2,15 @@
 
 import { Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { spanFormatter, tempFormatter } from '@/lib/outlook/text'
 import { yesterdayDelta } from './NowLine'
 
 // The rest of "right now" on the website, as one of the rows below the tiles.
 // The fold is the card, so no cards in it; nothing here is a status, so every
-// value has the same colour. (The app shows these under its hero: NowLine.)
-export default function NowDetails({ data, unit, lang, showT, showDelta }) {
+// value has the same colour. Whole degrees, as everywhere on the website; only
+// visibility and precipitation keep their decimals. (The app shows these under
+// its hero: NowLine.)
+export default function NowDetails({ data, unit, lang }) {
   const d = data.details
   const value = (v, suffix = '') => (v != null ? `${v}${suffix}` : '–')
   const rows = [
@@ -17,7 +20,7 @@ export default function NowDetails({ data, unit, lang, showT, showDelta }) {
       [Eye, 'visibilityLabel', value(d.visibilityKm, ' km')],
       [Droplets, 'precipLabel', value(d.precipMm, ' mm')],
       [Snowflake, 'snowfallLabel', value(d.snowfallMm, ' mm')],
-      [Thermometer, 'groundTempLabel', d.groundTemp != null ? `${showT(d.groundTemp)}°${unit}` : '–'],
+      [Thermometer, 'groundTempLabel', d.groundTemp != null ? tempFormatter(unit)(d.groundTemp).replace('-', '−') : '–'],
     ] : []),
   ]
   const yd = yesterdayDelta(data)
@@ -35,7 +38,7 @@ export default function NowDetails({ data, unit, lang, showT, showDelta }) {
         <p className="mt-4 text-sm">
           {Math.abs(yd) < 0.5
             ? `= ${t(lang, 'vsYesterdaySame')}`
-            : `${yd > 0 ? '↑' : '↓'} ${Math.abs(showDelta(yd)).toFixed(1)}°${unit} ${t(lang, yd > 0 ? 'vsYesterdayWarmer' : 'vsYesterdayColder')}`}
+            : `${spanFormatter(unit)(Math.abs(yd))} ${t(lang, yd > 0 ? 'vsYesterdayWarmer' : 'vsYesterdayColder')}`}
         </p>
       )}
     </div>
