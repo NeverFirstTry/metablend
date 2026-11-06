@@ -25,17 +25,21 @@
   --neutral: #a1a1aa;
   --map-bg:  #0a0a0d;
 
+  /* The shaded band behind the forecast line */
+  --chart-band: var(--accent);
+  --chart-band-opacity: 0.14;
+
   /* Spring/easing curves reused by every micro-interaction */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 [data-theme="light"] {
-  --background: #f2f3ef;     /* paper with a faint green-grey cast */
+  --background: #f8fafd;
   --surface: #ffffff;
   --surface-2: #e9ebe4;
   --surface-3: #dcdfd6;
-  --border: #e0e3da;
+  --border: rgb(20 28 43 / 0.1);
   --foreground: #171a17;     /* ink */
   --muted: #5d635d;
   --accent: #047857;         /* emerald-700 — AA on white */
@@ -81,7 +85,8 @@ html[data-app="1"] :is(input, textarea) {
 :root { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
 select option { background-color: #101d45; color: #f6f8fc; }
-:root[data-theme="light"] select option { background-color: #ffffff; color: #0f1b33; }
+:root[data-theme="light"] select option { background-color: #ffffff; color: #141c2b; }
+:root[data-theme="light"] :is(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
 
 body {
   background: var(--background);
@@ -350,15 +355,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 :root[data-sky="snow"]   { --sky-a: #2c394d; --sky-b: #303844; --sky-c: #34383d; }
 :root[data-sky="dusk"]   { --sky-a: #141c3d; --sky-b: #462f57; --sky-c: #542f25; }
 /* no sky yet (start page) = a calm clear morning */
-:root[data-theme="light"]                    { --sky-a: #8ebaed; --sky-b: #bcd9f6; --sky-c: #eef5fc; }
-:root[data-theme="light"][data-sky="night"]  { --sky-a: #abb4dc; --sky-b: #c2caeb; --sky-c: #e9ecf8; }
-:root[data-theme="light"][data-sky="dawn"]   { --sky-a: #b3b3e6; --sky-b: #efc3d0; --sky-c: #ffe4cf; }
-:root[data-theme="light"][data-sky="day"]    { --sky-a: #91b9ed; --sky-b: #a6cdf5; --sky-c: #e8f3fd; }
-:root[data-theme="light"][data-sky="cloudy"] { --sky-a: #aab6c9; --sky-b: #c8d1dd; --sky-c: #eef1f5; }
-:root[data-theme="light"][data-sky="rain"]   { --sky-a: #aab6c7; --sky-b: #b6c3d2; --sky-c: #e1e7ee; }
-:root[data-theme="light"][data-sky="storm"]  { --sky-a: #b7b2ca; --sky-b: #bfb9d4; --sky-c: #e4e1ed; }
-:root[data-theme="light"][data-sky="snow"]   { --sky-a: #bfcde6; --sky-b: #dde6f4; --sky-c: #f8fbff; }
-:root[data-theme="light"][data-sky="dusk"]   { --sky-a: #b3b1de; --sky-b: #e7b3c1; --sky-c: #ffd4b9; }
+:root[data-theme="light"] { --sky-a: #f3f6fb; --sky-b: #f8fafd; --sky-c: #ffffff; }
 
 :root:not([data-theme="light"]) {
   --foreground: #f6f8fc;
@@ -432,17 +429,25 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 /* daylight: ink on pale sky, frosted white glass, a deep-sky accent, ink pills.
    :root raises these above the paper remaps of the light-theme block. */
 :root[data-theme="light"] {
-  --foreground: #0f1b33;
-  --muted: rgb(15 27 51 / 0.72);
-  --accent: #1c3f9e;
-  --accent-strong: #132f78;
-  --ok: #064f34; --warn: #663c00; --bad: #861b1f; --info: #154192; --hot: #7e2a08; --lifr: #5b1a8f; --neutral: rgb(15 27 51 / 0.7);
-  --surface-2: rgb(15 27 51 / 0.07); --surface-3: rgb(15 27 51 / 0.13);
-  --glass: rgb(255 255 255 / 0.56);
-  --glass-strong: rgb(255 255 255 / 0.74);
-  --hairline: rgb(15 27 51 / 0.09);
-  --lift: 0 1px 0 rgb(255 255 255 / 0.7) inset, 0 10px 30px -14px rgb(15 27 51 / 0.22);
-  --map-bg: rgb(255 255 255 / 0.5);
+  /* Every colour here clears AA (4.5:1) on the page and on a card. The status colours
+     are the lightest step of their hue that does; yellow has to become a burnt orange,
+     no true yellow reaches AA on white. */
+  --foreground: #141c2b;
+  --muted: #4a5566;
+  --accent: #966400;          /* the gold, dark enough to read on white */
+  --accent-strong: #7d5300;
+  --fill: #f8ecd0;            /* filled controls: pale gold with dark amber on it, 7.4:1 */
+  --fill-hover: #f3e2b8;
+  --on-fill: #6b4300;
+  --chart-band: #141c2b;
+  --chart-band-opacity: 0.08;
+  --ok: #127e4b; --warn: #bb4a00; --bad: #d22923; --info: #1d6dca; --hot: #c83b10; --lifr: #5b1a8f; --neutral: #4a5566;
+  --surface-2: rgb(20 28 43 / 0.06); --surface-3: rgb(20 28 43 / 0.1);
+  --glass: #ffffff;
+  --glass-strong: rgb(255 255 255 / 0.94);
+  --hairline: rgb(20 28 43 / 0.08);
+  --lift: 0 1px 2px rgb(20 28 43 / 0.04), 0 8px 24px -16px rgb(20 28 43 / 0.14);
+  --map-bg: #eef1f5;
 
   & .bg-\[\#0e0e12\] { background-color: transparent; }
   & .bg-zinc-900 { background-color: var(--glass); box-shadow: var(--lift); }
@@ -454,16 +459,16 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
     backdrop-filter: blur(24px) saturate(170%);
   }
   & .bg-zinc-950 { background-color: rgb(255 255 255 / 0.5); }
-  & .bg-zinc-800 { background-color: rgb(15 27 51 / 0.07); }
-  & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(255 255 255 / 0.45); }
-  & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(15 27 51 / 0.07); }
+  & .bg-zinc-800 { background-color: rgb(20 28 43 / 0.06); }
+  & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(20 28 43 / 0.03); }
+  & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(20 28 43 / 0.06); }
   & .border-zinc-800, & .border-zinc-800\/70 { border-color: var(--hairline); }
-  & .border-zinc-700 { border-color: rgb(15 27 51 / 0.16); }
-  & .hover\:border-zinc-700:hover { border-color: rgb(15 27 51 / 0.24); }
+  & .border-zinc-700 { border-color: rgb(20 28 43 / 0.14); }
+  & .hover\:border-zinc-700:hover { border-color: rgb(20 28 43 / 0.24); }
   & .divide-zinc-800 > :not(:last-child) { border-color: var(--hairline); }
   & .text-white, & .text-zinc-200 { color: var(--foreground); }
-  & .text-zinc-300 { color: rgb(15 27 51 / 0.88); }
-  & .text-zinc-400 { color: rgb(15 27 51 / 0.8); }
+  & .text-zinc-300 { color: #2b3444; }
+  & .text-zinc-400 { color: #3f4a5a; }
   & .text-zinc-500 { color: var(--muted); }
   & .text-zinc-600 { color: var(--muted); }
   & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
@@ -475,17 +480,17 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .text-orange-300, & .text-orange-400, & .text-amber-600 { color: var(--hot); }
   & .text-blue-400 { color: var(--info); }
   & .border-emerald-400, & .hover\:border-emerald-400:hover,
-  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(28 63 158 / 0.6); }
-  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(35 80 200 / 0.28); }
-  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(255 255 255 / 0.5); }
-  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(35 80 200 / 0.1); }
-  & .bg-emerald-400 { background-color: #0f1b33; color: #ffffff; }
-  & .hover\:bg-emerald-300:hover { background-color: #1d2d52; }
-  & .bg-emerald-400.text-black, & .bg-emerald-400 .text-black { color: #ffffff; }
-  & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(15 27 51 / 0.2); }
-  & .bg-blue-500\/10 { background-color: rgb(255 255 255 / 0.5); }
-  & .border-blue-500\/40 { border-color: rgb(31 95 214 / 0.3); }
-  & .bg-amber-400\/10 { background-color: rgb(255 255 255 / 0.5); }
+  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(150 100 0 / 0.6); }
+  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(150 100 0 / 0.28); }
+  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(150 100 0 / 0.07); }
+  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(150 100 0 / 0.12); }
+  & .bg-emerald-400 { background-color: var(--fill); color: var(--on-fill); }
+  & .hover\:bg-emerald-300:hover { background-color: var(--fill-hover); }
+  & .bg-emerald-400.text-black, & .bg-emerald-400 .text-black { color: var(--on-fill); }
+  & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(20 28 43 / 0.14); }
+  & .bg-blue-500\/10 { background-color: rgb(29 111 205 / 0.08); }
+  & .border-blue-500\/40 { border-color: rgb(29 111 205 / 0.3); }
+  & .bg-amber-400\/10 { background-color: rgb(189 75 0 / 0.08); }
   & .bg-zinc-800\/60.border-zinc-700 { background-color: var(--glass); }
   /* the beta notice: frosted glass like the rest */
   & .bg-amber-900\/20 { background-color: var(--glass); }
@@ -607,33 +612,46 @@ button, a, summary, h1, h2, h3 { overflow-wrap: break-word; }
 html:not([data-app]) { --text-xs: 0.8125rem; --text-xs--line-height: 1.25rem; }
 html:not([data-app]) :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg text, .leaflet-container, .leaflet-container .leaflet-control-attribution) { font-size: 0.8125rem; }
 
-/* ── The website's home page ─────────────────────────────────────────────
-   Scoped to .home outside the app, so the in-app Forecast tab keeps its look.
+/* -- The website's design system ---------------------------------------
+   The decisions made on the home page, shared by every page: all of it applies
+   to <main> outside the app, so the app keeps its own layout and sizes.
    Type: 13, 14, 16 and 24 px plus the big numeral. Spacing on an 8 px grid.
-   One card: a tint on the sky with no border; nothing inside it is a card. */
+   One card: a tint on the sky with no border (a soft edge in the light theme);
+   nothing inside it is a card. Gold is the only accent; the status colours are
+   for status. */
+:root { --page-width: 64rem; --reading-width: 46rem; --radius-card: 1rem; --radius-control: 0.5rem; --chart-temp: var(--hot); }
+html:not([data-app]) { --chart-temp: var(--accent); }
+.site-col { max-width: var(--page-width); margin-inline: auto; }
+html:not([data-app]) main > :is(.max-w-2xl, .max-w-3xl, .max-w-4xl) { max-width: var(--page-width); }
+html:not([data-app]) main p { max-width: var(--reading-width); }
+/* the beta note: one quiet line, not a box */
+html:not([data-app]) main .bg-amber-900\/20 { background: none; border: 0; padding: 0; border-radius: 0; color: var(--muted); }
 html:not([data-app]) .home-col { max-width: 64rem; }
-html:not([data-app]) .home :is(h1, h2, .text-2xl, .text-3xl, .text-4xl, .sm\:text-2xl, .sm\:text-3xl, .sm\:text-4xl) { font-size: 1.5rem; line-height: 2rem; }
-html:not([data-app]) .home :is(.text-base, .text-lg, .text-xl, .sm\:text-base, .sm\:text-lg, .sm\:text-xl) { font-size: 1rem; line-height: 1.5rem; }
-html:not([data-app]) .home :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
-html:not([data-app]) .home :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
-html:not([data-app]) .home .bg-zinc-900.rounded-2xl { border-radius: 1rem; }
-html:not([data-app]) .home .bg-zinc-900 { box-shadow: none; }
-html:not([data-app]) .home :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
-html:not([data-app]) .home .bg-zinc-800\/60.px-4 { padding-inline: 0; }
+html:not([data-app]) main :is(h1, h2, .text-2xl, .text-3xl, .text-4xl, .sm\:text-2xl, .sm\:text-3xl, .sm\:text-4xl) { font-size: 1.5rem; line-height: 2rem; }
+html:not([data-app]) main :is(.text-base, .text-lg, .text-xl, .sm\:text-base, .sm\:text-lg, .sm\:text-xl) { font-size: 1rem; line-height: 1.5rem; }
+html:not([data-app]) main :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
+html:not([data-app]) main :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
+html:not([data-app]) main .bg-zinc-900.rounded-2xl { border-radius: 1rem; }
+html:not([data-app]) main .bg-zinc-900 { box-shadow: none; }
+html:not([data-app]) main :is(.bg-zinc-800\/50, .bg-zinc-800\/60) { background: none; }
+html:not([data-app]) main .bg-zinc-800\/60.px-4 { padding-inline: 0; }
+/* in the light theme a card keeps its soft edge: white on near-white needs one */
+html:not([data-app])[data-theme="light"] main .bg-zinc-900:not([role="tablist"]) { box-shadow: var(--lift); border-color: var(--hairline); }
+html:not([data-app])[data-theme="light"] main input { background-color: #ffffff; border: 1px solid rgb(20 28 43 / 0.12); }
 /* the search: fields without frames; the white button is the one solid thing */
 html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
 /* the answer in words, straight on the sky */
-html:not([data-app]) .home .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
-html:not([data-app]) .home .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
-html:not([data-app]) .home .home-toolbar button { background: none; }
+html:not([data-app]) main .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
+html:not([data-app]) main .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
+html:not([data-app]) main .home-toolbar button { background: none; }
 html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
 /* tabs as words, the active one underlined in gold */
-html:not([data-app]) .home [role="tablist"] { background: transparent !important; border-color: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; padding: 0; gap: 1.5rem; margin-top: 2rem; }
-html:not([data-app]) .home [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
-html:not([data-app]) .home [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+html:not([data-app]) main [role="tablist"] { background: transparent !important; border-color: transparent !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; padding: 0; gap: 1.5rem; margin-top: 2rem; }
+html:not([data-app]) main [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+html:not([data-app]) main [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
 /* quiet motion: a warning stays still; the loader without its glow */
 html:not([data-app]) .home-warning { animation: none; }
-html:not([data-app]) .home .mb-loader .glow { display: none; }
+html:not([data-app]) main .mb-loader .glow { display: none; }
 /* the Sources panel: one quiet row per source, a hairline between rows */
 .source-list tbody tr { border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
