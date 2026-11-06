@@ -15,6 +15,7 @@ export const SCHEMA_FILES = [
   'nominatim.sql', // the one-request-a-second gate and the answer cache
   'places.sql', // our summits, huts and towns (PostGIS, pg_trgm, unaccent)
   'feedback-lessons.sql', // one weight lesson per city per half hour
+  'station-errors.sql', // the weighting formula's shadow run
   'enable_rls.sql',
 ]
 

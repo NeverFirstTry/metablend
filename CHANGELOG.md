@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed — the light theme, website and app
 - A new light theme replaces the lavender and blue one: a near-white sky, white cards with a soft edge, and the gold as the only accent, dark enough to read on white. Status colours are darkened just enough for AA contrast, the chart band is a light neutral, and the search and other filled buttons are a pale gold. The sky no longer changes with the weather in light. The app has the same colours and keeps its layout and sizes. The Android widget's light colours follow with the next app build.
+- With the next app build, the Android notification tint and the Retry button on the app's no-connection page turn from the old green to the gold.
 
 ### Changed — the whole website
 - Every page now follows the home page's design: one type scale, one card style, the page width, plain section titles, and gold as the only accent. Legal texts are word for word as before. The app keeps its own design.
@@ -17,6 +18,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added
 - Styled "page not found" and error pages in all 13 languages: what happened, a search, and a link back to the forecast.
+- Behind the scenes: the hourly airport check also stores each source's raw temperature error, kept for 30 days, so a better weighting formula can be tried on all sources. The forecast and the weights are unchanged.
 
 ### Fixed
 - The search button in the planner and in compare mode now has a translated label for screen readers.

@@ -1,9 +1,9 @@
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
-import { median, deltaFromDiff } from '@/lib/scoring'
+import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias, shownConsensus } from '@/lib/blend'
-import { withErrorLog } from '@/lib/log'
+import { withErrorLog, logError } from '@/lib/log'
 import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
 
@@ -83,6 +83,7 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   }
 
   const results = []
+  const shadow = []
   let calibrated = 0
 
   // The slow network part runs in parallel up front; the DB scoring below
@@ -111,6 +112,7 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     if (real.length) {
       const shown = await shownConsensus(city, since)
       await updateCityBias(city, lat, lon, region, actualTemp - (shown ?? median(real.map(f => f.temp))))
+      shadow.push({ city, region, actual: actualTemp, shown, errors: rawErrors(real, actualTemp) })
     }
 
     // 5. Score + re-weight (identical math to the feedback / calibrate routes).
@@ -139,6 +141,13 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
       apis: applied.map(u => ({ id: u.id, deltas: u.deltas })),
     })
     calibrated++
+  }
+
+  // Formula shadow run (supabase/station-errors.sql). The weights above don't
+  // depend on it, and until the table exists (PGRST205) there's nothing to log.
+  if (shadow.length) {
+    const { error } = await supabase.from('station_errors').insert(shadow)
+    if (error && error.code !== 'PGRST205') await logError('station-errors', error)
   }
 
   return Response.json({ calibrated, since, radiusKm: RADIUS_KM, results })

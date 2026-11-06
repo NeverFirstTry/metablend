@@ -150,6 +150,10 @@ export async function GET(request) {
     supabase.from('nominatim_cache').delete().lt('fetched_at', new Date(Date.now() - NOMINATIM_DAYS * 86_400_000).toISOString()),
   ])
 
+  // Kept apart from the list above: the shadow run's table may not exist yet, or may already be dropped.
+  const shadow = await supabase.from('station_errors').delete().lt('created_at', retentionCutoff)
+  if (shadow.error && shadow.error.code !== 'PGRST205') await logError('cleanup.station-errors', shadow.error)
+
   let validation
   try {
     validation = await runMeteostatValidation()
