@@ -20,7 +20,7 @@ import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
-import { startCity } from '@/lib/app-client'
+import { startCity, isAppView } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
@@ -849,7 +849,7 @@ ${url}`)
             />
             <button
               onClick={() => loadCompare()}
-              aria-label="Compare"
+              aria-label={t(lang, 'compareBtn')}
               className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 shrink-0 flex items-center justify-center"
             >
               <Search size={18} aria-hidden />
@@ -864,7 +864,7 @@ ${url}`)
             {[data, compareData].map((d, i) => (
               <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5">
                 <div className="text-emerald-400 text-xs uppercase tracking-wider mb-2 truncate">{d.city}</div>
-                <div className="text-4xl font-bold mb-3">{showT(d.consensus.temp)}°{unit}</div>
+                <div className="text-4xl font-bold mb-3">{isAppView() ? showT(d.consensus.temp) : Math.round(showT(d.consensus.temp))}°{unit}</div>
                 <div className="space-y-1 text-sm">
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct != null ? `${d.consensus.rainPct}%` : '–'}</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'windLabel')}</span><span>{d.consensus.windKmh} km/h</span></div>
