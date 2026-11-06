@@ -29,7 +29,7 @@ export default function SourceList({ data, unit, lang }) {
             if (src.down) {
               return (
                 <tr key={src.apiId}>
-                  <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3 [overflow-wrap:anywhere]">{name}</th>
+                  <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3">{name}</th>
                   <td colSpan={3} className="py-2.5 px-2" style={{ color: 'var(--bad)' }}>{t(lang, 'noResponse')}</td>
                 </tr>
               )
@@ -38,7 +38,7 @@ export default function SourceList({ data, unit, lang }) {
             const weight = weightOf(src)
             return (
               <tr key={src.apiId}>
-                <th scope="row" className={`text-left py-2.5 pr-2 sm:pr-3 [overflow-wrap:anywhere] ${src.apiId === 'metablend' ? 'font-semibold' : 'font-normal'}`}>{name}</th>
+                <th scope="row" className={`text-left py-2.5 pr-2 sm:pr-3 ${src.apiId === 'metablend' ? 'font-semibold' : 'font-normal'}`}>{name}</th>
                 <td className="py-2.5 px-1.5 sm:px-2 text-right font-semibold tabular-nums whitespace-nowrap">{deg(src.temp)}</td>
                 <td className={`py-2.5 px-1.5 sm:px-2 text-right tabular-nums whitespace-nowrap ${off.outlier ? '' : 'text-zinc-400'}`} style={off.outlier ? { color: 'var(--bad)' } : undefined}>{off.text}</td>
                 <td className="py-2.5 pl-2 sm:pl-3">

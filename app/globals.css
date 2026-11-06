@@ -637,5 +637,6 @@ html:not([data-app]) .home .mb-loader .glow { display: none; }
 /* the Sources panel: one quiet row per source, a hairline between rows */
 .source-list tbody tr { border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
+@media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
 .home-bar { background: var(--muted); opacity: 0.6; }
 .home-bar-lead { background: var(--accent); }
