@@ -11,6 +11,7 @@ import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
 import { REGION_KEYS } from '@/lib/trusted'
+import { isAppView } from '@/lib/app-client'
 
 function name(id, fallback) {
   const n = sourceName(id)
@@ -39,6 +40,59 @@ function Sparkline({ data, lang }) {
         return <rect key={i} x={i * (bw + gap)} y={y} width={bw} height={barH} style={{ fill }} rx={0.5} />
       })}
     </svg>
+  )
+}
+
+const uptimeColor = u => (u == null ? 'var(--neutral)' : u >= 99 ? 'var(--ok)' : u >= 90 ? 'var(--warn)' : 'var(--bad)')
+
+// The website's ranking: one row per source, like the home page's source list,
+// with the same numbers as the app's cards. On a phone each number carries its label.
+function RankList({ apis, lang }) {
+  const most = Math.max(...apis.map(a => a.weight ?? 0)) || 1
+  const stat = (key, value, style) => (
+    <div className="rank-stat">
+      <span className="tabular-nums" style={style}>{value}</span>
+      <span className="rank-label text-xs text-zinc-400">{t(lang, key)}</span>
+    </div>
+  )
+  return (
+    <div className="rank-table">
+      <div className="rank-row rank-head text-xs text-zinc-400" aria-hidden="true">
+        <span /><span />
+        <span>{t(lang, 'lbWeight')}</span>
+        <span className="rank-stats">
+          {['lbScore', 'lbReports', 'lbAvgScore', 'lbUptime', 'lbAvgResponse', 'lbRecent'].map(k => <span key={k}>{t(lang, k)}</span>)}
+        </span>
+      </div>
+      <ol className="rank-list">
+        {apis.map((api, i) => (
+          <li key={api.id} className="rank-row">
+            <span className="rank-n tabular-nums text-zinc-400">{i + 1}</span>
+            <div className="rank-source min-w-0">
+              <div className="font-semibold break-words">{name(api.id, api.name)}</div>
+              <div className="text-xs text-zinc-400 break-words">{api.id}</div>
+            </div>
+            <div className="rank-weight">
+              <span className="tabular-nums font-semibold">{(api.weight * 100).toFixed(1)}%<span className="sr-only"> {t(lang, 'lbWeight')}</span></span>
+              <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
+                <div className="h-full rounded-full" style={{ width: `${((api.weight ?? 0) / most) * 100}%`, background: 'var(--accent)' }} />
+              </div>
+            </div>
+            <div className="rank-stats">
+              {stat('lbScore', api.score ?? 0)}
+              {stat('lbReports', api.reports ?? 0)}
+              {stat('lbAvgScore', api.reports > 0 ? (api.score / api.reports).toFixed(2) : '–')}
+              {stat('lbUptime', api.uptime != null ? `${api.uptime}%` : '–', { color: uptimeColor(api.uptime) })}
+              {stat('lbAvgResponse', api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–')}
+              <div className="rank-stat rank-spark">
+                {api.delta_history?.length > 1 ? <Sparkline data={api.delta_history} lang={lang} /> : <span aria-hidden>–</span>}
+                <span className="rank-label text-xs text-zinc-400">{t(lang, 'lbRecent')}</span>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
   )
 }
 
@@ -87,6 +141,11 @@ export default function Leaderboard() {
   const list = horizon === 'now' ? regions : horizons?.[horizon] ?? []
   const current = list?.find(r => r.region === active) ?? list?.[0]
   const checks = current?.apis?.reduce((n, a) => n + (a.reports ?? 0), 0) ?? 0
+  // the app's region labels carry an emoji; the website has none
+  const regionLabel = id => {
+    const label = REGION_KEYS[id] ? t(lang, REGION_KEYS[id]) : id
+    return isAppView() ? label : label.replace(/[\p{Extended_Pictographic}\p{Regional_Indicator}\uFE0F]/gu, '').trim()
+  }
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
@@ -169,12 +228,13 @@ export default function Leaderboard() {
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-emerald-400'
                   }`}
                 >
-                  {REGION_KEYS[r.region] ? t(lang, REGION_KEYS[r.region]) : r.region}
+                  {regionLabel(r.region)}
                 </button>
               ))}
             </div>
 
-            {current && (
+            {current && !isAppView() && <RankList apis={current.apis} lang={lang} />}
+            {current && isAppView() && (
               <div className="space-y-3">
                 {current.apis.map((api, i) => {
                   const weightPct = (api.weight * 100).toFixed(1)
@@ -228,7 +288,7 @@ export default function Leaderboard() {
                         <div className="grid grid-cols-2 gap-3 text-center mt-3 pt-3 border-t border-zinc-800">
                           <div>
                             <div className="text-sm font-bold" style={{
-                              color: api.uptime == null ? 'var(--neutral)' : api.uptime >= 99 ? 'var(--ok)' : api.uptime >= 90 ? 'var(--warn)' : 'var(--bad)',
+                              color: uptimeColor(api.uptime),
                             }}>
                               {api.uptime != null ? `${api.uptime}%` : '–'}
                             </div>
