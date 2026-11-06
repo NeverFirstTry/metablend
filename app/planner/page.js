@@ -78,7 +78,7 @@ export default function Planner() {
           <button
             onClick={() => search()}
             disabled={loading}
-            aria-label="Search"
+            aria-label={t(lang, 'a11ySearch')}
             className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 flex items-center justify-center"
           >
             {loading ? <Loader2 size={18} className="animate-spin-slow" aria-hidden /> : <Search size={18} aria-hidden />}
@@ -113,8 +113,8 @@ export default function Planner() {
             {/* 12-month chart */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
               <div className="flex gap-4 text-xs mb-5">
-                <span className="text-orange-400">■ {t(lang, 'plAvgTemp')}</span>
-                <span className="text-blue-400">■ {t(lang, 'plRainyDays')}</span>
+                <span className="text-orange-400">■ <span className="legend-label">{t(lang, 'plAvgTemp')}</span></span>
+                <span className="text-blue-400">■ <span className="legend-label">{t(lang, 'plRainyDays')}</span></span>
               </div>
               <div className="grid grid-cols-12 gap-1 items-end h-48">
                 {months.map(m => {
@@ -123,7 +123,7 @@ export default function Planner() {
                   const isBest = best.includes(m.month)
                   return (
                     <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${fmtTemp(m.avgTemp)} · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
-                      <div className="text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? fmtTemp(m.avgTemp) : ''}</div>
+                      <div className="legend-label text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? fmtTemp(m.avgTemp) : ''}</div>
                       <div className="w-full flex gap-px items-end h-full">
                         <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
                         <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
