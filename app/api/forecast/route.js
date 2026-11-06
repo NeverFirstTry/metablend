@@ -1,3 +1,4 @@
+import { recentMean } from '@/lib/scoring'
 import { supabase } from '@/lib/supabase'
 import { after } from 'next/server'
 import { withErrorLog, logError } from '@/lib/log'
@@ -127,7 +128,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
     .from('api_weights')
-    .select('id, weight')
+    .select('id, weight, delta_history')
     .eq('region', region)
 
   let weightRows = (!rwErr && regionWeights?.length) ? regionWeights : null
@@ -135,7 +136,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   if (!weightRows) {
     const { data: globalWeights } = await supabase
       .from('api_weights')
-      .select('id, weight')
+      .select('id, weight, delta_history')
     weightRows = globalWeights ?? []
   }
 
@@ -234,6 +235,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     consensus,
     sources:  [...results, ...downSources],
     weights:  weightMap,
+    // how each source has done lately: ranks the website's "Trusted most" list
+    recentScores: Object.fromEntries(weightRows.map(w => [w.id, recentMean(w.delta_history)]).filter(([, v]) => v != null)),
     extras,
     details,
     yesterdayTemp: yesterdayTemp ?? null,

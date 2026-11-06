@@ -6,6 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-06
 
 ### Fixed
+- "Trusted most right now" no longer shows five sources at the same percentage as if that ranked them. Most good sources tie on the same weight, so the list now ranks by how close each has been lately, best first, without percentages. The forecast itself is unchanged.
 - Changing language no longer loses or swaps your city. A name saved in one language could find nothing in the next ("リエンツ" in English: "could not load the forecast") or another town ("Wien" in English: Wien, Missouri). The site and app now remember each translated name's English one and ask by that in any other language.
 
 ### Changed — the website's home page
