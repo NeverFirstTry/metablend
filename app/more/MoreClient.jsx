@@ -10,6 +10,7 @@ import { publishPrefs } from '@/lib/ui-prefs'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
+import Credits from '../components/Credits'
 import NotificationSettings from '../components/push/NotificationSettings'
 import AppIconPicker from '../components/AppIconPicker'
 import FeedbackLink from '../components/FeedbackLink'
@@ -94,7 +95,7 @@ export default function MoreClient() {
       </section>
       {/* the footer is hidden in the app, but its data attribution (Open-Meteo CC BY, OpenStreetMap) must stay reachable */}
       <section className="space-y-2 text-xs text-zinc-500 leading-relaxed">
-        <p>{t(lang, 'footerData')}</p>
+        <p><Credits lang={lang} full /></p>
         <p>
           {t(lang, 'footerContact')}:{' '}
           <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400">info@metablend.app</a>
