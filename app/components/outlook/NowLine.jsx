@@ -7,7 +7,7 @@ import { MetricCard } from '../ui'
 import { conditionIcon, heroCondition } from '@/lib/conditions'
 import { isAppView } from '@/lib/app-client'
 import { tempFormatter } from '@/lib/outlook/text'
-import { liveSources, spreadSentence } from '@/lib/spread'
+import { liveSources, spreadSentence, agreeColor } from '@/lib/spread'
 import Glyph from '../Glyph'
 
 const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
@@ -24,7 +24,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
   const [open, setOpen] = useState(false)
   const c = data.consensus
   const condition = heroCondition(data)
-  const agreeColor = c.confidencePct >= 70 ? 'var(--ok)' : c.confidencePct >= 45 ? 'var(--warn)' : 'var(--bad)'
+  const agreeTint = agreeColor(c.confidencePct)
   const d = data.details
   const yd = yesterdayDelta(data)
   const inApp = isAppView()
@@ -52,7 +52,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
             {/* one source can't agree with anything: its 100% would mislead (the app keeps it) */}
             {(inApp || liveSources(data.sources).length !== 1) && (
               <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
-                <span style={{ color: agreeColor }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
+                <span style={{ color: agreeTint }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
                 {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
               </span>
             )}

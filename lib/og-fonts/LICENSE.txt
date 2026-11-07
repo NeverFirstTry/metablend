@@ -1,0 +1,5 @@
+Cut-down copies of Hanken Grotesk and of Noto Sans JP, SC and KR, made by
+scripts/brand/og-fonts.mjs from Google Fonts. All are under the SIL Open Font
+License 1.1: https://openfontlicense.org/open-font-license-official-text/
+Copyright the Hanken Grotesk Project Authors (https://github.com/marcologous/hanken-grotesk)
+and the Noto Project Authors (https://github.com/notofonts/noto-cjk).

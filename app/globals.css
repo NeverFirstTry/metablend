@@ -315,6 +315,12 @@ html:not([data-app]) .site-header ~ main { min-height: 0; flex: 1 0 auto; }
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }
+/* the website: the landing page, or a returning visitor's forecast. The boot script marks
+   them before first paint (lib/app-client.js); without a script, the landing page */
+html:is([data-app], [data-returning]) .landing-view { display: none; }
+html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
+.returning-only { display: none; }
+html[data-returning] .returning-only { display: block; }
 .app-tabbar { padding-bottom: var(--sa-bottom); }
 :root[data-theme="light"] .app-tabbar {
   background: rgb(255 255 255 / 0.72);
@@ -662,6 +668,10 @@ html:not([data-app]):not(.\#):not(.\#) main {
   & .text-orange-400 { color: var(--chart-temp); }
   & .text-blue-400 { color: var(--info); }
   & .legend-label { color: var(--muted); }
+  /* the landing page: the field is the widest and tallest thing on it, the example's numeral stays small */
+  & .landing-field { font-size: clamp(1.25rem, 3vw, 1.75rem); min-height: clamp(3.5rem, 7vw, 5rem); }
+  & .landing-statement { font-size: clamp(1.625rem, 3vw, 2.25rem); line-height: 1.2; }
+  & .landing-temp { font-size: 2.25rem; line-height: 1; }
   /* a phone keeps more of the card for the content */
   @media (max-width: 639px) { & section.bg-zinc-900.p-6 { padding: 1rem; } }
 }
