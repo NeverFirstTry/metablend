@@ -5,10 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-07
 
-### Added — a landing page for first-time visitors
-- Instead of a stranger's forecast for Lienz, a first visit on the website opens on a large search, with "Use my location", one sentence on what MetaBlend does, a live Vienna example with its source dots, how it works in three steps, and the mountain pages. Anyone who has looked at a city, or opened a link to one, goes straight to the forecast, from the first frame. The app is unchanged.
-- The same page in every other language at its own address (/de, /fr, /ja ...), each with its own title, description and share image, and listed for search engines.
-
+### Changed — the first visit
+- A first visit on the website opens on the normal forecast page for Vienna, with a slim note under the header ("Example: Vienna · search your place below") and "Use my location". The search sits where it always does, so nothing jumps after the first search. How it works, the mountain block and a line about who builds MetaBlend follow further down.
+- The same page in every other language at its own address (/de, /fr, /ja …), each with its own title, description and share image. Returning visitors and shared links go straight to their city.
+- Dark mode has one fixed, calm background; the tint that followed the weather and the time of day is gone.
+- "6 of 19 sources report rain right now" only shows when most sources do, so it can't contradict "dry today". In the evening the chart labels every hour and keeps its rain bars narrow.
 ### Added
 - Recent places: each one has an × to remove it, and "Clear all" ends the list. With none left, the next visit starts as a first one. Keyboard and screen readers included, all 13 languages. Asked for by a user.
 - A logo for email signatures at /email/logo.png.

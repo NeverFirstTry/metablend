@@ -82,7 +82,7 @@ export const viewport = {
   viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f3f6fb' },
-    { media: '(prefers-color-scheme: dark)', color: '#0e0e12' },
+    { media: '(prefers-color-scheme: dark)', color: '#060a1c' }, // the top of the fixed dark background
   ],
 }
 
