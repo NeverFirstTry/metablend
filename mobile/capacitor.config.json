@@ -10,7 +10,7 @@
     ],
     "errorPath": "index.html"
   },
-  "backgroundColor": "#0e0e12",
+  "backgroundColor": "#0f151b",
   "plugins": {
     "SystemBars": {
       "insetsHandling": "css",

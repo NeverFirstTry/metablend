@@ -65,8 +65,8 @@ export default function PeakView({ peak, lang, unit, onBack }) {
   const d = state.data
   const shown = tab ?? defaultSummitTab(d)
   const dark = shown === 'today' && d?.windows?.today === null // no daylight left today
-  // the summit's sky right now
-  useSky(d ? skyFor({ code: d.hourly?.[0]?.code, nowLocal: d.nowLocal, sun: d.sun }) : null)
+  // the sun at the summit right now (lib/useSky.js)
+  useSky(d ? skyFor({ nowLocal: d.nowLocal, sun: d.sun }) : null)
   const todayLocal = d?.nowLocal?.slice(0, 10)
   const date = d && (shown === 'tomorrow' ? addDays(todayLocal, 1) : todayLocal)
   const hours = d ? d.hourly.filter(h => h.t.startsWith(date)) : []

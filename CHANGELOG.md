@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-07
 
+### Changed — dark mode
+- Dark mode is a calm slate grey instead of the navy-to-purple sky, with a faint gold glow at the top where the sun is at the place you're looking at: east around sunrise, a light sheen by day, warmer in the west around sunset, none at night. Text stays readable everywhere, under the glow too.
+- Cards have a fine edge; the cookie notice, the app's tab bar, the city suggestions, the language list and code boxes match the new grey.
+- The band behind the forecast line is a neutral grey instead of a gold tint that read brown; the line itself stays gold.
+- The search buttons are a quiet grey with a gold magnifier instead of a bright white block.
+- The browser bar, the installed web app and the app's launch background use the same slate.
+
 ### Fixed — empty page, tiles, air quality
 - A page with no city of its own (the logo after removing your last place or Clear all, a broken shared link) shows the Vienna example with its note instead of an empty page.
 - One tile everywhere: the same surface and edge as the cards around it, real padding, equal heights; two per row on a phone, one row on a wide screen, and a tile without data leaves no gap.

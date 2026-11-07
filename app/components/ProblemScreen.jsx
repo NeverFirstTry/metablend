@@ -23,7 +23,7 @@ export default function ProblemScreen({ titleKey, textKey, onRetry = null, logo 
           placeholder={t(lang, 'placeholder')}
           className="flex-1 min-w-0 bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-base focus:outline-none focus:border-emerald-400"
         />
-        <button type="submit" aria-label={t(lang, 'a11ySearch')} className="press bg-emerald-400 text-black rounded-lg px-5 flex items-center justify-center hover:bg-emerald-300">
+        <button type="submit" aria-label={t(lang, 'a11ySearch')} className="search-btn press bg-emerald-400 text-black rounded-lg px-5 flex items-center justify-center hover:bg-emerald-300">
           <Search size={18} aria-hidden />
         </button>
       </form>

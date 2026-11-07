@@ -46,7 +46,7 @@ export default function Widget() {
   }, [city, opts])
 
   const { now, out, done } = state
-  useSky(out ? skyFor({ code: out.hourly?.[0]?.code, nowLocal: out.nowLocal, sun: out.sun }) : null)
+  useSky(out ? skyFor({ nowLocal: out.nowLocal, sun: out.sun }) : null)
   const { lang, unit } = opts ?? { lang: 'en', unit: 'C' }
   const fmt = tempFormatter(unit)
   const day = out?.days?.[0]

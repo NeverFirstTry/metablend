@@ -421,8 +421,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const showDelta = d => unit === 'F' ? d * 9 / 5 : d
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
-  // the page wears the city's sky: its weather right now at its time of day
-  useSky(outlook ? skyFor({ code: outlook.hourly?.[0]?.code, nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
+  // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
+  useSky(outlook ? skyFor({ nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
   useEffect(() => { document.documentElement.lang = lang }, [lang])
   // what a later visit to this tab starts from (lib/forecast-session.js)
@@ -775,7 +775,7 @@ ${url}`)
             onClick={() => { setShowSuggestions(false); loadForecast() }}
             disabled={loading}
             aria-label={t(lang, 'a11ySearch')}
-            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
+            className="search-btn press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {loading
               ? <Loader2 size={18} className="animate-spin-slow" aria-hidden />
@@ -864,7 +864,7 @@ ${url}`)
             <button
               onClick={() => loadCompare()}
               aria-label={t(lang, 'compareBtn')}
-              className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 shrink-0 flex items-center justify-center"
+              className="search-btn press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 shrink-0 flex items-center justify-center"
             >
               <Search size={18} aria-hidden />
             </button>
