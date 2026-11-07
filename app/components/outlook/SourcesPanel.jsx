@@ -29,7 +29,10 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
           hint={t(lang, 'spreadDotsHint')}
         />
         <SourceList data={data} unit={unit} lang={lang} />
-        {rankings}
+        <div className="space-y-3">
+          {rankings}
+          <p className="text-zinc-500 text-xs leading-relaxed"><Credits lang={lang} /></p>
+        </div>
       </div>
     )
   }
