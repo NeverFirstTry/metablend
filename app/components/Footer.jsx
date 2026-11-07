@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
+import Credits from './Credits'
 
 const REPO = 'https://github.com/NeverFirstTry/metablend'
 
@@ -36,7 +37,7 @@ export default function Footer({ lang = 'en', className = '' }) {
         </div>
         <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
       </div>
-      <p className="mt-3 text-zinc-500 leading-relaxed">{t(lang, 'footerData')}</p>
+      <p className="mt-3 text-zinc-500 leading-relaxed"><Credits lang={lang} full /></p>
       <p className="mt-2 text-zinc-500">
         {t(lang, 'footerContact')}:{' '}
         <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400 transition-colors">info@metablend.app</a>

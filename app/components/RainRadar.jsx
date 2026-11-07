@@ -67,7 +67,7 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar', bare = false
         style={{ background: 'var(--map-bg)' }}
       />
       <div className="text-zinc-500 text-xs mt-3">
-        Radar: RainViewer · Map: OpenStreetMap
+        Radar: <a href="https://www.rainviewer.com/" target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2">Weather data by RainViewer</a> · Map: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline decoration-dotted underline-offset-2">© OpenStreetMap contributors</a>
       </div>
     </>
   )
