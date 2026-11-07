@@ -48,7 +48,7 @@ Google's production review has no fixed length and can come back with questions,
 | 12 or more testers opted in for 14 days in a row | Needs you | Check Play Console on 2026-11-09 |
 | Production access answers drafted | Done | `docs/play-production-access.md` |
 | Fill in the bracketed numbers, then apply | Needs you | Play Console → Dashboard, from 2026-11-09 |
-| App build | Done | Android code unchanged since 1.0.1 (versionCode 2); the pages load live. The closed-test build can be promoted, assuming that's the build on the track |
+| App build | Done | The pages load live. Native changes since 1.0.1 (versionCode 2) wait for the next build: see "Ships with the next native build". The closed-test build can be promoted, assuming that's the build on the track |
 | Device check on the A52 | Needs you | `mobile/README.md` → Device checklist |
 | Accessibility check with TalkBack and largest font | Needs you | `mobile/README.md` → Accessibility |
 | Upload listing text in all 13 languages | Needs you | `fastlane/metadata/android/<locale>/`: description changed today |
@@ -74,6 +74,15 @@ Google's production review has no fixed length and can come back with questions,
 | App Review notes and contact phone | Needs you | Text in `store/app-store-release.md`, part 5 |
 | Version release: "Manually release this version" | Needs you | Set it before submitting; you press Release |
 | Submit for review | Needs you | By 2026-12-01 |
+
+## Ships with the next native build
+
+The pages load live, so web changes reach the apps at once. These native parts are in the repo but in no store build yet (Android's last is 1.0.1, versionCode 2):
+
+- iPhone: swipe from the left edge goes back (`34729a2`).
+- Android: the home-screen widget's light colours follow the new palette (`69363a5`).
+- Android: the notification tint and the Retry button on the no-connection page in gold (`8439450`).
+- Both: app launch background Slate #0f151b, matching dark mode (`mobile/capacitor.config.json`, `mobile/www/index.html`; needs `npx cap sync`).
 
 ## Uploading with fastlane
 
