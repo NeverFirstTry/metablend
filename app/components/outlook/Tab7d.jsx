@@ -5,7 +5,7 @@ import { Thermometer, CloudRain } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, headlineTone, dayPhrase, fill } from '@/lib/outlook/text'
-import { MetricCard } from '../ui'
+import { MetricCard, TileGrid } from '../ui'
 import Glyph from '../Glyph'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
@@ -75,7 +75,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
       </div>
       <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       {(w1 != null || rd?.of > 0) && (
-        <div className="flex flex-wrap gap-3">
+        <TileGrid>
           {w1 != null && (
             <MetricCard icon={Thermometer} label={t(lang, 'vsNormal10')} value={fmt.fmtDelta(w1)} sub={t(lang, 'thisWeek')} color={w1 > 0 ? 'var(--hot)' : 'var(--info)'} />
           )}
@@ -88,7 +88,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
               color="var(--info)"
             />
           )}
-        </div>
+        </TileGrid>
       )}
       <Notes notes={outlook.notes} lang={lang} />
     </div>

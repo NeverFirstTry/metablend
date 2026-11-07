@@ -6,7 +6,7 @@ import { headlineText, headlineTone } from '@/lib/outlook/text'
 import { todayHours } from '@/lib/outlook/headlines'
 import { isAppView } from '@/lib/app-client'
 import WarningsCard from './WarningsCard'
-import { MetricCard, SectionTitle, Fold } from '../ui'
+import { MetricCard, SectionTitle, Fold, TileGrid } from '../ui'
 import Glyph from '../Glyph'
 import RainRadar from '../RainRadar'
 import Headline from './Headline'
@@ -40,7 +40,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
           <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={outlook.sun} lang={lang} />
         </div>
       )}
-      <div className="flex flex-wrap gap-3">
+      <TileGrid>
         {best && (
           <MetricCard
             icon={Sun}
@@ -52,7 +52,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
         {x?.uvIndex != null && <MetricCard icon={Sun} label={t(lang, 'uvLabel')} value={x.uvIndex} sub={uvText(lang, x.uvIndex)} color={uvColor(x.uvIndex)} />}
         {x?.aqi != null && <MetricCard icon={Wind} label={t(lang, 'aqiLabel')} value={x.aqi} sub={aqiText(lang, x.aqi)} color={aqiColor(x.aqi)} />}
         {x?.pollen != null && <MetricCard icon={Flower2} label={t(lang, 'pollenLabel')} value={x.pollen} sub={pollenText(lang, x.pollen)} color={pollenColor(x.pollen)} />}
-      </div>
+      </TileGrid>
       <Notes notes={outlook.notes} lang={lang} />
       {outlook.lat != null && outlook.lon != null && (
         <Fold icon={CloudRain} title={t(lang, 'radarFold')}>

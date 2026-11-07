@@ -4,7 +4,7 @@ import { Clock, Sun, Thermometer, TrendingUp } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { addDays } from '@/lib/localtime'
 import { headlineText, headlineTone } from '@/lib/outlook/text'
-import { MetricCard, SectionTitle } from '../ui'
+import { MetricCard, SectionTitle, TileGrid } from '../ui'
 import Glyph from '../Glyph'
 import Headline from './Headline'
 import HourlyChart from './HourlyChart'
@@ -31,7 +31,7 @@ export default function TabTomorrow({ outlook, unit, lang, fmt }) {
           <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={outlook.sun} lang={lang} />
         </div>
       )}
-      <div className="flex flex-wrap gap-3">
+      <TileGrid>
         {best && (
           <MetricCard
             icon={Sun}
@@ -59,7 +59,7 @@ export default function TabTomorrow({ outlook, unit, lang, fmt }) {
             color={h.vsNormal > 0 ? 'var(--hot)' : 'var(--info)'}
           />
         )}
-      </div>
+      </TileGrid>
       <Notes notes={outlook.notes} lang={lang} />
     </div>
   )

@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-07
 
+### Fixed — empty page, tiles, air quality
+- A page with no city of its own (the logo after removing your last place or Clear all, a broken shared link) shows the Vienna example with its note instead of an empty page.
+- One tile everywhere: the same surface and edge as the cards around it, real padding, equal heights; two per row on a phone, one row on a wide screen, and a tile without data leaves no gap.
+- Air quality uses the words of the European index its number comes from: 42 is "Moderate", no longer "Unhealthy for Sensitive Groups" (a US index label). All 13 languages.
+
 ### Changed — the first visit
 - A first visit on the website opens on the normal forecast page for Vienna, with a slim note under the header ("Example: Vienna · search your place below") and "Use my location". The search sits where it always does, so nothing jumps after the first search. How it works, the mountain block and a line about who builds MetaBlend follow further down.
 - The same page in every other language at its own address (/de, /fr, /ja …), each with its own title, description and share image. Returning visitors and shared links go straight to their city.

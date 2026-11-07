@@ -15,7 +15,7 @@ import { useSky } from '@/lib/useSky'
 import RangeTabs from '../outlook/RangeTabs'
 import Headline from '../outlook/Headline'
 import HourlyChart from '../outlook/HourlyChart'
-import { MetricCard, SectionTitle } from '../ui'
+import { MetricCard, SectionTitle, TileGrid } from '../ui'
 import SummitStrip, { StormLegend, STORM_COLOR } from './SummitStrip'
 import SummitDays from './SummitDays'
 import HikeNotes from './HikeNotes'
@@ -124,12 +124,12 @@ export default function PeakView({ peak, lang, unit, onBack }) {
               <StormLegend lang={lang} className="mt-1.5" />
             </div>
           )}
-          <div className="flex flex-wrap gap-3">
+          <TileGrid>
             {/* units in the sub-line: three cards side by side on a phone leave no room */}
             {winds.length > 0 && <MetricCard icon={Wind} label={t(lang, 'summitWind')} value={Math.max(...winds)} sub="km/h" />}
             {fz.length > 0 && <MetricCard icon={Snowflake} label={t(lang, 'freezingLevel')} value={Math.min(...fz)} sub={`– ${Math.max(...fz)} m`} />}
             {worst && <MetricCard icon={Zap} label={t(lang, 'stormRisk')} value={t(lang, `storm${worst[0].toUpperCase()}${worst.slice(1)}`)} color={STORM_COLOR[worst]} />}
-          </div>
+          </TileGrid>
         </>
       )}
       {/* Today / Tomorrow carry this in the headline; the Week list has none */}

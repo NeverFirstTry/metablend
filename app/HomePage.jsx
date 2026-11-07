@@ -210,6 +210,18 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   // a first visit starts on the server's Vienna forecast (example), marked until a place of their own loads
   const [data, setData] = useState(() => SESSION.data ?? example?.forecast ?? null)
   const [isExample, setIsExample] = useState(() => !SESSION.data && !!example?.forecast)
+  // has a place of the visitor's own loaded on this page? (a ref: the async load reads it after awaits)
+  const ownCity = useRef(!!SESSION.data)
+  // Any state without a city falls back to the first-visit default: the Vienna example.
+  // The app hides it under its own first screen; the returning mark must not hide it on the web.
+  function showExample() {
+    if (!example?.forecast) return
+    setData(example.forecast)
+    setOutlook(example.outlook ?? null)
+    setIsExample(true)
+    setCity('')
+    delete document.documentElement.dataset.returning
+  }
   // left while the first forecast was loading: back straight to its loader
   const [loading, setLoading] = useState(() => !SESSION.data && !!SESSION.pending)
   const [locating, setLocating] = useState(false)
@@ -391,8 +403,11 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       if (home) {
         setCity(home)
         loadForecast(home, { remember: false })
-      } else delete document.documentElement.dataset.returning
+        return
+      }
     }
+    ownCity.current = false
+    showExample()
   }
 
   function changeTab(next) {
@@ -494,6 +509,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       setOffline(false)
       setError(null)
       setIsExample(false)
+      ownCity.current = true
       cacheForecast(json.city ?? q, json, out)
       if (remember) setRecent(pushRecent(json.city ?? q))
       try { sessionStorage.setItem(LAST_KEY, json.city ?? q) } catch { /* private mode */ }
@@ -523,9 +539,11 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         // and just try again in a minute rather than the full 15.
         setNextRefreshAt(Date.now() + 60_000)
       } else {
-        // online but the request failed: surface the error, stay "online"
+        // online but the request failed: surface the error, stay "online"; with no place of
+        // their own on screen (a bad shared link), the example stays under the error
         setOffline(false)
         setError(e.message)
+        if (!ownCity.current) showExample()
       }
     } finally {
       if (silent) setRefreshing(false)

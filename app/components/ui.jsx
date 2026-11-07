@@ -6,18 +6,25 @@ import { ChevronDown } from 'lucide-react'
 // Small shared building blocks for the forecast page and its tab views.
 
 export function MetricCard({ icon: Icon, label, value, sub, color }) {
+  // the chart card's own classes, so every theme and the website layer treat a tile like the cards around it
   return (
-    <div className="bg-zinc-800/60 border border-zinc-800 rounded-xl px-4 py-3 flex-1 min-w-[90px] transition-colors duration-200 hover:border-zinc-700">
-      <div className="text-zinc-500 text-[0.6875rem] uppercase tracking-wider mb-1.5 flex items-center gap-1.5 min-w-0">
-        {Icon && <Icon size={13} className="shrink-0" aria-hidden />}
-        {/* long compounds (Nullgradgrenze) hyphenate in narrow cards; break-words catches the rest */}
+    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 sm:px-5 flex flex-col gap-1.5 min-w-0">
+      <div className="text-zinc-400 text-xs flex items-center gap-1.5 min-w-0">
+        {Icon && <Icon size={14} className="shrink-0" aria-hidden />}
+        {/* long compounds (Nullgradgrenze) hyphenate in a narrow tile */}
         <span className="min-w-0 break-words hyphens-auto">{label}</span>
       </div>
       {/* the status colour goes on the status word: the sub-line, or the value when it is the word (storm risk) */}
-      <div className="text-2xl font-bold leading-none tabular-nums" style={sub ? undefined : { color }}>{value}</div>
-      {sub && <div className="text-xs mt-1" style={{ color }}>{sub}</div>}
+      <div className="text-2xl font-semibold leading-none tabular-nums" style={sub ? undefined : { color }}>{value}</div>
+      {sub && <div className={`text-xs ${color ? '' : 'text-zinc-400'}`} style={color ? { color } : undefined}>{sub}</div>}
     </div>
   )
+}
+
+// Tiles side by side: two per row on a phone, one row on a wide screen. A tile without
+// data isn't rendered, so the grid closes up with no empty slot.
+export function TileGrid({ children }) {
+  return <div className="grid grid-cols-2 gap-4 lg:grid-cols-none lg:grid-flow-col lg:auto-cols-fr">{children}</div>
 }
 
 // Section heading shared by every results card — icon + uppercase label, so
