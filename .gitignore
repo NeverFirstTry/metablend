@@ -67,5 +67,6 @@ GoogleService-Info.plist
 /.agents/
 /skills-lock.json
 /AGENTS.md
+/graphify-out/
 
 .vercel
