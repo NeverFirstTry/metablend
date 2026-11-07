@@ -8,7 +8,7 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, CloudRain, Layers,
-  Sparkles, ChevronDown, X,
+  Sparkles, ChevronDown, X, Info,
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -799,7 +799,7 @@ ${url}`)
           <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
             <span className="text-zinc-500 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
             {recent.map((c, i) => (
-              <span key={c} className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
+              <span key={c} className="recent-chip inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
                 <button onClick={() => { setCity(c); loadForecast(c) }} className="press pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
                   {c}
                 </button>
@@ -809,13 +809,13 @@ ${url}`)
                   onClick={() => forgetRecent(c, i)}
                   aria-label={fill(t(lang, 'recentRemove'), { city: c })}
                   title={fill(t(lang, 'recentRemove'), { city: c })}
-                  className="press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
+                  className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
                 >
                   <X size={12} aria-hidden />
                 </button>
               </span>
             ))}
-            <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
+            <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="recent-clear press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
               {t(lang, 'recentClearAll')}
             </button>
           </div>
@@ -1006,17 +1006,15 @@ ${url}`)
             only real prose on an otherwise UI-heavy page (search engines
             index this for generic consensus/accuracy queries). */}
         {/* collapsed: the title shows, a tap opens it; still in the HTML for search engines */}
-        <details className="group mt-16 max-w-2xl">
-          <summary className="press flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
-            <h2 className="text-lg font-bold">{t(lang, 'howTitle')}</h2>
-            <ChevronDown size={18} className="shrink-0 text-zinc-500 transition-transform group-open:rotate-180" aria-hidden />
-          </summary>
-          <div className="mt-3 space-y-3 text-sm text-zinc-400 leading-relaxed">
-            <p>{t(lang, 'howP1')}</p>
-            <p>{t(lang, 'howP2')}</p>
-            <p>{t(lang, 'howP3')}</p>
-          </div>
-        </details>
+        <div className="mt-16 max-w-2xl">
+          <Fold icon={Info} title={t(lang, 'howTitle')} keep>
+            <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
+              <p>{t(lang, 'howP1')}</p>
+              <p>{t(lang, 'howP2')}</p>
+              <p>{t(lang, 'howP3')}</p>
+            </div>
+          </Fold>
+        </div>
 
         <Footer lang={lang} />
       </div>

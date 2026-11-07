@@ -19,6 +19,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Visual Crossing still counts in the blend, but its own readings are no longer shown or passed on: the Sources panel names it with its weight.
 - Rankings: a regional source only appears, and only counts, in the region it covers (NWS only in North America; MET Nordic, SMHI, GeoSphere, DWD Bright Sky and Europe's high-resolution models only in Europe).
 
+### Fixed — forecast page
+- One source count everywhere: Visual Crossing still counts in the sentence under the temperature and in the landing example, and its row says "Value not shown (licence)".
+- "What is consensus forecasting?" opens from anywhere on its row, like the other rows; so do the region rows of the hiking directory.
+- Tiles show the number in the text colour; the status colour is only on the status word.
+- Recent places: on touch screens each × and "Clear all" has a 44 px target; the icon is unchanged.
+
 ### Fixed — wording
 - Czech "all sources agree" used a Polish verb form. French and Italian now use the usual term for a model run.
 

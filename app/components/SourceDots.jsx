@@ -14,7 +14,7 @@ export default function SourceDots({ sources, consensusC, unit = 'C', title, hin
   return (
     <div>
       <div className="text-zinc-500 text-xs mb-2">{title}</div>
-      <div role="img" aria-label={`${title}: ${live.length} · ${label}`}>
+      <div role="img" aria-label={`${title}: ${(sources ?? []).filter(s => !s.down && !s.synthetic).length} · ${label}`}>
         <div className="text-center text-xs font-semibold tabular-nums mb-1" style={{ color: 'var(--accent)' }}>{label}</div>
         <div className="relative h-5" aria-hidden>
           <div className="absolute inset-x-0 top-1/2 h-px" style={{ background: 'color-mix(in srgb, var(--foreground) 16%, transparent)' }} />

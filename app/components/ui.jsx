@@ -13,7 +13,7 @@ export function MetricCard({ icon: Icon, label, value, sub, color }) {
         {/* long compounds (Nullgradgrenze) hyphenate in narrow cards; break-words catches the rest */}
         <span className="min-w-0 break-words hyphens-auto">{label}</span>
       </div>
-      <div className="text-2xl font-bold leading-none tabular-nums" style={{ color }}>{value}</div>
+      <div className="text-2xl font-bold leading-none tabular-nums">{value}</div>
       {sub && <div className="text-xs mt-1" style={{ color }}>{sub}</div>}
     </div>
   )
@@ -39,7 +39,8 @@ export function SectionTitle({ icon: Icon, children, className = '' }) {
 const readFold = (key, fallback) => {
   try { const v = localStorage.getItem(key); return v == null ? fallback : v === '1' } catch { return fallback }
 }
-export function Fold({ icon: Icon, title, summary = null, children, defaultOpen = false, storeKey = null }) {
+// keep: the content stays in the HTML while closed (hidden), for search engines
+export function Fold({ icon: Icon, title, summary = null, children, defaultOpen = false, storeKey = null, keep = false }) {
   const [open, setOpen] = useState(() => (storeKey ? readFold(storeKey, defaultOpen) : defaultOpen))
   const toggle = () => {
     const next = !open
@@ -62,7 +63,7 @@ export function Fold({ icon: Icon, title, summary = null, children, defaultOpen 
         </span>
         <ChevronDown size={16} className={`shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} aria-hidden />
       </button>
-      {open && <div className="px-4 sm:px-5 pb-5 animate-fade-in">{children}</div>}
+      {(open || keep) && <div hidden={!open} className="px-4 sm:px-5 pb-5 animate-fade-in">{children}</div>}
     </div>
   )
 }

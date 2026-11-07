@@ -719,3 +719,9 @@ html:not([data-app]) .home-warning { animation: none; }
 @media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
 .home-bar { background: var(--muted); opacity: 0.6; }
 .home-bar-lead { background: var(--accent); }
+
+/* recent places: on touch screens every target is at least 44 px (Apple's minimum); the × icon keeps its size */
+@media (pointer: coarse) {
+  .recent-chip, .recent-chip > button:first-child, .recent-clear { min-height: 44px; }
+  .recent-x { width: 44px; height: 44px; margin: 0; }
+}

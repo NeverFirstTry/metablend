@@ -47,7 +47,6 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
             label={t(lang, 'bestTimeOut')}
             value={<><Glyph emoji={best.icon} size={22} /> {best.t.slice(11, 16)}</>}
             sub={`${fmt.fmtTemp(best.temp)} · ${best.rainPct ?? '–'}%`}
-            color="var(--ok)"
           />
         )}
         {x?.uvIndex != null && <MetricCard icon={Sun} label={t(lang, 'uvLabel')} value={x.uvIndex} sub={uvText(lang, x.uvIndex)} color={uvColor(x.uvIndex)} />}

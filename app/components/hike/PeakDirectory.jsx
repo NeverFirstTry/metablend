@@ -106,18 +106,22 @@ export default function PeakDirectory({ peaks, lang, hrefFor = null, pos = null 
       <section className="space-y-2">
         <SectionTitle icon={MountainSnow}>{t(lang, 'hikeAllPeaks')}</SectionTitle>
         <div>
-          {groups.map(g => (
-            <details key={g.region} open={isOpen(g.region, open, openRegion)} onToggle={e => toggle(g.region, e.currentTarget.open)} className="group border-b border-zinc-800 last:border-b-0">
-              <summary className="press flex cursor-pointer list-none items-center justify-between gap-3 py-3 text-sm [&::-webkit-details-marker]:hidden">
-                <span className="font-medium min-w-0 truncate">{t(lang, `region_${g.region}`)}</span>
-                <span className="inline-flex items-center gap-2 text-xs text-zinc-500 tabular-nums shrink-0">
-                  {g.peaks.length}
-                  <ChevronDown size={14} className="transition-transform group-open:rotate-180" aria-hidden />
-                </span>
-              </summary>
-              <div className="pb-3"><FeaturedList peaks={g.peaks} hrefFor={hrefFor} /></div>
-            </details>
-          ))}
+          {groups.map(g => {
+            const shown = isOpen(g.region, open, openRegion)
+            // one button for the whole row; the peaks stay in the HTML while closed
+            return (
+              <div key={g.region} className="border-b border-zinc-800 last:border-b-0">
+                <button type="button" aria-expanded={shown} onClick={() => toggle(g.region, !shown)} className="press w-full flex items-center justify-between gap-3 py-3 text-sm text-left">
+                  <span className="font-medium min-w-0 truncate">{t(lang, `region_${g.region}`)}</span>
+                  <span className="inline-flex items-center gap-2 text-xs text-zinc-500 tabular-nums shrink-0">
+                    {g.peaks.length}
+                    <ChevronDown size={14} className={`transition-transform ${shown ? 'rotate-180' : ''}`} aria-hidden />
+                  </span>
+                </button>
+                <div hidden={!shown} className="pb-3"><FeaturedList peaks={g.peaks} hrefFor={hrefFor} /></div>
+              </div>
+            )
+          })}
         </div>
         <p className="text-xs text-zinc-500 pt-1">{t(lang, 'gradeNote')}</p>
       </section>
