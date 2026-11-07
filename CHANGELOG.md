@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-07
 
+### Changed — sources and wording
+- Rankings opens on your own region and no longer has the "Global" tab, which had stopped updating. Sources we no longer use are gone from the list and from each region's total. The Uptime column is gone from the website, and behind the scenes a source that fails to answer now counts as a failure.
+- GeoSphere Austria now reads the nearest point of its newer INCA-v2 analysis, ahead of the old data set shutting down at the end of the year.
+- Plainer claims. The tagline is "One forecast from up to 20 sources", the forecast sentence says what the sources agree on without calling the forecast reliable, and the explanation no longer says MetaBlend is steadier than any single app. Listings and captions say 195 peaks.
+
 ### Fixed
 - The page header no longer flashes English and °C before switching to your language and unit, and its language menu shows a language picked on the home page.
 - Map popups show your °C or °F. The page-not-found screen has one logo instead of two. Hong Kong's city page says "Hong Kong".
