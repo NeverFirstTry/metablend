@@ -630,7 +630,7 @@ html:not([data-app]) :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg text, .l
    The decisions made on the home page, shared by every page: all of it applies
    to <main> outside the app, so the app keeps its own layout and sizes.
    Type: 13, 14, 16 and 24 px plus the big numeral. Spacing on an 8 px grid.
-   One card: a tint on the sky with no border (a soft edge in the light theme);
+   One card: a tint on the page with a hairline edge in dark, a soft edge in light;
    nothing inside it is a card. Gold is the only accent; the status colours are
    for status. */
 :root { --page-width: 64rem; --reading-width: 46rem; --radius-card: 1rem; --radius-control: 0.5rem; --chart-temp: var(--hot); }
@@ -649,7 +649,7 @@ html:not([data-app]):not(.\#):not(.\#) main {
   & .bg-zinc-900 h2 { font-size: 1rem; line-height: 1.5rem; font-weight: 600; }
   & h1.tracking-tight > .text-emerald-400 { color: inherit; }
   & :is(.uppercase, .tracking-widest, .tracking-wider) { text-transform: none; letter-spacing: normal; }
-  /* one card: a tint on the sky, no border, no shadow, nothing inside it is a card */
+  /* one card: a tint on the page, no shadow, nothing inside it is a card; its edge is set below, per theme */
   & :is(.border-zinc-800, .border-zinc-700):not(footer, footer *, :hover, :focus) { border-color: transparent; }
   & .bg-zinc-900.rounded-2xl { border-radius: var(--radius-card); }
   & .bg-zinc-900 { box-shadow: none; }
