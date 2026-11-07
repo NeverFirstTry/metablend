@@ -34,8 +34,27 @@ export default function SourceList({ data, unit, lang }) {
                 </tr>
               )
             }
-            const off = sourceDeviation(src.temp, data.consensus.temp, unit)
             const weight = weightOf(src)
+            const bar = (
+              <td className="py-2.5 pl-2 sm:pl-3">
+                <div className="flex items-center gap-2">
+                  <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
+                    <div className="h-full rounded-full" style={{ width: `${(weight / most) * 100}%`, background: 'var(--accent)' }} />
+                  </div>
+                  <span className="text-xs text-zinc-400 tabular-nums w-[2.5em] text-right">{(weight * 100).toFixed(0)}%</span>
+                </div>
+              </td>
+            )
+            if (src.valuesHidden) {
+              return (
+                <tr key={src.apiId}>
+                  <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3">{name}</th>
+                  <td colSpan={2} className="py-2.5 px-1.5 sm:px-2 text-right text-zinc-400 text-xs">{t(lang, 'sourceValuesHidden')}</td>
+                  {bar}
+                </tr>
+              )
+            }
+            const off = sourceDeviation(src.temp, data.consensus.temp, unit)
             return (
               <tr key={src.apiId}>
                 <th scope="row" className={`text-left py-2.5 pr-2 sm:pr-3 ${src.apiId === 'metablend' ? 'font-semibold' : 'font-normal'}`}>{name}</th>

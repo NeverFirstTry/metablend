@@ -63,6 +63,22 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
             )
           }
 
+          if (src.valuesHidden) {
+            return (
+              <div key={src.apiId} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="font-bold mb-2">{src.displayName ?? src.apiId}</div>
+                <div className="text-zinc-500 text-sm mb-4">{t(lang, 'sourceValuesHidden')}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-zinc-500 text-xs">{t(lang, 'weightLabel')}</div>
+                  <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${weight * 100}%` }} />
+                  </div>
+                  <div className="text-emerald-400 text-xs tabular-nums">{(weight * 100).toFixed(0)}%</div>
+                </div>
+              </div>
+            )
+          }
+
           const diff = Math.abs(src.temp - data.consensus.temp)
           const diffColor = diff <= 1 ? 'text-emerald-400' : diff <= 2.5 ? 'text-yellow-400' : 'text-red-400'
           // MetaBlend Local is the house model — the one card that IS the product

@@ -21,6 +21,8 @@ const nextConfig = {
   async headers() {
     return [
       { source: '/:path*', headers: securityHeaders },
+      // the email signature's logo: mail clients fetch it on every open, so a year in caches
+      { source: '/email/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
       // nobody else may frame MetaBlend's pages (clickjacking; inside the app
       // a framed page would sit next to the native bridge) — except /widget,
       // which exists to be embedded

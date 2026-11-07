@@ -8,7 +8,7 @@ import {
   Search, Navigation, ArrowLeftRight, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, CloudRain, Layers,
-  Sparkles, ChevronDown,
+  Sparkles, ChevronDown, X,
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -79,6 +79,19 @@ function pushRecent(city) {
   const list = [city, ...getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())].slice(0, 5)
   setCookie('metablend_recent', JSON.stringify(list))
   return list
+}
+// Removing the last one, or all of them, also forgets the last city viewed: the
+// next visit starts as a first one (the landing page, or the app's first screen).
+function removeRecent(city) {
+  const list = getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())
+  if (list.length) setCookie('metablend_recent', JSON.stringify(list))
+  else clearRecent()
+  return list
+}
+function clearRecent() {
+  clearCookie('metablend_recent')
+  try { sessionStorage.removeItem(LAST_KEY) } catch { /* private mode */ }
+  return []
 }
 
 // ── Favorite cities (localStorage) ────────────────────────────────────────────
@@ -337,6 +350,19 @@ export default function Home() {
     setUnit(u)
     setCookie('metablend_unit', u)
     publishPrefs({ unit: u })
+  }
+
+  // Recent places: keyboard focus stays in the list, on the next ×, or goes to the search once it's empty
+  function forgetRecent(c, i) {
+    setRecent(removeRecent(c))
+    requestAnimationFrame(() => {
+      const rest = document.querySelectorAll('[data-recent-remove]')
+      ;(rest[Math.min(i, rest.length - 1)] ?? document.querySelector('.home-search input'))?.focus()
+    })
+  }
+  function forgetAllRecent() {
+    setRecent(clearRecent())
+    requestAnimationFrame(() => document.querySelector('.home-search input')?.focus())
   }
 
   // Logo click: back to the start view (clear the loaded forecast + compare)
@@ -760,15 +786,26 @@ ${url}`)
         {recent.length > 0 && !compareMode && (
           <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
             <span className="text-zinc-500 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
-            {recent.map(c => (
-              <button
-                key={c}
-                onClick={() => { setCity(c); loadForecast(c) }}
-                className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
-              >
-                {c}
-              </button>
+            {recent.map((c, i) => (
+              <span key={c} className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
+                <button onClick={() => { setCity(c); loadForecast(c) }} className="press pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
+                  {c}
+                </button>
+                <button
+                  type="button"
+                  data-recent-remove
+                  onClick={() => forgetRecent(c, i)}
+                  aria-label={fill(t(lang, 'recentRemove'), { city: c })}
+                  title={fill(t(lang, 'recentRemove'), { city: c })}
+                  className="press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
+                >
+                  <X size={12} aria-hidden />
+                </button>
+              </span>
             ))}
+            <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
+              {t(lang, 'recentClearAll')}
+            </button>
           </div>
         )}
 
