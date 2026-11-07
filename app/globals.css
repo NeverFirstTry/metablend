@@ -84,7 +84,7 @@ html[data-app="1"] :is(input, textarea) {
    in the open list and would show light text on a white popup */
 :root { color-scheme: dark; }
 :root[data-theme="light"] { color-scheme: light; }
-select option { background-color: #101d45; color: #f6f8fc; }
+select option { background-color: #1b2126; color: #f6f8fc; }
 :root[data-theme="light"] select option { background-color: #ffffff; color: #141c2b; }
 :root[data-theme="light"] :is(input, textarea)::placeholder { color: var(--muted); opacity: 1; }
 
@@ -345,20 +345,17 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 /* labels read as words, not shouted tags */
 .uppercase.tracking-widest, .uppercase.tracking-wider { text-transform: none; letter-spacing: 0; font-weight: 600; }
 
-/* ── Living sky ─────────────────────────────────────────────────────────────
-   The page wears the forecast: <html data-sky="dawn|day|cloudy|rain|storm|
-   snow|dusk|night"> (lib/sky.js picks it from the weather code and the city's
-   sun times). Registered colours let one sky fade into the next — and one
-   theme into the other. Dark: the sky as it looks; light: the same skies as
-   pale daylight, zenith colour on top and a bright hazy horizon below. */
-@property --sky-a { syntax: '<color>'; inherits: true; initial-value: #060a1c; }
-@property --sky-b { syntax: '<color>'; inherits: true; initial-value: #101d45; }
-@property --sky-c { syntax: '<color>'; inherits: true; initial-value: #27366b; }
+/* ── Page background ────────────────────────────────────────────────────────
+   One fixed colour per theme, whatever the weather. Dark: a solid neutral;
+   light: a near-white sky, a touch paler towards the bottom. Registered
+   colours let one theme fade into the other. */
+@property --sky-a { syntax: '<color>'; inherits: true; initial-value: #0f151b; }
+@property --sky-b { syntax: '<color>'; inherits: true; initial-value: #0f151b; }
+@property --sky-c { syntax: '<color>'; inherits: true; initial-value: #0f151b; }
 :root {
-  --sky-a: #060a1c; --sky-b: #101d45; --sky-c: #27366b;
+  --sky-a: #0f151b; --sky-b: #0f151b; --sky-c: #0f151b;
   transition: --sky-a 1.8s var(--ease-out), --sky-b 1.8s var(--ease-out), --sky-c 1.8s var(--ease-out);
 }
-/* no sky yet (start page) = a calm clear morning */
 :root[data-theme="light"] { --sky-a: #f3f6fb; --sky-b: #f8fafd; --sky-c: #ffffff; }
 
 :root:not([data-theme="light"]) {
@@ -368,10 +365,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --accent-strong: #ffe7b3;
   --ok: #8eecc4; --warn: #ffd166; --bad: #ffb8b8; --info: #a9d1ff; --hot: #ffbb99; --lifr: #e2c6ff; --neutral: rgb(226 234 247 / 0.7);
   --surface-2: rgb(255 255 255 / 0.08); --surface-3: rgb(255 255 255 / 0.15);
-  --glass: rgb(255 255 255 / 0.075);
-  --glass-strong: rgb(9 14 32 / 0.55);
-  --hairline: rgb(255 255 255 / 0.13);
-  --map-bg: rgb(9 14 32 / 0.6);
+  --glass: rgb(255 255 255 / 0.05);
+  --glass-strong: rgb(27 33 38 / 0.88);
+  --hairline: rgb(255 255 255 / 0.08);
+  --map-bg: rgb(0 0 0 / 0.3);
 }
 :root body { background: var(--sky-a); }
 /* the sky itself: a fixed layer, so it doesn't stretch with long pages */
@@ -388,13 +385,13 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
      the frame rate while anything animated). Only the fixed bars (tab bar,
      consent notice) and the suggestion list blur, as content slides under. */
   & .bg-zinc-900 { background-color: var(--glass); }
-  & .bg-zinc-900\/60 { background-color: var(--glass-strong); }
+  & .bg-zinc-900\/60 { background-color: var(--glass); }
   & .bg-zinc-900\/95, & .bg-\[\#0e0e12\]\/95 {
     background-color: var(--glass-strong);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
     backdrop-filter: blur(24px) saturate(160%);
   }
-  & .bg-zinc-950 { background-color: rgb(9 14 32 / 0.45); }
+  & .bg-zinc-950 { background-color: rgb(0 0 0 / 0.25); }
   & .bg-zinc-800 { background-color: rgb(255 255 255 / 0.1); }
   & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(255 255 255 / 0.065); }
   & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(255 255 255 / 0.1); }
@@ -566,7 +563,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
 /* lists that float over the page (city suggestions): nearly opaque, so the
    page under them can't show through, plus a blur for the edges */
 :root .mb-overlay.bg-zinc-900 {
-  background-color: rgb(12 20 45 / 0.94);
+  background-color: rgb(27 33 38 / 0.96);
   -webkit-backdrop-filter: blur(24px) saturate(160%);
   backdrop-filter: blur(24px) saturate(160%);
 }
@@ -668,6 +665,8 @@ html:not([data-app]):not(.\#):not(.\#) main {
   /* a phone keeps more of the card for the content */
   @media (max-width: 639px) { & section.bg-zinc-900.p-6 { padding: 1rem; } }
 }
+/* in the dark theme a card keeps a hairline edge instead of a shadow; hover and focus keep their own colours */
+html:not([data-app]):not(.\#):not(.\#):not([data-theme="light"]) main .bg-zinc-900:not([role="tablist"], :hover, :focus) { border-color: var(--hairline); }
 /* in the light theme a card keeps its soft edge: white on near-white needs one */
 html:not([data-app]):not(.\#):not(.\#)[data-theme="light"] main .bg-zinc-900:not([role="tablist"]) { box-shadow: var(--lift); border-color: var(--hairline); }
 html:not([data-app]):not(.\#):not(.\#)[data-theme="light"] main input { background-color: #ffffff; border: 1px solid rgb(20 28 43 / 0.12); }
