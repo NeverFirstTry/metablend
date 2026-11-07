@@ -1,5 +1,6 @@
 'use client'
 
+import { tickEvery, rainBarWidth, MIN_RAIN_BAR } from '@/lib/forecast-hints'
 import { formatCalendarDate } from '@/lib/localtime'
 import { chartSummary } from '@/lib/a11y-text'
 import { tempFormatter } from '@/lib/outlook/text'
@@ -21,9 +22,9 @@ export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 1
   const y = v => top + (1 - (v - min) / range) * (tempBottom - top)
   const pt = (v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`
   const band = [...hi.map(pt), ...lo.map(pt).reverse()].join(' ')
-  const barW = Math.max(2, (W - 20) / hours.length - 1.5)
+  const barW = rainBarWidth(W - 20, hours.length)
   const iMax = mid.indexOf(Math.max(...mid)), iMin = mid.indexOf(Math.min(...mid))
-  const every = hours.length > 30 ? 6 : 3
+  const every = tickEvery(hours.length)
   const ticks = hours
     .map((h, i) => ({ h, i, hr: Number(h.t.slice(11, 13)) }))
     .filter(({ h, hr }) => h.t.slice(14, 16) === '00' && hr % every === 0)
@@ -36,7 +37,7 @@ export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 1
           <line key={`d${tk.h.t}`} x1={x(tk.i)} x2={x(tk.i)} y1={top - 8} y2={bottom} strokeDasharray="2 3" style={{ stroke: 'var(--muted)', strokeOpacity: 0.35 }} />
         ))}
         <polyline points={mid.map(pt).join(' ')} fill="none" strokeWidth="2" strokeLinejoin="round" style={{ stroke: 'var(--accent)' }} />
-        {hours.map((h, i) => h.rainPct > 0 && (
+        {hours.map((h, i) => h.rainPct >= MIN_RAIN_BAR && (
           <rect key={h.t} x={x(i) - barW / 2} y={bottom - (h.rainPct / 100) * rainH} width={barW} height={(h.rainPct / 100) * rainH}
             style={{ fill: 'var(--info)', fillOpacity: 0.25 + h.rainPct / 250 }} />
         ))}

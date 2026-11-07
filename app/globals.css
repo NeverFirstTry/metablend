@@ -358,13 +358,6 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --sky-a: #060a1c; --sky-b: #101d45; --sky-c: #27366b;
   transition: --sky-a 1.8s var(--ease-out), --sky-b 1.8s var(--ease-out), --sky-c 1.8s var(--ease-out);
 }
-:root[data-sky="dawn"]   { --sky-a: #1a2553; --sky-b: #3e3256; --sky-c: #4f3124; }
-:root[data-sky="day"]    { --sky-a: #0e3a6e; --sky-b: #173b61; --sky-c: #283a49; }
-:root[data-sky="cloudy"] { --sky-a: #2a3a4e; --sky-b: #2e3947; --sky-c: #323840; }
-:root[data-sky="rain"]   { --sky-a: #18222e; --sky-b: #2a3a4c; --sky-c: #2d3a47; }
-:root[data-sky="storm"]  { --sky-a: #110f1b; --sky-b: #27213d; --sky-c: #3d3354; }
-:root[data-sky="snow"]   { --sky-a: #2c394d; --sky-b: #303844; --sky-c: #34383d; }
-:root[data-sky="dusk"]   { --sky-a: #141c3d; --sky-b: #462f57; --sky-c: #542f25; }
 /* no sky yet (start page) = a calm clear morning */
 :root[data-theme="light"] { --sky-a: #f3f6fb; --sky-b: #f8fafd; --sky-c: #ffffff; }
 

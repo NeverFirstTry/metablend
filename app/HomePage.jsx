@@ -18,6 +18,7 @@ import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
+import { cityName } from '@/lib/city-names'
 import { startCity, isAppView, deepLinkCity } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
@@ -42,7 +43,6 @@ import HowItWorks from './components/HowItWorks'
 import { Countdown, DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
-import Landing from './components/Landing'
 import { cityShareUrl, shareText } from '@/lib/share'
 import { heroCondition } from '@/lib/conditions'
 
@@ -67,6 +67,9 @@ function readCachedForecast(city) {
     return null
   }
 }
+
+// a country in the reader's language (the example forecast arrives in English)
+const regionLabel = (cc, lang, fallback) => { try { return new Intl.DisplayNames([lang], { type: 'region', style: 'short' }).of(cc) || fallback } catch { return fallback } }
 
 // ── Recent cities (cookie, last 5, deduped) ───────────────────────────────────
 // Only what the user searched or tapped; links, notifications and refreshes
@@ -204,14 +207,16 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   // back on this tab (the app's tabs unmount it): the last screen from memory
   // at once — empty on a fresh page load, so the first render matches the server's
   const [city, setCity] = useState(() => SESSION.city || '')
-  const [data, setData] = useState(() => SESSION.data)
+  // a first visit starts on the server's Vienna forecast (example), marked until a place of their own loads
+  const [data, setData] = useState(() => SESSION.data ?? example?.forecast ?? null)
+  const [isExample, setIsExample] = useState(() => !SESSION.data && !!example?.forecast)
   // left while the first forecast was loading: back straight to its loader
   const [loading, setLoading] = useState(() => !SESSION.data && !!SESSION.pending)
   const [locating, setLocating] = useState(false)
   const [error, setError] = useState(null)
   // The future forecast (today / tomorrow / week) — fetched alongside "right
   // now" and failing independently of it.
-  const [outlook, setOutlook] = useState(() => SESSION.outlook)
+  const [outlook, setOutlook] = useState(() => SESSION.outlook ?? (SESSION.data ? null : example?.outlook ?? null))
   const [outlookError, setOutlookError] = useState(null)
   const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])
@@ -488,6 +493,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       }
       setOffline(false)
       setError(null)
+      setIsExample(false)
       cacheForecast(json.city ?? q, json, out)
       if (remember) setRecent(pushRecent(json.city ?? q))
       try { sessionStorage.setItem(LAST_KEY, json.city ?? q) } catch { /* private mode */ }
@@ -654,8 +660,6 @@ ${url}`)
   // how old the data on screen is (components/RefreshClock.jsx)
   const generatedAt = outlook?.generatedAt ?? data?.generatedAt
   // nothing asked for yet: on the website the landing page takes the search's place (CSS decides, see globals.css)
-  const atLanding = !data && !loading && !compareMode
-  const landingHides = atLanding ? 'landing-hides' : ''
   const suggestionList = showSuggestions && suggestions.length > 0 && (
     <div className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
       {suggestions.map(s => (
@@ -694,10 +698,18 @@ ${url}`)
             </h1>
           }
         />
+        {isExample && !loading && (
+          <div className="landing-view web-only mb-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm">
+            <span>{t(lang, 'exampleNote')}</span>
+            <button type="button" onClick={handleLocation} disabled={locating} className="press inline-flex items-center gap-1.5 text-emerald-400 hover:underline">
+              <Navigation size={14} aria-hidden /> {t(lang, 'a11yLocate')}
+            </button>
+          </div>
+        )}
         <p className="app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>
-        <p className={`web-only text-zinc-400 mt-4 mb-8 max-w-prose ${landingHides}`}>{t(lang, 'homeLead')}</p>
+        <p className={`web-only text-zinc-400 mt-4 mb-8 max-w-prose`}>{t(lang, 'homeLead')}</p>
 
         {/* First use in the app (no city yet): one clear way to start. Only CSS shows it
             (html[data-first-use], set before first paint), so it's there from the first
@@ -718,7 +730,7 @@ ${url}`)
         )}
 
         {/* Search (large text: the field on its own line above the buttons) */}
-        <div className={`home-search @container relative flex flex-wrap gap-2 mb-8 ${landingHides}`}>
+        <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
             disabled={locating || loading}
@@ -780,7 +792,7 @@ ${url}`)
 
         {/* Favorite city chips */}
         {favorites.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap -mt-4 mb-4 ${landingHides}`}>
+          <div className={`flex gap-2 flex-wrap -mt-4 mb-4`}>
             <span className="text-amber-500/70 text-xs uppercase tracking-wider self-center inline-flex items-center gap-1"><Star size={11} fill="currentColor" aria-hidden /> {t(lang, 'favoritesTitle')}:</span>
             {favorites.map(c => (
               <button
@@ -869,19 +881,9 @@ ${url}`)
         {/* A search in flight: the loader takes the stage, the answer rises in after */}
         {loading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} />}
 
-        {/* The landing page stays up under a failed search; the error above says what went wrong */}
-        {atLanding && (
-          <Landing
-            lang={lang} unit={unit} example={example} peaks={peaks} city={city} locating={locating} suggestions={suggestionList}
-            onCity={value => { setCity(value); fetchSuggestions(value) }}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            onSearch={() => { setShowSuggestions(false); loadForecast() }}
-            onLocate={handleLocation}
-          />
-        )}
 
         {/* Welcome / empty state — before any city has been searched */}
-        {!data && !loading && !error && !compareMode && (
+        {(!data || isExample) && !loading && !error && !compareMode && (
           <>
             {/* a returning visitor's forecast (first paint, until the effect starts it) */}
             <div className="web-only returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
@@ -898,7 +900,7 @@ ${url}`)
 
         {/* Results — "right now" shrinks to one line; the future tabs are the page */}
         {data && !loading && (
-          <div className="space-y-4 animate-fade-in-up">
+          <div className={`space-y-4 animate-fade-in-up ${isExample ? 'landing-view' : ''}`}>
 
             {/* Severe-weather warning */}
             {data.warning?.active && (
@@ -923,7 +925,8 @@ ${url}`)
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">
-                    {data.city}{data.country && <span className="text-zinc-400 font-normal">, {data.country}</span>}
+                    {/* the example comes in English from the server: its name in the reader's language */}
+                    {isExample ? cityName('vienna', lang, data.city) : data.city}{data.country && <span className="text-zinc-400 font-normal">, {isExample ? regionLabel(data.cc ?? 'AT', lang, data.country) : data.country}</span>}
                   </h2>
                   <button
                     onClick={manualRefresh}
@@ -996,10 +999,20 @@ ${url}`)
         )}
 
         {/* the landing page has its own three steps */}
-        <div className={landingHides}><HowItWorks lang={lang} data={data} /></div>
+        <div><HowItWorks lang={lang} data={data} /></div>
+        {isExample && (
+          <div className="landing-view web-only mt-12 max-w-prose space-y-6">
+            <section>
+              <h2 className="font-semibold tracking-tight mb-3">{t(lang, 'hikeTitle')}</h2>
+              <p className="text-sm text-zinc-400 mb-3">{fill(t(lang, 'hikeTeaserSub'), { n: peaks })}</p>
+              <Link href="/mountains" className="text-emerald-400 text-sm hover:underline">{t(lang, 'landingAllSummits')}</Link>
+            </section>
+            <p className="text-sm text-zinc-400">{t(lang, 'landingPersonal')}</p>
+          </div>
+        )}
         <div className="web-only mt-12 max-w-prose space-y-2 text-sm text-zinc-400">
           <p>{t(lang, 'betaDisclaimer')}</p>
-          {!(STORES.ios && STORES.android) && <Link href="/testers" className={`inline-block text-emerald-400 hover:underline ${landingHides}`}>{t(lang, 'testersTryApp')}</Link>}
+          {!(STORES.ios && STORES.android) && <Link href="/testers" className={`inline-block text-emerald-400 hover:underline`}>{t(lang, 'testersTryApp')}</Link>}
         </div>
 
         {/* Plain-language explainer: comprehension for new visitors and the

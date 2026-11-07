@@ -1,5 +1,6 @@
 'use client'
 
+import { showRainNow } from '@/lib/forecast-hints'
 import { useState } from 'react'
 import { ChevronDown, Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } from 'lucide-react'
 import { t, translateCondition } from '@/lib/i18n'
@@ -28,7 +29,7 @@ export default function NowLine({ data, unit, lang, showT, showDelta, dark = nul
   const d = data.details
   const yd = yesterdayDelta(data)
   const inApp = isAppView()
-  const rainingHint = data.rainingNow?.count > 0
+  const rainingHint = showRainNow(data.rainingNow)
     ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
   // the hero: the temperature as a big light numeral, straight on the sky
