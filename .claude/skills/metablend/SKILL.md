@@ -16,6 +16,17 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 - **Active CPU:** prefer static pages, ISR and CDN caching. A new request per visitor needs a reason.
 - **Design:** no sparkle or magic icons, emoji in UI, glows, gradient text, icon-in-a-rounded-square feature grids, vague taglines, cards inside cards, glass on everything, stacks of badges or centred everything. Do use left-aligned layouts, about 5 type sizes, one card style, an 8px grid, generous whitespace and few borders. Show the product first and use real data. Keep the living sky in dark and the one fixed near-white sky in light, the gold accent, the system font / Inter, the source dots in the Sources panel and reduced motion. 13 px is the smallest text on the website; the app keeps its own sizes.
 
+## Redesign rules
+
+These stand for every design task; the owner should not have to repeat them. Re-read this list before sending a comparison link.
+
+- **Colour:** gold is the only accent. Green is for status only.
+- **On the website:** 13 px minimum, whole degrees, no countdowns.
+- **Cards:** no nested cards.
+- **Wording:** no "safe" or "sicher". All user-facing text as i18n keys in all 13 languages.
+- **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
+- **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go.
+
 ## Android release
 
 1. `mobile/android/app/build.gradle`: `versionCode` +1, new `versionName`.

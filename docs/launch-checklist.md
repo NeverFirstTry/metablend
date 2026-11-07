@@ -2,6 +2,12 @@
 
 **Before any monetisation:** Open-Meteo's and RainViewer's free tiers are non-commercial. Subscriptions or ads count as commercial use for Open-Meteo, and RainViewer's free API is for small-scale community use. Move to their paid plans first.
 
+**For a lawyer's review** (attribution went live 2026-11-07; these points could not be checked against the providers' own pages):
+- DWD: /terms says "Datenbasis: Deutscher Wetterdienst, eigene Bearbeitung: mit anderen Quellen gemittelt". The form comes from a secondary summary of DWD's templates; check it against DWD's own page.
+- WeatherAPI.com: the free plan's credit "Powered by WeatherAPI.com" with a link is in. Whether their terms require a set end-user disclaimer, and whether ours covers it, is unchecked.
+- ECMWF: /terms has the credit sentence, CC BY 4.0, the source and the note that blended data are changed. ECMWF's liability sentence ("ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use") sits on a separate ECMWF page and is not quoted; decide whether /terms needs it.
+- Visual Crossing: its raw values are no longer public (2026-11-07). The owner is asking them in writing whether the Sources panel may show them again.
+
 State as of 2026-11-05. **Done** = finished and in the repo. **Open** = Claude can do it. **Needs you** = your account, device or decision.
 
 "Done" for a listing item means the text or image is ready in the repo. Anything already pasted into a store console is out of date until you upload it again.

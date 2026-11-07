@@ -7,6 +7,7 @@ import { isAppView } from '@/lib/app-client'
 import SourceSpread from '../SourceSpread'
 import SourceDots from '../SourceDots'
 import SourceList from '../SourceList'
+import Credits from '../Credits'
 
 // "Who's right now": every live source's current reading and its learned
 // weight, with the spread on top. Folded away on the forecast page. The website
@@ -28,7 +29,10 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
           hint={t(lang, 'spreadDotsHint')}
         />
         <SourceList data={data} unit={unit} lang={lang} />
-        {rankings}
+        <div className="space-y-3">
+          {rankings}
+          <p className="text-zinc-500 text-xs leading-relaxed"><Credits lang={lang} /></p>
+        </div>
       </div>
     )
   }
@@ -55,6 +59,22 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
                   <span className="text-xs bg-red-500/20 text-red-400 border border-red-500/40 rounded px-2 py-0.5">● {t(lang, 'sourceDown')}</span>
                 </div>
                 <div className="text-zinc-500 text-sm">{t(lang, 'noResponse')}{src.responseMs ? ` · ${src.responseMs}ms` : ''}</div>
+              </div>
+            )
+          }
+
+          if (src.valuesHidden) {
+            return (
+              <div key={src.apiId} className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+                <div className="font-bold mb-2">{src.displayName ?? src.apiId}</div>
+                <div className="text-zinc-500 text-sm mb-4">{t(lang, 'sourceValuesHidden')}</div>
+                <div className="flex items-center gap-2">
+                  <div className="text-zinc-500 text-xs">{t(lang, 'weightLabel')}</div>
+                  <div className="flex-1 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-400 rounded-full" style={{ width: `${weight * 100}%` }} />
+                  </div>
+                  <div className="text-emerald-400 text-xs tabular-nums">{(weight * 100).toFixed(0)}%</div>
+                </div>
               </div>
             )
           }
@@ -102,6 +122,7 @@ export default function SourcesPanel({ data, unit, lang, showT, showDelta }) {
         })}
       </div>
       {rankings}
+      <p className="text-zinc-500 text-xs leading-relaxed mt-4"><Credits lang={lang} /></p>
     </div>
   )
 }

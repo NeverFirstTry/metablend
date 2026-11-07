@@ -6,6 +6,7 @@ import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { parsePeakQuery } from '@/lib/hike/params'
 import { fetchSummitRaw } from '@/lib/hike/sources'
 import { buildHike } from '@/lib/hike/build'
+import featured from '@/lib/hike/featured.json'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
 
@@ -28,7 +29,9 @@ export const GET = withErrorLog('hike', async (request) => {
   ])
   // Open-Meteo hangs now and then on the full request: note how often
   if (!multi || multi.fallback) await logError('hike.upstream', new Error(multi ? 'fell back to the core models' : 'no summit forecast'), { upstream: lastUpstreamFailure() })
-  const payload = buildHike({ peak, region, multi, weights })
+  // the grade of a listed summit sets how much daylight its descent keeps; the request has only coordinates
+  const listed = featured.find(p => Math.round(p.lat * 1e3) / 1e3 === peak.lat && Math.round(p.lon * 1e3) / 1e3 === peak.lon)
+  const payload = buildHike({ peak: { ...peak, grade: listed?.grade }, region, multi, weights })
   if (!payload.hourly.length) return noStore({ error: 'Summit forecast unavailable right now — please try again shortly.', upstream: lastUpstreamFailure() }, 502)
 
   return Response.json(payload, {

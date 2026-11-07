@@ -19,7 +19,7 @@ export default function RouteMap({ points, highIndex }) {
       map.current ??= L.map(box.current, { zoomControl: false, scrollWheelZoom: false })
       const m = map.current
       m.eachLayer(l => m.removeLayer(l))
-      const topo = L.tileLayer(TOPO, { maxZoom: 17, subdomains: 'abc', attribution: '© OpenTopoMap (CC-BY-SA), © OpenStreetMap contributors' })
+      const topo = L.tileLayer(TOPO, { maxZoom: 17, subdomains: 'abc', attribution: 'Map data: © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, SRTM | Map style: © <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)' })
       let fell = false
       topo.on('tileerror', () => {
         if (fell) return

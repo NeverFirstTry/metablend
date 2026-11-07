@@ -8,6 +8,20 @@ All notable changes to MetaBlend. Format loosely follows
 ### Added — a landing page for first-time visitors
 - Instead of a stranger's forecast for Lienz, a first visit on the website opens on a large search, with "Use my location", one sentence on what MetaBlend does, a live Vienna example with its source dots, how it works in three steps, and the mountain pages. Anyone who has looked at a city, or opened a link to one, goes straight to the forecast, from the first frame. The app is unchanged.
 - The same page in every other language at its own address (/de, /fr, /ja ...), each with its own title, description and share image, and listed for search engines.
+
+### Added
+- Recent places: each one has an × to remove it, and "Clear all" ends the list. With none left, the next visit starts as a first one. Keyboard and screen readers included, all 13 languages. Asked for by a user.
+- A logo for email signatures at /email/logo.png.
+
+### Changed — safety, credits and data
+- Summit window: an hour also counts as too cold when the wind chill from the summit wind is −20° or colder, the window closes 3 h before sunset (4 h on alpine grades and peaks from 3,000 m) to leave daylight for the way down, and a window under an hour isn't shown. Mountain pages, the hiking view and hike alerts follow; the route planner gets the cold check.
+- Credits: each data provider is named in its own words with a link, in the footer, under the Sources panel and on the app's More screen. /terms and /privacy are complete.
+- Visual Crossing still counts in the blend, but its own readings are no longer shown or passed on: the Sources panel names it with its weight.
+- Rankings: a regional source only appears, and only counts, in the region it covers (NWS only in North America; MET Nordic, SMHI, GeoSphere, DWD Bright Sky and Europe's high-resolution models only in Europe).
+
+### Fixed — wording
+- Czech "all sources agree" used a Polish verb form. French and Italian now use the usual term for a model run.
+
 ### Changed — sources and wording
 - Rankings opens on your own region and no longer has the "Global" tab, which had stopped updating. Sources we no longer use are gone from the list and from each region's total. The Uptime column is gone from the website, and behind the scenes a source that fails to answer now counts as a failure.
 - GeoSphere Austria now reads the nearest point of its newer INCA-v2 analysis, ahead of the old data set shutting down at the end of the year.

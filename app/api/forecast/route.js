@@ -16,7 +16,7 @@ import {
 import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { createRateLimiter } from '@/lib/ratelimit'
-import { sourceName, isRetired } from '@/lib/sources'
+import { sourceName, isRetired, covers, publicSources } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
@@ -132,13 +132,13 @@ export const GET = withErrorLog('forecast', async (request) => {
     .select('id, weight, delta_history')
     .eq('region', region)
 
-  let weightRows = (!rwErr && regionWeights?.length) ? regionWeights.filter(w => !isRetired(w.id)) : null
+  let weightRows = (!rwErr && regionWeights?.length) ? regionWeights.filter(w => !isRetired(w.id) && covers(w.id, region)) : null
 
   if (!weightRows) {
     const { data: globalWeights } = await supabase
       .from('api_weights')
       .select('id, weight, delta_history')
-    weightRows = (globalWeights ?? []).filter(w => !isRetired(w.id))
+    weightRows = (globalWeights ?? []).filter(w => !isRetired(w.id) && covers(w.id, region))
   }
 
   // 4. Gewichteten Durchschnitt berechnen
@@ -234,7 +234,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     lon:      geo.lon,
     region,
     consensus,
-    sources:  [...results, ...downSources],
+    sources:  publicSources([...results, ...downSources]), // blended above with every value; public without the ones a licence keeps private
     weights:  weightMap,
     // how each source has done lately: ranks the website's "Trusted most" list
     recentScores: Object.fromEntries(weightRows.map(w => [w.id, recentMean(w.delta_history)]).filter(([, v]) => v != null)),
