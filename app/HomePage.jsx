@@ -775,7 +775,7 @@ ${url}`)
             onClick={() => { setShowSuggestions(false); loadForecast() }}
             disabled={loading}
             aria-label={t(lang, 'a11ySearch')}
-            className="search-btn press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
+            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
           >
             {loading
               ? <Loader2 size={18} className="animate-spin-slow" aria-hidden />
@@ -864,7 +864,7 @@ ${url}`)
             <button
               onClick={() => loadCompare()}
               aria-label={t(lang, 'compareBtn')}
-              className="search-btn press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 shrink-0 flex items-center justify-center"
+              className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 shrink-0 flex items-center justify-center"
             >
               <Search size={18} aria-hidden />
             </button>

@@ -14,7 +14,7 @@ test('project settings — no encryption question, iPhone only, release signing 
   assert.match(gradle, /keystore\.properties/)
   assert.match(gradle, /signingConfigs\s*\{\s*release/)
   const ignore = read('mobile/android/.gitignore')
-  for (const p of ['keystore.properties', '*.jks', '*.keystore']) assert.ok(ignore.split('\n').includes(p), p)
+  for (const p of ['keystore.properties', '*.jks', '*.keystore']) assert.ok(ignore.split(/\r?\n/).includes(p), p)
 })
 
 test('compliance sheet — every store form has its answers', () => {

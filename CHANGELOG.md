@@ -9,8 +9,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Dark mode is a calm slate grey instead of the navy-to-purple sky, with a faint gold glow at the top where the sun is at the place you're looking at: east around sunrise, a light sheen by day, warmer in the west around sunset, none at night. Text stays readable everywhere, under the glow too.
 - Cards have a fine edge; the cookie notice, the app's tab bar, the city suggestions, the language list and code boxes match the new grey.
 - The band behind the forecast line is a neutral grey instead of a gold tint that read brown; the line itself stays gold.
-- The search buttons are a quiet grey with a gold magnifier instead of a bright white block.
-- The browser bar, the installed web app and the app's launch background use the same slate.
+- Buttons are a quiet grey with a fine edge and gold text or a gold icon instead of bright white blocks: the search buttons, the cookie notice's OK, Copy, Turn on notifications and the rest.
+- The browser bar and the installed web app use the same slate; the app's launch background follows with the next app build (listed in the launch checklist with the other native changes waiting for it).
+- Tests: the Android project check reads `.gitignore` with either line ending, so it passes on a fresh Windows checkout.
 
 ### Fixed — empty page, tiles, air quality
 - A page with no city of its own (the logo after removing your last place or Clear all, a broken shared link) shows the Vienna example with its note instead of an empty page.
