@@ -13,7 +13,8 @@ export function MetricCard({ icon: Icon, label, value, sub, color }) {
         {/* long compounds (Nullgradgrenze) hyphenate in narrow cards; break-words catches the rest */}
         <span className="min-w-0 break-words hyphens-auto">{label}</span>
       </div>
-      <div className="text-2xl font-bold leading-none tabular-nums">{value}</div>
+      {/* the status colour goes on the status word: the sub-line, or the value when it is the word (storm risk) */}
+      <div className="text-2xl font-bold leading-none tabular-nums" style={sub ? undefined : { color }}>{value}</div>
       {sub && <div className="text-xs mt-1" style={{ color }}>{sub}</div>}
     </div>
   )
