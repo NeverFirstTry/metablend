@@ -40,7 +40,7 @@ import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
 import NowDetails from './components/outlook/NowDetails'
 import HowItWorks from './components/HowItWorks'
-import { Countdown, DataAge } from './components/RefreshClock'
+import { DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
 import { cityShareUrl, shareText } from '@/lib/share'
@@ -418,8 +418,6 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
 
   // celsius value → number shown in the active unit
   const showT = c => c == null ? '–' : unit === 'F' ? Math.round(cToF(c)) : Math.round(c * 10) / 10
-  // a temperature gap, e.g. ±2.5° — scale only, no +32 offset
-  const showDelta = d => unit === 'F' ? d * 9 / 5 : d
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
   // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
@@ -956,7 +954,6 @@ ${url}`)
                   >
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
-                  {!offline && nextRefreshAt && <Countdown at={nextRefreshAt} lang={lang} />}
                 </div>
                 {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} />}
               </div>
@@ -982,7 +979,7 @@ ${url}`)
 
             {outlook && <WarningStrip lat={data.lat} lon={data.lon} cc={outlook.cc} lang={lang} todayLocal={outlook.nowLocal.slice(0, 10)}
               onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
-            <NowLine data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
+            <NowLine data={data} unit={unit} lang={lang} showT={showT} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
             </div>
 
             <RangeTabs value={tab} onChange={changeTab} lang={lang} />
@@ -999,16 +996,14 @@ ${url}`)
 
             <PushPrompt lang={lang} unit={unit} />
 
-            <div className="web-only">
-              <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
-                <NowDetails data={data} unit={unit} lang={lang} />
-              </Fold>
-            </div>
+            <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
+              <NowDetails data={data} unit={unit} lang={lang} />
+            </Fold>
 
             {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
             <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
               summary={fill(t(lang, 'widgetSources'), { n: countSources(data.sources), agree: data.consensus.confidencePct })}>
-              <SourcesPanel data={data} unit={unit} lang={lang} showT={showT} showDelta={showDelta} />
+              <SourcesPanel data={data} unit={unit} lang={lang} />
             </Fold>
             <Fold icon={Send} title={t(lang, 'feedbackFold')}>
               <FeedbackPanel data={data} unit={unit} lang={lang} onWeights={mergeWeights} />

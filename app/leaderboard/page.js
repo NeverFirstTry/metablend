@@ -44,10 +44,8 @@ function Sparkline({ data, lang }) {
   )
 }
 
-const uptimeColor = u => (u == null ? 'var(--neutral)' : u >= 99 ? 'var(--ok)' : u >= 90 ? 'var(--warn)' : 'var(--bad)')
-
-// The website's ranking: one row per source, like the home page's source list,
-// with the same numbers as the app's cards. On a phone each number carries its label.
+// The ranking, on the website and in the app: one row per source, like the
+// forecast page's source list. On a phone each number carries its label.
 function RankList({ apis, lang }) {
   const most = Math.max(...apis.map(a => a.weight ?? 0)) || 1
   const stat = (key, value, style) => (
@@ -198,78 +196,7 @@ export default function Leaderboard() {
               ))}
             </div>
 
-            {current && !isAppView() && <RankList apis={current.apis} lang={lang} />}
-            {current && isAppView() && (
-              <div className="space-y-3">
-                {current.apis.map((api, i) => {
-                  const weightPct = (api.weight * 100).toFixed(1)
-                  const avgScore = api.reports > 0 ? (api.score / api.reports).toFixed(2) : '–'
-                  const medalColor = i === 0 ? 'text-yellow-400' : i === 1 ? 'text-zinc-300' : i === 2 ? 'text-amber-600' : 'text-zinc-500'
-                  const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`
-
-                  return (
-                    <div key={api.id} className="animate-fade-in-up bg-zinc-900 border border-zinc-800 rounded-xl p-5" style={{ animationDelay: `${i * 60}ms` }}>
-                      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2 mb-4">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <span className={`text-lg font-bold tabular-nums ${medalColor}`}>{medal}</span>
-                          <div className="min-w-0 break-words">
-                            <div className="font-bold text-base">{name(api.id, api.name)}</div>
-                            <div className="text-zinc-500 text-xs">{api.id}</div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-emerald-400 font-bold text-lg tabular-nums">{weightPct}%</div>
-                          <div className="text-zinc-500 text-xs">{t(lang, 'lbWeight')}</div>
-                        </div>
-                      </div>
-
-                      <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden mb-4">
-                        <div className="h-full bg-emerald-400 rounded-full transition-[width] duration-700 ease-out" style={{ width: `${weightPct}%` }} />
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3 text-center">
-                        <div>
-                          <div className="text-sm font-bold tabular-nums">{api.score ?? 0}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbScore')}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold tabular-nums">{api.reports ?? 0}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbReports')}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm font-bold tabular-nums">{avgScore}</div>
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbAvgScore')}</div>
-                        </div>
-                      </div>
-
-                      {api.delta_history?.length > 1 && (
-                        <div className="mt-3 pt-3 border-t border-zinc-800">
-                          <div className="text-zinc-500 text-xs uppercase tracking-wider mb-1.5">{t(lang, 'lbRecent')}</div>
-                          <Sparkline data={api.delta_history} lang={lang} />
-                        </div>
-                      )}
-
-                      {(api.uptime != null || api.avgMs != null) && (
-                        <div className="grid grid-cols-2 gap-3 text-center mt-3 pt-3 border-t border-zinc-800">
-                          <div>
-                            <div className="text-sm font-bold" style={{
-                              color: uptimeColor(api.uptime),
-                            }}>
-                              {api.uptime != null ? `${api.uptime}%` : '–'}
-                            </div>
-                            <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbUptime')}</div>
-                          </div>
-                          <div>
-                            <div className="text-sm font-bold tabular-nums">{api.avgMs != null ? `${Math.round(api.avgMs)}ms` : '–'}</div>
-                            <div className="text-zinc-500 text-xs uppercase tracking-wider">{t(lang, 'lbAvgResponse')}</div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            {current && <RankList apis={current.apis} lang={lang} />}
           </>
         )}
 

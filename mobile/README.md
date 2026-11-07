@@ -161,7 +161,7 @@ Everything you paste or upload is in the repo: listings in
 ### Every later update
 
 - [ ] Raise `versionCode` (+1) and `versionName` in `mobile/android/app/build.gradle`, and Version + Build in Xcode (target App → General).
-- [ ] Screens changed? Regenerate screenshots: `npx next build`, `npx next start -p 3123`, then `node scripts/store-shots.mjs`.
+- [ ] Screens changed? Regenerate screenshots: `npx next build`, `SELF_BASE=http://localhost:3123 npx next start -p 3123` (the start page fetches its own API at that address), then `node scripts/store-shots.mjs`.
 - [ ] Changelog: `fastlane/metadata/android/<locale>/changelogs/<versionCode>.txt` and `release_notes.txt` for iOS.
 
 ## Accessibility (before ticking the App Store labels)

@@ -4,7 +4,6 @@ import { Clock, Sun, Wind, Flower2, CloudRain } from 'lucide-react'
 import { t, uvText, aqiText, pollenText } from '@/lib/i18n'
 import { headlineText, headlineTone } from '@/lib/outlook/text'
 import { todayHours } from '@/lib/outlook/headlines'
-import { isAppView } from '@/lib/app-client'
 import WarningsCard from './WarningsCard'
 import { MetricCard, SectionTitle, Fold, TileGrid } from '../ui'
 import Glyph from '../Glyph'
@@ -35,7 +34,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
           <HourlyChart hours={hours} unit={unit} lang={lang} />
-          <p className="text-zinc-500 text-xs mt-2">{t(lang, isAppView() ? 'bandHint' : 'bandHintWeb')}</p>
+          <p className="text-zinc-500 text-xs mt-2">{t(lang, 'bandHintWeb')}</p>
           <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
           <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={outlook.sun} lang={lang} nowLocal={outlook.nowLocal} />
         </div>

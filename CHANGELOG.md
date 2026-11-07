@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-08
 
+### Changed — the app matches the website
+- The app's forecast opens on the website's hero: the temperature, the condition, how far the sources agree and one sentence on their spread. Wind, cloud, visibility and the rest are in the "Current details" row below, as on the website, instead of a dropdown under the hero.
+- The app no longer counts down to the next refresh; it still refreshes on its own.
+- In the app, the Sources panel, Rankings, the Planner's two charts and the summit pages' day table use the website's layouts.
+
+### Fixed — the app's start screen
+- When the app opened, its start screen showed the website's layout and ignored light mode. The start page is rendered on the server, and the app's old hero differed from it, so the page was rebuilt without the app's marks. Both now render the same, and a test keeps it that way.
+
 ### Fixed — light mode on the start page
 - In light mode the start page switched to dark a moment after it loaded. The cached page said "updated 5 min ago" while the browser counted 15, the page was rebuilt over that one line, and the rebuild lost the light theme (in the app also its app layout). Clock text may now differ and corrects itself within a second; a test keeps it that way.
 

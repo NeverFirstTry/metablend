@@ -3,8 +3,7 @@ import { liveSources } from '@/lib/spread'
 
 // Every live source on one quiet line, the blend as the only coloured mark.
 // Nothing stacks: close readings overlap and read denser. The scale is centred
-// on the blend and at least ±4°, so a tight day reads tight. The website's
-// version of SourceSpread, which the app keeps.
+// on the blend and at least ±4°, so a tight day reads tight. Website and app.
 export default function SourceDots({ sources, consensusC, unit = 'C', title, hint, brand = 'MetaBlend' }) {
   const live = liveSources(sources)
   if (live.length < 2 || typeof consensusC !== 'number') return null

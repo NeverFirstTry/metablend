@@ -1,5 +1,6 @@
 // Captioned store screenshots from a local production build, every language:
-//   npx next build && npx next start -p 3123      (separate terminal)
+//   npx next build && SELF_BASE=http://localhost:3123 npx next start -p 3123   (separate terminal;
+//   SELF_BASE: the start page fetches its own API there, not at localhost:3000)
 //   node scripts/store-shots.mjs [lang …]         (default: all 13)
 //   SHOTS=1,3 node scripts/store-shots.mjs        (only those screens, e.g. a changed caption)
 // Writes fastlane/screenshots/<ios>/ (1290×2796) and

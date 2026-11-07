@@ -5,9 +5,8 @@ import { CheckCircle2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 
-// The forecast toolbar's clock: "refreshes in m:ss" and how old the data is.
-// Each ticks on its own, so the second hand redraws two spans — not the whole
-// forecast page with its charts.
+// The forecast toolbar's clock: how old the data is. It ticks on its own, so the
+// clock redraws one span — not the whole forecast page with its charts.
 function useNow() {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -15,15 +14,6 @@ function useNow() {
     return () => clearInterval(id)
   }, [])
   return now
-}
-
-export function Countdown({ at, lang }) {
-  const ms = Math.max(0, at - useNow())
-  return (
-    <span className="app-only text-zinc-500 text-[0.6875rem] tabular-nums">
-      {t(lang, 'refreshesIn')} {Math.floor(ms / 60000)}:{String(Math.floor((ms % 60000) / 1000)).padStart(2, '0')}
-    </span>
-  )
 }
 
 // generatedAt: with the CDN in front, a fresh fetch can still return a copy

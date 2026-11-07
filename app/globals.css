@@ -691,11 +691,11 @@ html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { b
 html:not([data-app]) .home-search > .relative { position: static; }
 /* a table too wide for a phone: each row stacks in three columns, with a label above each value */
 @media (max-width: 39.99rem) {
-  html:not([data-app]) .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
-  html:not([data-app]) .stack-table tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding-block: 0.75rem; }
-  html:not([data-app]) .stack-table td { padding: 0; }
-  html:not([data-app]) .stack-table td:first-child { grid-column: 1 / -1; font-weight: 600; }
-  html:not([data-app]) .stack-table td[data-label]::before { content: attr(data-label); display: block; color: var(--muted); font-size: 0.8125rem; }
+  .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .stack-table tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding-block: 0.75rem; }
+  .stack-table td { padding: 0; }
+  .stack-table td:first-child { grid-column: 1 / -1; font-weight: 600; }
+  .stack-table td[data-label]::before { content: attr(data-label); display: block; color: var(--muted); font-size: 0.8125rem; }
 }
 /* a warning stays still */
 html:not([data-app]) .home-warning { animation: none; }

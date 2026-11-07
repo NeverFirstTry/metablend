@@ -1,97 +1,55 @@
 'use client'
 
 import { showRainNow } from '@/lib/forecast-hints'
-import { useState } from 'react'
-import { ChevronDown, Wind, Droplets, Eye, CloudFog, Snowflake, Thermometer } from 'lucide-react'
 import { t, translateCondition } from '@/lib/i18n'
-import { MetricCard } from '../ui'
 import { conditionIcon, heroCondition } from '@/lib/conditions'
-import { isAppView } from '@/lib/app-client'
 import { tempFormatter } from '@/lib/outlook/text'
 import { liveSources, spreadSentence, agreeColor } from '@/lib/spread'
 import Glyph from '../Glyph'
 
-const MUTED = 'var(--muted)', GREEN = 'var(--ok)', YELLOW = 'var(--warn)', RED = 'var(--bad)'
-const cloudColor = v => (v == null ? MUTED : v < 30 ? GREEN : v < 70 ? YELLOW : RED)
-const visColor = v => (v == null ? MUTED : v >= 10 ? GREEN : v >= 4 ? YELLOW : RED)
-
 export const yesterdayDelta = data => (data.yesterdayTemp != null ? Math.round((data.consensus.temp - data.yesterdayTemp) * 10) / 10 : null)
 
-// "Right now", reduced to one line — the future tabs below are the main
-// event. In the app, tapping it opens everything the old hero showed; on the
-// website that is a row further down (NowDetails) and the line says how far
-// the sources agree instead.
-export default function NowLine({ data, unit, lang, showT, showDelta, dark = null }) {
-  const [open, setOpen] = useState(false)
+// "Right now", reduced to one line — the future tabs below are the main event.
+// The rest of right now is a row further down (NowDetails); this line says how
+// far the sources agree. Website and app render the same: the start page renders
+// it on the server, which can't know it's the app (lib/app-parity.test.js).
+export default function NowLine({ data, unit, lang, showT, dark = null }) {
   const c = data.consensus
   const condition = heroCondition(data)
   const agreeTint = agreeColor(c.confidencePct)
-  const d = data.details
-  const yd = yesterdayDelta(data)
-  const inApp = isAppView()
   const rainingHint = showRainNow(data.rainingNow)
     ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
-  // the hero: the temperature as a big light numeral, straight on the sky
+  // the hero: the temperature as a big light numeral, straight on the page
   // (large text: the details drop below the numeral)
-  const hero = (
-        <span className={`flex ${inApp ? 'items-end' : 'items-start'} gap-4 min-w-0 @max-[18rem]:flex-wrap`}>
-          {/* whole degrees in the hero — the tenths live in the details */}
-          <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
-            {Math.round(Number(showT(c.temp)))}°
-          </span>
-          <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
-            {condition && (
-              <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
-                <span aria-hidden><Glyph emoji={conditionIcon(condition, data.lon, dark)} /></span>
-                <span className="truncate">{translateCondition(lang, condition)}</span>
-              </span>
-            )}
-            {c.feelsLike != null && (
-              <span className="block text-zinc-400 tabular-nums">{t(lang, 'feelsLike')} {Math.round(Number(showT(c.feelsLike)))}°</span>
-            )}
-            {/* one source can't agree with anything: its 100% would mislead (the app keeps it) */}
-            {(inApp || liveSources(data.sources).length !== 1) && (
-              <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
-                <span style={{ color: agreeTint }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
-                {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
-              </span>
-            )}
-            {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
-            {!inApp && <span className="block mt-2 max-w-md text-zinc-300">{spreadSentence(lang, data.sources, tempFormatter(unit), c.confidencePct)}</span>}
-          </span>
-        </span>
-  )
-  if (!inApp) return <div className="@container">{hero}</div>
   return (
     <div className="@container">
-      <button onClick={() => setOpen(o => !o)} aria-expanded={open} className="w-full flex items-end justify-between gap-4 text-left group">
-        {hero}
-        <ChevronDown size={18} className={`mb-2 shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} aria-hidden />
-      </button>
-      {open && (
-        <div className="mt-4 bg-zinc-900 border border-zinc-800 rounded-2xl px-4 sm:px-5 py-4 animate-fade-in space-y-4">
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-zinc-400">
-            <span className="inline-flex items-center gap-1"><Wind size={13} aria-hidden /> {c.windKmh} km/h</span>
-            {yd != null && (Math.abs(yd) < 0.5
-              ? <span>= {t(lang, 'vsYesterdaySame')}</span>
-              : (
-                <span style={{ color: yd > 0 ? 'var(--ok)' : 'var(--info)' }}>
-                  {yd > 0 ? '↑' : '↓'} {Math.abs(showDelta(yd)).toFixed(1)}°{unit} {t(lang, yd > 0 ? 'vsYesterdayWarmer' : 'vsYesterdayColder')}
-                </span>
-              ))}
-          </div>
-          {d && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              <MetricCard icon={CloudFog} label={t(lang, 'cloudLabel')} value={d.cloudCover != null ? `${d.cloudCover}%` : '–'} color={cloudColor(d.cloudCover)} />
-              <MetricCard icon={Eye} label={t(lang, 'visibilityLabel')} value={d.visibilityKm != null ? `${d.visibilityKm} km` : '–'} color={visColor(d.visibilityKm)} />
-              <MetricCard icon={Droplets} label={t(lang, 'precipLabel')} value={d.precipMm != null ? `${d.precipMm} mm` : '–'} color={d.precipMm > 0 ? 'var(--info)' : 'var(--ok)'} />
-              <MetricCard icon={Snowflake} label={t(lang, 'snowfallLabel')} value={d.snowfallMm != null ? `${d.snowfallMm} mm` : '–'} color={d.snowfallMm > 0 ? 'var(--info)' : 'var(--muted)'} />
-              <MetricCard icon={Thermometer} label={t(lang, 'groundTempLabel')} value={d.groundTemp != null ? `${showT(d.groundTemp)}°${unit}` : '–'} color="var(--neutral)" />
-            </div>
+      <span className="flex items-start gap-4 min-w-0 @max-[18rem]:flex-wrap">
+        {/* whole degrees in the hero — the tenths live in the details */}
+        <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
+          {Math.round(Number(showT(c.temp)))}°
+        </span>
+        <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
+          {condition && (
+            <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
+              <span aria-hidden><Glyph emoji={conditionIcon(condition, data.lon, dark)} /></span>
+              <span className="truncate">{translateCondition(lang, condition)}</span>
+            </span>
           )}
-        </div>
-      )}
+          {c.feelsLike != null && (
+            <span className="block text-zinc-400 tabular-nums">{t(lang, 'feelsLike')} {Math.round(Number(showT(c.feelsLike)))}°</span>
+          )}
+          {/* one source can't agree with anything: its 100% would mislead */}
+          {liveSources(data.sources).length !== 1 && (
+            <span className="block tabular-nums whitespace-nowrap @max-[18rem]:whitespace-normal">
+              <span style={{ color: agreeTint }}>{c.confidencePct}% {t(lang, 'agreeShort')}</span>
+              {c.rainPct > 0 && !rainingHint && <span className="text-zinc-400"> · <Glyph emoji="🌧" size={14} /> {c.rainPct}%</span>}
+            </span>
+          )}
+          {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
+          <span className="block mt-2 max-w-md text-zinc-300">{spreadSentence(lang, data.sources, tempFormatter(unit), c.confidencePct)}</span>
+        </span>
+      </span>
     </div>
   )
 }

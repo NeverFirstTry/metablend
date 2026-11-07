@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
-import { isAppView } from '@/lib/app-client'
 import { useUnit } from '@/lib/useUnit'
 import { tempFormatter } from '@/lib/outlook/text'
 import BetaBanner from '../components/BetaBanner'
@@ -93,10 +92,6 @@ export default function Planner() {
   }
 
   const months = data?.months ?? []
-  const temps = months.map(m => m.avgTemp).filter(v => v != null)
-  const maxRain = Math.max(1, ...months.map(m => m.avgRainDays ?? 0))
-  const minT = Math.min(...temps, 0)
-  const maxT = Math.max(...temps, 1)
   const best = months.length
     ? [...months].sort((a, b) => comfortScore(b) - comfortScore(a)).slice(0, 3).map(m => m.month)
     : []
@@ -158,39 +153,10 @@ export default function Planner() {
               </div>
             )}
 
-            {!isAppView() && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
-                <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-orange-400/80" best={best} lang={lang} />
-                <MonthChart title={t(lang, 'plRainyDays')} rows={months.map(m => ({ month: m.month, value: m.avgRainDays ?? null }))} format={v => String(Math.round(v))} barClass="bg-blue-400/70" best={best} lang={lang} />
-              </div>
-            )}
-
-            {/* 12-month chart, in the app */}
-            {isAppView() && <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
-              <div className="flex gap-4 text-xs mb-5">
-                <span className="text-orange-400">■ <span className="legend-label">{t(lang, 'plAvgTemp')}</span></span>
-                <span className="text-blue-400">■ <span className="legend-label">{t(lang, 'plRainyDays')}</span></span>
-              </div>
-              <div className="grid grid-cols-12 gap-1 items-end h-48">
-                {months.map(m => {
-                  const tempH = m.avgTemp == null ? 0 : ((m.avgTemp - minT) / (maxT - minT || 1)) * 100
-                  const rainH = ((m.avgRainDays ?? 0) / maxRain) * 100
-                  const isBest = best.includes(m.month)
-                  return (
-                    <div key={m.month} className="flex flex-col items-center gap-1 h-full justify-end" title={`${fmtTemp(m.avgTemp)} · ${m.avgRainDays} ${t(lang, 'plRainyDays').toLowerCase()}`}>
-                      <div className="legend-label text-[0.625rem] text-orange-300 tabular-nums">{m.avgTemp != null ? fmtTemp(m.avgTemp) : ''}</div>
-                      <div className="w-full flex gap-px items-end h-full">
-                        <div className="flex-1 bg-orange-400/80 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, tempH)}%` }} />
-                        <div className="flex-1 bg-blue-400/70 rounded-t transition-[height] duration-700 ease-out" style={{ height: `${Math.max(2, rainH)}%` }} />
-                      </div>
-                      <div className={`text-[0.625rem] uppercase ${isBest ? 'text-emerald-400 font-bold' : 'text-zinc-500'}`}>
-                        {monthName(lang, m.month)}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>}
+            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
+              <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-orange-400/80" best={best} lang={lang} />
+              <MonthChart title={t(lang, 'plRainyDays')} rows={months.map(m => ({ month: m.month, value: m.avgRainDays ?? null }))} format={v => String(Math.round(v))} barClass="bg-blue-400/70" best={best} lang={lang} />
+            </div>
           </div>
         )}
 
