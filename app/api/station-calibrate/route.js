@@ -81,7 +81,7 @@ async function saveShadow(cities, forecasts, observations, since) {
     // temperature only, one day: the app's summit request is far bigger than this needs
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&elevation=${s.elev}&hourly=temperature_2m&models=${OM_MODELS.map(m => m.model).join(',')}&forecast_days=1&timezone=auto`
     const answer = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
-    const parsed = answer?.ok ? parseSummitMulti(await answer.json()) : null
+    const parsed = answer?.ok ? parseSummitMulti(await answer.json().catch(() => null)) : null // one bad body costs one summit, not the hour
     if (!parsed) return
     const actual = temps.get(s.station)
     const errors = summitErrors(parsed, localHourIso(parsed.utcOffsetSec).slice(0, 13), actual)
@@ -108,7 +108,11 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
     .order('created_at', { ascending: true })
     .order('id', { ascending: true })
     .range(from, to))
-  if (!forecasts?.length) return Response.json({ skipped: 'no forecasts in the last hour', since })
+  if (!forecasts?.length) {
+    // the summits need no forecast rows, so a quiet hour still records them
+    await saveShadow([], [], [], since).catch(e => logError('station-errors', e))
+    return Response.json({ skipped: 'no forecasts in the last hour', since })
+  }
 
   // Unique cities (with coordinates), capped
   const seen = new Set()
