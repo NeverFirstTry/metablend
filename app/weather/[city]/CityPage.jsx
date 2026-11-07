@@ -12,7 +12,7 @@ import Glyph from '../../components/Glyph'
 
 // The country in the visitor's language where its code is known. The browser has the names.
 const regionName = (lang, cc, fallback) => {
-  try { return (cc && new Intl.DisplayNames([lang], { type: 'region' }).of(cc.toUpperCase())) || fallback } catch { return fallback }
+  try { return (cc && new Intl.DisplayNames([lang], { type: 'region', style: 'short' }).of(cc.toUpperCase())) || fallback } catch { return fallback }
 }
 
 // A gap to normal in whole degrees, with a real minus sign and the unit's scale.
@@ -48,7 +48,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
         </nav>
 
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">{fill(t(lang, 'shareTitle'), { city: name })}</h1>
-        <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase">
+        <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase" suppressHydrationWarning>
           {fill(t(lang, 'citySub'), { n: sourceCount })}{country ? ` · ${regionName(lang, outlook?.cc, country)}` : ''}
         </p>
 

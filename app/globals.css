@@ -311,7 +311,7 @@ html:not([data-app]) .app-only { display: none !important; }
 .site-header { padding: 1rem 1rem 0; }
 @media (min-width: 40rem) { .site-header { padding: 2rem 2rem 0; } }
 .site-logo { font-size: 1.5rem; line-height: 2rem; font-weight: 700; }
-.site-header ~ main { min-height: 0; flex: 1 0 auto; }
+html:not([data-app]) .site-header ~ main { min-height: 0; flex: 1 0 auto; }
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }
@@ -593,7 +593,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    or °F, lib/locale-boot.js marks <html data-localizing> before first paint;
    the content stays hidden until LocaleReady clears it, and shows after 1.2 s
    regardless, so a failed script never leaves a blank page. */
-html[data-localizing] :is(main, .app-tabbar) { visibility: hidden; animation: locale-reveal 0s linear 1.2s forwards; }
+html[data-localizing] :is(main, .app-tabbar, .site-header) { visibility: hidden; animation: locale-reveal 0s linear 1.2s forwards; }
 @keyframes locale-reveal { to { visibility: visible; } }
 
 /* Long compounds (Polish, Czech, Dutch …) break instead of pushing a chip or

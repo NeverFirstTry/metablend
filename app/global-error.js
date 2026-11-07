@@ -12,7 +12,7 @@ export default function GlobalError({ reset }) {
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
       <body>
-        <ProblemScreen titleKey="errorPageTitle" textKey="errorPageText" onRetry={reset} />
+        <ProblemScreen titleKey="errorPageTitle" textKey="errorPageText" onRetry={reset} logo />
       </body>
     </html>
   )

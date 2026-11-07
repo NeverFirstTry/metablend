@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-07
+
+### Fixed
+- The page header no longer flashes English and °C before switching to your language and unit, and its language menu shows a language picked on the home page.
+- Map popups show your °C or °F. The page-not-found screen has one logo instead of two. Hong Kong's city page says "Hong Kong".
+- In the app, short pages no longer lose space at the bottom to the website's hidden header.
+
 ## 2026-11-06
 
 ### Changed — follow-ups across the website

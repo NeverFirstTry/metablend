@@ -7,6 +7,8 @@ import { loadLeaflet } from '@/lib/leaflet'
 import { t } from '@/lib/i18n'
 import { escapeHtml } from '@/lib/html'
 import { useLang } from '@/lib/useLang'
+import { useUnit } from '@/lib/useUnit'
+import { tempFormatter } from '@/lib/outlook/text'
 import BetaBanner from '../components/BetaBanner'
 import Footer from '../components/Footer'
 
@@ -19,15 +21,16 @@ function accuracyColor(a) {
 
 // Leaflet renders popup strings as innerHTML, and the city name is whatever a
 // feedback report said — escape every interpolated value.
-function popupContent(p, lang) {
+function popupContent(p, lang, unit) {
   const accuracy = p.accuracy != null ? `${Math.round(p.accuracy * 100)}%` : 'n/a'
   return `<b>${escapeHtml(p.city ?? t(lang, 'hmUnknown'))}</b><br/>` +
     `${escapeHtml(t(lang, 'hmAccuracy'))}: ${accuracy}` +
-    (p.temp != null ? `<br/>${escapeHtml(t(lang, 'hmReported'))}: ${escapeHtml(p.temp)}°C` : '')
+    (p.temp != null ? `<br/>${escapeHtml(t(lang, 'hmReported'))}: ${escapeHtml(tempFormatter(unit)(Number(p.temp)))}` : '')
 }
 
 export default function Heatmap() {
   const lang = useLang()
+  const unit = useUnit()
   const containerRef = useRef(null)
   const mapRef = useRef(null)
   const markersRef = useRef(null)
@@ -73,7 +76,7 @@ export default function Heatmap() {
           fillOpacity: 0.7,
           weight: 1,
         })
-          .bindPopup(popupContent(p, lang))
+          .bindPopup(popupContent(p, lang, unit))
           .addTo(markersRef.current)
       })
 
@@ -81,7 +84,7 @@ export default function Heatmap() {
     }).catch(() => {})
 
     return () => { cancelled = true }
-  }, [points, lang])
+  }, [points, lang, unit])
 
   useEffect(() => () => {
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null }

@@ -83,7 +83,7 @@ export function PageHeader() {
   const unit = useUnit()
   const [langPick, setLangPick] = useState(LANG_SYSTEM)
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the cookie is only readable after hydration
-  useEffect(() => setLangPick(langChoice(getCookie('metablend_lang'))), [])
+  useEffect(() => setLangPick(langChoice(getCookie('metablend_lang'))), [path]) // the home page has its own picker
   if (path === '/' || path.startsWith('/widget')) return null
 
   const changeLang = code => {
