@@ -30,7 +30,7 @@ const SCREENS = [
   { path: '/?city=Vienna', ready: `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`, tab: 'tabWeek' },
   // Near you's list is in (not "looking…"): answered from store/near-vienna.json, the production answer
   // for Vienna — this PC's own lookups can be throttled by the public geocoder
-  { path: '/hike', ready: `document.querySelectorAll('details').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
+  { path: '/hike', ready: `document.querySelectorAll('button[aria-expanded]').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
   { path: '/hike?peak=grossglockner', ready: `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` }, // the hour strip, in any language (French says CAS, not SAC)
   // tomorrow: by the afternoon today has no favourable start left, whenever the script runs
   { path: '/hike?peak=grossglockner&route=osm-14622955', ready: `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`, pickTomorrow: true },
