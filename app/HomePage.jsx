@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { cityName } from '@/lib/city-names'
-import { startCity, isAppView, deepLinkCity } from '@/lib/app-client'
+import { startCity, isAppView, deepLinkCity, typedLink } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
@@ -309,7 +309,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       })
       if (first) {
         setCity(askName(nameMap(), first, detectedLang))
-        loadForecast(first, { lang: detectedLang, remember: false })
+        // a link or the start city stays out of Recent; a place typed into the error screen's search goes in
+        loadForecast(first, { lang: detectedLang, remember: first === deepLink && typedLink(window.location.search) })
       } else delete document.documentElement.dataset.returning
     }
     /* eslint-enable react-hooks/set-state-in-effect */

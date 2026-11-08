@@ -16,6 +16,7 @@ export default function ProblemScreen({ titleKey, textKey, onRetry = null, logo 
       <h1 className="text-2xl font-semibold tracking-tight mt-12 mb-3">{t(lang, titleKey)}</h1>
       <p className="text-zinc-400 max-w-prose mb-8">{t(lang, textKey)}</p>
       <form action="/" method="get" role="search" className="flex gap-2 max-w-xl">
+        <input type="hidden" name="from" value="search" />
         <input
           name="city"
           required
