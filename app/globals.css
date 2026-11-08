@@ -362,7 +362,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    overhead by day, warmer in the west at sunset, none at night. Still: no transition. */
 :root { --glow: none; }
 :root:not([data-theme="light"])[data-sky="dawn"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 0% 0%, rgb(255 217 138 / 0.12), transparent 70%); }
-:root:not([data-theme="light"])[data-sky="day"] { --glow: radial-gradient(min(70rem, 120vw) min(12rem, 22vh) at 50% 0%, rgb(255 217 138 / 0.05), transparent 80%); }
+:root:not([data-theme="light"])[data-sky="day"] { --glow: radial-gradient(min(70rem, 120vw) min(12rem, 22vh) at 50% 0%, rgb(255 217 138 / 0.1), transparent 80%); }
 :root:not([data-theme="light"])[data-sky="dusk"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 100% 0%, rgb(255 196 112 / 0.15), transparent 70%); }
 
 :root:not([data-theme="light"]) {
@@ -721,6 +721,9 @@ html:not([data-app]) .home-warning { animation: none; }
 }
 .source-list tbody tr { border-top: 1px solid color-mix(in srgb, var(--foreground) 9%, transparent); }
 .chart-line { border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent); }
+/* hour strip: each hour a small tile a step off the card (lighter in dark, darker in light); the current hour has a faint gold edge */
+.hour-tile { background: var(--surface-2); }
+.hour-tile[aria-current] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
 @media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
 .home-bar { background: var(--muted); opacity: 0.6; }

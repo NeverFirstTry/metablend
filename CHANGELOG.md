@@ -6,9 +6,16 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-08
 
 ### Changed — hour by hour, easier to read (website and app)
-- The temperature leads each hour: larger, bold and in ink. The time is darker but smaller, the weather icon a little larger, and every hour has the same width.
-- The current hour sits on a soft pill, so "now" is clear at a glance.
-- Rain chances below 20% stay quiet; from 20% they turn the rain colour and a little bolder. Every text in the strip reaches AA contrast in both themes, the "now" pill included (a tester's feedback).
+- Every hour has its own small tile, a shade lighter than the card in dark mode and a shade darker in light mode, evenly spaced.
+- The temperature leads each tile: largest, bold and in ink. The time above it is clearer, the weather icon a little larger.
+- The current hour's tile has a fine gold edge, so "now" is clear at a glance.
+- Rain chances below 20% stay quiet; from 20% they turn the rain colour and a little bolder. Every text in the strip reaches AA contrast in both themes (a tester's feedback).
+
+### Changed — dark mode by day
+- The gold sheen at the top of the page by day is twice as strong (10%), so it shows on a phone; text under it still reaches AA contrast.
+
+### Fixed — Recent places
+- A place typed into the search on the "page not found" or error screen (Los Angeles, for example) now goes into Recent like any other search. Links someone sent, widgets and notifications still stay out of it.
 
 ## 2026-11-07
 
