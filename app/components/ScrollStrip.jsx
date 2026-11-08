@@ -30,7 +30,9 @@ export default function ScrollStrip({ children, label }) {
 
   return (
     <div>
-      <div ref={strip} tabIndex={0} role="region" aria-label={label} className="scroll-x overflow-x-auto -mx-1 px-1">{children}</div>
+      {/* relative: the hidden screen-reader text in each item is absolutely placed; without a positioned
+          strip it escaped the strip's clipping and made the whole page as wide as the row (reduced motion) */}
+      <div ref={strip} tabIndex={0} role="region" aria-label={label} className="scroll-x relative overflow-x-auto -mx-1 px-1">{children}</div>
       {bar && (
         <div aria-hidden className="scroll-track relative mt-6 h-1.5 rounded-full cursor-pointer touch-none"
           onPointerDown={e => { e.currentTarget.setPointerCapture(e.pointerId); seek(e) }}

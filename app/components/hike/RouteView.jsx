@@ -13,6 +13,7 @@ import { REASON_KEY } from '@/lib/route/reasons'
 import { SectionTitle } from '../ui'
 import { StormBar, StormLegend } from './SummitStrip'
 import { Valued, ValueKey } from '../ValueKey'
+import Glyph from '../Glyph'
 import RouteMap from './RouteMap'
 import RouteProfile from './RouteProfile'
 
@@ -155,7 +156,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
                   <span className="block truncate @max-[30rem]:whitespace-normal">{label(st, k)}</span>
                   <span className="block text-xs text-zinc-500">{st.ele != null ? `${st.ele} m` : ''}{st.blocker ? ` · ${t(lang, REASON_KEY[st.blocker])}` : ''}</span>
                 </span>
-                <span aria-hidden>{st.icon ?? ''}</span>
+                <span aria-hidden><Glyph emoji={st.icon} /></span>
                 <span className="w-24 text-right tabular-nums @max-[30rem]:w-auto">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
                 <span className="w-20 text-right text-xs text-zinc-400 tabular-nums @max-[30rem]:w-auto">{st.wind != null ? <Valued kind="wind">{st.wind} km/h</Valued> : '–'}</span>
                 <span className="w-12 text-right text-xs tabular-nums @max-[30rem]:w-auto" style={{ color: 'var(--info)' }}>{st.rain != null ? <Valued kind="rain">{st.rain}%</Valued> : '–'}</span>

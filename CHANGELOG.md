@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-08
 
+### Fixed — the peak page stays put (app)
+- With the phone's "reduce motion" setting on, the app's peak page could be dragged sideways into empty space. The hour-by-hour row now scrolls only inside its own strip, on every page that has one.
+- The summit hours, the summit week and the route stages show the coloured weather icons too; they still showed emoji.
+
 ### Changed — weather in colour (website and app)
 - Weather icons are in colour: the sun gold, the moon pale blue-grey, clouds neutral, rain, snow and storms in the rain colour; partly cloudy shows a gold sun beside a neutral cloud. The same everywhere: hour tiles, the temperature at the top, the Today, Tomorrow and Week lists, city and summit pages and the embed widget.
 - In the app the weather icons were emoji; it now draws the same icons as the website.
