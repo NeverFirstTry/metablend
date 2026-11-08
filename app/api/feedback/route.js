@@ -4,7 +4,7 @@ import { applyDeltas } from '@/lib/weights'
 import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { getRegion } from '@/lib/weather'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
-import { parseFeedback, feedbackOriginProblem, FEEDBACK_LEARN_WINDOW_MS } from '@/lib/feedback'
+import { parseFeedback, feedbackOriginProblem, FEEDBACK_LEARN_WINDOW_MS, FEEDBACK_REGION_DAILY_CAP } from '@/lib/feedback'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 
@@ -133,8 +133,10 @@ export const POST = withErrorLog('feedback', async (request) => {
   // window moves the weights and the city's bias. Checked and recorded in one
   // database step (supabase/feedback-lessons.sql), so a burst learns once; if
   // the claim fails, nothing is learned.
-  const { data: claimed, error: claimErr } = await supabase
-    .rpc('claim_feedback_lesson', { p_city: city, window_ms: FEEDBACK_LEARN_WINDOW_MS })
+  let { data: claimed, error: claimErr } = await supabase
+    .rpc('claim_feedback_lesson', { p_city: city, window_ms: FEEDBACK_LEARN_WINDOW_MS, p_region: region, daily_cap: FEEDBACK_REGION_DAILY_CAP })
+  // until supabase/feedback-lessons.sql (the regional cap) has run there: the older two-argument function
+  if (claimErr?.code === 'PGRST202') ({ data: claimed, error: claimErr } = await supabase.rpc('claim_feedback_lesson', { p_city: city, window_ms: FEEDBACK_LEARN_WINDOW_MS }))
   if (claimErr) await logError('feedback.claim', claimErr)
   if (claimed !== true) {
     return Response.json({ message: 'Thank you! Feedback saved.' })

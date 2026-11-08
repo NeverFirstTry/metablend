@@ -6,6 +6,25 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'geolocation=(self), camera=(), microphone=(), payment=()' },
+  // Report-only: nothing is blocked, violations show in the browser console.
+  // Inline scripts stay allowed (the boot scripts, Next's own); the hosts are
+  // the ones the pages load from. Framing is enforced separately below.
+  {
+    key: 'Content-Security-Policy-Report-Only',
+    value: [
+      "default-src 'self'",
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"} https://plausible.io https://unpkg.com https://va.vercel-scripts.com`,
+      "style-src 'self' 'unsafe-inline' https://unpkg.com",
+      "img-src 'self' data: blob: https://unpkg.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile.opentopomap.org https://tile.opentopomap.org https://tilecache.rainviewer.com https://*.rainviewer.com",
+      "connect-src 'self' https://geocoding-api.open-meteo.com https://api.bigdatacloud.net https://api.rainviewer.com https://plausible.io https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+      "font-src 'self' data:",
+      "worker-src 'self' blob:",
+      "frame-src 'self'",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join('; '),
+  },
 ]
 
 const nextConfig = {

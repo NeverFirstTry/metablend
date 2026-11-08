@@ -7,10 +7,12 @@ sublicense, or sell copies of this software or any portion of it, in source
 or binary form, without the prior written consent of the copyright holder.
 
 Weather and map data displayed by this application are the property of their
-respective providers (Open-Meteo, MET Norway, OpenWeatherMap, WeatherAPI,
-Tomorrow.io, Visual Crossing, World Weather Online, Weatherstack, NASA POWER,
-GeoSphere Austria, and OpenStreetMap contributors) and are used under their
-respective licenses; this notice does not grant any rights to that data.
+respective providers (Open-Meteo and the model providers it relays, MET
+Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, DWD,
+SMHI, NOAA, ECMWF, MeteoAlarm, EAWS, RainViewer, Meteostat, GeoNames, and
+OpenStreetMap and OpenTopoMap contributors; the full list is on
+https://metablend.app/terms) and are used under their respective licenses;
+this notice does not grant any rights to that data.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,

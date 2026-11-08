@@ -41,3 +41,13 @@ test('secrets hygiene — key files ignored at the root, the device key not in A
   for (const p of ['*.p8', '*.p12', '*.jks', '*.keystore', 'google-services.json', 'GoogleService-Info.plist', '*service-account*.json']) assert.ok(ignore.includes(p), p)
   assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
 })
+
+test('iOS entitlements — Release builds sign with aps-environment production, Debug keeps development, both carry the widgets\' app group', () => {
+  const pbx = read('mobile/ios/App/App.xcodeproj/project.pbxproj')
+  const pairs = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = (App\/[^;]+);[\s\S]*?name = (Debug|Release);/g)].map(m => [m[2], m[1]]).sort()
+  assert.deepEqual(pairs, [['Debug', 'App/App.entitlements'], ['Release', 'App/AppRelease.entitlements']])
+  const aps = file => read(`mobile/ios/App/${file}`).match(/<key>aps-environment<\/key>\s*<string>(\w+)<\/string>/)[1]
+  assert.equal(aps('App/App.entitlements'), 'development')
+  assert.equal(aps('App/AppRelease.entitlements'), 'production')
+  for (const f of ['App/App.entitlements', 'App/AppRelease.entitlements']) assert.match(read(`mobile/ios/App/${f}`), /group\.app\.metablend/)
+})

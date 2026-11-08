@@ -7,8 +7,8 @@ import { APP_COOKIE } from '@/lib/app-client'
 // app view in a normal browser).
 export default function AppFlag({ value }) {
   useEffect(() => {
-    if (value === '1') document.cookie = `${APP_COOKIE}=1; path=/; max-age=2592000; samesite=lax`
-    if (value === '0') document.cookie = `${APP_COOKIE}=; path=/; max-age=0`
+    if (value === '1') document.cookie = `${APP_COOKIE}=1; path=/; max-age=2592000; samesite=lax; secure`
+    if (value === '0') document.cookie = `${APP_COOKIE}=; path=/; max-age=0; secure`
   }, [value])
   return null
 }

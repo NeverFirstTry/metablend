@@ -15,13 +15,15 @@ Facts behind every answer:
   alert choices, briefing hour, planned peaks/dates/routes, language, unit, 14-day send log.
 - Weather feedback (opt-in): city, temperature, condition, date, the city's map coordinates.
 - Analytics: Plausible and Vercel Web Analytics (cookieless, aggregate page counts) and Vercel Speed Insights (anonymous load times).
+- Android tester sign-up (opt-in form on /testers, reachable inside the app until both stores are live): e-mail address, optionally phone model and country; deleted when the closed test ends.
 - Everything travels over HTTPS.
 
 ## App Store — App Privacy
 
 - **Do you or your third-party partners collect data from this app?** Yes.
 - **Data used to track you:** none.
-- **Data linked to you:** none.
+- **Data linked to you:**
+  - Contact Info → **Email Address** — purpose: App Functionality (the Android tester sign-up on /testers, only if you fill the form in; deleted when the closed test ends).
 - **Data not linked to you:**
   - Location → **Coarse Location** — purpose: App Functionality (peak search near you and the right town for "my location", rounded to ~10 km).
   - Identifiers → **Device ID** — purpose: App Functionality (push token, only when notifications are on).
@@ -46,18 +48,19 @@ Grow users → Store presence → Store settings.
 - Users can request deletion? **Yes** (email info@metablend.app; turning notifications off deletes the push record)
 - Accounts? **None**
 
-**Step 3 — Data types:** tick these six, nothing else.
+**Step 3 — Data types:** tick these seven, nothing else.
 
 | Type | What it is | Purpose | Ephemeral |
 |---|---|---|---|
 | Location → Approximate location | Near you, peak search, the right town for "my location" (~5–10 km) | App functionality | Yes |
 | Location → Precise location | "My location" → BigDataCloud city lookup | App functionality | Yes |
+| Personal info → Email address | Android tester sign-up on /testers (optional form) | App functionality | No |
 | Device or other IDs | Push token | App functionality | No |
 | App activity → App interactions | Plausible and Vercel Web Analytics page counts | Analytics | No |
 | App activity → Other user-generated content | Weather feedback, planned hikes | App functionality | No |
 | App info and performance → Diagnostics | Speed Insights load times | Analytics | No |
 
-**Step 4 — For every type:** collected **yes**, shared **no**, optional **yes**.
+**Step 4 — For every type:** collected **yes**, shared **no**, optional **yes**. The e-mail address goes into our own tester list in Play Console (Google as the platform, not a third party); if the reviewer treats that as sharing, answer shared **yes — Google, to run the closed test**.
 
 Privacy policy: https://metablend.app/privacy
 

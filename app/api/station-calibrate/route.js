@@ -10,6 +10,7 @@ import { localHourIso } from '@/lib/localtime'
 import { parseSummitMulti } from '@/lib/hike/parse'
 import { OM_MODELS } from '@/lib/outlook/models'
 import { SUMMITS, nearestStation, chooseTruth, summitErrors, stationTemps } from '@/lib/shadow'
+import { purgeShortLived } from '@/lib/retention'
 
 // Ground-truth calibration from aviation METAR observations (NOAA Aviation
 // Weather Center — free, no key). For each city with a recent forecast, pull
@@ -99,6 +100,7 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
 
   const since = new Date(Date.now() - LOOKBACK_MIN * 60 * 1000).toISOString()
+  const runStart = new Date().toISOString() // rows written during the run are scored next time
   // Ordered oldest-first so "last row wins" below really is the latest per API.
   // Every page: one request stops at 1000 rows.
   const forecasts = await readAll((from, to) => supabase
@@ -111,6 +113,7 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   if (!forecasts?.length) {
     // the summits need no forecast rows, so a quiet hour still records them
     await saveShadow([], [], [], since).catch(e => logError('station-errors', e))
+    await purgeShortLived(supabase, runStart)
     return Response.json({ skipped: 'no forecasts in the last hour', since })
   }
 
@@ -186,6 +189,10 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
 
   // the weights are saved by now: whatever happens in here can't touch them
   await saveShadow(cities, forecasts, observations, since).catch(e => logError('station-errors', e))
+
+  // WeatherAPI's terms cap caching of current conditions at 60 minutes: its
+  // rows were scored above and go now (lib/retention.js)
+  await purgeShortLived(supabase, runStart)
 
   return Response.json({ calibrated, since, radiusKm: RADIUS_KM, results })
 })

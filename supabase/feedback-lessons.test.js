@@ -12,7 +12,7 @@ await db.exec(sql)
 await db.exec(sql) // safe to run twice
 
 const HALF_HOUR = 30 * 60 * 1000
-const claim = async (city, ms = HALF_HOUR) => (await db.query('select public.claim_feedback_lesson($1, $2) as ok', [city, ms])).rows[0].ok
+const claim = async (city, ms = HALF_HOUR, region = 'europe', cap = 24) => (await db.query('select public.claim_feedback_lesson($1, $2, $3, $4) as ok', [city, ms, region, cap])).rows[0].ok
 
 test('claim_feedback_lesson — the first report in a window gets the lesson, the rest of the burst does not', async () => {
   assert.equal(await claim('Wien'), true)
@@ -32,8 +32,21 @@ test('claim_feedback_lesson — once the window has passed, the next report lear
 
 test('feedback_lessons — only the API (service role) touches it', async () => {
   for (const role of ['anon', 'authenticated']) {
-    const { rows } = await db.query(`select has_table_privilege('${role}', 'public.feedback_lessons', 'select') as t, has_function_privilege('${role}', 'public.claim_feedback_lesson(text, integer)', 'execute') as f`)
+    const { rows } = await db.query(`select has_table_privilege('${role}', 'public.feedback_lessons', 'select') as t, has_function_privilege('${role}', 'public.claim_feedback_lesson(text, integer, text, integer)', 'execute') as f`)
     assert.deepEqual(rows[0], { t: false, f: false }, role)
   }
-  assert.equal((await db.query(`select has_function_privilege('service_role', 'public.claim_feedback_lesson(text, integer)', 'execute') as f`)).rows[0].f, true)
+  assert.equal((await db.query(`select has_function_privilege('service_role', 'public.claim_feedback_lesson(text, integer, text, integer)', 'execute') as f`)).rows[0].f, true)
+})
+
+test('claim_feedback_lesson — a region learns at most daily_cap lessons a day, counted in the database, per region', async () => {
+  assert.equal(await claim('Lienz', HALF_HOUR, 'alps', 2), true)
+  assert.equal(await claim('Innsbruck', HALF_HOUR, 'alps', 2), true)
+  assert.equal(await claim('Salzburg', HALF_HOUR, 'alps', 2), false) // the third lesson of the day in that region
+  assert.equal(await claim('Lima', HALF_HOUR, 'andes', 2), true) // another region counts for itself
+  await db.exec(`update public.feedback_lesson_days set day = current_date - 1 where region = 'alps'`)
+  assert.equal(await claim('Salzburg', HALF_HOUR, 'alps', 2), true) // a new day starts at zero
+  assert.equal((await db.query(`select count(*)::int as n from pg_proc where proname = 'claim_feedback_lesson'`)).rows[0].n, 1, 'the old two-argument function is gone')
+  for (const role of ['anon', 'authenticated']) {
+    assert.equal((await db.query(`select has_table_privilege('${role}', 'public.feedback_lesson_days', 'select') as t`)).rows[0].t, false, role)
+  }
 })

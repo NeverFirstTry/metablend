@@ -153,6 +153,9 @@ export async function GET(request) {
   // Kept apart from the list above: the shadow run's table may not exist yet, or may already be dropped.
   const shadow = await supabase.from('station_errors').delete().lt('created_at', retentionCutoff)
   if (shadow.error && shadow.error.code !== 'PGRST205') await logError('cleanup.station-errors', shadow.error)
+  // the feedback lesson counters (one row per region and day): a month is plenty; the table may not exist yet either
+  const lessonDays = await supabase.from('feedback_lesson_days').delete().lt('day', retentionCutoff.slice(0, 10))
+  if (lessonDays.error && lessonDays.error.code !== 'PGRST205') await logError('cleanup.lesson-days', lessonDays.error)
 
   let validation
   try {

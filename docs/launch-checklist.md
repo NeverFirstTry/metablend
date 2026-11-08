@@ -4,7 +4,7 @@
 
 **For a lawyer's review** (attribution went live 2026-11-07; these points could not be checked against the providers' own pages):
 - DWD: /terms says "Datenbasis: Deutscher Wetterdienst, eigene Bearbeitung: mit anderen Quellen gemittelt". The form comes from a secondary summary of DWD's templates; check it against DWD's own page.
-- WeatherAPI.com: the free plan's credit "Powered by WeatherAPI.com" with a link is in. Whether their terms require a set end-user disclaimer, and whether ours covers it, is unchecked.
+- WeatherAPI.com: the free plan's credit "Powered by WeatherAPI.com" with a link is in. Their terms (read 2026-11-08) require an end-user disclaimer that at minimum conveys four points; a conforming text is on /terms with the attribution since 2026-11-08. Whether it must also stand next to the data itself (Sources panel) is for the lawyer.
 - ECMWF: /terms has the credit sentence, CC BY 4.0, the source and the note that blended data are changed. ECMWF's liability sentence ("ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use") sits on a separate ECMWF page and is not quoted; decide whether /terms needs it.
 - Visual Crossing: its raw values are no longer public (2026-11-07). The owner is asking them in writing whether the Sources panel may show them again.
 
@@ -33,7 +33,7 @@ Google's production review has no fixed length and can come back with questions,
 | Screenshots with the new wording | Done | Shots 4 and 5 regenerated 2026-11-05; 1 to 3 don't show the changed text |
 | Legal pages linked in every listing | Done | New lines at the end of each description; a test checks them |
 | Legal pages reachable inside the app | Done | Footer and More link privacy, terms and legal notice |
-| Store privacy answers match the privacy notice | Done | `store/compliance.md` updated for Web Analytics and the rounded "my location" position |
+| Store privacy answers match the privacy notice | Done | `store/compliance.md` updated for Web Analytics, the rounded "my location" position and (2026-11-08) the tester e-mail address |
 | Lawyer's read of the disclaimer and privacy translations | Needs you | Not a store requirement, but recommended: the 12 translations are mine |
 | Business registration and the Impressum block | Needs you | Prepared as a comment in `app/impressum/content.js`; tell me when it's registered |
 | Trader status (EU Digital Services Act) | Needs you | `store/app-store-release.md` says "Not a trader". If you register the business, this probably changes, on both stores. Decide before submitting |
@@ -83,6 +83,18 @@ The pages load live, so web changes reach the apps at once. These native parts a
 - Android: the home-screen widget's light colours follow the new palette (`69363a5`).
 - Android: the notification tint and the Retry button on the no-connection page in gold (`8439450`).
 - Both: app launch background Slate #0f151b, matching dark mode (`mobile/capacitor.config.json`, `mobile/www/index.html`; needs `npx cap sync`).
+- iPhone: Release builds sign with `aps-environment` production (`mobile/ios/App/App/AppRelease.entitlements`, set in the project's Release configuration); Debug keeps development. Check the archive's entitlements once in Xcode's organizer.
+
+## App Review notes (Apple guideline 4.2, minimum functionality)
+
+The pages load from metablend.app, so a reviewer may ask what the app does that Safari cannot. Paste this with the review notes (`store/app-store-release.md`, part 5):
+
+- Home-screen widgets (WidgetKit extension `MetaBlendWidgets`): the current forecast with the next hours or days, and a planned-hike widget with its summit window; both configurable, both updated from the app's own feed.
+- Push notifications (APNs): rain starting within the hour, storm risk, official severe-weather warnings, heat, a morning briefing at the chosen hour, and alerts for planned hikes the evening before and the morning of. All opt-in, per alert type.
+- Hiking: summits near the user from the device location, GPX import, routes and planned hikes stored natively on the device, hike alerts.
+- Native share sheet for forecasts; haptics; alternate app icons; Larger Text follows the system font scale; a shortcut into the system notification settings.
+- Deep links from widgets and notifications (`metablend://open?path=…`) and swipe-back navigation.
+- The last forecast is cached on the device, so the app opens offline.
 
 ## Uploading with fastlane
 
