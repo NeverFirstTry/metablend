@@ -48,7 +48,7 @@ These stand for every design task; the owner should not have to repeat them. Re-
 ## Store screenshots
 
 Captions are in `store/captions.json`. After a change to a screen or caption:
-`npx next build`, `npx next start -p 3123`, then `SHOTS=4,5 node scripts/store-shots.mjs` (the changed screens) or without `SHOTS` for all. Form answers are in `store/compliance.md`; keep them in step with `app/privacy/content.jsx`.
+`npx next build`, `SELF_BASE=http://localhost:3123 npx next start -p 3123` (without SELF_BASE the start page fetches localhost:3000 and the forecast screens fail), then `SHOTS=4,5 node scripts/store-shots.mjs` (the changed screens) or without `SHOTS` for all. Form answers are in `store/compliance.md`; keep them in step with `app/privacy/content.jsx`.
 
 ## Places refresh
 
