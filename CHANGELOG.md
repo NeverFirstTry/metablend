@@ -12,7 +12,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The app's forecast opens on the website's hero: the temperature, the condition, how far the sources agree and one sentence on their spread. Wind, cloud, visibility and the rest are in the "Current details" row below, as on the website, instead of a dropdown under the hero.
 - The app no longer counts down to the next refresh; it still refreshes on its own.
 - In the app, the Sources panel, Rankings, the Planner's two charts and the summit pages' day table use the website's layouts.
-- The Planner's temperature bars are the brand gold in the app too; in dark mode they were orange.
+- The Planner's temperature bars are the brand gold in the app too; in dark mode they were orange. Its rain bars use the same rain colour as the website.
 
 ### Fixed — the app's start screen
 - When the app opened, its start screen showed the website's layout and ignored light mode. The start page is rendered on the server, and the app's old hero differed from it, so the page was rebuilt without the app's marks. Both now render the same, and a test keeps it that way.
