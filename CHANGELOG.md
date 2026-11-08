@@ -14,6 +14,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added — a phone layout check on every push
 - After each push to main is live, GitHub Actions loads 16 pages of metablend.app at phone width, as the website and as the app, with and without reduced motion, and fails if a page scrolls sideways or any text is below 13 px (`scripts/check-phone-layout.mjs`, also run before every merge).
+- The check never counts as a visit: it sends its own user agent and loads no analytics (Plausible, Vercel Analytics, Speed Insights). Pushes that only change docs, the changelog or tests skip it.
 
 ### Fixed — the app opened on the website layout (iPhone build 3)
 - The app showed the website layout without its tab bar once the "sources" fold had ever been opened: the fold read that remembered choice during the browser's first render, which then differed from the server's HTML, and React rebuilt the page without the app and theme marks the boot scripts had set. Remembered fold states now apply after hydration. The app mark and the theme are also put back after any rebuilt page, and a test renders the start page as the server and as a returning app user's browser and requires both to match (not WebKit-specific: the same happened in Chrome with that storage). The temporary diagnostic line and its error hook are removed again.

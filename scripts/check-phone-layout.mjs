@@ -5,7 +5,10 @@
 //   DATA=https://metablend.app node scripts/check-phone-layout.mjs   (the pages' /api/ answers from there,
 //   when Open-Meteo rate-limits this PC). Exits 1 and names the cause on any finding.
 // Runs each page with and without reduced motion (the peak page's overflow showed only with it),
-// every fold open, in German (long words).
+// every fold open, in German (long words). Only fixed places, so after the first load every answer
+// comes from the CDN: the forecast for Wien, Großglockner and one of its routes, airport LOWW.
+// The check is no visitor: it sends its own user agent (…MetaBlendLayoutCheck/1) and blocks the
+// analytics (Plausible, Vercel Web Analytics and Speed Insights), and fails if any of them got through.
 // In CI (.github/workflows/phone-layout.yml) it runs against metablend.app after every production
 // deploy of a push to main, with EDGE=/usr/bin/google-chrome.
 import { spawn } from 'node:child_process'
@@ -29,6 +32,9 @@ const PAGES = [
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].some(e => e.getClientRects().length > 0)`
 const PORT = 9441
+const ANALYTICS = ['*plausible.io/*', '*/_vercel/insights/*', '*/_vercel/speed-insights/*', '*va.vercel-scripts.com/*', '*vitals.vercel-insights.com/*']
+const IS_ANALYTICS = /plausible\.io\/|\/_vercel\/(speed-)?insights\/|va\.vercel-scripts\.com|vitals\.vercel-insights\.com/
+const analytics = { blocked: 0, sent: 0 }
 const edge = spawn(EDGE, ['--headless=new', ...(process.env.CI ? ['--no-sandbox'] : []), `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'layout-'))}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' })
 let targets
 for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
@@ -49,6 +55,8 @@ ws.addEventListener('message', e => {
   const m = JSON.parse(e.data)
   if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id) }
   if (m.method === 'Fetch.requestPaused') fromData(m.params)
+  if (m.method === 'Network.loadingFailed' && m.params.blockedReason === 'inspector') analytics.blocked++
+  if (m.method === 'Network.responseReceived' && IS_ANALYTICS.test(m.params.response.url)) analytics.sent++
 })
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.result?.value
 const until = async (expr, ms = 60000) => { for (let s = 0; s < ms; s += 250) { if (await ev(expr)) return true; await sleep(250) } return false }
@@ -84,6 +92,9 @@ const WIDE = `(() => {
 })()`
 
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+const { userAgent } = (await send('Browser.getVersion')).result
+await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendLayoutCheck/1` })
+await send('Network.setBlockedURLs', { urls: ANALYTICS })
 if (DATA) await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` }] })
 await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true })
 await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
@@ -119,5 +130,7 @@ try {
     console.log(`${wide ? '✗' : '✓'} ${label}`)
   }
 } finally { ws.close(); edge.kill() }
+console.log(`analytics: ${analytics.blocked} requests blocked, ${analytics.sent} reached their service`)
+if (analytics.sent) findings.push(`analytics: ${analytics.sent} requests reached Plausible or Vercel; the check would count as visits`)
 if (findings.length) { console.log(`\n${findings.length} finding(s):`); for (const f of findings) console.log('  ' + f); process.exit(1) }
 console.log(`\nAll ${PAGES.length * 4} page checks fit ${WIDTH} px, no text below 13 px.`)

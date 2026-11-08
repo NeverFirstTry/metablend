@@ -3,11 +3,18 @@ name: Phone layout check
 # After every push to main: wait until Vercel has deployed this commit to production, then run
 # scripts/check-phone-layout.mjs against metablend.app. 16 pages, website and app, at 390 px, with
 # and without reduced motion: no page wider than the screen, no text below 13 px. A failure marks
-# the commit red; it does not undo the deploy. Read-only: it only loads pages.
+# the commit red; it does not undo the deploy. Read-only: it only loads pages, with its own user agent
+# and the analytics blocked, so it never shows up in Plausible or Vercel Analytics.
 
 on:
   push:
     branches: [main]
+    # docs, the changelog and tests change no page: a push that only touches those runs no check
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '**/*.test.js'
+      - '**/__fixtures__/**'
   workflow_dispatch: {}
 
 # a newer push replaces a check still waiting for the older deploy
