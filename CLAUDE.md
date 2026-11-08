@@ -1,0 +1,1 @@
+For orientation, read `graphify-out/GRAPH_REPORT.md` first if it is present (a local, gitignored knowledge-graph summary — community map, god nodes, suggested questions); do not read `graphify-out/graph.json`, it is several megabytes of raw graph data.
