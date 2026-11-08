@@ -154,7 +154,7 @@ export default function Planner() {
             )}
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
-              <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-orange-400/80" best={best} lang={lang} />
+              <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-[var(--accent)]" best={best} lang={lang} />
               <MonthChart title={t(lang, 'plRainyDays')} rows={months.map(m => ({ month: m.month, value: m.avgRainDays ?? null }))} format={v => String(Math.round(v))} barClass="bg-blue-400/70" best={best} lang={lang} />
             </div>
           </div>
