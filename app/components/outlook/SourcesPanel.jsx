@@ -22,6 +22,10 @@ export default function SourcesPanel({ data, unit, lang }) {
       />
       <SourceList data={data} unit={unit} lang={lang} />
       <div className="space-y-3">
+        {/* WeatherAPI.com's terms: its end-user disclaimer stands with the data; the full notice is on /terms */}
+        {data.sources?.some(s => s.apiId === 'weatherapi' && !s.down) && (
+          <p className="text-zinc-500 text-xs leading-relaxed"><Link href="/terms#weatherapi-notice" className="underline decoration-dotted underline-offset-2 hover:text-emerald-400">{t(lang, 'weatherApiNote')}</Link></p>
+        )}
         <Link href="/leaderboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-emerald-400 transition-colors uppercase tracking-widest">
           <Trophy size={13} aria-hidden /> {t(lang, 'leaderboard')}
         </Link>

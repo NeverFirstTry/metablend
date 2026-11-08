@@ -6,6 +6,7 @@ import { isAuthorizedJob } from '@/lib/auth'
 import { logError } from '@/lib/log'
 import { runOutlookVerification } from '@/lib/outlook/job'
 import { CACHE_DAYS as NOMINATIM_DAYS } from '@/lib/hike/nominatim'
+import { purgeShortLived } from '@/lib/retention'
 
 // Meteostat lookups, weight round-trips per city and the outlook's METAR
 // verification take a while: the default 300 s that every route shares
@@ -135,6 +136,9 @@ export async function GET(request) {
 
   const deletes = await Promise.all([
     supabase.from('forecasts').delete().lt('created_at', cutoff),
+    // WeatherAPI's terms cap its current conditions at 60 minutes: the hourly station calibration
+    // purges its rows; this catches a missed run (lib/retention.js)
+    purgeShortLived(supabase, new Date(Date.now() - 60 * 60 * 1000).toISOString()).then(() => ({ error: null }), error => ({ error })),
     // Only the job sentinels age out. Real community reports stay — they feed
     // the heatmap, which is pointless with a 48-hour memory.
     supabase.from('feedback').delete().lt('created_at', cutoff)

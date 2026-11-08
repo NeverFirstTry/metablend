@@ -7,6 +7,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Legal and privacy
 - /privacy: the ImprovMX sentence names the standard contractual clauses of its data processing agreement (version of 9 September 2026 with Annexes I–III, countersigned by both sides on 2026-11-09) and says that ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days — German first, all 13 languages, add-only.
+- /terms: the WeatherAPI.com end-user disclaimer now stands in WeatherAPI’s own words, with a German version beside it. The Sources panel shows one short line in the visitor’s language whenever WeatherAPI data is in the blend, linking to that notice (13 languages).
+- /privacy: WeatherAPI named as a processor for the coordinates we send (data processing agreement signed 2026-11-09, Art. 28 GDPR) — German first, all 13 languages, add-only.
+- Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 
 ## 2026-11-08
 
