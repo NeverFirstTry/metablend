@@ -7,7 +7,7 @@
 - WeatherAPI.com: the free plan's credit "Powered by WeatherAPI.com" with a link is in. Their terms (read 2026-11-08) require an end-user disclaimer that at minimum conveys four points; a conforming text is on /terms with the attribution since 2026-11-08. Whether it must also stand next to the data itself (Sources panel) is for the lawyer.
 - ECMWF: /terms has the credit sentence, CC BY 4.0, the source and the note that blended data are changed. ECMWF's liability sentence ("ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use") sits on a separate ECMWF page and is not quoted; decide whether /terms needs it.
 - Visual Crossing: its raw values are no longer public (2026-11-07). The owner is asking them in writing whether the Sources panel may show them again.
-- ImprovMX (mail forwarding to info@metablend.app): its GDPR page says inbound mail is stored transiently in France (AWS Paris) and outbound delivery runs on servers in France and the USA; the standard contractual clauses sit in its data processing agreement, which has to be countersigned (requested 2026-11-08). The /privacy sentence about ImprovMX assumes the signed agreement: it does not go live before the owner confirms the signature.
+- ImprovMX (mail forwarding to info@metablend.app): its GDPR page says inbound mail is stored transiently in France (AWS Paris) and outbound delivery runs on servers in France and the USA; the standard contractual clauses sit in its data processing agreement, which has to be countersigned (requested 2026-11-08). The SCC clause for the /privacy sentence waits on branch legal/improvmx-scc until the owner confirms the signature.
 
 State as of 2026-11-05. **Done** = finished and in the repo. **Open** = Claude can do it. **Needs you** = your account, device or decision.
 
@@ -40,7 +40,7 @@ Google's production review has no fixed length and can come back with questions,
 | Trader status (EU Digital Services Act) | Needs you | `store/app-store-release.md` says "Not a trader". If you register the business, this probably changes, on both stores. Decide before submitting |
 | Store badges on the website point to the live listings | Open | Once the listing URLs exist |
 | Release announcement for the newspaper | Needs you | |
-| Countersign the ImprovMX data processing agreement | Needs you | Requested 2026-11-08; the /privacy sentence about ImprovMX waits for it |
+| Countersign the ImprovMX data processing agreement | Needs you | Requested 2026-11-08; then merge branch legal/improvmx-scc, which adds the SCC clause to the /privacy sentence |
 | Run `supabase/feedback-lessons.sql` on dev, then production | Needs you | The regional feedback cap; `enable_rls.sql` ran on both on 2026-11-08 |
 
 ## Android production
