@@ -35,7 +35,8 @@ export default function Footer({ lang = 'en', className = '' }) {
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
           <Link href="/impressum" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerImpressum')}</Link>
         </div>
-        <div className="text-zinc-500">© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
+        {/* the year is clock text on a cached page: a copy cached across New Year must not fail hydration */}
+        <div className="text-zinc-500" suppressHydrationWarning>© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
       </div>
       <p className="mt-3 text-zinc-500 leading-relaxed"><Credits lang={lang} full /></p>
       <p className="mt-2 text-zinc-500">

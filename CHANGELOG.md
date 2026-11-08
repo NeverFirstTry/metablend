@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-08
 
+### Fixed — light mode on the start page
+- In light mode the start page switched to dark a moment after it loaded. The cached page said "updated 5 min ago" while the browser counted 15, the page was rebuilt over that one line, and the rebuild lost the light theme (in the app also its app layout). Clock text may now differ and corrects itself within a second; a test keeps it that way.
+
 ### Changed — hour by hour, easier to read (website and app)
 - Every hour has its own small tile, a shade lighter than the card in dark mode and a shade darker in light mode, evenly spaced.
 - The temperature leads each tile: largest, bold and in ink. The time above it is clearer, the weather icon a little larger.

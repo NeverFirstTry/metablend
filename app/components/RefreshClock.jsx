@@ -27,7 +27,11 @@ export function Countdown({ at, lang }) {
 }
 
 // generatedAt: with the CDN in front, a fresh fetch can still return a copy
-// computed up to 30 minutes ago, so this shows its real age
+// computed up to 30 minutes ago, so this shows its real age. The age is clock
+// text: the start page is rendered on the server and cached, so the browser's
+// first render says a later minute. suppressHydrationWarning keeps that from
+// failing hydration (which rebuilt the page and dropped the theme and app marks);
+// the next tick shows the right minute (lib/hydration.test.js).
 export function DataAge({ generatedAt, justUpdated, lang }) {
   const ageMin = Math.max(0, Math.floor((useNow() - Date.parse(generatedAt)) / 60000))
   return (
@@ -37,7 +41,7 @@ export function DataAge({ generatedAt, justUpdated, lang }) {
           <CheckCircle2 size={12} aria-hidden /> {t(lang, 'updatedJustNow')}
         </span>
       ) : (
-        <span className="text-zinc-500">{ageMin < 1 ? t(lang, 'updatedJustNow') : fill(t(lang, 'updatedAgo'), { n: ageMin })}</span>
+        <span className="text-zinc-500" suppressHydrationWarning>{ageMin < 1 ? t(lang, 'updatedJustNow') : fill(t(lang, 'updatedAgo'), { n: ageMin })}</span>
       )}
     </div>
   )
