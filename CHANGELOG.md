@@ -50,7 +50,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Legal and privacy — pending review by a lawyer friend
 - /privacy, German first and all 13 languages, add-only: the legal basis for weather feedback, notifications, the tester list and the analytics tools; the transfer basis for Apple and Google push and for the mail forwarders ImprovMX and Gmail; the error log keeps a failed request's address 30 days without any position.
 - /terms: a notice of our own for the WeatherAPI.com data in the blend, covering the points its terms require, stands with the attribution.
-- The ImprovMX sentence in /privacy describes receipt in the EU (France) and partial forwarding through servers in the USA; the standard contractual clauses of its data processing agreement follow on branch legal/improvmx-scc once the agreement is countersigned.
+- The ImprovMX sentence in /privacy describes receipt in the EU (France) and partial forwarding through servers in the USA, under the standard contractual clauses of its countersigned data processing agreement (Art. 46(2)(c) GDPR), 13 languages.
 - Store compliance sheet: the tester e-mail address is declared for the App Store privacy labels and Play Data safety.
 - LICENSE names the current data providers instead of the retired ones.
 
