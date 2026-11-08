@@ -37,7 +37,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
           <HourlyChart hours={hours} unit={unit} lang={lang} />
           <p className="text-zinc-500 text-xs mt-2">{t(lang, isAppView() ? 'bandHint' : 'bandHintWeb')}</p>
           <SectionTitle icon={Clock} className="mt-6 mb-3">{t(lang, 'hourByHour')}</SectionTitle>
-          <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={outlook.sun} lang={lang} />
+          <HourStrip hours={hours} fmtTemp={fmt.fmtTemp} sun={outlook.sun} lang={lang} nowLocal={outlook.nowLocal} />
         </div>
       )}
       <TileGrid>

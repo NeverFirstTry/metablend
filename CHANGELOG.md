@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-08
+
+### Changed — hour by hour, easier to read (website and app)
+- The temperature leads each hour: larger, bold and in ink. The time is darker but smaller, the weather icon a little larger, and every hour has the same width.
+- The current hour sits on a soft pill, so "now" is clear at a glance.
+- Rain chances below 20% stay quiet; from 20% they turn the rain colour and a little bolder. Every text in the strip reaches AA contrast in both themes, the "now" pill included (a tester's feedback).
+
 ## 2026-11-07
 
 ### Changed — dark mode
