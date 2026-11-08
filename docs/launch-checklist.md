@@ -111,6 +111,8 @@ The pages load from metablend.app, so a reviewer may ask what the app does that 
 
 Check: the next hourly run at :00 appears in `cron.job_run_details` with status succeeded, and `/api/station-calibrate` without the header still answers 401.
 
+Not in this list: the app's Beta badge, removed for launch (2026-11-08). It lives in the web code, not in anything native, so it disappears from the app as soon as that change merges; no build needed for it.
+
 ## Uploading with fastlane
 
 The repo has the metadata and screenshots in fastlane's layout, but no `Fastfile` or `Appfile`, and fastlane isn't installed. It could upload the texts and images, saving the per-language pasting. I haven't run it.

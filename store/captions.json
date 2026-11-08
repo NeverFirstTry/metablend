@@ -1,15 +1,15 @@
 {
-  "en": ["Up to 20 weather sources at once", "The week ahead, and how sure it is", "195 peaks worldwide, nearest first", "Know the favourable summit window", "Your route, timed against the weather"],
-  "de": ["Bis zu 20 Wetterquellen gleichzeitig", "Die Woche voraus – und wie sicher sie ist", "195 Gipfel weltweit, die nächsten zuerst", "Das günstige Gipfelfenster kennen", "Deine Route, abgestimmt aufs Wetter"],
-  "fr": ["Jusqu’à 20 sources météo à la fois", "La semaine à venir, et sa fiabilité", "195 sommets dans le monde, les plus proches", "Connaître le créneau favorable au sommet", "Votre itinéraire, calé sur la météo"],
-  "es": ["Hasta 20 fuentes del tiempo a la vez", "La semana que viene, y cuán segura es", "195 cumbres del mundo, las más cercanas", "Conoce la ventana favorable de cumbre", "Tu ruta, ajustada al tiempo"],
-  "it": ["Fino a 20 fonti meteo alla volta", "La settimana in arrivo, e quanto è sicura", "195 vette nel mondo, prima le più vicine", "Conosci la finestra favorevole per la vetta", "Il tuo percorso, a tempo con il meteo"],
-  "nl": ["Tot 20 weerbronnen tegelijk", "De week vooruit, en hoe zeker die is", "195 toppen wereldwijd, dichtstbij eerst", "Ken het gunstige topvenster", "Je route, afgestemd op het weer"],
-  "pl": ["Do 20 źródeł pogody naraz", "Najbliższy tydzień i jego pewność", "195 szczytów świata, najbliższe najpierw", "Poznaj korzystne okno na szczyt", "Twoja trasa zgrana z pogodą"],
-  "cs": ["Až 20 zdrojů počasí najednou", "Týden dopředu a jak jistý je", "195 vrcholů světa, nejbližší první", "Poznejte příznivé okno na vrchol", "Vaše trasa sladěná s počasím"],
-  "sl": ["Do 20 vremenskih virov hkrati", "Teden vnaprej in kako zanesljiv je", "195 vrhov po svetu, najbližji najprej", "Spoznaj ugodno okno za vrh", "Tvoja pot, usklajena z vremenom"],
-  "pt": ["Até 20 fontes meteorológicas de uma vez", "A semana que vem, e quão certa ela é", "195 picos no mundo, os mais próximos antes", "Conheça a janela favorável no cume", "Sua rota, no ritmo do tempo"],
-  "ja": ["最大20の気象ソースを同時にひとつの予報に", "この先1週間と、その確かさ", "世界の195座、近い山から", "山頂の好条件の時間帯がわかる", "天気に合わせたルートの時間配分"],
-  "zh": ["最多 20 个天气来源，同时汇成一份预报", "未来一周，以及它有多可靠", "全球 195 座山峰，最近的在前", "知道何时最适宜登顶", "你的路线，按天气安排时间"],
-  "ko": ["최대 20개 기상 출처를 한 번에 하나의 예보로", "다음 한 주, 그리고 그 확실성", "전 세계 195개 산, 가까운 순으로", "정상에 유리한 때를 알려 줘요", "날씨에 맞춘 내 경로 시간표"]
+  "en": ["Up to 20 weather sources at once", "The week ahead, and where the sources agree", "195 peaks worldwide, nearest first", "The best window for the summit", "Your route, timed against the weather"],
+  "de": ["Bis zu 20 Wetterquellen gleichzeitig", "Die Woche voraus, und wo sich die Quellen einig sind", "195 Gipfel weltweit, die nächsten zuerst", "Das beste Zeitfenster für den Gipfel", "Deine Route, abgestimmt aufs Wetter"],
+  "fr": ["Jusqu’à 20 sources météo à la fois", "La semaine à venir, et où les sources s’accordent", "195 sommets dans le monde, les plus proches", "Le meilleur créneau pour le sommet", "Votre itinéraire, calé sur la météo"],
+  "es": ["Hasta 20 fuentes del tiempo a la vez", "La semana que viene, y dónde coinciden las fuentes", "195 cumbres del mundo, las más cercanas", "La mejor ventana para la cumbre", "Tu ruta, ajustada al tiempo"],
+  "it": ["Fino a 20 fonti meteo alla volta", "La settimana in arrivo, e dove le fonti concordano", "195 vette nel mondo, prima le più vicine", "La finestra migliore per la vetta", "Il tuo percorso, a tempo con il meteo"],
+  "nl": ["Tot 20 weerbronnen tegelijk", "De week vooruit, en waar de bronnen het eens zijn", "195 toppen wereldwijd, dichtstbij eerst", "Het beste tijdvenster voor de top", "Je route, afgestemd op het weer"],
+  "pl": ["Do 20 źródeł pogody naraz", "Najbliższy tydzień i to, w czym źródła są zgodne", "195 szczytów świata, najbliższe najpierw", "Najlepsze okno na szczyt", "Twoja trasa zgrana z pogodą"],
+  "cs": ["Až 20 zdrojů počasí najednou", "Týden dopředu a kde se zdroje shodují", "195 vrcholů světa, nejbližší první", "Nejlepší okno na vrchol", "Vaše trasa sladěná s počasím"],
+  "sl": ["Do 20 vremenskih virov hkrati", "Teden vnaprej in kje se viri ujemajo", "195 vrhov po svetu, najbližji najprej", "Najboljše okno za vrh", "Tvoja pot, usklajena z vremenom"],
+  "pt": ["Até 20 fontes meteorológicas de uma vez", "A semana que vem, e onde as fontes concordam", "195 picos no mundo, os mais próximos antes", "A melhor janela para o cume", "Sua rota, no ritmo do tempo"],
+  "ja": ["最大20の気象ソースを同時にひとつの予報に", "この先1週間と、ソースが一致するところ", "世界の195座、近い山から", "山頂へのベストな時間帯", "天気に合わせたルートの時間配分"],
+  "zh": ["最多 20 个天气来源，同时汇成一份预报", "未来一周，以及各来源一致之处", "全球 195 座山峰，最近的在前", "登顶的最佳时段", "你的路线，按天气安排时间"],
+  "ko": ["최대 20개 기상 출처를 한 번에 하나의 예보로", "다음 한 주, 그리고 출처들이 일치하는 부분", "전 세계 195개 산, 가까운 순으로", "정상에 오르기 가장 좋은 시간", "날씨에 맞춘 내 경로 시간표"]
 }

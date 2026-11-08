@@ -709,9 +709,6 @@ ${url}`)
               >
                 Meta<span className="text-emerald-400">Blend</span>
               </button>
-              <span className="app-only text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
-                Beta
-              </span>
             </h1>
           }
         />
@@ -940,8 +937,9 @@ ${url}`)
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">
+                {/* the refresh button stays beside the name; a long name wraps inside its own box (de, cs, ja on a phone) */}
+                <div className="flex items-center gap-2">
+                  <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight">
                     {/* the example comes in English from the server: its name in the reader's language */}
                     {isExample ? cityName('vienna', lang, data.city) : data.city}{data.country && <span className="text-zinc-400 font-normal">, {isExample ? regionLabel(data.cc ?? 'AT', lang, data.country) : data.country}</span>}
                   </h2>
@@ -950,7 +948,7 @@ ${url}`)
                     disabled={refreshing || loading}
                     title={t(lang, 'refreshNow')}
                     aria-label={t(lang, 'refreshNow')}
-                    className="press inline-flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
+                    className="press shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
                   >
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
