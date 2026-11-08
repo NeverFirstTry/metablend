@@ -5,9 +5,11 @@
 #  - builds, starts next on :3123 with SELF_BASE, and captures with the forecast data from production
 #    (DATA=https://metablend.app) and every check of scripts/store-shots.mjs: captions, 18+ sources,
 #    no "No favourable …", caption lines, image sizes
-#  - screens 1 to 3 and the Play feature graphic first, then screens 4 and 5 (Großglockner, then
-#    Großvenediger, both near Lienz, then Zugspitze); while no peak has an open summit window and a
-#    favourable start, 4 and 5 are tried again every 30 minutes until 11:00
+#  - screens 1 to 3 and the Play feature graphic first, then screens 4 and 5: the peaks right above
+#    Lienz, lowest first (Hochstein, Spitzkofel, Schleinitz, Hoher Prijakt, Petzeck), then Großglockner,
+#    Großvenediger, Zugspitze; while none has an open summit window and a favourable start, 4 and 5 are
+#    tried again every 30 minutes until 11:00. The iPhone set renders in SF Pro, the Android set in an
+#    Android phone's fonts (Hanken Grotesk, Noto Sans CJK, Roboto behind them)
 #  - stops the server and writes store/run/summary.txt (the full log next to it). Commits nothing.
 set -u
 SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"

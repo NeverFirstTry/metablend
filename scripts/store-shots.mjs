@@ -28,7 +28,21 @@ if (problems.length) { console.error(`store/captions.json:\n  ${problems.join('\
 // the hiking screens stand in Lienz: the near-you list shows the Alps, not the Vienna hills
 const LIENZ = { latitude: 46.8289, longitude: 12.7693, accuracy: 50 }
 // screens 4 and 5: the first of these with an open summit window today and a favourable start
-const CANDIDATES = [['grossglockner', ['osm-14622955', 'osm-14622970']], ['grossvenediger', ['osm-1165548', 'osm-193073']], ['zugspitze', ['osm-3201006', 'osm-33856']]]
+// Screens 4 and 5: the first of these with an open summit window today and a route with a favourable start.
+// The peaks right above Lienz first (screen 3 stands there), lowest first, then the big three. Peaks outside
+// the featured list open by coordinates, as their links in Near you do; routes are the peak's day routes
+// from /api/routes (Hochstein's 48 and 54 km multi-day ones left out).
+const near = (name, lat, lon, elev) => `lat=${lat}&lon=${lon}&elev=${elev}&name=${encodeURIComponent(name)}&cc=AT`
+const CANDIDATES = [
+  ['Hochstein', near('Hochstein', 46.824, 12.693, 2057), ['osm-19470523']],
+  ['Spitzkofel', near('Spitzkofel', 46.772, 12.743, 2717), ['osm-7382272']],
+  ['Schleinitz', near('Schleinitz', 46.896, 12.749, 2904), ['osm-14550388']],
+  ['Hoher Prijakt', near('Hoher Prijakt', 46.916, 12.712, 3064), ['osm-6032637']],
+  ['Petzeck', near('Petzeck', 46.948, 12.804, 3283), ['osm-16253220']],
+  ['Großglockner', 'peak=grossglockner', ['osm-14622955', 'osm-14622970']],
+  ['Großvenediger', 'peak=grossvenediger', ['osm-1165548', 'osm-193073']],
+  ['Zugspitze', 'peak=zugspitze', ['osm-3201006', 'osm-33856']],
+]
 let PICK = null
 const DEVICES = [
   { id: 'ios', w: 430, h: 932, scale: 3, out: l => l.ios && join(ROOT, 'fastlane/screenshots', l.ios) },
@@ -54,10 +68,31 @@ const SCREENS = [
   // city), answered from store/near-lienz.json, the production answer for that cell; this PC's own
   // lookups can be throttled by the public geocoder
   { path: '/hike', clearStorage: true, ready: `document.querySelectorAll('button[aria-expanded]').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
-  { path: () => `/hike?peak=${PICK.peak}`, ready: PEAK_READY, notState: 'swNone' },
-  { path: () => `/hike?peak=${PICK.peak}&route=${PICK.route}`, ready: ROUTE_READY, notState: 'routeNoStart', day: true },
+  { path: () => `/hike?${PICK.query}`, ready: PEAK_READY, notState: 'swNone' },
+  { path: () => `/hike?${PICK.query}&route=${PICK.route}`, ready: ROUTE_READY, notState: 'routeNoStart', day: true },
 ]
 const sleep = ms => new Promise(r => setTimeout(r, ms))
+// The Android set in an Android phone's fonts. The site's stack starts with Apple's fonts, which Android
+// lacks, so a phone shows Hanken Grotesk (the site's own), Noto Sans CJK for Japanese, Chinese and Korean,
+// and Roboto behind them. On a Mac the stack would pick SF Pro, so the Android shots drop Apple's fonts
+// and load Noto and Roboto for the capture only. The iPhone set keeps the stack (SF Pro on a Mac; on
+// Windows it falls back to Hanken Grotesk, so take the iPhone set on a Mac).
+const NOTO = { ja: 'Noto Sans JP', zh: 'Noto Sans SC', ko: 'Noto Sans KR' }
+const SAMPLE = { ja: 'あ', zh: '中', ko: '한' }
+const androidFonts = lang => {
+  const cjk = NOTO[lang], families = ['Roboto', ...(cjk ? [cjk] : [])]
+  const href = `https://fonts.googleapis.com/css2?${families.map(x => `family=${x.replace(/ /g, '+')}:wght@100..900`).join('&')}&display=block`
+  const stack = `var(--font-hanken), ${cjk ? `"${cjk}", ` : ''}Roboto, sans-serif`
+  return `(async () => {
+    const link = Object.assign(document.createElement('link'), { rel: 'stylesheet', href: ${JSON.stringify(href)} })
+    await new Promise(r => { link.onload = link.onerror = r; document.head.append(link) })
+    const style = document.createElement('style'); style.textContent = ':root { --font-ui: ' + ${JSON.stringify(stack)} + ' !important }'; document.head.append(style)
+    void document.body.offsetHeight
+    await Promise.all([document.fonts.load('400 16px Roboto'), ${cjk ? `document.fonts.load('400 16px "${cjk}"', ${JSON.stringify(SAMPLE[lang])})` : 'null'}])
+    await document.fonts.ready
+    return [...document.fonts].some(f => f.family.replace(/"/g, '') === ${JSON.stringify(cjk ?? 'Roboto')} && f.status === 'loaded')
+  })()`
+}
 
 const prof = mkdtempSync(join(tmpdir(), 'storeshots-'))
 const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, 'about:blank'], { stdio: 'ignore' })
@@ -152,16 +187,16 @@ if (!only || only.some(n => n >= 4)) {
   await send('Network.setCookie', { name: 'metablend_lang', value: 'en', url: BASE })
   await send('Emulation.setDeviceMetricsOverride', { width: 430, height: 932, deviceScaleFactor: 1, mobile: true })
   const open = async (path, ready) => { await send('Page.navigate', { url: BASE + path }); try { await until(ready, 60000); return true } catch { return false } }
-  for (const [peak, routes] of CANDIDATES) {
-    if (!(await open(`/hike?peak=${peak}`, PEAK_READY))) { console.log(`${peak}: page not ready`); continue }
+  for (const [peak, query, routes] of CANDIDATES) {
+    if (!(await open(`/hike?${query}`, PEAK_READY))) { console.log(`${peak}: page not ready`); continue }
     await sleep(2000)
     if (await ev(shows('en', 'swNone'))) { console.log(`${peak}: no favourable summit window today`); continue }
     for (const route of routes) {
-      if (!(await open(`/hike?peak=${peak}&route=${route}`, ROUTE_READY))) { console.log(`${peak} ${route}: route not ready`); continue }
+      if (!(await open(`/hike?${query}&route=${route}`, ROUTE_READY))) { console.log(`${peak} ${route}: route not ready`); continue }
       await sleep(5000) // the route's weather loads
       for (const day of [0, 1]) {
         if (day) { await ev(clickDay(1)); await sleep(5000) }
-        if (!(await ev(shows('en', 'routeNoStart')))) { PICK = { peak, route, day }; break }
+        if (!(await ev(shows('en', 'routeNoStart')))) { PICK = { peak, query, route, day }; break }
       }
       if (PICK) break
       console.log(`${peak} ${route}: no favourable start today or tomorrow`)
@@ -210,6 +245,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
       if (s.clearSearch) {
         await ev(`(() => { const i = document.querySelector('.home-search input'); if (!i) return; Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ''); i.dispatchEvent(new Event('input', { bubbles: true })); i.blur() })()`)
       }
+      if (d.id === 'android' && !(await ev(androidFonts(l.lang)))) throw new Error(`${l.lang} ${d.id} ${i + 1}: Android fonts did not load`)
       await sleep(1500)
       // the store shows the feature working: never "No favourable summit window" or "No favourable start"
       if (s.notState && await ev(shows(l.lang, s.notState))) throw new Error(`${l.lang} ${d.id} ${i + 1}: shows "${stateText(l.lang, s.notState)}"`)
