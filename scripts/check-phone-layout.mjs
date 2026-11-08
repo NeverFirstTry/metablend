@@ -6,6 +6,8 @@
 //   when Open-Meteo rate-limits this PC). Exits 1 and names the cause on any finding.
 // Runs each page with and without reduced motion (the peak page's overflow showed only with it),
 // every fold open, in German (long words).
+// In CI (.github/workflows/phone-layout.yml) it runs against metablend.app after every production
+// deploy of a push to main, with EDGE=/usr/bin/google-chrome.
 import { spawn } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -27,7 +29,7 @@ const PAGES = [
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].some(e => e.getClientRects().length > 0)`
 const PORT = 9441
-const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'layout-'))}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' })
+const edge = spawn(EDGE, ['--headless=new', ...(process.env.CI ? ['--no-sandbox'] : []), `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'layout-'))}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' })
 let targets
 for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)

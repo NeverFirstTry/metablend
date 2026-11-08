@@ -1,0 +1,53 @@
+name: Phone layout check
+
+# After every push to main: wait until Vercel has deployed this commit to production, then run
+# scripts/check-phone-layout.mjs against metablend.app. 16 pages, website and app, at 390 px, with
+# and without reduced motion: no page wider than the screen, no text below 13 px. A failure marks
+# the commit red; it does not undo the deploy. Read-only: it only loads pages.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# a newer push replaces a check still waiting for the older deploy
+concurrency:
+  group: phone-layout
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # Vercel reports a production deploy to GitHub once its build is done, already marked success
+      - name: Wait for the production deploy of this commit
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for i in $(seq 1 60); do
+            id=$(gh api "repos/${{ github.repository }}/deployments?sha=${{ github.sha }}&environment=Production" --jq '.[0].id // empty')
+            state=""
+            [ -n "$id" ] && state=$(gh api "repos/${{ github.repository }}/deployments/$id/statuses" --jq '.[0].state // empty')
+            echo "deploy ${id:-not yet}: ${state:-waiting}"
+            case "$state" in
+              success) sleep 30; exit 0 ;;
+              failure|error) echo "The production deploy of this commit failed."; exit 1 ;;
+            esac
+            sleep 20
+          done
+          echo "No production deploy of this commit after 20 minutes."
+          exit 1
+      - name: Check the phone layout on metablend.app
+        env:
+          EDGE: /usr/bin/google-chrome
+        run: node scripts/check-phone-layout.mjs https://metablend.app

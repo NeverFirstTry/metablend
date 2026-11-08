@@ -9,6 +9,9 @@ All notable changes to MetaBlend. Format loosely follows
 - With the phone's "reduce motion" setting on, the app's peak page could be dragged sideways into empty space. The hour-by-hour row now scrolls only inside its own strip, on every page that has one.
 - The summit hours, the summit week and the route stages show the coloured weather icons too; they still showed emoji.
 
+### Added — a phone layout check on every push
+- After each push to main is live, GitHub Actions loads 16 pages of metablend.app at phone width, as the website and as the app, with and without reduced motion, and fails if a page scrolls sideways or any text is below 13 px (`scripts/check-phone-layout.mjs`, also run before every merge).
+
 ### Changed — weather in colour (website and app)
 - Weather icons are in colour: the sun gold, the moon pale blue-grey, clouds neutral, rain, snow and storms in the rain colour; partly cloudy shows a gold sun beside a neutral cloud. The same everywhere: hour tiles, the temperature at the top, the Today, Tomorrow and Week lists, city and summit pages and the embed widget.
 - In the app the weather icons were emoji; it now draws the same icons as the website.
