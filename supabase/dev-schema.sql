@@ -1163,3 +1163,10 @@ alter table error_log         enable row level security;
 alter table city_bias         enable row level security;
 alter table outlook_snapshots enable row level security;
 alter table outlook_weights   enable row level security;
+
+-- 3. Belt and braces: the anon and authenticated roles keep no table grants
+--    at all (Supabase grants them on every new table by default). RLS already
+--    denies them every row; this makes a table someone later reopens with
+--    `disable row level security` still unreadable through the public key.
+revoke all on all tables in schema public from anon, authenticated;
+alter default privileges in schema public revoke all on tables from anon, authenticated;

@@ -48,7 +48,7 @@ export const GET = withErrorLog('outlook', async (request) => {
 
   const { payload, series, utcOffsetSec, todayLocal } = buildOutlook({ geo, region, multi, climate, national, met, weights })
   if (!payload.hourly.length && !payload.days.length) {
-    return noStore({ error: 'Forecast unavailable right now — please try again shortly.', upstream: lastUpstreamFailure() }, 502)
+    return noStore({ error: 'Forecast unavailable right now — please try again shortly.' }, 502)
   }
 
   // Learning must never break the forecast itself. Snapshots are keyed by the

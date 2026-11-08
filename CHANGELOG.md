@@ -32,6 +32,10 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed — Recent places
 - A place typed into the search on the "page not found" or error screen (Los Angeles, for example) now goes into Recent like any other search. Links someone sent, widgets and notifications still stay out of it.
 
+### Security
+- A failed summit, outlook, rain-nowcast, route or route-weather request no longer tells the visitor which upstream service last failed and what it answered (that detail was the server's last failure from anyone's request); it still goes to the error log. Test: lib/public-errors.test.js.
+- supabase/enable_rls.sql also takes every table grant away from the public anon and authenticated roles (RLS already denied them every row); the owner runs it.
+
 ## 2026-11-07
 
 ### Changed — dark mode

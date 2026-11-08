@@ -23,7 +23,7 @@ export const POST = withErrorLog('route-weather', async (request) => {
   const r = await routeWeather(q.value, { getJson, getElevations: fetchElevations, weights })
   if (!r) {
     await logError('route.upstream', new Error('route weather unavailable'), { upstream: lastUpstreamFailure() })
-    return noStore({ error: 'Weather along the route is unavailable right now', upstream: lastUpstreamFailure() }, 502)
+    return noStore({ error: 'Weather along the route is unavailable right now' }, 502)
   }
   return noStore(r, 200)
 })

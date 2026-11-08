@@ -1,5 +1,5 @@
 import { after } from 'next/server'
-import { withErrorLog } from '@/lib/log'
+import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { supabase } from '@/lib/supabase'
@@ -51,5 +51,7 @@ export const GET = withErrorLog('routes', async (request) => {
     return serve(fresh.routes, { heal: false })
   }
   if (cached) return serve(cached.routes)
-  return noStore({ error: 'Routes unavailable right now', upstream: lastUpstreamFailure() }, 502)
+  // the upstream detail goes to the log, never to the public answer (it is the instance's last failure, from anyone's request)
+  await logError('routes.upstream', new Error('routes unavailable'), { upstream: lastUpstreamFailure() })
+  return noStore({ error: 'Routes unavailable right now' }, 502)
 })

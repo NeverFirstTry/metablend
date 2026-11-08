@@ -24,7 +24,7 @@ export const GET = withErrorLog('nowcast', async (request) => {
   const nc = blendSteps(await getJson(nowcastUrl(q), { ms: 8000, retries: 1 }))
   if (!nc) {
     await logError('nowcast.upstream', new Error('nowcast unavailable'), { upstream: lastUpstreamFailure() })
-    return noStore({ error: 'Rain for the next 2 hours is unavailable right now', upstream: lastUpstreamFailure() }, 502)
+    return noStore({ error: 'Rain for the next 2 hours is unavailable right now' }, 502)
   }
   // expired copies go once the map grows (a warm instance lives for hours)
   if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= TTL * 1000) CACHE.delete(k)
