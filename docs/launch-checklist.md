@@ -7,6 +7,7 @@
 - WeatherAPI.com: the free plan's credit "Powered by WeatherAPI.com" with a link is in. Their terms (read 2026-11-08) require an end-user disclaimer that at minimum conveys four points; a conforming text is on /terms with the attribution since 2026-11-08. Whether it must also stand next to the data itself (Sources panel) is for the lawyer.
 - ECMWF: /terms has the credit sentence, CC BY 4.0, the source and the note that blended data are changed. ECMWF's liability sentence ("ECMWF does not accept any liability whatsoever for any error or omission in the data, their availability, or for any loss or damage arising from their use") sits on a separate ECMWF page and is not quoted; decide whether /terms needs it.
 - Visual Crossing: its raw values are no longer public (2026-11-07). The owner is asking them in writing whether the Sources panel may show them again.
+- ImprovMX (mail forwarding to info@metablend.app): its GDPR page says inbound mail is stored transiently in France (AWS Paris) and outbound delivery runs on servers in France and the USA; the standard contractual clauses sit in its data processing agreement, which has to be countersigned (requested 2026-11-08). The /privacy sentence about ImprovMX assumes the signed agreement: it does not go live before the owner confirms the signature.
 
 State as of 2026-11-05. **Done** = finished and in the repo. **Open** = Claude can do it. **Needs you** = your account, device or decision.
 
@@ -39,6 +40,8 @@ Google's production review has no fixed length and can come back with questions,
 | Trader status (EU Digital Services Act) | Needs you | `store/app-store-release.md` says "Not a trader". If you register the business, this probably changes, on both stores. Decide before submitting |
 | Store badges on the website point to the live listings | Open | Once the listing URLs exist |
 | Release announcement for the newspaper | Needs you | |
+| Countersign the ImprovMX data processing agreement | Needs you | Requested 2026-11-08; the /privacy sentence about ImprovMX waits for it |
+| Run `supabase/feedback-lessons.sql` on dev, then production | Needs you | The regional feedback cap; `enable_rls.sql` ran on both on 2026-11-08 |
 
 ## Android production
 
@@ -95,6 +98,18 @@ The pages load from metablend.app, so a reviewer may ask what the app does that 
 - Native share sheet for forecasts; haptics; alternate app icons; Larger Text follows the system font scale; a shortcut into the system notification settings.
 - Deep links from widgets and notifications (`metablend://open?path=…`) and swipe-back navigation.
 - The last forecast is cached on the device, so the app opens offline.
+
+## Rotating the admin secret
+
+`CALIBRATE_SECRET` is one value in five places, and pg_cron calls with it every hour, so rotate in this order within one hour:
+
+1. Vercel → Settings → Environment Variables: the new value for Production (and Preview), then redeploy. From now on the old value gets 401 everywhere.
+2. Supabase → Vault: update the secret `calibrate_secret`. The jobs `station-calibrate-hourly`, `push-dispatch-hourly`, `push-dispatch-nowcast` and `warnings-refresh` read it at run time (`supabase/cron.sql`), no SQL change.
+3. GitHub → repository secrets: `CALIBRATE_SECRET` (`backup.yml` nightly, `station-calibrate.yml`).
+4. `.env.production-admin` on this machine (`scripts/testers.mjs` and the admin scripts read it).
+5. Nothing else: the server's own internal fetches read the Vercel value. `CRON_SECRET` is Vercel's own and is rotated in the Vercel UI alone.
+
+Check: the next hourly run at :00 appears in `cron.job_run_details` with status succeeded, and `/api/station-calibrate` without the header still answers 401.
 
 ## Uploading with fastlane
 

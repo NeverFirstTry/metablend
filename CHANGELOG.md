@@ -34,13 +34,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Security
 - A failed summit, outlook, rain-nowcast, route or route-weather request no longer tells the visitor which upstream service last failed and what it answered (that detail was the server's last failure from anyone's request); it still goes to the error log. Test: lib/public-errors.test.js.
-- supabase/enable_rls.sql also takes every table grant away from the public anon and authenticated roles (RLS already denied them every row); the owner runs it.
+- supabase/enable_rls.sql also takes every table grant away from the public anon and authenticated roles (RLS already denied them every row); ran on dev and production on 2026-11-08.
 - Feedback lessons are capped at 24 per region per day in the database (supabase/feedback-lessons.sql, the owner runs it on dev and production), on top of one per city per half hour; until it has run, the route falls back to the old function.
 - Preference cookies carry the Secure flag.
 - A report-only Content Security Policy on every page: nothing is blocked yet, violations show in the browser console.
 - The error log drops the phone's position from a failed request's address and rounds other coordinates to about 10 km.
 - WeatherAPI's values are kept only until the next hourly calibration has scored them, within its 60-minute caching limit; the daily scoring jobs no longer see them.
 - MET Norway is asked with four-decimal coordinates, as its terms require.
+- Next 16.4.5, the November security release: seven moderate advisories (cache leaks and poisoning in `use cache`, an SVG rejection bypass in image optimisation, HttpOnly cookie exposure on Edge routes).
 
 ### Safety — summit window
 - An hour whose rain or wind value is missing no longer counts as favourable: it ends the window with "no complete forecast" (fail closed); the route planner judges its stages by the same rule.
@@ -48,7 +49,8 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Legal and privacy — pending review by a lawyer friend
 - /privacy, German first and all 13 languages, add-only: the legal basis for weather feedback, notifications, the tester list and the analytics tools; the transfer basis for Apple and Google push and for the mail forwarders ImprovMX and Gmail; the error log keeps a failed request's address 30 days without any position.
-- /terms: WeatherAPI.com's end-user disclaimer stands with the attribution.
+- /terms: a notice of our own for the WeatherAPI.com data in the blend, covering the points its terms require, stands with the attribution.
+- The ImprovMX sentence in /privacy describes receipt in the EU (France), partial forwarding through servers in the USA and the standard contractual clauses of its data processing agreement; that agreement is being countersigned, and the sentence waits for the signed copy.
 - Store compliance sheet: the tester e-mail address is declared for the App Store privacy labels and Play Data safety.
 - LICENSE names the current data providers instead of the retired ones.
 
