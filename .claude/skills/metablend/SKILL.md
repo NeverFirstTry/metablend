@@ -14,14 +14,14 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 - **German legal texts are the original.** Change German first, then translate; never soften or broaden.
 - **Never promise safety.** A window, start time or day is "favourable" (`günstig`), not "safe". Warnings and "not a safety guarantee" keep their words. `lib/wording.test.js` enforces this.
 - **Active CPU:** prefer static pages, ISR and CDN caching. A new request per visitor needs a reason.
-- **Design:** no sparkle or magic icons, emoji in UI, glows (the sun glow below is the one exception), gradient text, icon-in-a-rounded-square feature grids, vague taglines, cards inside cards, glass on everything, stacks of badges or centred everything. Do use left-aligned layouts, about 5 type sizes, one card style, an 8px grid, generous whitespace and few borders. Show the product first and use real data. Dark mode: solid Slate (#0f151b) with a subtle sun-position gold glow, no purple, no full gradient (the weather no longer tints it). Keep the one fixed near-white sky in light, the gold accent, the system font / Inter, the source dots in the Sources panel and reduced motion. 13 px is the smallest text on the website; the app keeps its own sizes.
+- **Design:** no sparkle or magic icons, emoji in UI, glows (the sun glow below is the one exception), gradient text, icon-in-a-rounded-square feature grids, vague taglines, cards inside cards, glass on everything, stacks of badges or centred everything. Do use left-aligned layouts, about 5 type sizes, one card style, an 8px grid, generous whitespace and few borders. Show the product first and use real data. Dark mode: solid Slate (#0f151b) with a subtle sun-position gold glow, no purple, no full gradient (the weather no longer tints it). Keep the one fixed near-white sky in light, the gold accent, the system font / Inter, the source dots in the Sources panel and reduced motion. 13 px is the smallest text, on the website and in the app (the app renders the same pages).
 
 ## Redesign rules
 
 These stand for every design task; the owner should not have to repeat them. Re-read this list before sending a comparison link.
 
 - **Colour:** gold is the only accent. Green is for status only.
-- **On the website:** 13 px minimum, whole degrees, no countdowns.
+- **Website and app:** 13 px minimum, whole degrees, no countdowns.
 - **Cards:** no nested cards.
 - **Wording:** no "safe" or "sicher". All user-facing text as i18n keys in all 13 languages.
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
