@@ -361,9 +361,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    place (lib/useSky.js marks it when the place's sun times arrive). East at sunrise, a sheen
    overhead by day, warmer in the west at sunset, none at night. Still: no transition. */
 :root { --glow: none; }
-:root:not([data-theme="light"])[data-sky="dawn"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 0% 0%, rgb(255 217 138 / 0.12), transparent 70%); }
-:root:not([data-theme="light"])[data-sky="day"] { --glow: radial-gradient(min(70rem, 120vw) min(12rem, 22vh) at 50% 0%, rgb(255 217 138 / 0.1), transparent 80%); }
-:root:not([data-theme="light"])[data-sky="dusk"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 100% 0%, rgb(255 196 112 / 0.15), transparent 70%); }
+:root:not([data-theme="light"])[data-sky="dawn"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 0% 0%, rgb(255 217 138 / 0.17), transparent 70%); }
+:root:not([data-theme="light"])[data-sky="day"] { --glow: radial-gradient(min(70rem, 120vw) min(12rem, 22vh) at 50% 0%, rgb(255 217 138 / 0.15), transparent 80%); }
+:root:not([data-theme="light"])[data-sky="dusk"] { --glow: radial-gradient(min(52rem, 95vw) min(24rem, 45vh) at 100% 0%, rgb(255 196 112 / 0.2), transparent 70%); }
 
 :root:not([data-theme="light"]) {
   --foreground: #f6f8fc;
@@ -371,6 +371,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --accent: #ffd98a;          /* sunlight */
   --accent-strong: #ffe7b3;
   --ok: #8eecc4; --warn: #ffd166; --bad: #ffb8b8; --info: #a9d1ff; --hot: #ffbb99; --lifr: #e2c6ff; --neutral: rgb(226 234 247 / 0.7);
+  --moon: #c2cddb;            /* pale blue-grey: the moon icon */
   --surface-2: rgb(255 255 255 / 0.08); --surface-3: rgb(255 255 255 / 0.15);
   --glass: rgb(255 255 255 / 0.05);
   --glass-strong: rgb(27 33 38 / 0.88);
@@ -457,6 +458,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --chart-band: #141c2b;
   --chart-band-opacity: 0.08;
   --ok: #127e4b; --warn: #bb4a00; --bad: #d22923; --info: #1d6dca; --hot: #c83b10; --lifr: #5b1a8f; --neutral: #4a5566;
+  --moon: #5a6b82;            /* blue-grey, 3:1 and more on the light sky */
   --surface-2: rgb(20 28 43 / 0.06); --surface-3: rgb(20 28 43 / 0.1);
   --glass: #ffffff;
   --glass-strong: rgb(255 255 255 / 0.94);

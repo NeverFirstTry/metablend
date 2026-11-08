@@ -7,7 +7,7 @@ import ScrollStrip from '../ScrollStrip'
 import Glyph from '../Glyph'
 import { Valued, ValueKey } from '../ValueKey'
 
-// a rain chance worth noticing gets the rain colour; below it stays quiet
+// every rain chance in the rain colour; one worth noticing also in bold
 const RAIN_NOTABLE = 20
 
 // Scrollable hour-by-hour row, one small tile per hour (.hour-tile, globals.css):
@@ -30,9 +30,9 @@ export default function HourStrip({ hours, fmtTemp, sun, lang, nowLocal = null }
                 <div className="text-xs font-medium text-zinc-300 tabular-nums" aria-hidden>{h.t.slice(11, 16)}</div>
                 <div className="leading-none my-1.5" aria-hidden><Glyph emoji={isDark(h.t.slice(11, 16), sun) ? nightIcon(h.icon) : h.icon} size={24} fallback="·" /></div>
                 <div className="text-lg font-bold leading-tight tabular-nums" style={{ color: 'var(--foreground)' }} aria-hidden>{fmtTemp(h.temp)}</div>
-                <div className="text-xs mt-0.5" aria-hidden>
+                <div className="text-[0.8125rem] mt-0.5" aria-hidden>
                   {h.rainPct != null
-                    ? <Valued kind="rain" className={`tabular-nums ${notable ? 'font-semibold' : 'text-zinc-500'}`} style={notable ? { color: 'var(--info)' } : undefined}>{h.rainPct}%</Valued>
+                    ? <Valued kind="rain" className={`tabular-nums${notable ? ' font-semibold' : ''}`} style={{ color: 'var(--info)' }}>{h.rainPct}%</Valued>
                     : <span className="text-zinc-500">–</span>}
                 </div>
               </div>

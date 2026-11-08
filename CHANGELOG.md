@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-08
 
+### Changed — weather in colour (website and app)
+- Weather icons are in colour: the sun gold, the moon pale blue-grey, clouds neutral, rain, snow and storms in the rain colour; partly cloudy shows a gold sun beside a neutral cloud. The same everywhere: hour tiles, the temperature at the top, the Today, Tomorrow and Week lists, city and summit pages and the embed widget.
+- In the app the weather icons were emoji; it now draws the same icons as the website.
+- Every rain chance in the hour tiles is in the rain colour with its drop, at 13 px in the app too; from 20% it is also bold. In light mode it reaches 4.56:1 contrast (AA asks 4.5:1).
+- Dark mode's sun glow is five points stronger: 17% at sunrise, 15% by day, 20% at sunset, still none at night. Grey text where it is brightest keeps 6.5:1 or more.
+
 ### Changed — the forecast page on a desktop
 - From 1024 px wide, "right now" is one band: the temperature beside its details (wind, cloud, visibility and the rest), always open. The forecast runs full width below, and Sources and "How's the weather where you are?" sit side by side. Phones and the app are unchanged.
 
