@@ -917,7 +917,7 @@ ${url}`)
 
         {/* Results — "right now" shrinks to one line; the future tabs are the page */}
         {data && !loading && (
-          <div className={`space-y-4 animate-fade-in-up ${isExample ? 'landing-view' : ''}`}>
+          <div className={`home-data space-y-4 animate-fade-in-up ${isExample ? 'landing-view' : ''}`}>
 
             {/* Severe-weather warning */}
             {data.warning?.active && (
@@ -936,7 +936,7 @@ ${url}`)
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="home-now space-y-4">
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -982,32 +982,41 @@ ${url}`)
             <NowLine data={data} unit={unit} lang={lang} showT={showT} dark={outlook ? isDark(outlook.nowLocal?.slice(11, 16), outlook.sun) : null} />
             </div>
 
-            <RangeTabs value={tab} onChange={changeTab} lang={lang} />
-
-            {outlook ? (
-              tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                  : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
-            ) : outlookError ? (
-              <OutlookError lang={lang} onRetry={retryOutlook} />
-            ) : (
-              <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
-            )}
-
-            <PushPrompt lang={lang} unit={unit} />
-
-            <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
+            {/* desktop (64rem+): right now in full beside the hero; the Current details fold below is hidden there (globals.css) */}
+            <div className="home-now-details hidden bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-5">
               <NowDetails data={data} unit={unit} lang={lang} />
-            </Fold>
+            </div>
 
-            {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
-            <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
-              summary={fill(t(lang, 'widgetSources'), { n: countSources(data.sources), agree: data.consensus.confidencePct })}>
-              <SourcesPanel data={data} unit={unit} lang={lang} />
-            </Fold>
-            <Fold icon={Send} title={t(lang, 'feedbackFold')}>
-              <FeedbackPanel data={data} unit={unit} lang={lang} onWeights={mergeWeights} />
-            </Fold>
+            <div className="home-forecast space-y-4">
+              <RangeTabs value={tab} onChange={changeTab} lang={lang} />
+
+              {outlook ? (
+                tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
+                  : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
+                    : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
+              ) : outlookError ? (
+                <OutlookError lang={lang} onRetry={retryOutlook} />
+              ) : (
+                <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
+              )}
+
+              <PushPrompt lang={lang} unit={unit} />
+            </div>
+
+            <div className="home-more space-y-4">
+              <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
+                <NowDetails data={data} unit={unit} lang={lang} />
+              </Fold>
+
+              {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
+              <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
+                summary={fill(t(lang, 'widgetSources'), { n: countSources(data.sources), agree: data.consensus.confidencePct })}>
+                <SourcesPanel data={data} unit={unit} lang={lang} />
+              </Fold>
+              <Fold icon={Send} title={t(lang, 'feedbackFold')}>
+                <FeedbackPanel data={data} unit={unit} lang={lang} onWeights={mergeWeights} />
+              </Fold>
+            </div>
 
           </div>
         )}

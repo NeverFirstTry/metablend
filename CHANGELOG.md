@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-08
 
+### Changed — the forecast page on a desktop
+- From 1024 px wide, "right now" is one band: the temperature beside its details (wind, cloud, visibility and the rest), always open. The forecast runs full width below, and Sources and "How's the weather where you are?" sit side by side. Phones and the app are unchanged.
+
 ### Changed — the app matches the website
 - The app's forecast opens on the website's hero: the temperature, the condition, how far the sources agree and one sentence on their spread. Wind, cloud, visibility and the rest are in the "Current details" row below, as on the website, instead of a dropdown under the hero.
 - The app no longer counts down to the next refresh; it still refreshes on its own.

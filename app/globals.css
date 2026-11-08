@@ -689,6 +689,21 @@ html:not([data-app]) .home-col > .space-y-4 { margin-top: 0; }
 /* the search: fields without frames; the filled button is the one solid thing. On a phone the suggestions use the whole row */
 html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { background: none; }
 html:not([data-app]) .home-search > .relative { position: static; }
+/* -- The forecast page on a desktop (64rem and up, website only): right now in one band (the
+   hero beside its details, which are always open here), the forecast full width, then sources
+   and feedback side by side. The Current details fold below is hidden here; phones keep it. */
+@media (min-width: 64rem) {
+  html:not([data-app]) .home-data { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "now nowd" "forecast forecast" "more more"; column-gap: 2rem; row-gap: 1.5rem; align-items: start; }
+  html:not([data-app]) .home-data:has(> .home-warning) { grid-template-areas: "warn warn" "now nowd" "forecast forecast" "more more"; }
+  html:not([data-app]) .home-data > * { margin: 0; }
+  html:not([data-app]) .home-warning { grid-area: warn; }
+  html:not([data-app]) .home-now { grid-area: now; }
+  html:not([data-app]) .home-now-details { display: block; grid-area: nowd; }
+  html:not([data-app]) .home-forecast { grid-area: forecast; }
+  html:not([data-app]) .home-more { grid-area: more; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2rem; align-items: start; }
+  html:not([data-app]) .home-more > * { margin: 0; }
+  html:not([data-app]) .home-more > :first-child { display: none; }
+}
 /* a table too wide for a phone: each row stacks in three columns, with a label above each value */
 @media (max-width: 39.99rem) {
   .stack-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
