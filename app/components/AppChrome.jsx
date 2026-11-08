@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { CloudSun, MountainSnow, Menu } from 'lucide-react'
@@ -10,6 +10,7 @@ import { onBackButton, tapHaptic, setStatusBarStyle, onAppHidden, onAppUrl } fro
 import { initPush } from '@/lib/push-client'
 import { opensByReload } from '@/lib/push-ui'
 import { getCookie } from '@/lib/prefs'
+import { restoreAppMark } from '@/lib/app-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
@@ -28,6 +29,9 @@ export default function AppChrome() {
   const path = usePathname()
   const router = useRouter()
 
+  // React rebuilds the page after a failed hydration and clears what the boot script set on
+  // <html>; the mark is back before any page effect runs (layout effects run first)
+  useLayoutEffect(() => { restoreAppMark(document.documentElement, window.__mbBoot) }, [])
   useEffect(() => {
     const html = document.documentElement
     const inApp = html.dataset.app === '1'

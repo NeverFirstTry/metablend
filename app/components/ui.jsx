@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ChevronDown } from 'lucide-react'
 
 // Small shared building blocks for the forecast page and its tab views.
@@ -42,14 +42,18 @@ export function SectionTitle({ icon: Icon, children, className = '' }) {
 // (the radar map, the source cards) out of the first paint.
 // A folded section. summary: one line under the title, shown while closed
 // too (e.g. "20 sources · 92% agree"). storeKey: the viewer's last choice is
-// kept (localStorage) — only for folds that render after the page has loaded,
-// where there is no server HTML to match.
+// kept (localStorage) and applied after hydration: the first render is the
+// server's HTML, which can't know the choice (lib/first-render.test.js).
 const readFold = (key, fallback) => {
   try { const v = localStorage.getItem(key); return v == null ? fallback : v === '1' } catch { return fallback }
 }
 // keep: the content stays in the HTML while closed (hidden), for search engines
 export function Fold({ icon: Icon, title, summary = null, children, defaultOpen = false, storeKey = null, keep = false }) {
-  const [open, setOpen] = useState(() => (storeKey ? readFold(storeKey, defaultOpen) : defaultOpen))
+  const [open, setOpen] = useState(defaultOpen)
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the remembered choice, once the server HTML is on the page
+    if (storeKey) setOpen(readFold(storeKey, defaultOpen))
+  }, [storeKey, defaultOpen])
   const toggle = () => {
     const next = !open
     setOpen(next)

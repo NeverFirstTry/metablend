@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { getCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme, deviceMedia } from '@/lib/theme'
 
@@ -8,6 +8,9 @@ import { THEME_COOKIE, readThemePref, applyTheme, deviceMedia } from '@/lib/them
 // (Control Centre, sunset schedule), the page follows — unless the visitor
 // picked dark or light themselves. Renders nothing.
 export default function ThemeSync() {
+  // a page React rebuilt after a failed hydration lost the boot script's data-theme: the
+  // same answer, put back before paint
+  useLayoutEffect(() => { applyTheme(readThemePref(getCookie(THEME_COOKIE))) }, [])
   useEffect(() => {
     const media = deviceMedia()
     if (!media) return
