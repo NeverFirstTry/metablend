@@ -57,6 +57,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### App
 - iPhone: Release builds sign with aps-environment production (AppRelease.entitlements); Debug keeps development. Ships with the next native build.
 - Launch checklist: App Review notes listing the native features for Apple's guideline 4.2.
+- Temporary diagnostic: inside a native shell that shows the website layout, a line at the top shows what the app detection saw at first paint (user agent, cookies, verdict) next to the page's state now; also on any page with ?debug=1. Goes once the iPhone cause is fixed.
 
 ## 2026-11-07
 

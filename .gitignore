@@ -70,3 +70,6 @@ GoogleService-Info.plist
 /graphify-out/
 
 .vercel
+
+# the Playwright MCP writes page snapshots and console logs here
+/.playwright-mcp/
