@@ -12,7 +12,7 @@ import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
   fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
-  fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
+  fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp, missingModels,
 } from '@/lib/weather'
 import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
@@ -126,8 +126,10 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
   const limited = dailyLimited() // Open-Meteo's daily limit: its sources stay away until midnight UTC
-  const ttl = blendTtl(timed, models, limited) // a thin blend is kept 2 minutes, not 15, unless the limit is the cause
-  const failed = [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...(models.value == null ? ['open-meteo-models'] : [])]
+  // what gave nothing: sources that were asked and failed, and the global models missing from the shared
+  // model answer (a model absent without failing thinned Vienna to 10 sources for 15 minutes, 2026-11-09)
+  const failed = [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...missingModels(models.value)]
+  const ttl = blendTtl(failed, limited) // a thin blend is kept 2 minutes, not 15, unless the limit is the cause
   // logged (error_log, scope forecast.partial) so thin blends can be counted and checked the next day
   if (failed.length) logError('forecast.partial', new Error(limited ? 'thin blend, Open-Meteo daily limit' : 'thin blend'), { city: geo.name, failed, limited })
 
