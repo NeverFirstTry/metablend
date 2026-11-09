@@ -22,6 +22,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Changed — eight Open-Meteo requests per forecast miss instead of twelve
+- ECMWF IFS, NOAA GFS, DWD ICON and Météo-France come with the shared multi-model request instead of one request each; their “now” is the current hour like the other models’ (it was Open-Meteo’s 15-minute current before, so their values can differ by a few tenths). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a recorded Lienz miss through the route and pins the blend.
+
 ### Fixed — a model missing from Open-Meteo’s shared answer makes the blend thin
 - Sources that came back empty without failing (a global model absent from Open-Meteo’s multi-model answer, or that request refused) did not count toward partial, so a thin blend was kept 15 minutes: Vienna showed 10 of 18 sources with one failed source reported. Now the shared request is null when refused and the global models missing from its answer are named with the failed sources (partial: true, 2-minute copy, listed in the error log); regional models may be absent outside their area.
 

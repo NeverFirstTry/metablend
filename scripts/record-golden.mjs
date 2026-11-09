@@ -3,6 +3,8 @@
 // the clock, and the blend the replay of those answers gives (lib/test-golden.js). Run it again only
 // when the blend is meant to change; the test then compares against the new recording.
 //   node --import ./lib/test-jsx-hooks.js scripts/record-golden.mjs [city] [lang]
+// --rebaseline keeps the recorded answers and rewrites expected.json from today's code: for a change
+// of the blend the owner has accepted (the golden test's diff shows it first).
 // Needs .env.local (the dev database and the services' keys). The run stores forecast rows in the
 // dev database like any local forecast. Keys never reach a fixture: URLs are recorded with them
 // replaced, and every written file is checked for every secret value.
@@ -15,8 +17,16 @@ const env = parseEnv(fs.readFileSync('.env.local', 'utf8'))
 for (const [k, v] of Object.entries(env)) process.env[k] ??= v
 // after the env: the database client reads its URL when lib/weather.js first loads
 const { MORE_MODELS } = await import('../lib/weather.js')
-const city = process.argv[2] ?? 'lienz', lang = process.argv[3] ?? 'en'
+const args = process.argv.slice(2).filter(a => !a.startsWith('--'))
+const city = args[0] ?? 'lienz', lang = args[1] ?? 'en'
 const dir = path.join(GOLDEN_DIR, `${city}-${lang}`)
+if (process.argv.includes('--rebaseline')) {
+  const { status, payload, stored } = await replay(dir)
+  if (status !== 200) throw new Error(`replay answered ${status}`)
+  fs.writeFileSync(path.join(dir, 'expected.json'), JSON.stringify({ payload, stored }, null, 2) + '\n')
+  console.log(`${dir}: expected.json rewritten from the replay (${payload.sources.length} sources, consensus ${payload.consensus.temp})`)
+  process.exit(0)
+}
 fs.rmSync(dir, { recursive: true, force: true })
 fs.mkdirSync(dir, { recursive: true })
 

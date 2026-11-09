@@ -10,8 +10,8 @@ import { geocodeCity, learnName } from '@/lib/geocode'
 import {
   getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
-  fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
-  fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
+  fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
+  fetchNWS, fetchBrightSky, fetchSMHI,
   fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp, missingModels,
 } from '@/lib/weather'
 import { getCityBias } from '@/lib/blend'
@@ -89,8 +89,8 @@ export const GET = withErrorLog('forecast', async (request) => {
   // the sources; if the lookup fails, the searched name stands in.
   const learnCityP = learnName(geo, lang).then(n => n ?? geo.name)
 
-  // 2. All source APIs in parallel, each timed — plus the extra national and
-  // AI models, which come in one shared Open-Meteo request
+  // 2. All source APIs in parallel, each timed — plus the national, global and
+  // AI models (ECMWF, GFS, ICON, Météo-France among them), which come in one shared Open-Meteo request,
   // and the extras (UV, air, details, yesterday), which needn't wait for them
   const [[timed, models], [extras, details, yesterdayTemp]] = await Promise.all([Promise.all([Promise.all([
     timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
@@ -99,10 +99,6 @@ export const GET = withErrorLog('forecast', async (request) => {
     timedFetch('met-norway',           () => fetchMETNorway(geo.lat, geo.lon)),
     timedFetch('visual-crossing',      () => fetchVisualCrossing(geo.lat, geo.lon)),
     timedFetch('geosphere',            () => fetchGeoSphere(geo.lat, geo.lon)),
-    timedFetch('ecmwf',                () => fetchECMWF(geo.lat, geo.lon)),
-    timedFetch('gfs',                  () => fetchGFS(geo.lat, geo.lon)),
-    timedFetch('icon',                 () => fetchICON(geo.lat, geo.lon)),
-    timedFetch('meteofrance',          () => fetchMeteoFrance(geo.lat, geo.lon)),
     timedFetch('nws',                  () => fetchNWS(geo.lat, geo.lon)),
     timedFetch('brightsky',            () => fetchBrightSky(geo.lat, geo.lon)),
     timedFetch('smhi',                 () => fetchSMHI(geo.lat, geo.lon)),
