@@ -48,6 +48,18 @@ test('secrets hygiene — key files ignored at the root, the device key not in A
   assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
 })
 
+// App Store text and screenshots go up from the owner's PC with fastlane deliver (fastlane/Fastfile)
+test('fastlane — deliver never uploads a build, submits or releases; the API key comes only from the environment', () => {
+  const fastfile = read('fastlane/Fastfile'), appfile = read('fastlane/Appfile')
+  for (const s of ['skip_binary_upload: true', 'submit_for_review: false', 'automatic_release: false', 'ignore_language_directory_validation: true']) assert.ok(fastfile.includes(s), s)
+  assert.doesNotMatch(fastfile, /submit_for_review: true|automatic_release: true|skip_binary_upload: false|edit_live/)
+  for (const v of ['APP_STORE_CONNECT_API_KEY_KEY_ID', 'APP_STORE_CONNECT_API_KEY_ISSUER_ID', 'APP_STORE_CONNECT_API_KEY_KEY_FILEPATH']) assert.ok(fastfile.includes(`ENV.fetch("${v}")`), v)
+  assert.doesNotMatch(fastfile + appfile, /\.p8"|key_id: "|issuer_id: "|key_content|BEGIN PRIVATE KEY/, 'no key, key id or issuer id in the repo')
+  assert.match(appfile, /app_identifier\("app\.metablend"\)/)
+  const ignore = read('.gitignore').split(/\r?\n/)
+  for (const p of ['*.p8', 'fastlane/report.xml', 'fastlane/Preview.html', 'fastlane/README.md']) assert.ok(ignore.includes(p), p)
+})
+
 test('iOS entitlements — Release builds sign with aps-environment production, Debug keeps development, both carry the widgets\' app group', () => {
   const pbx = read('mobile/ios/App/App.xcodeproj/project.pbxproj')
   const pairs = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = (App\/[^;]+);[\s\S]*?name = (Debug|Release);/g)].map(m => [m[2], m[1]]).sort()
