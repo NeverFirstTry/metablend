@@ -8,7 +8,7 @@ const read = p => fs.readFileSync(new URL(p, root), 'utf8').trim()
 const len = s => [...s].length
 const IOS = { 'name.txt': 30, 'subtitle.txt': 30, 'promotional_text.txt': 170, 'description.txt': 4000, 'keywords.txt': 100, 'release_notes.txt': 4000 }
 const ANDROID = { 'title.txt': 30, 'short_description.txt': 80, 'full_description.txt': 4000, 'changelogs/1.txt': 500 }
-const URLS = { 'privacy_url.txt': 'https://metablend.app/privacy', 'support_url.txt': 'https://metablend.app', 'marketing_url.txt': 'https://metablend.app' }
+const URLS = { 'privacy_url.txt': 'https://metablend.app/privacy', 'support_url.txt': 'https://metablend.app/support', 'marketing_url.txt': 'https://metablend.app' }
 // TODO/TBD only in capitals: Spanish "todo" is a real word
 const JUNK = /TODO|TBD|[Ll]orem|\{\w+\}/
 

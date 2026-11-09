@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-09
 
+### Added: a support page
+- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, no safety guarantee) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
+- The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
+
 ### Store listing
 - App Store keywords rewritten in all 12 languages (live with the next upload): no words the name or subtitle already carry, no "consensus" or ECMWF; rain radar, mountain weather, storms, avalanches and routes instead, each within 100 characters.
 - App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
