@@ -12,6 +12,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Changed — the beta banner is gone
+- The amber "work in progress, early beta" banner on Rankings, Heatmap and Planner, and the matching line on the home page, are replaced by one calm sentence in all 13 languages: forecasts can be wrong, do not rely on them alone for safety-critical decisions. No beta wording anywhere in it.
+
 ### Changed — wording
 - No em or en dashes in the app’s and website’s texts any more, in all 13 languages: a sentence dash is now a full stop or a comma, a time range a plain hyphen. A test keeps every language pack that way.
 

@@ -9,7 +9,7 @@ import { escapeHtml } from '@/lib/html'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { tempFormatter } from '@/lib/outlook/text'
-import BetaBanner from '../components/BetaBanner'
+import Disclaimer from '../components/Disclaimer'
 import Footer from '../components/Footer'
 
 function accuracyColor(a) {
@@ -102,7 +102,7 @@ export default function Heatmap() {
           {t(lang, 'hmSubtitle')}
         </p>
 
-        <BetaBanner lang={lang} className="mb-6" />
+        <Disclaimer lang={lang} className="mb-6" />
 
         {error && (
           <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-4 flex items-center gap-2">

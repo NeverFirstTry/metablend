@@ -7,7 +7,7 @@ import { t, tn } from '@/lib/i18n'
 import { sparkLabel } from '@/lib/a11y-text'
 import { sourceName } from '@/lib/sources'
 import { useLang } from '@/lib/useLang'
-import BetaBanner from '../components/BetaBanner'
+import Disclaimer from '../components/Disclaimer'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
 import { REGION_KEYS } from '@/lib/trusted'
@@ -146,7 +146,7 @@ export default function Leaderboard() {
           {t(lang, 'lbSubtitle')}
         </p>
 
-        <BetaBanner lang={lang} className="mb-6" />
+        <Disclaimer lang={lang} className="mb-6" />
 
         {/* Range tabs */}
         <div role="tablist" className="flex gap-1 bg-zinc-900 border border-zinc-800 rounded-xl p-1 mb-4">

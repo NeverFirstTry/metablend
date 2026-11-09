@@ -1034,7 +1034,7 @@ ${url}`)
           </div>
         )}
         <div className="web-only mt-12 max-w-prose space-y-2 text-sm text-zinc-400">
-          <p>{t(lang, 'betaDisclaimer')}</p>
+          <p>{t(lang, 'forecastDisclaimer')}</p>
           {!(STORES.ios && STORES.android) && <Link href="/testers" className={`inline-block text-emerald-400 hover:underline`}>{t(lang, 'testersTryApp')}</Link>}
         </div>
 
