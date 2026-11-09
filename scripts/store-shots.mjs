@@ -1,6 +1,8 @@
 // Captioned store screenshots from a local production build, every language:
-//   npx next build && SELF_BASE=http://localhost:3123 npx next start -p 3123   (separate terminal;
-//   SELF_BASE: the start page fetches its own API there, not at localhost:3000)
+//   npx next build && SELF_BASE=https://metablend.app npx next start -p 3123   (separate terminal;
+//   SELF_BASE: where the start page's server render fetches the forecast. Production's cached API keeps
+//   this machine off the forecast providers; http://localhost:3123 works too, but calls them all itself)
+//   On a Mac, scripts/store-run.sh does all of it for the morning run.
 //   node scripts/store-shots.mjs [lang …]         (default: all 13; DATA=https://metablend.app takes the /api/ answers from there)
 //   SHOTS=1,3 node scripts/store-shots.mjs        (only those screens; add 'feature' for the Play feature graphic)
 // Writes fastlane/screenshots/<ios>/ (1290×2796) and
@@ -98,7 +100,7 @@ const prof = mkdtempSync(join(tmpdir(), 'storeshots-'))
 const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, 'about:blank'], { stdio: 'ignore' })
 // however the run ends (a screen that never got ready throws), the browser goes with it: a leftover
 // would keep the debugging port, and the next try (scripts/store-run.sh) would talk to it
-process.on('exit', () => edge.kill())
+process.on('exit', () => { edge.kill(); try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run`) } catch {} })
 let targets
 for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
@@ -110,14 +112,33 @@ const NEAR = readFileSync(join(ROOT, 'store/near-lienz.json'))
 // the pages from the local build. A PC that has captured all day gets rate-limited by Open-Meteo and
 // its forecasts drop to a handful of sources; the shots must show the full set.
 const DATA = process.env.DATA ?? null
+// Gentle on production and the forecast providers behind it: every answer is asked for once per run and
+// reused by every language and device that asks the same (POST bodies included; a language in the URL
+// keeps its own answer), and production gets one request at a time with a short gap. A screen that is
+// not ready drops the reused answers before its next try, so a bad answer is never repeated.
+const answers = new Map()
+const api = { sent: 0, reused: 0 }
+let lane = Promise.resolve()
+const oneAtATime = job => { const p = lane.then(job); lane = p.catch(() => {}).then(() => sleep(300)); return p }
 async function fromData({ requestId, request }) {
   const u = new URL(request.url)
+  const key = `${request.method} ${u.pathname}${u.search} ${request.postData ?? ''}`
+  let answer = answers.get(key)
+  if (answer) api.reused++
+  else {
+    answer = oneAtATime(async () => {
+      api.sent++
+      const r = await fetch(DATA + u.pathname + u.search, { method: request.method, headers: { 'content-type': 'application/json' }, body: request.postData })
+      if (!r.ok) throw new Error(String(r.status))
+      return { type: r.headers.get('content-type') ?? 'application/json', body: Buffer.from(await r.arrayBuffer()).toString('base64') }
+    })
+    answers.set(key, answer)
+  }
   try {
-    const r = await fetch(DATA + u.pathname + u.search, { method: request.method, headers: { 'content-type': 'application/json' }, body: request.postData })
-    if (!r.ok) throw new Error(String(r.status))
-    const body = Buffer.from(await r.arrayBuffer()).toString('base64')
-    await send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: r.headers.get('content-type') ?? 'application/json' }], body })
+    const { type, body } = await answer
+    await send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: type }], body })
   } catch (e) {
+    answers.delete(key)
     console.log(`DATA ${u.pathname}: ${e.message}, answered locally`)
     await send('Fetch.continueRequest', { requestId })
   }
@@ -230,6 +251,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
         try { await until(ready, 60000); break } catch (e) {
           const seen = await ev(`location.href + ' | ' + document.body.innerText.slice(0, 160).replace(/\\s+/g, ' ')`)
           console.log(`${l.lang} ${d.id} ${i + 1}: not ready (${seen})`)
+          answers.clear()
           if (attempt === 3) throw e
         }
       }

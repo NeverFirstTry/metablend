@@ -2,8 +2,11 @@
 # The morning store capture on a Mac, unattended: bash scripts/store-run.sh   (or: bash scripts/store-run.sh now)
 #  - keeps the Mac awake (caffeinate; plugged in, lid open) and waits until 08:17 Vienna time,
 #    unless it is already between 08:17 and 11:00 there, or "now" is given
-#  - builds, starts next on :3123 with SELF_BASE, and captures with the forecast data from production
-#    (DATA=https://metablend.app) and every check of scripts/store-shots.mjs: captions, 18+ sources,
+#  - builds, starts next on :3123 and captures with the forecast data from production, gently: the pages'
+#    own requests go to production (DATA=https://metablend.app), each answer asked for once per run and
+#    reused by every language and device, one request at a time; the server's render reads production's
+#    cached API too (SELF_BASE=https://metablend.app), so this Mac never calls the forecast providers.
+#    Every check of scripts/store-shots.mjs: captions, 18+ sources,
 #    no "No favourable …", caption lines, image sizes
 #  - screens 1 to 3 and the Play feature graphic first, then screens 4 and 5: the peaks right above
 #    Lienz, lowest first (Hochstein, Spitzkofel, Schleinitz, Hoher Prijakt, Petzeck), then Großglockner,
@@ -63,7 +66,7 @@ STARTED=$(vienna)
 # ── build and start the server ──
 log "building"
 npx next build >> "$LOG" 2>&1 || fail "next build failed (see $LOG)"
-SELF_BASE=http://localhost:3123 node node_modules/next/dist/bin/next start -p 3123 >> "$LOG" 2>&1 &
+SELF_BASE=https://metablend.app node node_modules/next/dist/bin/next start -p 3123 >> "$LOG" 2>&1 &
 SERVER=$!
 trap 'kill $SERVER 2>/dev/null' EXIT
 for _ in $(seq 1 60); do curl -s -o /dev/null http://localhost:3123/more && break; sleep 1; done
@@ -100,6 +103,8 @@ changed=$(git status --porcelain -- fastlane | grep -c '\.png')
   echo "screens 1-3 + feature graphic: $A"
   echo "screens 4 and 5: $B"
   echo "images changed under fastlane/: $changed (nothing committed)"
+  echo "requests to production per capture:"
+  grep 'production API:' "$LOG" | sed 's/^/  /'
   echo "errors in the log:"
   grep -E 'not ready|Error|shows "' "$LOG" | tail -8 | sed 's/^/  /'
   echo "log: $LOG"
