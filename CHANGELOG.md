@@ -17,6 +17,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Added — our own count of Open-Meteo requests
+- Every request to Open-Meteo is counted per UTC day and hour, weighted the way Open-Meteo counts API calls (one per request; more than 10 variables or more than two weeks count fractionally; every location and every model counted on its own, which their page leaves open). The error log gets an entry at 70 % and 90 % of the free tier’s 10,000 a day. Needs supabase/open-meteo-calls.sql on dev and production; rows are kept 90 days.
+
 ### Fixed — a blend thinned by Open-Meteo’s daily limit is kept 15 minutes
 - When Open-Meteo answers that its daily limit is used up, its sources stay away until midnight UTC, so a blend missing them keeps the full 15 minutes instead of the 2 minutes a thin blend otherwise gets; refetching every 2 minutes would only hit the limit again and load the other sources. The thin-blend log entry says when the limit was the cause.
 

@@ -164,6 +164,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   // the jobs' run log (lib/job-log.js): two weeks; the table may not exist yet either
   const jobRuns = await supabase.from('job_runs').delete().lt('started_at', new Date(Date.now() - 14 * 86_400_000).toISOString())
   if (jobRuns.error && jobRuns.error.code !== 'PGRST205') await logError('cleanup.job-runs', jobRuns.error)
+  // our Open-Meteo request count (lib/open-meteo.js): 90 days; the table may not exist yet either
+  const omCalls = await supabase.from('open_meteo_calls').delete().lt('day', new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10))
+  if (omCalls.error && omCalls.error.code !== 'PGRST205') await logError('cleanup.open-meteo-calls', omCalls.error)
 
   let validation
   try {

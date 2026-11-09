@@ -17,6 +17,7 @@ export const SCHEMA_FILES = [
   'feedback-lessons.sql', // one weight lesson per city per half hour
   'station-errors.sql', // the weighting formula's shadow run
   'job-runs.sql', // one row per scheduled job run: status, duration, summary
+  'open-meteo-calls.sql', // our Open-Meteo request count per UTC day and hour
   'enable_rls.sql',
 ]
 
