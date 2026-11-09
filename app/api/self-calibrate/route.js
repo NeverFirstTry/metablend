@@ -5,8 +5,8 @@ import { applyDeltas } from '@/lib/weights'
 import { localDateForLon } from '@/lib/localtime'
 import {
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway,
-  fetchVisualCrossing, modelSource, MORE_MODELS, fetchPirateWeather,
-  fetchNWS, fetchBrightSky, fetchSMHI,
+  fetchVisualCrossing, fetchMeteoFrance, modelSource, MORE_MODELS, fetchPirateWeather,
+  fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
 } from '@/lib/weather'
 
 // Admin-only: rebalances API weights immediately by scoring every source
@@ -23,7 +23,11 @@ const FETCHERS = {
   weatherapi: fetchWeatherAPI,
   'met-norway': fetchMETNorway,
   'visual-crossing': fetchVisualCrossing,
-  // regional sources (null outside coverage); the model feeds, ECMWF, GFS, ICON and Météo-France among them, come with MORE_MODELS below
+  // keyless model feeds + regional sources (regionals return null outside coverage)
+  ecmwf: fetchECMWF,
+  gfs: fetchGFS,
+  icon: fetchICON,
+  meteofrance: fetchMeteoFrance,
   nws: fetchNWS,
   brightsky: fetchBrightSky,
   smhi: fetchSMHI,

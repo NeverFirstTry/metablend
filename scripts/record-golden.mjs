@@ -15,8 +15,6 @@ import { GOLDEN_DIR, callKey, isWrite, requestOf, loadRoute, replay } from '../l
 
 const env = parseEnv(fs.readFileSync('.env.local', 'utf8'))
 for (const [k, v] of Object.entries(env)) process.env[k] ??= v
-// after the env: the database client reads its URL when lib/weather.js first loads
-const { MORE_MODELS } = await import('../lib/weather.js')
 const args = process.argv.slice(2).filter(a => !a.startsWith('--'))
 const city = args[0] ?? 'lienz', lang = args[1] ?? 'en'
 const dir = path.join(GOLDEN_DIR, `${city}-${lang}`)
@@ -54,10 +52,6 @@ const { GET } = await loadRoute()
 const res = await GET(new Request(`https://metablend.app/api/forecast?city=${encodeURIComponent(city)}&lang=${lang}`, { headers: { 'x-forwarded-for': '203.0.113.9' } }))
 const live = await res.json()
 if (res.status !== 200) throw new Error(`forecast answered ${res.status}: ${JSON.stringify(live).slice(0, 200)}`)
-// the request shape a fold of the four single-model sources into the multi-model request would ask,
-// recorded at the same moment, so the golden test can show what the fold changes
-const FOLDED = [...MORE_MODELS.map(m => m[1]), 'ecmwf_ifs025', 'gfs_seamless', 'icon_seamless', 'meteofrance_seamless']
-await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${live.lat}&longitude=${live.lon}&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code&models=${FOLDED.join(',')}&forecast_hours=1&timezone=GMT`)
 globalThis.fetch = real
 
 fs.writeFileSync(path.join(dir, 'manifest.json'), JSON.stringify({ city, lang, now, keys: KEYS, calls }, null, 2) + '\n')
