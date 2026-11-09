@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-09
 
 ### Added: a support page
-- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, no safety guarantee) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
+- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, relying on it alone in the mountains) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
 - The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
 
 ### Store listing
