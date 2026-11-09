@@ -19,7 +19,7 @@ import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { cityName } from '@/lib/city-names'
-import { startCity, isAppView, deepLinkCity, typedLink } from '@/lib/app-client'
+import { startCity, isAppView, deepLinkCity, firstLoad } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
@@ -297,20 +297,20 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     // per-city SEO pages and the RSS feed links).
     // Inside the app the Forecast tab reloads the page, so it brings back the
     // last city looked at.
-    const deepLink = deepLinkCity(window.location.search)
     if (resume.restore) {
       // the last screen is already showing (state initializers); refresh it quietly when due
       if (resume.refresh) loadForecast(SESSION.city, { silent: true, lang: detectedLang })
     } else {
-      const first = resume.load ?? startCity({
-        deepLink,
+      // which place, and whether it goes into Recent (lib/app-client.js, tested there)
+      const { city: first, remember } = firstLoad({
+        search: window.location.search,
+        resumed: resume.load,
         last: (() => { try { return sessionStorage.getItem(LAST_KEY) } catch { return null } })(),
         recent: getRecent(),
       })
       if (first) {
         setCity(askName(nameMap(), first, detectedLang))
-        // a link or the start city stays out of Recent; a place typed into the error screen's search goes in
-        loadForecast(first, { lang: detectedLang, remember: first === deepLink && typedLink(window.location.search) })
+        loadForecast(first, { lang: detectedLang, remember })
       } else delete document.documentElement.dataset.returning
     }
     /* eslint-enable react-hooks/set-state-in-effect */
