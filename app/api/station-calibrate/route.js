@@ -1,3 +1,4 @@
+import { openMeteoFetch } from '@/lib/open-meteo'
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
@@ -82,7 +83,7 @@ async function saveShadow(cities, forecasts, observations, since) {
   await Promise.all(SUMMITS.filter(s => temps.has(s.station)).map(async s => {
     // temperature only, one day: the app's summit request is far bigger than this needs
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&elevation=${s.elev}&hourly=temperature_2m&models=${OM_MODELS.map(m => m.model).join(',')}&forecast_days=1&timezone=auto`
-    const answer = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+    const answer = await openMeteoFetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
     const parsed = answer?.ok ? parseSummitMulti(await answer.json().catch(() => null)) : null // one bad body costs one summit, not the hour
     if (!parsed) return
     const actual = temps.get(s.station)

@@ -21,6 +21,7 @@ import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
 import { blendTtl, freshCopy, FULL_TTL } from '@/lib/forecast-cache'
+import { dailyLimited } from '@/lib/open-meteo'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -123,9 +124,11 @@ export const GET = withErrorLog('forecast', async (request) => {
     .map(t => ({ apiId: t.id, displayName: sourceName(t.id), down: true, responseMs: t.ms }))
 
   if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
-  const ttl = blendTtl(timed, models) // a thin blend is kept 2 minutes, not 15
+  const limited = dailyLimited() // Open-Meteo's daily limit: its sources stay away until midnight UTC
+  const ttl = blendTtl(timed, models, limited) // a thin blend is kept 2 minutes, not 15, unless the limit is the cause
+  const failed = [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...(models.value == null ? ['open-meteo-models'] : [])]
   // logged (error_log, scope forecast.partial) so thin blends can be counted and checked the next day
-  if (ttl < FULL_TTL) logError('forecast.partial', new Error('thin blend'), { city: geo.name, failed: [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...(models.value == null ? ['open-meteo-models'] : [])] })
+  if (failed.length) logError('forecast.partial', new Error(limited ? 'thin blend, Open-Meteo daily limit' : 'thin blend'), { city: geo.name, failed, limited })
 
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
@@ -244,7 +247,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     yesterdayTemp: yesterdayTemp ?? null,
     warning,
     rainingNow,
-    partial: ttl < FULL_TTL, // a source that was asked gave nothing: fewer sources than usual
+    partial: failed.length > 0, // a source that was asked gave nothing: fewer sources than usual
     generatedAt: new Date().toISOString(),
   }
 
