@@ -20,6 +20,7 @@ import { sourceName, isRetired, covers, publicSources } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
+import { blendTtl, FULL_TTL } from '@/lib/forecast-cache'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -37,10 +38,11 @@ async function timedFetch(id, fn) {
 // time) is /api/outlook's job.
 //
 // Two cache layers: Vercel's CDN (shared by every visitor of a city, the one
-// that actually saves upstream quota) and a 15-min in-memory copy per warm
-// instance as a second line. Errors are never cached.
+// that actually saves upstream quota) and an in-memory copy per warm instance
+// as a second line; a copy lives 15 minutes, a thin one (a source failed) 2
+// (lib/forecast-cache.js). Errors are never cached.
 const CACHE = new Map()
-const CACHE_TTL = 15 * 60 * 1000
+const CACHE_TTL = FULL_TTL
 const cacheKey = (city, lang, near) => `${city.trim().toLowerCase()}|${lang}|${near ? `${near.lat},${near.lon}` : ''}`
 const cdnHeaders = ttlSec => ({ 'Cache-Control': `public, s-maxage=${ttlSec}, stale-while-revalidate=${ttlSec * 2}` })
 
@@ -66,8 +68,8 @@ export const GET = withErrorLog('forecast', async (request) => {
   const key = cacheKey(city, lang, near)
   const cached = CACHE.get(key)
   const age = cached ? Date.now() - cached.ts : Infinity
-  if (age < CACHE_TTL) {
-    return Response.json({ ...cached.payload, cached: true }, { headers: cdnHeaders(Math.max(1, Math.round((CACHE_TTL - age) / 1000))) })
+  if (age < cached.ttl) {
+    return Response.json({ ...cached.payload, cached: true }, { headers: cdnHeaders(Math.max(1, Math.round((cached.ttl - age) / 1000))) })
   }
 
   // Cache miss → this request will hit the metered upstream APIs, so throttle.
@@ -125,6 +127,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     .map(t => ({ apiId: t.id, displayName: sourceName(t.id), down: true, responseMs: t.ms }))
 
   if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
+  const ttl = blendTtl(timed, models) // a thin blend is kept 2 minutes, not 15
 
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
@@ -243,11 +246,12 @@ export const GET = withErrorLog('forecast', async (request) => {
     yesterdayTemp: yesterdayTemp ?? null,
     warning,
     rainingNow,
+    partial: ttl < FULL_TTL, // a source that was asked gave nothing: fewer sources than usual
     generatedAt: new Date().toISOString(),
   }
 
   // expired copies go once the map grows (a warm instance lives for hours)
-  if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= CACHE_TTL) CACHE.delete(k)
-  CACHE.set(key, { ts: Date.now(), payload })
-  return Response.json(payload, { headers: cdnHeaders(CACHE_TTL / 1000) })
+  if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= v.ttl) CACHE.delete(k)
+  CACHE.set(key, { ts: Date.now(), payload, ttl })
+  return Response.json(payload, { headers: cdnHeaders(ttl / 1000) })
 })
