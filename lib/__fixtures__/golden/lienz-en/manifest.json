@@ -1,0 +1,132 @@
+{
+  "city": "lienz",
+  "lang": "en",
+  "now": "2026-11-09T17:59:48.309Z",
+  "keys": [
+    "OPENWEATHERMAP_API_KEY",
+    "WEATHERAPI_KEY",
+    "VISUAL_CROSSING_KEY"
+  ],
+  "calls": [
+    {
+      "key": "POST https://proj.supabase.co/rest/v1/rpc/town_lookup {\"q\":\"lienz\",\"lim\":20}",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "00-proj-rest-v1-rpc-town-lookup.json"
+    },
+    {
+      "key": "GET https://api.weatherapi.com/v1/current.json?key=x&q=46.8289%2C12.76903&lang=en",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "03-api-v1-current-json.json"
+    },
+    {
+      "key": "GET https://api.openweathermap.org/data/2.5/weather?lat=46.8289&lon=12.76903&appid=x&units=metric",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "02-api-data-2-5-weather.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=temperature_2m,apparent_temperature,precipitation_probability,windspeed_10m,weathercode&timezone=auto",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "01-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=temperature_2m,apparent_temperature,precipitation_probability,windspeed_10m,weathercode&models=gfs_seamless",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "08-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=temperature_2m,apparent_temperature,precipitation_probability,windspeed_10m,weathercode&models=ecmwf_ifs025",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "07-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://air-quality-api.open-meteo.com/v1/air-quality?latitude=46.8289&longitude=12.76903&current=european_aqi,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,olive_pollen,ragweed_pollen&timezone=auto",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "13-air-quality-api-v1-air-quality.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=temperature_2m,apparent_temperature,precipitation_probability,windspeed_10m,weathercode&models=icon_seamless",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "09-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=46.8289&lon=12.769",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "04-api-weatherapi-locationforecast-2-0-compact.json"
+    },
+    {
+      "key": "GET https://archive-api.open-meteo.com/v1/archive?latitude=46.8289&longitude=12.76903&start_date=2026-11-08&end_date=2026-11-08&daily=temperature_2m_max,temperature_2m_min&timezone=auto",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "15-archive-api-v1-archive.json"
+    },
+    {
+      "key": "GET https://proj.supabase.co/rest/v1/geocode_cache?select=results%2Cfetched_at&key=eq.get%3A2772505&limit=1",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "16-proj-rest-v1-geocode-cache.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=temperature_2m,apparent_temperature,precipitation_probability,windspeed_10m,weathercode&models=meteofrance_seamless",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "10-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://dataset.api.hub.geosphere.at/v1/timeseries/historical/inca-v2-1h-1km?parameters=2t,tp,10u,10v&start=2026-11-09T14:00&end=2026-11-09T17:00&lat_lon=46.8289,12.7690",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "06-dataset-v1-timeseries-historical-inca-v2-1h-1km.json"
+    },
+    {
+      "key": "GET https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/46.8289,12.76903/today?unitGroup=metric&key=x&contentType=json&include=current",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "05-weather-visualcrossingwebservices-rest-services-timeline-46-8289-12-76903-today.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=snowfall,visibility,cloudcover,soil_temperature_0cm,precipitation&timezone=auto",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "14-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code&models=ukmo_seamless,gem_seamless,jma_seamless,cma_grapes_global,ecmwf_aifs025_single,meteoswiss_icon_ch1,italia_meteo_arpae_icon_2i,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe,ncep_nbm_conus&forecast_hours=1&timezone=GMT",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "11-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&current=uv_index&daily=uv_index_max&timezone=auto&forecast_days=1",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "12-api-v1-forecast.json"
+    },
+    {
+      "key": "GET https://proj.supabase.co/rest/v1/api_weights?select=id%2Cweight%2Cdelta_history&region=eq.europe",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "27-proj-rest-v1-api-weights.json"
+    },
+    {
+      "key": "GET https://proj.supabase.co/rest/v1/city_bias?select=temp_bias%2Csamples%2Ctemp_bias_night%2Csamples_night&city=ilike.Lienz&limit=1",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "28-proj-rest-v1-city-bias.json"
+    },
+    {
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code&models=ukmo_seamless,gem_seamless,jma_seamless,cma_grapes_global,ecmwf_aifs025_single,meteoswiss_icon_ch1,italia_meteo_arpae_icon_2i,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe,ncep_nbm_conus,ecmwf_ifs025,gfs_seamless,icon_seamless,meteofrance_seamless&forecast_hours=1&timezone=GMT",
+      "status": 200,
+      "contentType": "application/json",
+      "file": "32-api-v1-forecast.json"
+    }
+  ]
+}
