@@ -17,6 +17,12 @@ test('project settings — no encryption question, iPhone only, release signing 
   for (const p of ['keystore.properties', '*.jks', '*.keystore']) assert.ok(ignore.split(/\r?\n/).includes(p), p)
 })
 
+test('iPhone only — no iPad keys in any Info.plist, and the store screenshots are iPhone and Android phones only', () => {
+  for (const p of ['mobile/ios/App/App/Info.plist', 'mobile/ios/App/MetaBlendWidgets/Info.plist']) assert.doesNotMatch(read(p), /~ipad|UIRequiresFullScreen|UIDeviceFamily/i, p)
+  const devices = [...read('scripts/store-shots.mjs').matchAll(/\{ id: '(\w+)', w: (\d+), h: (\d+), scale: (\d+)/g)].map(m => m.slice(1).join(' '))
+  assert.deepEqual(devices, ['ios 430 932 3', 'android 360 640 3']) // 1290×2796 (the 6.9" set) and 1080×1920
+})
+
 test('compliance sheet — every store form has its answers', () => {
   const md = read('store/compliance.md')
   for (const h of ['## App Store — App Privacy', '## Google Play — Data safety', '## Content rating', '## Export compliance', '## Target audience', '## Ads', '## App access']) assert.ok(md.includes(h), h)

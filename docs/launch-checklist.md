@@ -90,6 +90,7 @@ The pages load live, so web changes reach the apps at once. These native parts a
 - iPhone: swipe from the left edge goes back (`34729a2`).
 - Android: the home-screen widget's light colours follow the new palette (`69363a5`).
 - Android: the notification tint and the Retry button on the no-connection page in gold (`8439450`).
+- iPhone only, finished: the last iPad key (`UISupportedInterfaceOrientations~ipad`) is gone from `App/Info.plist`; the app and the widget extension were already `TARGETED_DEVICE_FAMILY = 1` in Debug and Release. iPads run the iPhone version; no iPad screenshots. Check the archive's `UIDeviceFamily` is `[1]`.
 - Both: app launch background Slate #0f151b, matching dark mode (`mobile/capacitor.config.json`, `mobile/www/index.html`; needs `npx cap sync`).
 - iPhone: Release builds sign with `aps-environment` production (`mobile/ios/App/App/AppRelease.entitlements`, set in the project's Release configuration); Debug keeps development. Check the archive's entitlements once in Xcode's organizer.
 

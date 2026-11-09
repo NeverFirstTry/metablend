@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-09
 
+### iPhone app (next native build)
+- iPhone only, finished: the last iPad setting (the iPad's screen orientations) is gone from the app's Info.plist; the app and its widgets were already iPhone-only. iPads run the iPhone version. A project test keeps it so: no iPad keys in any Info.plist, and store screenshots for iPhone and Android phones only.
+
 ### Tests
 - Recent places: the home page's first load decides in one tested helper which place goes into Recent (a place typed into the error screen's search, never a link, the start city or a resumed load); the test renders the error screen's form instead of reading its source, and fails if the decision or the form's mark breaks.
 - New guard (`lib/source-match.test.js`): a test may not check an app/ code line only by its source text. It flags tests that read an app/ file and match its text while rendering, calling or requesting nothing from app/; bans (text that must not appear) don't count, and an opt-out comment must give a reason. 18 existing tests flagged: one fixed with a render (the tile's classes), 17 opted out with their reasons, plus the Recent test above.
