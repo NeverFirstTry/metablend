@@ -19,6 +19,7 @@ export const SCHEMA_FILES = [
   'job-runs.sql', // one row per scheduled job run: status, duration, summary
   'open-meteo-calls.sql', // our Open-Meteo request count per UTC day and hour
   'geocode-cache.sql', // town_lookup over our towns, and Open-Meteo's geocoding answers for 30 days
+  'town-near.sql', // the town at a rounded position, for "My location"
   'enable_rls.sql',
 ]
 

@@ -13,6 +13,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // third-party files served as they were published (Leaflet)
+    "public/vendor/**",
     // native projects: Gradle / Xcode output and the shell's own dependencies
     "mobile/**/build/**",
     "mobile/node_modules/**",

@@ -6,11 +6,13 @@ when one changes, change the other.
 
 Facts behind every answer:
 - No accounts, no sign-up, no ads, no in-app purchases, no tracking across apps or sites.
-- Location: the phone's position never leaves the phone except (a) "Near me" peak
-  search, rounded to about 10 km, (b) "my location" for a city name, sent from
-  the phone straight to BigDataCloud for that lookup, and (c) "my location" sends
-  our server the position rounded to about 10 km, to pick the right town with
-  that name. Nothing precise is stored.
+- Location: the phone's exact position never leaves the phone. Only rounded
+  positions go to our own server: (a) "Near me" peak search, rounded to about
+  10 km, and the list of summits near you, to about 5 km, (b) "my location",
+  rounded to about 10 km: our server names the town from its own list and picks
+  the right town of that name (where the list has none nearby, the server asks
+  OpenStreetMap's Nominatim with the same rounded position). Nothing precise is
+  collected, shared or stored.
 - Push notifications (opt-in): push token, a hash of a random app key, home city,
   alert choices, briefing hour, planned peaks/dates/routes, language, unit, 14-day send log.
 - Weather feedback (opt-in): city, temperature, condition, date, the city's map coordinates.
@@ -25,12 +27,12 @@ Facts behind every answer:
 - **Data linked to you:**
   - Contact Info → **Email Address** — purpose: App Functionality (the Android tester sign-up on /testers, only if you fill the form in; deleted when the closed test ends).
 - **Data not linked to you:**
-  - Location → **Coarse Location** — purpose: App Functionality (peak search near you and the right town for "my location", rounded to ~10 km).
+  - Location → **Coarse Location** — purpose: App Functionality (peak search near you and the town for "my location", rounded to ~5–10 km).
   - Identifiers → **Device ID** — purpose: App Functionality (push token, only when notifications are on).
   - User Content → **Other User Content** — purpose: App Functionality (weather feedback: city, temperature, condition).
   - Usage Data → **Product Interaction** — purpose: Analytics (Plausible and Vercel Web Analytics, cookieless, aggregate counts).
   - Diagnostics → **Performance Data** — purpose: Analytics (Vercel Speed Insights, anonymous load times).
-- **Precise Location:** not collected (the reverse-geocoding call goes from the phone to BigDataCloud; nothing is stored).
+- **Precise Location:** not collected (the position is rounded on the phone before anything is sent).
 - **Privacy Policy URL:** https://metablend.app/privacy
 
 ## Google Play — Store settings
@@ -48,12 +50,11 @@ Grow users → Store presence → Store settings.
 - Users can request deletion? **Yes** (email info@metablend.app; turning notifications off deletes the push record)
 - Accounts? **None**
 
-**Step 3 — Data types:** tick these seven, nothing else.
+**Step 3 — Data types:** tick these six, nothing else (Precise location is no longer ticked since "my location" asks our own server with a rounded position; untick it in the form once that version is live).
 
 | Type | What it is | Purpose | Ephemeral |
 |---|---|---|---|
-| Location → Approximate location | Near you, peak search, the right town for "my location" (~5–10 km) | App functionality | Yes |
-| Location → Precise location | "My location" → BigDataCloud city lookup | App functionality | Yes |
+| Location → Approximate location | Near you, peak search, the town for "my location" (~5–10 km) | App functionality | Yes |
 | Personal info → Email address | Android tester sign-up on /testers (optional form) | App functionality | No |
 | Device or other IDs | Push token | App functionality | No |
 | App activity → App interactions | Plausible and Vercel Web Analytics page counts | Analytics | No |

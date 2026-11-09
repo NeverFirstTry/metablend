@@ -47,6 +47,8 @@ Google's production review has no fixed length and can come back with questions,
 | Run `supabase/open-meteo-calls.sql` on dev, then production | Needs you | Our Open-Meteo request count per UTC day and hour, weighted their way; error-log entries (scope open-meteo.quota) at 70 % and 90 % of the free tier's 10,000 a day; until it exists the count is skipped silently |
 | Run `supabase/job-runs.sql` on dev, then production | Needs you | The jobs' run log (status, duration, summary per run of cleanup, calibrate, push dispatch, warnings refresh, station calibration); until it exists the routes skip the write silently |
 | Run `supabase/feedback-lessons.sql` on dev, then production | Needs you | The regional feedback cap; `enable_rls.sql` ran on both on 2026-11-08 |
+| Run `supabase/town-near.sql` on dev, then production, before the "my location" change is merged | Needs you | The town at a rounded position, for "my location" without BigDataCloud; merge only after it ran (until then every lookup would go to Nominatim) |
+| Google Play Data safety: untick "Precise location" | Needs you | Once "my location" asks our own server (branch `legal/privacy-location`) is live; `store/compliance.md` lists the six types that stay |
 
 ## Android production
 

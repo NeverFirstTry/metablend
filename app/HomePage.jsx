@@ -14,7 +14,7 @@ import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateConditi
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
-import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
+import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -600,12 +600,11 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       : await new Promise(resolve => navigator.geolocation.getCurrentPosition(p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }), () => resolve(null)))
     if (!pos) { setError(t(lang, 'locationUnavailable')); setLocating(false); return }
     try {
-      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=${lang}`)
-      const geo = await res.json()
-      const name = geo.city || geo.locality || geo.principalSubdivision
-      if (!name) throw new Error('no place name')
-      setCity(name)
-      await loadForecast(name, { near: nearParam(pos.lat, pos.lon) })
+      // our own server names the place, from the position rounded to about 10 km: the exact one stays on the device (lib/geo.js)
+      const place = await placeAt(pos, lang)
+      if (!place) throw new Error('no place name')
+      setCity(place.name)
+      await loadForecast(place.name, { near: place.near })
     } catch {
       setError(t(lang, 'locationNotDetected')) // the reverse lookup failed or found no place
     } finally {
