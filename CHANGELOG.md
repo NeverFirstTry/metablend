@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-09
 
+### Reliability: the Open-Meteo counter and the geocoder's own data
+- The Open-Meteo request counter never holds up a forecast: it was already fire-and-forget, and now it also gives up after 1.5 seconds.
+- A database function or table whose SQL hasn't been run yet (the counter's, the town lookup, the geocode cache) is logged once per server instance instead of being ignored; the forecast and city search carry on as before.
+- Tests: the forecast route with the counter hanging, the counter function missing and the geocoder's helpers missing; each answers 200 in normal time.
+
 ### iPhone app (next native build)
 - iPhone only, finished: the last iPad setting (the iPad's screen orientations) is gone from the app's Info.plist; the app and its widgets were already iPhone-only. iPads run the iPhone version. A project test keeps it so: no iPad keys in any Info.plist, and store screenshots for iPhone and Android phones only.
 
