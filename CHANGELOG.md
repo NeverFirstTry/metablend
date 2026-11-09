@@ -11,6 +11,9 @@ All notable changes to MetaBlend. Format loosely follows
 - /privacy: WeatherAPI named as a processor for the coordinates we send (data processing agreement signed 2026-11-09, Art. 28 GDPR) — German first, all 13 languages, add-only.
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 
+### Changed — wording
+- No em or en dashes in the app’s and website’s texts any more, in all 13 languages: a sentence dash is now a full stop or a comma, a time range a plain hyphen. A test keeps every language pack that way.
+
 ## 2026-11-08
 
 ### Changed — the moon in lavender

@@ -23,7 +23,7 @@ These stand for every design task; the owner should not have to repeat them. Re-
 - **Colour:** gold is the only accent. Green is for status only.
 - **Website and app:** 13 px minimum, whole degrees, no countdowns.
 - **Cards:** no nested cards.
-- **Wording:** no "safe" or "sicher". All user-facing text as i18n keys in all 13 languages.
+- **Wording:** no "safe" or "sicher". No em or en dashes in UI copy: full stops and commas, a plain hyphen for ranges (`lib/wording.test.js`). All user-facing text as i18n keys in all 13 languages.
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
 - **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go.
   - Run `scripts/check-phone-layout.mjs` (also enforced in CI).
