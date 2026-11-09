@@ -52,6 +52,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then(data => (data?.unavailable ? Promise.reject(new Error('unavailable')) : data)) // the retry card, as for an error
       .then(data => {
         SEEN.delete(url); SEEN.set(url, { at: Date.now(), data })
         if (SEEN.size > 30) SEEN.delete(SEEN.keys().next().value)

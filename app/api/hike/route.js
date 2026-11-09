@@ -32,7 +32,9 @@ export const GET = withErrorLog('hike', async (request) => {
   // the grade of a listed summit sets how much daylight its descent keeps; the request has only coordinates
   const listed = featured.find(p => Math.round(p.lat * 1e3) / 1e3 === peak.lat && Math.round(p.lon * 1e3) / 1e3 === peak.lon)
   const payload = buildHike({ peak: { ...peak, grade: listed?.grade }, region, multi, weights })
-  if (!payload.hourly.length) return noStore({ error: 'Summit forecast unavailable right now — please try again shortly.' }, 502)
+  // Open-Meteo refused or dropped every request: say so with 200, never cached, so the peak view shows
+  // its retry card instead of a server error; the summit pages, push dispatch and the widget treat it as missing
+  if (!payload.hourly.length) return noStore({ ...payload, unavailable: true }, 200)
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` },

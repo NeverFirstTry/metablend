@@ -12,6 +12,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Fixed — summit forecasts when Open-Meteo is busy
+- When Open-Meteo refuses a summit request with "Too many concurrent requests", the request waits a moment and tries again instead of giving up; the three-model fallback gets the same second try. If nothing comes back at all, the summit API no longer answers with a server error: the peak page shows its retry card, the summit pages are regenerated on the next visit, no plan notification goes out, and the widget says the forecast is unavailable. Until now every such moment was a 502.
+
 ### Changed — the beta banner is gone
 - The amber "work in progress, early beta" banner on Rankings, Heatmap and Planner, and the matching line on the home page, are replaced by one calm sentence in all 13 languages: forecasts can be wrong, do not rely on them alone for safety-critical decisions. No beta wording anywhere in it.
 
