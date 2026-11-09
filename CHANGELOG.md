@@ -7,7 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Tests
 - Recent places: the home page's first load decides in one tested helper which place goes into Recent (a place typed into the error screen's search, never a link, the start city or a resumed load); the test renders the error screen's form instead of reading its source, and fails if the decision or the form's mark breaks.
-- New guard (`lib/source-match.test.js`): a test may not check an app/ code line only by its source text. It flags tests that read an app/ file and match its text while rendering, calling or requesting nothing from app/; bans (text that must not appear) don't count, and an opt-out comment must give a reason. 17 existing tests flagged: one fixed with a render (the tile's classes), 16 opted out with their reasons, plus the Recent test above.
+- New guard (`lib/source-match.test.js`): a test may not check an app/ code line only by its source text. It flags tests that read an app/ file and match its text while rendering, calling or requesting nothing from app/; bans (text that must not appear) don't count, and an opt-out comment must give a reason. 18 existing tests flagged: one fixed with a render (the tile's classes), 17 opted out with their reasons, plus the Recent test above.
 
 ### Legal and privacy
 - /privacy: the ImprovMX sentence names the standard contractual clauses of its data processing agreement (version of 9 September 2026 with Annexes I–III, countersigned by both sides on 2026-11-09) and says that ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days — German first, all 13 languages, add-only.
