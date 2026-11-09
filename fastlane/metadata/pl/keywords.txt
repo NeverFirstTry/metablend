@@ -1,1 +1,1 @@
-pogoda,prognoza,konsensus,góry,wędrówki,szczyt,radar,deszcz,ostrzeżenia,widżet,ECMWF,alpy
+pogoda,prognoza,radar,deszcz,wiatr,śnieg,burza,ostrzeżenia,widżet,góry,wędrówki,szczyt,alpy,lawiny

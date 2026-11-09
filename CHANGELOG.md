@@ -6,6 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-09
 
 ### Store listing
+- App Store keywords rewritten in all 12 languages (live with the next upload): no words the name or subtitle already carry, no "consensus" or ECMWF; rain radar, mountain weather, storms, avalanches and routes instead, each within 100 characters.
 - App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
 - New store test: no store text or screenshot caption names an old source count (16 or 26; production has up to 20). The subtitles already say "up to 20" in all 12 App Store languages and stay within 30 characters (existing limits test); support and marketing URLs stay https://metablend.app.
 

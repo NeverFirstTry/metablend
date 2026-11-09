@@ -1,1 +1,1 @@
-meteo,previsioni,consenso,montagna,escursionismo,vetta,radar,pioggia,avvisi,widget,ECMWF,alpi
+previsioni,tempo,radar,pioggia,vento,neve,temporale,widget,montagna,escursioni,vetta,alpi,valanghe
