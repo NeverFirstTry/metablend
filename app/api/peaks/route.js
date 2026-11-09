@@ -30,7 +30,7 @@ const AROUND_KM = 25
 
 export const GET = withErrorLog('peaks', async (request) => {
   const query = parseSearchQuery(new URL(request.url).searchParams)
-  if (!query) return noStore({ error: 'Search needs 2–80 characters.' }, 400)
+  if (!query) return noStore({ error: 'Search needs 2-80 characters.' }, 400)
   const ip = clientIp(request)
   if (limiter.limited(ip) || (query.full && sentLimiter.limited(ip))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 

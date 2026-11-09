@@ -32,7 +32,7 @@ export default function AvalancheCard({ lat, lon, lang }) {
             <span className="w-20 shrink-0 text-zinc-400">{t(lang, key)}</span>
             <span aria-hidden className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded font-bold text-xs"
               style={{ background: AVA_COLORS[level], color: level === 5 ? '#fff' : '#111' }}>{level}</span>
-            <span className="min-w-0 font-medium"><span className="sr-only">{level} – </span>{t(lang, `avaLevel${level}`)}</span>
+            <span className="min-w-0 font-medium"><span className="sr-only">{level}: </span>{t(lang, `avaLevel${level}`)}</span>
           </li>
         ))}
       </ul>

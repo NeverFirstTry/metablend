@@ -119,7 +119,7 @@ export default function Heatmap() {
         {/* legend dots keep the marker hexes — they must match the map pins */}
         <div className="flex gap-4 mt-4 text-xs text-zinc-400 flex-wrap">
           <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#34d399' }} /> {t(lang, 'hmAccurate')} (≥70%)</span>
-          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#fbbf24' }} /> {t(lang, 'hmMixed')} (40–70%)</span>
+          <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#fbbf24' }} /> {t(lang, 'hmMixed')} (40-70%)</span>
           <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#f87171' }} /> {t(lang, 'hmOff')} (&lt;40%)</span>
           <span className="flex items-center gap-2"><span className="w-3 h-3 rounded-full inline-block" style={{ background: '#71717a' }} /> {t(lang, 'hmUnknown')}</span>
         </div>

@@ -20,7 +20,7 @@ export default function RouteProfile({ points, stages }) {
   })
   const area = `${line}L${x(dist[last]).toFixed(1)},${H - B}L${x(dist[first]).toFixed(1)},${H - B}Z`
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={`${Math.round(min)}–${Math.round(max)} m, ${(total / 1000).toFixed(1)} km`}>
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-auto" role="img" aria-label={`${Math.round(min)}-${Math.round(max)} m, ${(total / 1000).toFixed(1)} km`}>
       <path d={area} fill="var(--accent)" opacity="0.15" />
       <path d={line} fill="none" stroke="var(--accent)" strokeWidth="2" />
       <text x={L - 6} y={y(max) + 4} textAnchor="end" fontSize="10" fill="var(--muted)">{Math.round(max)}</text>

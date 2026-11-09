@@ -18,7 +18,7 @@ export default function SummitDays({ days, todayLocal, lang, fmt }) {
             {/* two short lines: side by side they never fitted a phone row */}
             <span className="flex-1 min-w-0 flex flex-col gap-0.5 text-zinc-400 text-xs tabular-nums @max-[19rem]:basis-full @max-[19rem]:order-last @max-[19rem]:flex-row @max-[19rem]:flex-wrap @max-[19rem]:gap-x-3">
               <span>{d.windMax != null ? <Valued kind="wind">{d.windMax} km/h</Valued> : '–'}</span>
-              <span>{d.freezingMin != null ? <Valued kind="freezing">{d.freezingMin}–{d.freezingMax} m</Valued> : '–'}</span>
+              <span>{d.freezingMin != null ? <Valued kind="freezing">{d.freezingMin}-{d.freezingMax} m</Valued> : '–'}</span>
             </span>
             <StormBar storm={d.storm} compact lang={lang} className="shrink-0" />
           </div>

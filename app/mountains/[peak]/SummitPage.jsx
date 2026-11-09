@@ -56,7 +56,7 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
                 <li key={label} className="flex flex-wrap items-center gap-x-3 gap-y-1">
                   <span className="w-20 text-zinc-400">{label}</span>
                   <span aria-hidden className="inline-flex h-6 w-6 items-center justify-center rounded font-bold text-xs" style={{ background: AVA_COLORS[level], color: level === 5 ? '#fff' : '#111' }}>{level}</span>
-                  <span className="font-bold"><span className="sr-only">{level} – </span>{t(lang, `avaLevel${level}`)}</span>
+                  <span className="font-bold"><span className="sr-only">{level}: </span>{t(lang, `avaLevel${level}`)}</span>
                 </li>
               ))}
             </ul>
@@ -82,7 +82,7 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
                     <td role="cell" data-label={columns[0]} className="py-2 pr-4 tabular-nums">{fmt(x.tempMin)} / {fmt(x.tempMax)}</td>
                     <td role="cell" data-label={columns[1]} className="py-2 pr-4 tabular-nums">{x.windMax != null ? `${x.windMax} km/h` : '–'}</td>
                     <td role="cell" data-label={columns[2]} className="py-2 pr-4 tabular-nums">{x.rainPct != null ? `${x.rainPct}%` : '–'}</td>
-                    <td role="cell" data-label={columns[3]} className="py-2 pr-4 tabular-nums">{x.freezingMin != null ? `${x.freezingMin}–${x.freezingMax} m` : '–'}</td>
+                    <td role="cell" data-label={columns[3]} className="py-2 pr-4 tabular-nums">{x.freezingMin != null ? `${x.freezingMin}-${x.freezingMax} m` : '–'}</td>
                     <td role="cell" data-label={columns[4]} className="py-2">{x.storm ? t(lang, `storm${x.storm[0].toUpperCase()}${x.storm.slice(1)}`) : '–'}</td>
                   </tr>
                 ))}
