@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-09
 
+### Store listing
+- App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
+- New store test: no store text or screenshot caption names an old source count (16 or 26; production has up to 20). The subtitles already say "up to 20" in all 12 App Store languages and stay within 30 characters (existing limits test); support and marketing URLs stay https://metablend.app.
+
 ### iPhone app (next native build)
 - iPhone only, finished: the last iPad setting (the iPad's screen orientations) is gone from the app's Info.plist; the app and its widgets were already iPhone-only. iPads run the iPhone version. A project test keeps it so: no iPad keys in any Info.plist, and store screenshots for iPhone and Android phones only.
 
