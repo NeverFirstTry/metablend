@@ -1,15 +1,17 @@
 // The liability section of /terms. German is the legal original (the owner's
 // text, pinned word for word in lib/legal-pages.test.js); the others translate
-// it. Keep the meaning exact: the exclusion covers slight negligence only, "nur"
-// and "schuldhaft" stay clear in every language, neither the exclusion nor the
-// exception reads broader than the German, and 140 and 112 stay.
+// it. Keep the meaning exact: the exclusion covers slight negligence only, "leicht
+// fahrlässig", "Nicht ausgeschlossen" and "schuldhaft" stay clear in every language,
+// neither the exclusion nor the exception reads broader than the German (§ 6 Abs. 1
+// Z 9 KSchG), and 140 and 112, Austro Control and lawinen.report stay.
 export const DISCLAIMER = {
   de: {
     title: 'Haftungsausschluss',
     paragraphs: [
-      'MetaBlend fasst Wetterprognosen verschiedener öffentlicher Quellen automatisiert zusammen. Wetterprognosen sind naturgemäß unsicher. Die angezeigten Daten, Gipfelprognosen, Zeitfenster, Startzeiten und Warnungen sind unverbindliche Informationen ohne Gewähr für Richtigkeit, Vollständigkeit oder Aktualität. Datenquellen können ausfallen, verzögert oder fehlerhaft sein.',
-      'MetaBlend ersetzt keine amtlichen Wetter- und Lawinenwarnungen (z. B. GeoSphere Austria, Lawinenwarndienst Tirol), keine Flugwetterberatung und keine eigene Beurteilung der Verhältnisse vor Ort. Planung und Durchführung von Touren, Flügen und sonstigen Aktivitäten erfolgen in eigener Verantwortung. Brechen Sie eine Tour ab, wenn die Bedingungen vor Ort von der Prognose abweichen. Im Notfall: Bergrettung 140, Euronotruf 112.',
-      'Die Nutzung von MetaBlend ist kostenlos. Für Schäden, die aus der Nutzung oder Nichtverfügbarkeit der Informationen entstehen, haftet der Betreiber nicht, soweit sie leicht fahrlässig verursacht wurden. Eine Haftung besteht nur nach den gesetzlichen Bestimmungen, wenn ein Schaden vorsätzlich oder grob fahrlässig verursacht wurde oder wenn ein Schaden an Leben, Körper oder Gesundheit schuldhaft verursacht wurde.',
+      'MetaBlend fasst Wettervorhersagen verschiedener öffentlicher Quellen automatisiert zusammen. Vorhersagen sind Wahrscheinlichkeitsaussagen aus Wettermodellen und Messstationen und können danebenliegen. Die angezeigten Daten, Gipfelprognosen, Zeitfenster, Startzeiten und Warnungen sind unverbindliche Informationen ohne Gewähr für Richtigkeit, Vollständigkeit oder Aktualität. Datenquellen können ausfallen, verzögert oder fehlerhaft sein.',
+      'MetaBlend ist eine Planungshilfe. Es ersetzt keine amtlichen Warnungen (GeoSphere Austria und die nationalen Wetterdienste), keinen Lawinenlagebericht und keine eigene Beurteilung der Verhältnisse vor Ort. Planung und Durchführung von Touren und sonstigen Aktivitäten erfolgen in eigener Verantwortung. Brechen Sie eine Tour ab, wenn die Bedingungen vor Ort von der Vorhersage abweichen. Im Notfall: Bergrettung 140, Euronotruf 112.',
+      'Die Aviation-Seiten dienen nicht der Flugvorbereitung. Holen Sie vor jedem Flug das amtliche Flugwetter-Briefing ein, in Österreich bei Austro Control. Prüfen Sie im Winter vor jeder Gipfel- oder Routenplanung den Lawinenlagebericht Ihrer Region, für Tirol zum Beispiel lawinen.report.',
+      'Die Nutzung von MetaBlend ist kostenlos. Für Schäden aus der Nutzung oder Nichtverfügbarkeit der Informationen haftet der Betreiber nicht, soweit sie leicht fahrlässig verursacht wurden. Nicht ausgeschlossen ist die Haftung für Vorsatz und grobe Fahrlässigkeit sowie für schuldhaft verursachte Schäden an Leben, Körper oder Gesundheit (§ 6 Abs. 1 Z 9 KSchG). Eine ununterbrochene Verfügbarkeit des Dienstes wird nicht zugesagt.',
       'Für Inhalte externer Links und Datenquellen sind ausschließlich deren Betreiber verantwortlich.',
     ],
   },
