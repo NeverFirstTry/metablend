@@ -7,7 +7,7 @@ import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { tempFormatter } from '@/lib/outlook/text'
-import BetaBanner from '../components/BetaBanner'
+import Disclaimer from '../components/Disclaimer'
 import Footer from '../components/Footer'
 import SkyLoader from '../components/SkyLoader'
 
@@ -108,7 +108,7 @@ export default function Planner() {
           {t(lang, 'plSubtitle')}
         </p>
 
-        <BetaBanner lang={lang} className="mb-8" />
+        <Disclaimer lang={lang} className="mb-8" />
 
         <div className="flex gap-2 mb-10">
           <input

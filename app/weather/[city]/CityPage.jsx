@@ -67,7 +67,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
             <div><dt className={dt}>{t(lang, 'windLabel')}</dt><dd className="font-bold tabular-nums">{consensus.windKmh} km/h</dd></div>
             <div><dt className={dt}>{t(lang, 'cityAgreement')}</dt><dd className="font-bold tabular-nums">{consensus.confidencePct}%</dd></div>
             {outlook?.sun?.sunrise && (
-              <div><dt className={dt}>{t(lang, 'citySun')}</dt><dd className="font-bold tabular-nums">{outlook.sun.sunrise} – {outlook.sun.sunset}</dd></div>
+              <div><dt className={dt}>{t(lang, 'citySun')}</dt><dd className="font-bold tabular-nums">{outlook.sun.sunrise} - {outlook.sun.sunset}</dd></div>
             )}
           </dl>
           {(today || tomorrow) && (

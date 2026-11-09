@@ -38,7 +38,7 @@ export const GET = withErrorLog('app-widget', async (request) => {
   let body
   if (q.kind === 'hike') {
     const hike = await getJson(`${base}${hikeApiPath(q.peak)}`)
-    if (!hike.json) return noStore({ error: 'Summit forecast unavailable' }, 502)
+    if (!hike.json || hike.json.unavailable) return noStore({ error: 'Summit forecast unavailable' }, 502)
     body = hikePayload({ hike: hike.json, peak: q.peak, date: q.date, lang: q.lang, unit: q.unit })
     if (!body) return noStore({ error: 'No summit forecast for that day' }, 404)
   } else {

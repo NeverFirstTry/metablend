@@ -54,7 +54,7 @@ export const POST = withErrorLog('feedback', async (request) => {
     )
   }
 
-  // ── Sunny condition at night (21:00–06:00 local) ──────────────────────────
+  // ── Sunny condition at night (21:00-06:00 local) ──────────────────────────
   // Judged by the city's clock (estimated from its lon), not the server's UTC
   // clock — otherwise e.g. Sydney can't report sun for most of its day.
   if (isNightAt(lon) && SUNNY_CONDITIONS.has(actualCond)) {
@@ -125,7 +125,7 @@ export const POST = withErrorLog('feedback', async (request) => {
   if (insErr) await logError('feedback.insert', insErr, { city })
 
   if (!forecasts?.length) {
-    return Response.json({ message: 'Feedback saved – no forecasts to compare yet.' })
+    return Response.json({ message: 'Feedback saved. No forecasts to compare yet.' })
   }
 
   // ── One lesson per city per window ────────────────────────────────────────

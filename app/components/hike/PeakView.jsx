@@ -52,6 +52,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then(data => (data?.unavailable ? Promise.reject(new Error('unavailable')) : data)) // the retry card, as for an error
       .then(data => {
         SEEN.delete(url); SEEN.set(url, { at: Date.now(), data })
         if (SEEN.size > 30) SEEN.delete(SEEN.keys().next().value)
@@ -127,7 +128,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
           <TileGrid>
             {/* units in the sub-line: three cards side by side on a phone leave no room */}
             {winds.length > 0 && <MetricCard icon={Wind} label={t(lang, 'summitWind')} value={Math.max(...winds)} sub="km/h" />}
-            {fz.length > 0 && <MetricCard icon={Snowflake} label={t(lang, 'freezingLevel')} value={Math.min(...fz)} sub={`– ${Math.max(...fz)} m`} />}
+            {fz.length > 0 && <MetricCard icon={Snowflake} label={t(lang, 'freezingLevel')} value={Math.min(...fz)} sub={`- ${Math.max(...fz)} m`} />}
             {worst && <MetricCard icon={Zap} label={t(lang, 'stormRisk')} value={t(lang, `storm${worst[0].toUpperCase()}${worst.slice(1)}`)} color={STORM_COLOR[worst]} />}
           </TileGrid>
         </>

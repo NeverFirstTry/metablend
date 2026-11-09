@@ -34,14 +34,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, air quality, historical archive) — search suggestions go to it directly from your browser, so it sees your IP address</li>
           <li>Photon (komoot), OpenStreetMap and Overpass (overpass-api.de, private.coffee) — peak search and summit heights: the search text and, with “Near me”, a location rounded to about 10 km; for marked routes our server sends only the summit’s coordinates</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo; a data processing agreement is in place with WeatherAPI (Art. 28 GDPR)</li>
           <li>BigDataCloud — only if you use “my location”, to turn your coordinates into a city name (reverse geocoding)</li>
           <li>NOAA Aviation Weather (METAR reports) and Meteostat (via RapidAPI) — receive city coordinates server-side to fetch reference measurements that score each source&apos;s accuracy</li>
           <li>Map tiles by OpenStreetMap contributors (heatmap and rain radar) and OpenTopoMap (route maps in the app)</li>
           <li>Our own server — if you use “my location”, also your position rounded to about 10 km, to pick the right town of that name; your device remembers it for that town</li>
           <li>RainViewer (rain radar) and unpkg (the map library) — your browser loads these directly when a map opens, so they see your IP address and, for the radar, the map area</li>
           <li>Apple (APNs) and Google (FCM) — deliver notifications: they receive your phone’s push token and the alert’s text — both in the USA; Apple and Google are certified under the EU-US Data Privacy Framework, so the transfer rests on the European Commission’s adequacy decision (Art. 45 GDPR)</li>
-          <li>ImprovMX and Google (Gmail) — forward and store emails sent to info@metablend.app — ImprovMX receives in the EU (France) and forwards partly through servers in the USA; Google is certified under the EU-US Data Privacy Framework (Art. 45 GDPR)</li>
+          <li>ImprovMX and Google (Gmail) — forward and store emails sent to info@metablend.app — ImprovMX receives in the EU (France) and forwards partly through servers in the USA, under the standard contractual clauses in its data processing agreement (Art. 46(2)(c) GDPR); ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days; Google is certified under the EU-US Data Privacy Framework (Art. 45 GDPR)</li>
         </ul>
         <p className="mt-2">The database runs on <strong>Supabase</strong> (EU region, Frankfurt). Each provider handles the data it receives under its own privacy policy.</p>
       </> },
@@ -69,14 +69,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (inkl. Geocoding, Luftqualität, historisches Archiv) — Suchvorschläge gehen direkt aus Ihrem Browser dorthin, Open-Meteo sieht daher Ihre IP-Adresse</li>
           <li>Photon (komoot), OpenStreetMap und Overpass (overpass-api.de, private.coffee) — Gipfelsuche und Gipfelhöhen: der Suchtext und bei „In meiner Nähe“ ein auf etwa 10 km gerundeter Standort; für markierte Routen sendet unser Server nur die Koordinaten des Gipfels</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — sowie ECMWF/GFS/ICON über Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — sowie ECMWF/GFS/ICON über Open-Meteo; mit WeatherAPI besteht ein Auftragsverarbeitungsvertrag (Art. 28 DSGVO)</li>
           <li>BigDataCloud — nur bei „Mein Standort“, um Koordinaten in einen Stadtnamen zu übersetzen (Reverse-Geocoding)</li>
           <li>NOAA Aviation Weather (METAR-Meldungen) und Meteostat (über RapidAPI) — erhalten serverseitig Stadtkoordinaten, um Referenzmessungen für die Genauigkeitsbewertung abzurufen</li>
           <li>Kartenkacheln von OpenStreetMap-Mitwirkenden (Heatmap und Regenradar) und OpenTopoMap (Routenkarten in der App)</li>
           <li>Unser eigener Server — bei „Mein Standort“ zusätzlich Ihre auf etwa 10 km gerundete Position, um den richtigen Ort dieses Namens zu wählen; Ihr Gerät merkt sie sich für diesen Ort</li>
           <li>RainViewer (Regenradar) und unpkg (die Kartenbibliothek) — Ihr Browser lädt sie direkt, sobald sich eine Karte öffnet; sie sehen daher Ihre IP-Adresse und beim Radar den Kartenausschnitt</li>
           <li>Apple (APNs) und Google (FCM) — stellen Benachrichtigungen zu und erhalten dafür den Push-Token Ihres Telefons und den Text des Hinweises — beide in den USA; Apple und Google sind nach dem EU-US Data Privacy Framework zertifiziert, die Übermittlung stützt sich auf den Angemessenheitsbeschluss der EU-Kommission (Art. 45 DSGVO)</li>
-          <li>ImprovMX und Google (Gmail) — leiten E-Mails an info@metablend.app weiter und speichern sie — ImprovMX empfängt in der EU (Frankreich) und leitet teils über Server in den USA weiter; Google ist nach dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO)</li>
+          <li>ImprovMX und Google (Gmail) — leiten E-Mails an info@metablend.app weiter und speichern sie — ImprovMX empfängt in der EU (Frankreich) und leitet teils über Server in den USA weiter, auf Grundlage der Standardvertragsklauseln aus seinem Auftragsverarbeitungsvertrag (Art. 46 Abs. 2 lit. c DSGVO); ImprovMX behält nur grundlegende E-Mail-Metadaten (Protokollstufe „Minimum“) für 7 Tage; Google ist nach dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO)</li>
         </ul>
         <p className="mt-2">Die Datenbank läuft auf <strong>Supabase</strong> (EU-Region, Frankfurt). Jeder Anbieter verarbeitet die erhaltenen Daten nach seiner eigenen Datenschutzerklärung.</p>
       </> },
@@ -104,14 +104,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (y compris géocodage, qualité de l’air, archives historiques) — les suggestions de recherche y vont directement depuis votre navigateur, Open-Meteo voit donc votre adresse IP</li>
           <li>Photon (komoot), OpenStreetMap et Overpass (overpass-api.de, private.coffee) — recherche de sommets et altitudes : le texte recherché et, avec « Près de moi », une position arrondie à environ 10 km ; pour les itinéraires balisés, notre serveur n’envoie que les coordonnées du sommet</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — ainsi que ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — ainsi que ECMWF/GFS/ICON via Open-Meteo ; un contrat de sous-traitance est conclu avec WeatherAPI (art. 28 du RGPD)</li>
           <li>BigDataCloud — uniquement si vous utilisez « ma position », pour convertir vos coordonnées en nom de ville (géocodage inverse)</li>
           <li>NOAA Aviation Weather (relevés METAR) et Meteostat (via RapidAPI) — reçoivent côté serveur les coordonnées des villes pour récupérer des mesures de référence servant à noter la précision de chaque source</li>
           <li>Tuiles cartographiques des contributeurs OpenStreetMap (carte et radar de pluie) et OpenTopoMap (cartes d’itinéraires dans l’app)</li>
           <li>Notre propre serveur — avec « Ma position », aussi votre position arrondie à environ 10 km, pour choisir la bonne localité de ce nom ; votre appareil la mémorise pour cette localité</li>
           <li>RainViewer (radar de pluie) et unpkg (la bibliothèque de cartes) — votre navigateur les charge directement à l’ouverture d’une carte ; ils voient donc votre adresse IP et, pour le radar, la zone affichée</li>
           <li>Apple (APNs) et Google (FCM) — acheminent les notifications : ils reçoivent le jeton push de votre téléphone et le texte de l’alerte — tous deux aux États-Unis ; Apple et Google sont certifiés au titre du cadre de protection des données UE–États-Unis, le transfert repose donc sur la décision d’adéquation de la Commission européenne (art. 45 du RGPD)</li>
-          <li>ImprovMX et Google (Gmail) — transfèrent et conservent les e-mails envoyés à info@metablend.app — ImprovMX reçoit dans l’UE (France) et transfère en partie via des serveurs aux États-Unis ; Google est certifié au titre du cadre de protection des données UE–États-Unis (art. 45 du RGPD)</li>
+          <li>ImprovMX et Google (Gmail) — transfèrent et conservent les e-mails envoyés à info@metablend.app — ImprovMX reçoit dans l’UE (France) et transfère en partie via des serveurs aux États-Unis, sur la base des clauses contractuelles types de son contrat de sous-traitance (art. 46, par. 2, point c du RGPD) ; ImprovMX ne conserve que des métadonnées de base des e-mails (niveau de journalisation « Minimum ») pendant 7 jours ; Google est certifié au titre du cadre de protection des données UE–États-Unis (art. 45 du RGPD)</li>
         </ul>
         <p className="mt-2">La base de données est hébergée sur <strong>Supabase</strong> (région UE, Francfort). Chaque fournisseur traite les données reçues selon sa propre politique de confidentialité.</p>
       </> },
@@ -139,14 +139,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocodificación, calidad del aire, archivo histórico) — las sugerencias de búsqueda van allí directamente desde su navegador, así que Open-Meteo ve su dirección IP</li>
           <li>Photon (komoot), OpenStreetMap y Overpass (overpass-api.de, private.coffee) — búsqueda de cumbres y altitudes: el texto buscado y, con «Cerca de mí», una ubicación redondeada a unos 10 km; para las rutas señalizadas nuestro servidor solo envía las coordenadas de la cumbre</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — además de ECMWF/GFS/ICON a través de Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — además de ECMWF/GFS/ICON a través de Open-Meteo; con WeatherAPI existe un contrato de encargo del tratamiento (art. 28 RGPD)</li>
           <li>BigDataCloud — solo si usa «mi ubicación», para convertir sus coordenadas en un nombre de ciudad (geocodificación inversa)</li>
           <li>NOAA Aviation Weather (informes METAR) y Meteostat (a través de RapidAPI) — reciben coordenadas de ciudades en el servidor para obtener mediciones de referencia con las que puntuar la precisión de cada fuente</li>
           <li>Teselas de mapa de los colaboradores de OpenStreetMap (mapa y radar de lluvia) y OpenTopoMap (mapas de rutas en la app)</li>
           <li>Nuestro propio servidor — con «mi ubicación», también su posición redondeada a unos 10 km, para elegir la localidad correcta con ese nombre; su dispositivo la recuerda para esa localidad</li>
           <li>RainViewer (radar de lluvia) y unpkg (la biblioteca de mapas) — su navegador los carga directamente al abrir un mapa, así que ven su dirección IP y, en el radar, la zona del mapa</li>
           <li>Apple (APNs) y Google (FCM) — entregan las notificaciones: reciben el token push de su teléfono y el texto del aviso — ambos en EE. UU.; Apple y Google están certificados conforme al Marco de Privacidad de Datos UE-EE. UU., por lo que la transferencia se basa en la decisión de adecuación de la Comisión Europea (art. 45 RGPD)</li>
-          <li>ImprovMX y Google (Gmail) — reenvían y guardan los correos enviados a info@metablend.app — ImprovMX recibe en la UE (Francia) y reenvía en parte a través de servidores en EE. UU.; Google está certificado conforme al Marco de Privacidad de Datos UE-EE. UU. (art. 45 RGPD)</li>
+          <li>ImprovMX y Google (Gmail) — reenvían y guardan los correos enviados a info@metablend.app — ImprovMX recibe en la UE (Francia) y reenvía en parte a través de servidores en EE. UU., sobre la base de las cláusulas contractuales tipo de su contrato de encargo del tratamiento (art. 46.2.c RGPD); ImprovMX solo conserva metadatos básicos del correo (nivel de registro «Minimum») durante 7 días; Google está certificado conforme al Marco de Privacidad de Datos UE-EE. UU. (art. 45 RGPD)</li>
         </ul>
         <p className="mt-2">La base de datos se aloja en <strong>Supabase</strong> (región UE, Fráncfort). Cada proveedor trata los datos que recibe según su propia política de privacidad.</p>
       </> },
@@ -174,14 +174,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, qualità dell’aria, archivio storico) — i suggerimenti di ricerca vi arrivano direttamente dal suo browser, quindi Open-Meteo vede il suo indirizzo IP</li>
           <li>Photon (komoot), OpenStreetMap e Overpass (overpass-api.de, private.coffee) — ricerca delle vette e quote: il testo cercato e, con «Vicino a me», una posizione arrotondata a circa 10 km; per i percorsi segnalati il nostro server invia solo le coordinate della vetta</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — oltre a ECMWF/GFS/ICON tramite Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (US), Bright Sky (DWD), SMHI — oltre a ECMWF/GFS/ICON tramite Open-Meteo; con WeatherAPI è in essere un accordo sul trattamento dei dati (art. 28 GDPR)</li>
           <li>BigDataCloud — solo se usa «la mia posizione», per convertire le coordinate in un nome di città (geocoding inverso)</li>
           <li>NOAA Aviation Weather (bollettini METAR) e Meteostat (tramite RapidAPI) — ricevono lato server le coordinate delle città per ottenere misurazioni di riferimento con cui valutare la precisione di ogni fonte</li>
           <li>Tessere mappa dei collaboratori di OpenStreetMap (mappa e radar pioggia) e OpenTopoMap (mappe dei percorsi nell’app)</li>
           <li>Il nostro server — con «la mia posizione», anche la sua posizione arrotondata a circa 10 km, per scegliere la località giusta con quel nome; il suo dispositivo la ricorda per quella località</li>
           <li>RainViewer (radar pioggia) e unpkg (la libreria delle mappe) — il suo browser li carica direttamente all’apertura di una mappa, quindi vedono il suo indirizzo IP e, per il radar, l’area della mappa</li>
           <li>Apple (APNs) e Google (FCM) — recapitano le notifiche: ricevono il token push del suo telefono e il testo dell’avviso — entrambi negli USA; Apple e Google sono certificati ai sensi dell’EU-US Data Privacy Framework, quindi il trasferimento si fonda sulla decisione di adeguatezza della Commissione europea (art. 45 GDPR)</li>
-          <li>ImprovMX e Google (Gmail) — inoltrano e conservano le e-mail inviate a info@metablend.app — ImprovMX riceve nell’UE (Francia) e inoltra in parte tramite server negli USA; Google è certificato ai sensi dell’EU-US Data Privacy Framework (art. 45 GDPR)</li>
+          <li>ImprovMX e Google (Gmail) — inoltrano e conservano le e-mail inviate a info@metablend.app — ImprovMX riceve nell’UE (Francia) e inoltra in parte tramite server negli USA, sulla base delle clausole contrattuali tipo del suo accordo sul trattamento dei dati (art. 46, par. 2, lett. c GDPR); ImprovMX conserva solo metadati di base delle e-mail (livello di log «Minimum») per 7 giorni; Google è certificato ai sensi dell’EU-US Data Privacy Framework (art. 45 GDPR)</li>
         </ul>
         <p className="mt-2">Il database è ospitato su <strong>Supabase</strong> (regione UE, Francoforte). Ogni fornitore tratta i dati che riceve secondo la propria informativa sulla privacy.</p>
       </> },
@@ -208,14 +208,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocoding, luchtkwaliteit, historisch archief) — zoeksuggesties gaan er rechtstreeks vanuit uw browser heen, dus Open-Meteo ziet uw IP-adres</li>
           <li>Photon (komoot), OpenStreetMap en Overpass (overpass-api.de, private.coffee) — zoeken naar toppen en tophoogtes: de zoektekst en, met „In de buurt”, een locatie afgerond op ongeveer 10 km; voor gemarkeerde routes stuurt onze server alleen de coördinaten van de top</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (VS), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (VS), Bright Sky (DWD), SMHI — plus ECMWF/GFS/ICON via Open-Meteo; met WeatherAPI is een verwerkersovereenkomst gesloten (art. 28 AVG)</li>
           <li>BigDataCloud — alleen als u „mijn locatie” gebruikt, om uw coördinaten om te zetten in een plaatsnaam (reverse geocoding)</li>
           <li>NOAA Aviation Weather (METAR-rapporten) en Meteostat (via RapidAPI) — krijgen op de server stadscoördinaten om referentiemetingen op te halen waarmee de nauwkeurigheid van elke bron wordt beoordeeld</li>
           <li>Kaarttegels van OpenStreetMap-bijdragers (heatmap en regenradar) en OpenTopoMap (routekaarten in de app)</li>
           <li>Onze eigen server — bij „mijn locatie” ook uw positie, afgerond op ongeveer 10 km, om de juiste plaats met die naam te kiezen; uw apparaat onthoudt die voor die plaats</li>
           <li>RainViewer (regenradar) en unpkg (de kaartbibliotheek) — uw browser laadt ze rechtstreeks zodra een kaart opent, dus ze zien uw IP-adres en, bij de radar, het kaartgebied</li>
           <li>Apple (APNs) en Google (FCM) — bezorgen meldingen: ze ontvangen de pushtoken van uw telefoon en de tekst van de melding — beide in de VS; Apple en Google zijn gecertificeerd onder het EU-VS Data Privacy Framework, zodat de doorgifte berust op het adequaatheidsbesluit van de Europese Commissie (art. 45 AVG)</li>
-          <li>ImprovMX en Google (Gmail) — sturen e-mails aan info@metablend.app door en bewaren ze — ImprovMX ontvangt in de EU (Frankrijk) en stuurt deels door via servers in de VS; Google is gecertificeerd onder het EU-VS Data Privacy Framework (art. 45 AVG)</li>
+          <li>ImprovMX en Google (Gmail) — sturen e-mails aan info@metablend.app door en bewaren ze — ImprovMX ontvangt in de EU (Frankrijk) en stuurt deels door via servers in de VS, op basis van de standaardcontractbepalingen in zijn verwerkersovereenkomst (art. 46 lid 2 onder c AVG); ImprovMX bewaart alleen basis-e-mailmetadata (logniveau ‘Minimum’) gedurende 7 dagen; Google is gecertificeerd onder het EU-VS Data Privacy Framework (art. 45 AVG)</li>
         </ul>
         <p className="mt-2">De database draait bij <strong>Supabase</strong> (EU-regio, Frankfurt). Elke aanbieder verwerkt de ontvangen gegevens volgens zijn eigen privacybeleid.</p>
       </> },
@@ -242,14 +242,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (w tym geokodowanie, jakość powietrza, archiwum historyczne) — podpowiedzi wyszukiwania trafiają tam bezpośrednio z Państwa przeglądarki, więc Open-Meteo widzi Państwa adres IP</li>
           <li>Photon (komoot), OpenStreetMap i Overpass (overpass-api.de, private.coffee) — wyszukiwanie szczytów i ich wysokości: wyszukiwany tekst oraz, przy „W pobliżu”, lokalizacja zaokrąglona do ok. 10 km; dla oznakowanych tras nasz serwer wysyła tylko współrzędne szczytu</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — oraz ECMWF/GFS/ICON przez Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — oraz ECMWF/GFS/ICON przez Open-Meteo; z WeatherAPI zawarto umowę powierzenia przetwarzania (art. 28 RODO)</li>
           <li>BigDataCloud — tylko gdy używają Państwo „mojej lokalizacji”, aby zamienić współrzędne na nazwę miasta (odwrotne geokodowanie)</li>
           <li>NOAA Aviation Weather (raporty METAR) i Meteostat (przez RapidAPI) — otrzymują po stronie serwera współrzędne miast, aby pobrać pomiary referencyjne do oceny dokładności źródeł</li>
           <li>Kafelki map od współtwórców OpenStreetMap (mapa cieplna i radar opadów) oraz OpenTopoMap (mapy tras w aplikacji)</li>
           <li>Nasz własny serwer — przy „mojej lokalizacji” także Państwa pozycja zaokrąglona do około 10 km, aby wybrać właściwą miejscowość o tej nazwie; Państwa urządzenie zapamiętuje ją dla tej miejscowości</li>
           <li>RainViewer (radar opadów) i unpkg (biblioteka map) — Państwa przeglądarka ładuje je bezpośrednio po otwarciu mapy, więc widzą Państwa adres IP, a w przypadku radaru także obszar mapy</li>
           <li>Apple (APNs) i Google (FCM) — dostarczają powiadomienia: otrzymują token push Państwa telefonu i treść powiadomienia — oba w USA; Apple i Google są certyfikowane w ramach EU-US Data Privacy Framework, więc przekazanie opiera się na decyzji Komisji Europejskiej stwierdzającej odpowiedni stopień ochrony (art. 45 RODO)</li>
-          <li>ImprovMX i Google (Gmail) — przekazują i przechowują e-maile wysyłane na info@metablend.app — ImprovMX odbiera w UE (Francja) i przekazuje częściowo przez serwery w USA; Google jest certyfikowany w ramach EU-US Data Privacy Framework (art. 45 RODO)</li>
+          <li>ImprovMX i Google (Gmail) — przekazują i przechowują e-maile wysyłane na info@metablend.app — ImprovMX odbiera w UE (Francja) i przekazuje częściowo przez serwery w USA, na podstawie standardowych klauzul umownych z jego umowy powierzenia przetwarzania (art. 46 ust. 2 lit. c RODO); ImprovMX przechowuje tylko podstawowe metadane poczty (poziom logowania „Minimum”) przez 7 dni; Google jest certyfikowany w ramach EU-US Data Privacy Framework (art. 45 RODO)</li>
         </ul>
         <p className="mt-2">Baza danych działa w <strong>Supabase</strong> (region UE, Frankfurt). Każdy dostawca przetwarza otrzymane dane zgodnie z własną polityką prywatności.</p>
       </> },
@@ -276,14 +276,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (vč. geokódování, kvality ovzduší, historického archivu) — návrhy hledání tam jdou přímo z vašeho prohlížeče, takže Open-Meteo vidí vaši IP adresu</li>
           <li>Photon (komoot), OpenStreetMap a Overpass (overpass-api.de, private.coffee) — hledání vrcholů a jejich výšek: hledaný text a u „Poblíž“ poloha zaokrouhlená asi na 10 km; pro značené trasy náš server posílá jen souřadnice vrcholu</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — a ECMWF/GFS/ICON přes Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (USA), Bright Sky (DWD), SMHI — a ECMWF/GFS/ICON přes Open-Meteo; s WeatherAPI je uzavřena smlouva o zpracování (čl. 28 GDPR)</li>
           <li>BigDataCloud — jen pokud použijete „moji polohu“, k převodu souřadnic na název města (reverzní geokódování)</li>
           <li>NOAA Aviation Weather (hlášení METAR) a Meteostat (přes RapidAPI) — dostávají na serveru souřadnice měst, aby získaly referenční měření pro hodnocení přesnosti zdrojů</li>
           <li>Mapové dlaždice od přispěvatelů OpenStreetMap (teplotní mapa a srážkový radar) a OpenTopoMap (mapy tras v aplikaci)</li>
           <li>Náš vlastní server — při „Moje poloha“ také vaše poloha zaokrouhlená na přibližně 10 km, aby se vybralo správné místo tohoto názvu; vaše zařízení si ji pro toto místo pamatuje</li>
           <li>RainViewer (srážkový radar) a unpkg (knihovna map) — váš prohlížeč je načítá přímo při otevření mapy, takže vidí vaši IP adresu a u radaru i oblast mapy</li>
           <li>Apple (APNs) a Google (FCM) — doručují oznámení: dostávají push token vašeho telefonu a text oznámení — oba v USA; Apple a Google jsou certifikovány podle EU-US Data Privacy Framework, předání se tedy opírá o rozhodnutí Evropské komise o odpovídající ochraně (čl. 45 GDPR)</li>
-          <li>ImprovMX a Google (Gmail) — přeposílají a ukládají e-maily zaslané na info@metablend.app — ImprovMX přijímá v EU (Francie) a přeposílá zčásti přes servery v USA; Google je certifikován podle EU-US Data Privacy Framework (čl. 45 GDPR)</li>
+          <li>ImprovMX a Google (Gmail) — přeposílají a ukládají e-maily zaslané na info@metablend.app — ImprovMX přijímá v EU (Francie) a přeposílá zčásti přes servery v USA, na základě standardních smluvních doložek ze své smlouvy o zpracování (čl. 46 odst. 2 písm. c GDPR); ImprovMX uchovává pouze základní metadata e-mailů (úroveň protokolování „Minimum“) po dobu 7 dnů; Google je certifikován podle EU-US Data Privacy Framework (čl. 45 GDPR)</li>
         </ul>
         <p className="mt-2">Databáze běží na <strong>Supabase</strong> (region EU, Frankfurt). Každý poskytovatel zpracovává data, která obdrží, podle vlastních zásad ochrany soukromí.</p>
       </> },
@@ -310,14 +310,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (vklj. geokodiranje, kakovost zraka, zgodovinski arhiv) — predlogi iskanja gredo tja neposredno iz vašega brskalnika, zato Open-Meteo vidi vaš naslov IP</li>
           <li>Photon (komoot), OpenStreetMap in Overpass (overpass-api.de, private.coffee) — iskanje vrhov in njihovih višin: iskano besedilo in pri »V bližini« lokacija, zaokrožena na približno 10 km; za označene poti naš strežnik pošlje le koordinate vrha</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (ZDA), Bright Sky (DWD), SMHI — ter ECMWF/GFS/ICON prek Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (ZDA), Bright Sky (DWD), SMHI — ter ECMWF/GFS/ICON prek Open-Meteo; z WeatherAPI je sklenjena pogodba o obdelavi (člen 28 GDPR)</li>
           <li>BigDataCloud — le če uporabite »mojo lokacijo«, da koordinate pretvori v ime mesta (obratno geokodiranje)</li>
           <li>NOAA Aviation Weather (poročila METAR) in Meteostat (prek RapidAPI) — na strežniku prejmeta koordinate mest, da pridobita referenčne meritve za oceno natančnosti virov</li>
           <li>Ploščice zemljevidov sodelavcev OpenStreetMap (toplotni zemljevid in radar padavin) ter OpenTopoMap (zemljevidi poti v aplikaciji)</li>
           <li>Naš lastni strežnik — pri »Moja lokacija« tudi vaš položaj, zaokrožen na približno 10 km, da izberemo pravi kraj s tem imenom; vaša naprava si ga za ta kraj zapomni</li>
           <li>RainViewer (radar padavin) in unpkg (knjižnica zemljevidov) — vaš brskalnik ju naloži neposredno ob odprtju zemljevida, zato vidita vaš naslov IP, pri radarju pa tudi območje zemljevida</li>
           <li>Apple (APNs) in Google (FCM) — dostavljata obvestila: prejmeta žeton push vašega telefona in besedilo obvestila — oba v ZDA; Apple in Google sta certificirana po okviru EU-ZDA o zasebnosti podatkov, zato prenos temelji na sklepu Evropske komisije o ustreznosti (člen 45 GDPR)</li>
-          <li>ImprovMX in Google (Gmail) — posredujeta in hranita e-pošto, poslano na info@metablend.app — ImprovMX sprejema v EU (Francija) in deloma posreduje prek strežnikov v ZDA; Google je certificiran po okviru EU-ZDA o zasebnosti podatkov (člen 45 GDPR)</li>
+          <li>ImprovMX in Google (Gmail) — posredujeta in hranita e-pošto, poslano na info@metablend.app — ImprovMX sprejema v EU (Francija) in deloma posreduje prek strežnikov v ZDA, na podlagi standardnih pogodbenih klavzul iz svoje pogodbe o obdelavi (člen 46(2)(c) GDPR); ImprovMX hrani le osnovne metapodatke e-pošte (raven beleženja »Minimum«) 7 dni; Google je certificiran po okviru EU-ZDA o zasebnosti podatkov (člen 45 GDPR)</li>
         </ul>
         <p className="mt-2">Podatkovna baza teče pri <strong>Supabase</strong> (regija EU, Frankfurt). Vsak ponudnik obdeluje prejete podatke po svoji politiki zasebnosti.</p>
       </> },
@@ -344,14 +344,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo (incl. geocodificação, qualidade do ar, arquivo histórico) — as sugestões de busca vão direto do seu navegador para lá, então o Open-Meteo vê seu endereço IP</li>
           <li>Photon (komoot), OpenStreetMap e Overpass (overpass-api.de, private.coffee) — busca de picos e altitudes: o texto buscado e, com “Perto de mim”, uma localização arredondada a cerca de 10 km; para rotas sinalizadas, nosso servidor envia apenas as coordenadas do cume</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (EUA), Bright Sky (DWD), SMHI — além de ECMWF/GFS/ICON via Open-Meteo</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS (EUA), Bright Sky (DWD), SMHI — além de ECMWF/GFS/ICON via Open-Meteo; com a WeatherAPI existe um contrato de tratamento de dados (art. 28 do RGPD)</li>
           <li>BigDataCloud — só se você usar “minha localização”, para transformar suas coordenadas no nome de uma cidade (geocodificação reversa)</li>
           <li>NOAA Aviation Weather (boletins METAR) e Meteostat (via RapidAPI) — recebem no servidor as coordenadas das cidades para obter medições de referência que avaliam a precisão de cada fonte</li>
           <li>Blocos de mapa dos colaboradores do OpenStreetMap (mapa de calor e radar de chuva) e OpenTopoMap (mapas de rotas no app)</li>
           <li>Nosso próprio servidor — com “minha localização”, também a sua posição arredondada para cerca de 10 km, para escolher a localidade certa com esse nome; seu dispositivo a guarda para essa localidade</li>
           <li>RainViewer (radar de chuva) e unpkg (a biblioteca de mapas) — seu navegador os carrega diretamente ao abrir um mapa, então eles veem seu endereço IP e, no radar, a área do mapa</li>
           <li>Apple (APNs) e Google (FCM) — entregam as notificações: recebem o token push do seu celular e o texto do alerta — ambos nos EUA; Apple e Google são certificados pelo EU-US Data Privacy Framework, por isso a transferência se baseia na decisão de adequação da Comissão Europeia (art. 45 do RGPD)</li>
-          <li>ImprovMX e Google (Gmail) — encaminham e guardam os e-mails enviados para info@metablend.app — a ImprovMX recebe na UE (França) e encaminha em parte por servidores nos EUA; o Google é certificado pelo EU-US Data Privacy Framework (art. 45 do RGPD)</li>
+          <li>ImprovMX e Google (Gmail) — encaminham e guardam os e-mails enviados para info@metablend.app — a ImprovMX recebe na UE (França) e encaminha em parte por servidores nos EUA, com base nas cláusulas contratuais-tipo do seu contrato de tratamento de dados (art. 46(2)(c) do RGPD); a ImprovMX guarda apenas metadados básicos do e-mail (nível de registo «Minimum») durante 7 dias; o Google é certificado pelo EU-US Data Privacy Framework (art. 45 do RGPD)</li>
         </ul>
         <p className="mt-2">O banco de dados roda no <strong>Supabase</strong> (região UE, Frankfurt). Cada provedor trata os dados que recebe conforme a própria política de privacidade.</p>
       </> },
@@ -378,14 +378,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo（ジオコーディング、大気質、過去データのアーカイブを含む） — 検索候補はブラウザから直接送られるため、Open-MeteoにIPアドレスが伝わります</li>
           <li>Photon（komoot）、OpenStreetMap、Overpass（overpass-api.de、private.coffee） — 山の検索と山頂の標高：検索テキストと、「現在地周辺」の場合は約10 kmに丸めた位置。標識のあるルートについては、サーバーが山頂の座標だけを送ります</li>
-          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（米国）、Bright Sky（DWD）、SMHI — およびOpen-Meteo経由のECMWF/GFS/ICON</li>
+          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（米国）、Bright Sky（DWD）、SMHI — およびOpen-Meteo経由のECMWF/GFS/ICON。WeatherAPIとはデータ処理契約を締結しています（GDPR第28条）</li>
           <li>BigDataCloud — 「現在地」を使う場合のみ、座標を都市名に変換するため（逆ジオコーディング）</li>
           <li>NOAA Aviation Weather（METAR通報）とMeteostat（RapidAPI経由） — 各ソースの精度を採点する基準測定値を取得するため、サーバー側で都市の座標を受け取ります</li>
           <li>OpenStreetMap contributorsによる地図タイル（ヒートマップと雨雲レーダー）とOpenTopoMap（アプリ内のルート地図）</li>
           <li>当社のサーバー — 「現在地」を使う場合、同名の場所から正しい場所を選ぶため、約10kmに丸めた位置情報も受け取ります。端末はその場所についてこれを記憶します</li>
           <li>RainViewer（雨雲レーダー）とunpkg（地図ライブラリ） — 地図を開くとブラウザが直接読み込むため、IPアドレスと、レーダーでは地図の範囲がこれらに伝わります</li>
           <li>Apple（APNs）とGoogle（FCM） — 通知を配信します。端末のプッシュトークンと通知の本文を受け取ります — いずれも米国。AppleとGoogleはEU-US Data Privacy Frameworkの認証を受けており、移転は欧州委員会の十分性認定に基づきます（GDPR第45条）</li>
-          <li>ImprovMXとGoogle（Gmail） — info@metablend.app宛のメールを転送・保存します — ImprovMXはEU（フランス）で受信し、一部は米国のサーバー経由で転送します。GoogleはEU-US Data Privacy Frameworkの認証を受けています（GDPR第45条）</li>
+          <li>ImprovMXとGoogle（Gmail） — info@metablend.app宛のメールを転送・保存します — ImprovMXはEU（フランス）で受信し、一部は米国のサーバー経由で転送します。根拠はそのデータ処理契約に含まれる標準契約条項です（GDPR第46条第2項(c)）。ImprovMXは基本的なメールのメタデータのみ（ログレベル「Minimum」）を7日間保持します。GoogleはEU-US Data Privacy Frameworkの認証を受けています（GDPR第45条）</li>
         </ul>
         <p className="mt-2">データベースは<strong>Supabase</strong>（EUリージョン、フランクフルト）で稼働しています。各プロバイダーは受け取ったデータをそれぞれのプライバシーポリシーに従って扱います。</p>
       </> },
@@ -412,14 +412,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo（含地理编码、空气质量、历史档案） — 搜索建议由您的浏览器直接发送到那里，因此 Open-Meteo 能看到您的 IP 地址</li>
           <li>Photon（komoot）、OpenStreetMap 和 Overpass（overpass-api.de、private.coffee） — 山峰搜索和山顶高度：搜索文本，以及使用“我附近”时精确到约 10 公里的位置；对于有标记的路线，我们的服务器只发送山顶坐标</li>
-          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（美国）、Bright Sky（DWD）、SMHI — 以及通过 Open-Meteo 获取的 ECMWF/GFS/ICON</li>
+          <li>MET Norway、OpenWeatherMap、WeatherAPI、Visual Crossing、GeoSphere Austria、NWS（美国）、Bright Sky（DWD）、SMHI — 以及通过 Open-Meteo 获取的 ECMWF/GFS/ICON；与 WeatherAPI 签有数据处理协议（GDPR第28条）</li>
           <li>BigDataCloud — 仅在您使用“我的位置”时，用于把坐标转换为城市名（逆地理编码）</li>
           <li>NOAA Aviation Weather（METAR 报告）和 Meteostat（通过 RapidAPI） — 在服务器端接收城市坐标，用于获取评估各来源准确度的参考测量值</li>
           <li>OpenStreetMap 贡献者提供的地图瓦片（热力图和降雨雷达）以及 OpenTopoMap（应用中的路线地图）</li>
           <li>我们自己的服务器 — 使用“我的位置”时，还会收到您四舍五入到约 10 公里的位置，用于选择同名地点中正确的一个；您的设备会为该地点记住它</li>
           <li>RainViewer（雨情雷达）和 unpkg（地图库） — 打开地图时您的浏览器会直接加载它们，因此它们能看到您的 IP 地址，雷达还能看到地图区域</li>
           <li>Apple（APNs）和 Google（FCM） — 传送通知：它们会收到您手机的推送令牌和通知文本 — 两者均位于美国；Apple和Google已获得欧盟-美国数据隐私框架认证，因此数据传输以欧盟委员会的充分性认定为依据（GDPR第45条）</li>
-          <li>ImprovMX 和 Google（Gmail） — 转发并保存发送至 info@metablend.app 的邮件 — ImprovMX在欧盟（法国）接收邮件，并部分经由美国的服务器转发；Google已获得欧盟-美国数据隐私框架认证（GDPR第45条）</li>
+          <li>ImprovMX 和 Google（Gmail） — 转发并保存发送至 info@metablend.app 的邮件 — ImprovMX在欧盟（法国）接收邮件，并部分经由美国的服务器转发，依据其数据处理协议中的标准合同条款（GDPR第46条第2款(c)项）；ImprovMX 仅保留基本的邮件元数据（日志级别“Minimum”）7 天；Google已获得欧盟-美国数据隐私框架认证（GDPR第45条）</li>
         </ul>
         <p className="mt-2">数据库运行在 <strong>Supabase</strong>（欧盟区域，法兰克福）。各服务商按照各自的隐私政策处理所收到的数据。</p>
       </> },
@@ -446,14 +446,14 @@ const CONTENT = {
         <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
           <li>Open-Meteo(지오코딩, 대기질, 과거 기록 포함) — 검색 제안은 브라우저에서 직접 전송되므로 Open-Meteo가 IP 주소를 볼 수 있습니다</li>
           <li>Photon(komoot), OpenStreetMap, Overpass(overpass-api.de, private.coffee) — 산 검색과 정상 고도: 검색어와, “내 주변” 사용 시 약 10 km로 반올림한 위치. 표시된 경로의 경우 서버는 정상 좌표만 보냅니다</li>
-          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS(미국), Bright Sky(DWD), SMHI — 그리고 Open-Meteo를 통한 ECMWF/GFS/ICON</li>
+          <li>MET Norway, OpenWeatherMap, WeatherAPI, Visual Crossing, GeoSphere Austria, NWS(미국), Bright Sky(DWD), SMHI — 그리고 Open-Meteo를 통한 ECMWF/GFS/ICON. WeatherAPI와는 데이터 처리 계약을 체결했습니다(GDPR 제28조)</li>
           <li>BigDataCloud — “내 위치”를 사용할 때만, 좌표를 도시 이름으로 바꾸기 위해(역지오코딩)</li>
           <li>NOAA Aviation Weather(METAR 보고)와 Meteostat(RapidAPI 경유) — 각 출처의 정확도를 채점할 기준 측정값을 가져오기 위해 서버에서 도시 좌표를 받습니다</li>
           <li>OpenStreetMap 기여자의 지도 타일(히트맵과 강수 레이더)과 OpenTopoMap(앱의 경로 지도)</li>
           <li>자체 서버 — “내 위치”를 사용하면 같은 이름의 장소 중 올바른 곳을 고르기 위해 약 10km로 반올림한 위치도 받습니다. 기기는 그 장소에 대해 이 위치를 기억합니다</li>
           <li>RainViewer(강수 레이더)와 unpkg(지도 라이브러리) — 지도를 열면 브라우저가 직접 불러오므로 IP 주소와, 레이더의 경우 지도 영역을 볼 수 있습니다</li>
           <li>Apple(APNs)과 Google(FCM) — 알림을 전달하며, 휴대폰의 푸시 토큰과 알림 내용을 받습니다 — 두 곳 모두 미국 소재이며, Apple과 Google은 EU-US 데이터 프라이버시 프레임워크 인증을 받았으므로 이전은 유럽연합 집행위원회의 적정성 결정에 근거합니다(GDPR 제45조)</li>
-          <li>ImprovMX와 Google(Gmail) — info@metablend.app으로 보낸 이메일을 전달하고 보관합니다 — ImprovMX는 EU(프랑스)에서 수신하고 일부는 미국 서버를 거쳐 전달합니다. Google은 EU-US 데이터 프라이버시 프레임워크 인증을 받았습니다(GDPR 제45조)</li>
+          <li>ImprovMX와 Google(Gmail) — info@metablend.app으로 보낸 이메일을 전달하고 보관합니다 — ImprovMX는 EU(프랑스)에서 수신하고 일부는 미국 서버를 거쳐 전달하며, 그 근거는 데이터 처리 계약에 포함된 표준계약조항입니다(GDPR 제46조 제2항 (c)호). ImprovMX는 기본적인 메일 메타데이터만(로그 수준 ‘Minimum’) 7일간 보관합니다. Google은 EU-US 데이터 프라이버시 프레임워크 인증을 받았습니다(GDPR 제45조)</li>
         </ul>
         <p className="mt-2">데이터베이스는 <strong>Supabase</strong>(EU 리전, 프랑크푸르트)에서 운영됩니다. 각 제공업체는 받은 데이터를 자체 개인정보 처리방침에 따라 처리합니다.</p>
       </> },

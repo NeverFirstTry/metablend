@@ -3,6 +3,24 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-09
+
+### Legal and privacy
+- /privacy: the ImprovMX sentence names the standard contractual clauses of its data processing agreement (version of 9 September 2026 with Annexes I–III, countersigned by both sides on 2026-11-09) and says that ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days — German first, all 13 languages, add-only.
+- /terms: the WeatherAPI.com end-user disclaimer now stands in WeatherAPI’s own words, with a German version beside it. The Sources panel shows one short line in the visitor’s language whenever WeatherAPI data is in the blend, linking to that notice (13 languages).
+- /privacy: WeatherAPI named as a processor for the coordinates we send (data processing agreement signed 2026-11-09, Art. 28 GDPR) — German first, all 13 languages, add-only.
+- Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
+- WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
+
+### Fixed — summit forecasts when Open-Meteo is busy
+- When Open-Meteo refuses a summit request with "Too many concurrent requests", the request waits a moment and tries again instead of giving up; the three-model fallback gets the same second try. If nothing comes back at all, the summit API no longer answers with a server error: the peak page shows its retry card, the summit pages are regenerated on the next visit, no plan notification goes out, and the widget says the forecast is unavailable. Until now every such moment was a 502.
+
+### Changed — the beta banner is gone
+- The amber "work in progress, early beta" banner on Rankings, Heatmap and Planner, and the matching line on the home page, are replaced by one calm sentence in all 13 languages: forecasts can be wrong, do not rely on them alone for safety-critical decisions. No beta wording anywhere in it.
+
+### Changed — wording
+- No em or en dashes in the app’s and website’s texts any more, in all 13 languages: a sentence dash is now a full stop or a comma, a time range a plain hyphen. A test keeps every language pack that way.
+
 ## 2026-11-08
 
 ### Changed — the app's header and the store listing

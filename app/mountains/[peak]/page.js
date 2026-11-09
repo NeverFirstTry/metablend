@@ -22,8 +22,9 @@ const peakById = id => featured.find(p => p.id === id && p.kind !== 'hut') ?? nu
 
 async function getSummit(peak) {
   const res = await fetch(`${BASE}${hikeApiPath(peak)}`, { next: { revalidate: 1800 } })
-  if (!res.ok) throw new Error(`hike api ${res.status}`) // 500 → crawlers retry instead of dropping the page
-  return res.json()
+  const body = res.ok ? await res.json() : null
+  if (!res.ok || body.unavailable) throw new Error(`hike api ${res.ok ? 'unavailable' : res.status}`) // 500 → crawlers retry instead of dropping the page
+  return body
 }
 async function getAvalanche(peak) {
   try {
