@@ -1,4 +1,5 @@
 import { withErrorLog, logError } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 import { jobKeyProblem } from '@/lib/auth'
 import { runDispatch } from '@/lib/push/dispatch'
 import * as store from '@/lib/push/store'
@@ -54,7 +55,7 @@ const warningsAt = async (lat, lon, cc = null) => {
 // the official avalanche danger at a spot on a day (1–5), null where not rated
 const avalancheAt = async (lat, lon, date) => avalancheLevel(await avalancheRegions(), await ratingsFor(date), lat, lon)?.level ?? null
 
-export const GET = withErrorLog('push.dispatch', async (request) => {
+export const GET = withErrorLog('push.dispatch', withJobLog('push-dispatch', async (request) => {
   const denied = jobKeyProblem(request) // no key configured → nobody can trigger sends
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
   const sp = new URL(request.url).searchParams
@@ -64,4 +65,4 @@ export const GET = withErrorLog('push.dispatch', async (request) => {
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
   if (summary.warningErrors?.length) await logError('push.warnings', new Error(summary.warningErrors[0]), { errors: summary.warningErrors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })
-})
+}))

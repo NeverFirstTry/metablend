@@ -4,6 +4,7 @@ import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { withErrorLog, logError } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
 import { localHourIso } from '@/lib/localtime'
@@ -93,7 +94,7 @@ async function saveShadow(cities, forecasts, observations, since) {
   if (error && error.code !== 'PGRST205') await logError('station-errors', error)
 }
 
-export const GET = withErrorLog('station-calibrate', async (request) => {
+export const GET = withErrorLog('station-calibrate', withJobLog('station-calibrate', async (request) => {
   // Triggered by an external scheduler (GitHub Action / cron-job.org) rather than
   // a Vercel cron: needs CALIBRATE_SECRET, configured and matching.
   const denied = jobKeyProblem(request)
@@ -195,4 +196,4 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   await purgeShortLived(supabase, runStart)
 
   return Response.json({ calibrated, since, radiusKm: RADIUS_KM, results })
-})
+}))

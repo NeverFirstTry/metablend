@@ -1,4 +1,5 @@
 import { withErrorLog, logError } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 import { jobKeyProblem } from '@/lib/auth'
 import { supabase } from '@/lib/supabase'
 import { getJson } from '@/lib/outlook/http'
@@ -12,7 +13,7 @@ import { saveCountry } from '@/lib/warnings/store'
 // (supabase/warnings-feeds.sql), so this parses and saves just the changed
 // countries and downloads only the late ones itself. Until that SQL exists it
 // downloads every feed itself (the old, 19 MB way).
-export const GET = withErrorLog('warnings.refresh', async (request) => {
+export const GET = withErrorLog('warnings.refresh', withJobLog('warnings-refresh', async (request) => {
   const denied = jobKeyProblem(request)
   if (denied) return Response.json({ error: denied.error }, { status: denied.status })
 
@@ -30,4 +31,4 @@ export const GET = withErrorLog('warnings.refresh', async (request) => {
   })
   if (summary.failed.length) await logError('warnings.upstream', new Error(`${summary.failed.length} feeds failed`), { failed: summary.failed })
   return Response.json(summary)
-})
+}))

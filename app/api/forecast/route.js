@@ -124,6 +124,8 @@ export const GET = withErrorLog('forecast', async (request) => {
 
   if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
   const ttl = blendTtl(timed, models) // a thin blend is kept 2 minutes, not 15
+  // logged (error_log, scope forecast.partial) so thin blends can be counted and checked the next day
+  if (ttl < FULL_TTL) logError('forecast.partial', new Error('thin blend'), { city: geo.name, failed: [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...(models.value == null ? ['open-meteo-models'] : [])] })
 
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase

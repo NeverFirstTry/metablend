@@ -16,6 +16,7 @@ export const SCHEMA_FILES = [
   'places.sql', // our summits, huts and towns (PostGIS, pg_trgm, unaccent)
   'feedback-lessons.sql', // one weight lesson per city per half hour
   'station-errors.sql', // the weighting formula's shadow run
+  'job-runs.sql', // one row per scheduled job run: status, duration, summary
   'enable_rls.sql',
 ]
 

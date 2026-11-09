@@ -3,6 +3,8 @@ import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
+import { withErrorLog } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 
 // 50 cities × (one Visual Crossing fetch + weight round-trips) take a while:
 // the default 300 s that every route shares (one function — fewer
@@ -28,7 +30,7 @@ async function fetchActualTemp(lat, lon, date, key) {
 // and re-weight the APIs — same scoring math as the feedback route, but with
 // the 'daily' thresholds since an instantaneous forecast is being compared
 // against a 24-hour mean (exactly like the Meteostat validation).
-export async function GET(request) {
+export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (request) => {
   if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const key = process.env.VISUAL_CROSSING_KEY
@@ -104,4 +106,4 @@ export async function GET(request) {
 
 
   return Response.json({ calibrated, date: yesterday, results })
-}
+}))
