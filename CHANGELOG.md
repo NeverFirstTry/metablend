@@ -12,9 +12,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
-### Fixed — a thin blend is not kept for long
-- When a weather source that was asked fails, or Open-Meteo’s shared model request comes back empty, the forecast is kept for 2 minutes instead of 15, in memory and on the CDN, and carries partial: true; a full blend keeps its 15 minutes. Lienz had shown 10 of its 19 sources for a quarter of an hour.
-
 ### Fixed — summit forecasts when Open-Meteo is busy
 - Summit requests to Open-Meteo go through a gate: at most four in flight per server instance, the rest wait their turn, and visitors asking for the same peak at the same moment share one request. The bursts behind the "Too many concurrent requests" refusals came from parallel summit requests on cache misses.
 - When Open-Meteo refuses a summit request with "Too many concurrent requests", the request waits a moment and tries again instead of giving up; the three-model fallback gets the same second try. If nothing comes back at all, the summit API no longer answers with a server error: the peak page shows its retry card, the summit pages are regenerated on the next visit, no plan notification goes out, and the widget says the forecast is unavailable. Until now every such moment was a 502.
