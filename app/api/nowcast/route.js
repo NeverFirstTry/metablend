@@ -7,8 +7,9 @@ import { noStore } from '@/lib/no-store'
 
 // Rain in the next 2 hours for a place: the blended 15-minute steps
 // (lib/nowcast.js). Consumers summarize against their own clock, so the
-// CDN may keep a response for 5 minutes.
-const TTL = 300
+// CDN may keep a response for 10 minutes (one Open-Meteo request per place
+// per 10 minutes; the quota card of 2026-11-09).
+const TTL = 600
 const CACHE = new Map()
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 }) // cache misses per minute, per IP
 const cdn = ttl => ({ 'Cache-Control': `public, s-maxage=${ttl}, stale-while-revalidate=${TTL}` })

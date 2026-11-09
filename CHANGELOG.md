@@ -16,6 +16,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Changed — the rain nowcast is kept 10 minutes
+- The next-two-hours rain answer for a place is kept 10 minutes instead of 5, in memory and on the CDN: half the Open-Meteo requests for the same places. The steps are 15 minutes apart, so the picture does not change within that time.
+
 ### Added — a run log for the scheduled jobs
 - Cleanup, calibration, push dispatch, warnings refresh and the hourly station calibration each write one row per run to job_runs (started, duration, status, error, a summary with the station calibration’s skip reasons), kept 14 days, so a failed night run is visible the next morning. A thin forecast blend is logged too (scope forecast.partial). Needs supabase/job-runs.sql on dev and production.
 
