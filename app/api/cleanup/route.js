@@ -167,6 +167,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   // our Open-Meteo request count (lib/open-meteo.js): 90 days; the table may not exist yet either
   const omCalls = await supabase.from('open_meteo_calls').delete().lt('day', new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10))
   if (omCalls.error && omCalls.error.code !== 'PGRST205') await logError('cleanup.open-meteo-calls', omCalls.error)
+  // Open-Meteo's geocoding answers we keep (lib/geocode.js): 30 days; the table may not exist yet either
+  const geocodes = await supabase.from('geocode_cache').delete().lt('fetched_at', new Date(Date.now() - 30 * 86_400_000).toISOString())
+  if (geocodes.error && geocodes.error.code !== 'PGRST205') await logError('cleanup.geocode-cache', geocodes.error)
 
   let validation
   try {

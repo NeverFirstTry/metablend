@@ -17,6 +17,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Changed — a city search no longer needs Open-Meteo
+- A searched city is found in our own towns first (GeoNames places of 5,000 and more, by any of their names, the most populous first, the nearest when the search came from somewhere; the visitor’s spelling is kept, “Wien” stays “Wien”), then in a 30-day cache of Open-Meteo’s geocoding answers, and only then at Open-Meteo, whose answer is cached and whose ask is logged (scope geocode.upstream). The English name a place is filed under is still Open-Meteo’s, looked up by id and cached 30 days. The geocoder moved to lib/geocode.js. Needs supabase/geocode-cache.sql on dev and production.
+
 ### Added — our own count of Open-Meteo requests
 - Every request to Open-Meteo is counted per UTC day and hour, weighted the way Open-Meteo counts API calls (one per request; more than 10 variables or more than two weeks count fractionally; every location and every model counted on its own, which their page leaves open). The error log gets an entry at 70 % and 90 % of the free tier’s 10,000 a day. Needs supabase/open-meteo-calls.sql on dev and production; rows are kept 90 days.
 

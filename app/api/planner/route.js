@@ -1,5 +1,5 @@
 import { openMeteoFetch } from '@/lib/open-meteo'
-import { geocodeCity } from '@/lib/weather'
+import { geocodeCity } from '@/lib/geocode'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'

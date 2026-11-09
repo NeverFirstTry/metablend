@@ -179,3 +179,32 @@ test('places_search_stages — each step of a name search timed inside the datab
   const idx = (await rows(`select indexdef from pg_indexes where indexname = 'summits_search_notable'`))[0]?.indexdef ?? ''
   assert.match(idx, /INCLUDE \(ele, id\)/) // the notable step reads height and id from the index alone
 })
+
+// supabase/geocode-cache.sql on the same towns: the city geocoder's exact-name lookup (lib/geocode.js)
+const geocodeSql = fs.readFileSync(new URL('./geocode-cache.sql', import.meta.url), 'utf8')
+await db.exec(geocodeSql)
+await db.exec(geocodeSql) // safe to run twice
+
+test('town_lookup — a town by any of its names, accents and case forgiven, blanks trimmed; the most populous first; exact names only', async () => {
+  const ids = async q => (await rows(`select id from public.town_lookup($1)`, [q])).map(r => r.id)
+  assert.deepEqual(await ids('wien'), [2761369])
+  assert.deepEqual(await ids(' VIENNA '), [2761369])
+  assert.deepEqual(await ids('ウィーン'), [2761369])
+  assert.deepEqual(await ids('ha noi'), [1581130, 1]) // Hanoi (8 million) before the small Hà Nội
+  assert.deepEqual(await ids('hano'), []) // a start of a name is not a name (towns_search does that)
+  assert.deepEqual(await ids('zermat'), [])
+  const [v] = await rows(`select * from public.town_lookup('Wien')`)
+  assert.equal(v.name, 'Vienna')
+  assert.equal(v.country, 'AT')
+  assert.equal(v.region, 'Vienna')
+  assert.ok(Math.abs(v.lat - 48.2085) < 1e-3 && Math.abs(v.lon - 16.3721) < 1e-3)
+})
+
+test('town_lookup and geocode_cache are not reachable through the API roles (anon / authenticated)', async () => {
+  for (const role of ['anon', 'authenticated']) {
+    await db.exec(`set role ${role}`)
+    await assert.rejects(rows(`select * from public.town_lookup('wien')`), /permission denied/)
+    await assert.rejects(rows(`select * from public.geocode_cache`), /permission denied/)
+    await db.exec('reset role')
+  }
+})

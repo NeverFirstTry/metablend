@@ -6,8 +6,9 @@ import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
+import { geocodeCity, learnName } from '@/lib/geocode'
 import {
-  geocodeCity, learnName, getRegion,
+  getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
   fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
