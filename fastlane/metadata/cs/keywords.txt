@@ -1,1 +1,1 @@
-počasí,předpověď,konsenzus,hory,turistika,vrchol,radar,déšť,upozornění,widget,ECMWF,alpy
+předpověď,meteo,radar,déšť,vítr,sníh,bouřka,výstrahy,widget,hory,turistika,vrchol,alpy,laviny,srážky
