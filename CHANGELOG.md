@@ -10,6 +10,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
 - /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
 
+### Changed — nine Open-Meteo requests per forecast miss instead of twelve
+- ECMWF IFS, NOAA GFS, DWD ICON and Météo-France share one Open-Meteo request instead of one each, and nothing a visitor sees changes: the shared request reads each model at Open-Meteo’s 15-minute step, the value its own request gave (compared live for Lienz and Perth, every field equal). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory, so four of the nine are asked once an hour per place. By Open-Meteo’s counting (variables × models) a forecast miss costs 12 calls at most, 8 while the hourly values are kept, where it cost 14. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a Lienz miss recorded through the old twelve requests and gets the same blend, source by source, from the new nine.
+
 ## 2026-11-09
 
 ### Store listing
@@ -35,9 +38,6 @@ All notable changes to MetaBlend. Format loosely follows
 - /privacy: WeatherAPI named as a processor for the coordinates we send (data processing agreement signed 2026-11-09, Art. 28 GDPR) — German first, all 13 languages, add-only.
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
-
-### Changed — nine Open-Meteo requests per forecast miss instead of twelve
-- ECMWF IFS, NOAA GFS, DWD ICON and Météo-France share one Open-Meteo request instead of one each, and nothing a visitor sees changes: the shared request reads each model at Open-Meteo’s 15-minute step, the value its own request gave (compared live for Lienz and Perth, every field equal). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory, so four of the nine are asked once an hour per place. By Open-Meteo’s counting (variables × models) a forecast miss costs 12 calls at most, 8 while the hourly values are kept, where it cost 14. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a Lienz miss recorded through the old twelve requests and gets the same blend, source by source, from the new nine.
 
 ### Fixed — a model missing from Open-Meteo’s shared answer makes the blend thin
 - Sources that came back empty without failing (a global model absent from Open-Meteo’s multi-model answer, or that request refused) did not count toward partial, so a thin blend was kept 15 minutes: Vienna showed 10 of 18 sources with one failed source reported. Now the shared request is null when refused and the global models missing from its answer are named with the failed sources (partial: true, 2-minute copy, listed in the error log); regional models may be absent outside their area.
