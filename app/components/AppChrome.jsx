@@ -2,7 +2,8 @@
 
 import { useEffect, useLayoutEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { usePagePath } from '@/lib/page-path'
 import { CloudSun, MountainSnow, Menu } from 'lucide-react'
 import { t, preferredLang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
@@ -27,7 +28,7 @@ const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow],
 export default function AppChrome() {
   const [app, setApp] = useState(false)
   const lang = useLang()
-  const path = usePathname()
+  const path = usePagePath() // "/index" is the home page too (lib/page-path.js)
   const router = useRouter()
 
   // React rebuilds the page after a failed hydration and clears what the boot script set on

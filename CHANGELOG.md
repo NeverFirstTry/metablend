@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Fixed — the home page showed two headers
+- The website's home page showed the site header twice whenever the host had rendered the page again after its hour. The page then believed its address was "/index", the host's own name for it, and the header that every other page gets did not recognise the home page. "/index" now counts as the home page, for that header and for the app's tab bar (where no tab was marked). Seen live on 2026-11-10 from 17:16 UTC; deployments a day old do the same when their home page is rendered again.
+
 ### Added — a Terms of Use notice: the app's first start, and the website's one-time bar
 - The app shows a notice once, on its first start: with "Continue" you accept the Terms of Use, the privacy notice is linked as information, and there is the one button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages.
 - On the website the one-time bar at the bottom of the forecast page carries the same two sentences and the same button instead of the cookie line. It blocks nothing.
