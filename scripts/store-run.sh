@@ -13,7 +13,11 @@
 #    Großvenediger, Zugspitze; while none has an open summit window and a favourable start, 4 and 5 are
 #    tried again every 30 minutes until 11:00. The iPhone set renders in SF Pro, the Android set in an
 #    Android phone's fonts (Hanken Grotesk, Noto Sans CJK, Roboto behind them)
+#  - a thin blend (Vienna with fewer than 18 sources) is waited out, up to about 25 minutes, see store-shots.mjs
 #  - stops the server and writes store/run/summary.txt (the full log next to it). Commits nothing.
+# Again for some languages only, screens 1 to 3 and the feature graphic, without screens 4 and 5:
+#   LANGS="nl pl cs sl pt ja zh ko" ONLY13=1 bash scripts/store-run.sh now
+# Screens 1 and 2 show Vienna's sky: run them between 08:00 and 15:20 Vienna time, as the morning run does.
 set -u
 SELF="$(cd "$(dirname "$0")" && pwd)/$(basename "$0")"
 cd "$(dirname "$SELF")/.."
@@ -25,7 +29,7 @@ fi
 
 RUN=store/run
 mkdir -p "$RUN"
-LOG="$RUN/$(date +%Y-%m-%d).log"
+LOG="$RUN/$(date +%Y-%m-%d-%H%M).log"
 SUMMARY="$RUN/summary.txt"
 : > "$LOG"
 log() { echo "$(vienna) $*" | tee -a "$LOG"; }
@@ -74,13 +78,15 @@ curl -s -o /dev/null http://localhost:3123/more || fail "the server on :3123 did
 log "server up on :3123"
 
 # ── screens 1 to 3 and the feature graphic ──
-log "screens 1-3 and the feature graphic"
-if SHOTS=1,2,3,feature node scripts/store-shots.mjs >> "$LOG" 2>&1; then A="ok"; else A="FAILED (exit $?), see the log"; fi
+log "screens 1-3 (${LANGS:-every language}) and the feature graphic"
+# LANGS unquoted on purpose: one argument per language
+if SHOTS=1,2,3 node scripts/store-shots.mjs ${LANGS:-} >> "$LOG" 2>&1 && SHOTS=feature node scripts/store-shots.mjs en >> "$LOG" 2>&1; then A="ok"; else A="FAILED (exit $?), see the log"; fi
 log "screens 1-3 + feature graphic: $A"
 
 # ── screens 4 and 5, again every 30 minutes until 11:00 while no window is open ──
 tries=0; B=""
-while :; do
+[ -n "${ONLY13:-}" ] && B="not run (ONLY13)"
+while [ -z "${ONLY13:-}" ]; do
   tries=$((tries + 1))
   log "screens 4 and 5, try $tries"
   SHOTS=4,5 node scripts/store-shots.mjs >> "$LOG" 2>&1; code=$?
@@ -100,7 +106,7 @@ changed=$(git status --porcelain -- fastlane | grep -c '\.png')
 {
   echo "MetaBlend store run, $(date +%Y-%m-%d)"
   echo "branch $(git branch --show-current) at $(git rev-parse --short HEAD); started $STARTED, finished $(vienna) (Vienna)"
-  echo "screens 1-3 + feature graphic: $A"
+  echo "screens 1-3 (${LANGS:-every language}) + feature graphic: $A"
   echo "screens 4 and 5: $B"
   echo "images changed under fastlane/: $changed (nothing committed)"
   echo "requests to production per capture:"

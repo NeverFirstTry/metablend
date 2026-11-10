@@ -5,6 +5,7 @@
 //   On a Mac, scripts/store-run.sh does all of it for the morning run.
 //   node scripts/store-shots.mjs [lang …]         (default: all 13; DATA=https://metablend.app takes the /api/ answers from there)
 //   SHOTS=1,3 node scripts/store-shots.mjs        (only those screens; add 'feature' for the Play feature graphic)
+//   SHOTS=1,2,3 node scripts/store-shots.mjs nl ko  (those screens in those languages; SHOTS=feature … en: the graphic alone)
 // Writes fastlane/screenshots/<ios>/ (1290×2796) and
 // fastlane/metadata/android/<android>/images/phoneScreenshots/ (1080×1920),
 // plus the Play feature graphic and icon in en-US.
@@ -51,7 +52,8 @@ const DEVICES = [
   { id: 'android', w: 360, h: 640, scale: 3, out: l => join(ROOT, 'fastlane/metadata/android', l.android, 'images/phoneScreenshots') },
 ]
 const FORECAST_READY = `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`
-const SOURCES_IN = `(+([...document.querySelectorAll('button')].find(b => b.textContent.includes(${JSON.stringify('§sourcesFold')}))?.querySelector('.block')?.textContent.match(/\\d+/)?.[0] ?? 0) >= 18)`
+const SOURCES_SEEN = `(+([...document.querySelectorAll('button')].find(b => b.textContent.includes(${JSON.stringify('§sourcesFold')}))?.querySelector('.block')?.textContent.match(/\\d+/)?.[0] ?? 0))`
+const SOURCES_IN = `(${SOURCES_SEEN} >= 18)`
 const PEAK_READY = `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` // the hour strip, in any language (French says CAS, not SAC)
 const ROUTE_READY = `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`
 // the route screen's row of 7 day buttons: 0 = today, 1 = tomorrow
@@ -74,6 +76,10 @@ const SCREENS = [
   { path: () => `/hike?${PICK.query}&route=${PICK.route}`, ready: ROUTE_READY, notState: 'routeNoStart', day: true },
 ]
 const sleep = ms => new Promise(r => setTimeout(r, ms))
+// A thin blend (the forecast is there with fewer than 18 sources, e.g. when Open-Meteo refused production's
+// shared model request) is not a failure: production keeps each copy 15 minutes and serves it once more
+// while it refreshes, so wait 3 minutes and load again, up to 6 times (about 25 minutes with the checks).
+const THIN_WAIT = 3 * 60000, THIN_TRIES = 6
 // The Android set in an Android phone's fonts. The site's stack starts with Apple's fonts, which Android
 // lacks, so a phone shows Hanken Grotesk (the site's own), Noto Sans CJK for Japanese, Chinese and Korean,
 // and Roboto behind them. On a Mac the stack would pick SF Pro, so the Android shots drop Apple's fonts
@@ -244,7 +250,9 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
       // map tiles, route lookups and a slow source are sometimes late: up to three tries
       const ready = s.ready.replace('§nearYou', t(l.lang, 'hikeNearYou')).replace('§tabWeek', t(l.lang, 'tabWeek')).replace('§sourcesFold', t(l.lang, 'sourcesFold'))
       const path = typeof s.path === 'function' ? s.path() : s.path
-      for (let attempt = 1; ; attempt++) {
+      const loaded = FORECAST_READY.replace('§tabWeek', t(l.lang, 'tabWeek'))
+      const count = SOURCES_SEEN.replace('§sourcesFold', t(l.lang, 'sourcesFold'))
+      for (let attempt = 1, thin = 0; ; ) {
         // no last city on the hiking screen: the list comes from where the device stands (Lienz)
         if (s.clearStorage) await send('Storage.clearDataForOrigin', { origin: new URL(BASE).origin, storageTypes: 'local_storage' })
         await send('Page.navigate', { url: BASE + path })
@@ -252,7 +260,13 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
           const seen = await ev(`location.href + ' | ' + document.body.innerText.slice(0, 160).replace(/\\s+/g, ' ')`)
           console.log(`${l.lang} ${d.id} ${i + 1}: not ready (${seen})`)
           answers.clear()
-          if (attempt === 3) throw e
+          if (s.ready.includes(SOURCES_IN) && thin < THIN_TRIES && await ev(loaded)) {
+            thin++
+            console.log(`${l.lang} ${d.id} ${i + 1}: thin blend, ${await ev(count)} sources; loading again in 3 minutes (${thin}/${THIN_TRIES})`)
+            await sleep(THIN_WAIT)
+            continue
+          }
+          if (++attempt > 3) throw e
         }
       }
       if (s.day) {
