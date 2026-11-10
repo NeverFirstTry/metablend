@@ -6,12 +6,14 @@
 //   node scripts/store-shots.mjs [lang …]         (default: all 13; DATA=https://metablend.app takes the /api/ answers from there)
 //   SHOTS=1,3 node scripts/store-shots.mjs        (only those screens; add 'feature' for the Play feature graphic)
 //   SHOTS=1,2,3 node scripts/store-shots.mjs nl ko  (those screens in those languages; SHOTS=feature … en: the graphic alone)
+//   RECOMPOSE=<commit> node scripts/store-shots.mjs [lang …]   (captions changed since <commit> onto the existing
+//   images: no capture, no server; see the RECOMPOSE block)
 // Writes fastlane/screenshots/<ios>/ (1290×2796) and
 // fastlane/metadata/android/<android>/images/phoneScreenshots/ (1080×1920),
 // plus the Play feature graphic and icon in en-US.
 // Screens 4 and 5 show the feature working with real data: run them in the morning (Alps time),
 // when a candidate peak has an open summit window today; the script stops if none has.
-import { spawn } from 'node:child_process'
+import { execFileSync, spawn } from 'node:child_process'
 import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -175,17 +177,26 @@ await send('Emulation.setGeolocationOverride', LIENZ)
 // a viewport tag, or mobile emulation lays the page out 980 px wide and shrinks it
 const HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
 
-function frame(caption, shot, d) {
+// Japanese and Chinese captions break only at their "|" marks (between words), Korean only at its spaces:
+// a browser otherwise splits a word anywhere (山 / 峰, 가 / 장). Without a language: the plain caption.
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
+const captionHtml = (caption, lang) => ['ja', 'zh'].includes(lang) ? caption.split('|').map(p => `<span style="white-space:nowrap">${esc(p)}</span>`).join('<wbr>') : esc(caption.replaceAll('|', ''))
+// Hanken Grotesk has no Japanese, Chinese or Korean letters: those captions add Noto Sans (loaded, so a Mac and a
+// PC draw the same letters, not Hiragino or Yu Gothic), with Hanken Grotesk kept for digits and Latin letters
+const cjkFont = lang => NOTO[lang] ?? null
+function frame(caption, shot, d, lang = null) {
+  const cjk = cjkFont(lang)
   return `<!doctype html><html><head>${HEAD}
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&display=block" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800${cjk ? `&family=${cjk.replace(/ /g, '+')}:wght@800` : ''}&display=block" rel="stylesheet">
 <style>html,body{margin:0;width:${d.w}px;height:${d.h}px;overflow:hidden}
-body{background:linear-gradient(180deg,#0f1b33 0%,#1d3a6b 55%,#3f6fb0 100%);font-family:'Hanken Grotesk',system-ui,sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center}
+body{background:linear-gradient(180deg,#0f1b33 0%,#1d3a6b 55%,#3f6fb0 100%);font-family:'Hanken Grotesk',${cjk ? `'${cjk}',` : ''}system-ui,sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center}
 h1{margin:${Math.round(d.h * 0.07)}px ${Math.round(d.w * 0.08)}px ${Math.round(d.h * 0.035)}px;font-size:${Math.round(d.w * 0.075)}px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:-0.01em;text-wrap:balance}
+h1:is(:lang(ja),:lang(zh),:lang(ko)){word-break:keep-all}
 img{width:${Math.round(d.w * 0.8)}px;border-radius:${Math.round(d.w * 0.06)}px;box-shadow:0 12px 40px rgba(0,0,0,.45)}</style></head>
-<body><h1>${caption.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</h1><img src="data:image/png;base64,${shot.toString('base64')}"></body></html>`
+<body><h1${lang ? ` lang="${lang}"` : ''}>${captionHtml(caption, lang)}</h1><img src="data:image/png;base64,${shot.toString('base64')}"></body></html>`
 }
 
-async function render(html, d) {
+async function show(html, d) {
   await send('Emulation.setDeviceMetricsOverride', { width: d.w, height: d.h, deviceScaleFactor: d.scale, mobile: true })
   await send('Page.navigate', { url: 'about:blank' }); await sleep(200)
   const { result } = await send('Page.getFrameTree')
@@ -196,6 +207,8 @@ async function render(html, d) {
     const css = document.querySelector('link[rel=stylesheet]')
     if (css && !css.sheet) return false
     await document.fonts.load('800 32px "Hanken Grotesk"')
+    const lang = document.querySelector('h1')?.lang, cjk = ${JSON.stringify(NOTO)}[lang]
+    if (cjk) { await document.fonts.load('800 32px "' + cjk + '"', ${JSON.stringify(SAMPLE)}[lang]); if (![...document.fonts].some(f => f.family.replace(/"/g, '') === cjk && f.status === 'loaded')) return false }
     const font = [...document.fonts].some(f => f.family.includes('Hanken') && f.status === 'loaded')
     return font && (document.querySelector('img')?.complete ?? true)
   })()`)
@@ -203,8 +216,10 @@ async function render(html, d) {
   // a caption longer than three lines pushes the phone shot down too far
   const lines = await ev(`(() => { const h = document.querySelector('h1'); return Math.round(h.getBoundingClientRect().height / parseFloat(getComputedStyle(h).lineHeight)) })()`)
   if (lines > 3) throw new Error(`caption takes ${lines} lines: ${await ev(`document.querySelector('h1').textContent`)}`)
-  return png()
+  if (await ev(`(() => { const h = document.querySelector('h1'); return h.scrollWidth > h.clientWidth + 1 })()`)) throw new Error(`caption wider than the screen: ${await ev(`document.querySelector('h1').textContent`)}`)
+  return lines
 }
+const render = async (html, d) => { await show(html, d); return png() }
 
 const langs = process.argv.slice(2).length ? process.argv.slice(2) : LOCALES.map(l => l.lang)
 const shotList = process.env.SHOTS ? process.env.SHOTS.split(',') : null
@@ -212,6 +227,74 @@ const only = shotList && shotList.filter(x => /^\d+$/.test(x)).map(Number)
 const wantFeature = !shotList || shotList.includes('feature')
 await send('Network.setCookie', { name: 'metablend_app', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
+
+// RECOMPOSE=<commit>: every caption that changed since <commit> goes onto the existing image, without a new
+// capture (SHOTS picks screens outright, for a layout change with the same words). The phone image sits in
+// each finished PNG 1:1 at 80 % width; where it starts depends only on how many lines the old caption took,
+// read from the picture itself (white caption letters in each line's band), never from a new layout of the
+// old words, which another machine's fonts may wrap differently. The phone is lifted out (an exact copy) and
+// set back under the old line count as a check: from just above the phone down it must match the picture (a
+// phone a caption line off differs by tens; drawn back, the browser resamples it by a fraction of a pixel,
+// about 3, invisible). Then it goes under the new caption. If it moves up past what the old picture cut off,
+// one screen point is filled from the last row; more than that is refused: that image needs a new capture.
+if (process.env.RECOMPOSE) {
+  const OLD = JSON.parse(execFileSync('git', ['-C', ROOT, 'show', `${process.env.RECOMPOSE}:store/captions.json`], { encoding: 'utf8' }))
+  // pixel work in a blank page: PNGs in as base64, a PNG (base64) or numbers out
+  const inPage = async (body, args) => {
+    await send('Page.navigate', { url: 'about:blank' }); await sleep(100)
+    return ev(`(async () => { const a = ${JSON.stringify(args)}; const load = b => new Promise(r => { const i = new Image(); i.onload = () => r(i); i.src = 'data:image/png;base64,' + b }); const px = i => { const c = Object.assign(document.createElement('canvas'), { width: i.width, height: i.height }); const g = c.getContext('2d'); g.drawImage(i, 0, 0); return g.getImageData(0, 0, i.width, i.height).data }; ${body} })()`)
+  }
+  const canvasPng = 'return c.toDataURL("image/png").split(",")[1]'
+  // the phone on whole device pixels (and a lifted phone at exactly its own size, 1:1); its place (device px) after that
+  const snap = whole => `(() => { const i = document.querySelector('img'), k = devicePixelRatio
+    if (${whole}) { i.style.width = i.naturalWidth / k + 'px'; i.style.height = i.naturalHeight / k + 'px' }
+    const r = i.getBoundingClientRect()
+    i.style.position = 'relative'; i.style.left = (Math.round(r.left * k) - r.left * k) / k + 'px'; i.style.top = (Math.round(r.top * k) - r.top * k) / k + 'px'
+    const s = i.getBoundingClientRect(); return { x: Math.round(s.left * k), y: Math.round(s.top * k), w: Math.round(s.width * k), h: Math.round(s.height * k) } })()`
+  const nLines = n => `(document.querySelector('h1').innerHTML = Array(${n}).fill('Xg').join('<br>'), true)`
+  const refused = []
+  for (const l of LOCALES.filter(x => langs.includes(x.lang))) for (const d of DEVICES) {
+    const dir = d.out(l)
+    if (!dir) continue
+    for (let n = 1; n <= 5; n++) {
+      const [was, now] = [OLD[l.lang][n - 1], CAPTIONS[l.lang][n - 1]]
+      // SHOTS picks the screens outright (a layout change with the same words); without it, the changed captions
+      if (only ? !only.includes(n) : was === now) continue
+      const file = join(dir, `${n}.png`), done = readFileSync(file), H = d.h * d.scale, k = d.scale
+      // the old caption's lines: white letters in the middle of each line's band (the frame's CSS numbers)
+      const top = Math.round(d.h * 0.07), lh = Math.round(d.w * 0.075) * 1.15
+      const bands = [1, 2, 3].map(i => [Math.round((top + (i - 0.75) * lh) * k), Math.round((top + (i - 0.25) * lh) * k)])
+      const white = await inPage(`const i = await load(a.done), p = px(i), W = i.width
+        return a.bands.map(([y0, y1]) => { let w = 0; for (let y = y0; y < y1; y++) for (let x = Math.round(W * 0.1); x < W * 0.9; x++) { const o = (y * W + x) * 4; if (p[o] > 235 && p[o + 1] > 235 && p[o + 2] > 235) w++ } return w })`, { done: done.toString('base64'), bands })
+      const lines = white.filter(w => w > 40).length
+      if (!lines || white.findIndex(w => w <= 40) !== -1 && white.findIndex(w => w <= 40) < lines) throw new Error(`${l.lang} ${d.id} ${n}: cannot read the old caption's lines (${white.join(', ')})`)
+      // where the phone sat under that many lines: the frame with a stand-in of the captured size
+      const blank = Buffer.from(await inPage(`const c = Object.assign(document.createElement('canvas'), { width: a.w, height: a.h }); ${canvasPng}`, { w: d.w * k, h: H }), 'base64')
+      await show(frame('Xg', blank, d), d); await ev(nLines(lines))
+      const at = await ev(snap(false))
+      // lift it out; a bottom the old picture cut off by at most one screen point is filled from the last row
+      const shot = Buffer.from(await inPage(`const i = await load(a.done); const c = Object.assign(document.createElement('canvas'), { width: a.at.w, height: a.at.h }); const g = c.getContext('2d'); g.drawImage(i, -a.at.x, -a.at.y)
+        const have = a.H - a.at.y; for (let y = have; y < Math.min(a.at.h, have + a.k); y++) g.drawImage(c, 0, have - 1, a.at.w, 1, 0, y, a.at.w, 1)
+        ${canvasPng}`, { done: done.toString('base64'), at, H, k }), 'base64')
+      // the check: set back under the old line count, it must give back the picture from just above the phone down
+      await show(frame('Xg', shot, d), d); await ev(nLines(lines)); await ev(snap(true)); await sleep(100)
+      const again = await png()
+      const fit = await inPage(`const [x, y] = await Promise.all([load(a.p), load(a.q)]); const p = px(x), q = px(y), row = x.width * 4, start = (a.from - 1) * row
+        const dd = (o, j) => Math.abs(p[o] - q[j]) + Math.abs(p[o + 1] - q[j + 1]) + Math.abs(p[o + 2] - q[j + 2]); let same = 0, up = 0, down = 0
+        for (let o = start; o < p.length - row; o += 4) { same += dd(o, o); up += dd(o, o - row); down += dd(o, o + row) }
+        const m = (p.length - row - start) / 4; return { same: same / m, shifted: Math.min(up, down) / m }`, { p: done.toString('base64'), q: again.toString('base64'), from: at.y - 15 * k })
+      if (fit.same > 8) throw new Error(`${l.lang} ${d.id} ${n}: the lifted phone does not give back the picture (difference ${fit.same.toFixed(1)}, one row off ${fit.shifted.toFixed(1)})`)
+      await show(frame(now, shot, d, l.lang), d)
+      const to = await ev(snap(true))
+      if (H - to.y > H - at.y + k && at.y + at.h > H) { refused.push(`${l.lang} ${d.id} ${n}: the phone moves up ${at.y - to.y} px past what the old picture cut off`); continue }
+      await sleep(100)
+      writeFileSync(file, await png())
+      console.log(`${l.lang} ${d.id} ${n}: "${now.replaceAll('|', '')}" (${lines} lines before; phone ${to.y >= at.y ? '+' : ''}${to.y - at.y} px; check ${fit.same.toFixed(1)}, one row off ${fit.shifted.toFixed(1)})`)
+    }
+  }
+  if (refused.length) console.log(`needs a new capture:\n  ${refused.join('\n  ')}`)
+  ws.close(); edge.kill(); process.exit(refused.length ? 4 : 0)
+}
 
 // Screens 4 and 5: find a peak with an open summit window today and a route with a favourable start
 // today or tomorrow, in English first; every language then uses the same choice
@@ -291,7 +374,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
       // the store shows the feature working: never "No favourable summit window" or "No favourable start"
       if (s.notState && await ev(shows(l.lang, s.notState))) throw new Error(`${l.lang} ${d.id} ${i + 1}: shows "${stateText(l.lang, s.notState)}"`)
       const shot = await png()
-      const out = await render(frame(CAPTIONS[l.lang][i], shot, d), d)
+      const out = await render(frame(CAPTIONS[l.lang][i], shot, d, l.lang), d)
       const [w, h] = sizeOf(out)
       if (w !== d.w * d.scale || h !== d.h * d.scale) throw new Error(`${l.lang} ${d.id} ${i + 1}: ${w}×${h}`)
       writeFileSync(join(dir, `${i + 1}.png`), out)

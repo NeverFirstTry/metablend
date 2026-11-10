@@ -26,7 +26,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed — the app's header and the store listing
 - The Beta badge next to the logo is gone for launch, in the app as on the website.
 - On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
-- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead, and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
+- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
+- Store screenshots in Japanese, Chinese and Korean no longer split a word across caption lines (Japanese and Chinese break only between words, Korean only at spaces), and their captions are set in Noto Sans on every machine. Screen 2 drops the comma before "and" in English, German, French, Spanish, Italian and Portuguese; Dutch follows with the final capture.
 
 ### Changed — the moon in lavender
 - At night the moon icon is a soft lavender-grey in dark mode; the pale blue-grey read as white next to the rain blue. Light mode shows the same lavender, darker (4.7:1 on its tile), so the moon is one colour family in both.
