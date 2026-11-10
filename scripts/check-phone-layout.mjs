@@ -23,10 +23,8 @@
 // The app pages and the website pages each run in a fresh browser context, and the browser picks its own
 // debugging port, so neither another view nor another run on the same machine can leak into a page.
 // A call to the browser has 45 s, a page 2 minutes and the run 20 minutes: a hang fails fast and names the page.
-import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import featured from '../lib/hike/featured.json' with { type: 'json' }
@@ -34,6 +32,7 @@ import { hikeApiPath } from '../lib/hike/params.js'
 import { ANALYTICS, IS_ANALYTICS, analyticsLeak } from './lib/analytics-block.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 import { shapeDiff } from './lib/shape.mjs'
+import { launchBrowser } from './lib/browser.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'layout-fixtures.json')
@@ -71,7 +70,7 @@ const SMOKE = [
 ]
 const RERECORD = 're-record fixtures (RECORD=1, see the top of this file)'
 for (const [what, path, usable, shape] of SMOKE) {
-  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: e.name }))
+  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: `nothing (${e.cause?.code ?? e.name})` }))
   const j = r.ok ? await r.json().catch(() => null) : null
   const ok = j && usable(j)
   if (RECORD) { if (ok) recorded.answers[`GET ${path}`] = { status: 200, type: 'application/json', body: j }; else findings.push(`live ${what} (${path}): not recorded, it ${r.ok ? 'answered without its data' : `answered ${r.status}`}`); continue }
@@ -89,19 +88,14 @@ for (const [key, a] of Object.entries(recorded.answers)) { const route = key.spl
 const served = { exact: 0, route: 0, missing: new Set() }
 // requests the browser sends to other hosts (map tiles, the radar): counted, not answered
 const outside = new Map()
-// The browser: a free debugging port of its own (port 0: the browser picks one and writes it into
-// DevToolsActivePort in its profile), so two runs at once never drive each other's browser (two sessions
-// shared the fixed port 9441 on 2026-11-10; one run stalled, one saw a website page "opened as the app").
-const profile = mkdtempSync(join(tmpdir(), 'layout-'))
-const edge = spawn(EDGE, ['--headless=new', ...(process.env.CI ? ['--no-sandbox'] : []), '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' })
-const gone = new Promise(r => edge.once('exit', r))
-let active = null
-// up to 30 s: on a busy CI runner the browser took longer than the 10 s this waited before (run 29, 2026-11-10)
-for (let i = 0; i < 120 && !active; i++) {
-  await sleep(250)
-  try { const [port, path] = readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n'); if (port && path) active = `ws://127.0.0.1:${port.trim()}${path.trim()}` } catch { /* not written yet */ }
-}
-if (!active) { console.error('The browser did not open its debugging port within 30 seconds: no page was checked.'); edge.kill(); process.exit(1) }
+// The browser (scripts/lib/browser.mjs, as for the accessibility check and the store screenshots): a free
+// debugging port of its own, read back from DevToolsActivePort in its profile, so two runs at once never drive
+// each other's browser (two sessions shared the fixed port 9441 on 2026-11-10; one run stalled, one saw a
+// website page "opened as the app"). Its profile (about 400 MB) goes however the run ends, also after an error.
+// Up to 30 s for the port: on a busy CI runner the browser took longer than the 10 s waited before (run 29).
+const launched = await launchBrowser(EDGE, 'layout-', [...(process.env.CI ? ['--no-sandbox'] : []), '--hide-scrollbars']).catch(() => null)
+if (!launched) { console.error('The browser did not open its debugging port within 30 seconds: no page was checked.'); process.exit(1) }
+const { active, close: closeBrowser } = launched
 console.log(`browser on debugging port ${new URL(active).port}`)
 
 // Time limits, so a stuck browser fails fast and names the page instead of running on: every browser
@@ -130,14 +124,6 @@ function connect(url, onEvent = () => {}) {
 }
 const browser = connect(active)
 await browser.open
-// Closed over DevTools, the browser ends its helpers and frees its profile (about 400 MB), which then goes. A killed
-// browser's helpers keep the files locked for a while; 34 profiles had piled up in TEMP by 2026-11-10.
-async function closeBrowser() {
-  try { browser.ws.send(JSON.stringify({ id: 0, method: 'Browser.close' })) } catch { /* connection already gone */ }
-  await Promise.race([gone, sleep(5000)])
-  edge.kill()
-  try { rmSync(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }) } catch { /* a file still locked stays behind */ }
-}
 // the page connection of the view being checked
 let send = null
 // a paused request: answered from the recording (RECORD=1: asked once from where it was going, and kept)
