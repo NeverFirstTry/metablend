@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Checks cost no weather quota, and only the live site counts visits
 - Plausible, Vercel Web Analytics and Speed Insights load only on metablend.app (and in the apps, which open it), no longer on preview deployments or local builds (`app/components/SiteAnalytics.jsx`).
+- The phone layout check takes the pages' data from a recording (`scripts/layout-fixtures.json`: every `/api/` answer and the search box's place suggestions) instead of production, so a run after a deploy asks the weather sources only for the two live requests it starts with (the Vienna city page's forecast and the Großglockner summit page's), which still turn it red when the production API is broken and which those two pages read next. `RECORD=1` records the answers again. It also fails when analytics load on another host than metablend.app, or none load on metablend.app.
 - The accessibility check and the store screenshot runs block the analytics like the layout check and fail if any got through (`scripts/lib/analytics-block.mjs`).
 - Both also pick a free debugging port like the layout check (they were fixed at 9377 and 9371), so two runs at once never share a browser, and remove their browser profile at the end (`scripts/lib/browser.mjs`).
 
