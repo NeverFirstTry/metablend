@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 import { LOCALES } from '../store/locales.js'
 import { t } from '../lib/i18n.js'
 import { captionProblems } from '../lib/wording.js'
+import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
@@ -169,6 +170,8 @@ const until = async (expr, ms = 30000) => { for (let s = 0; s < ms; s += 250) { 
 const png = async () => Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')
 const sizeOf = buf => [buf.readUInt32BE(16), buf.readUInt32BE(20)]
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+// the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
+await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 await send('Fetch.enable', { patterns: [{ urlPattern: '*/api/peaks/near*' }, ...(DATA ? [{ urlPattern: '*/api/*' }] : [])] })
 // location allowed and standing in Lienz (the hiking screens); the forecast screens open Vienna by link
 await send('Browser.grantPermissions', { origin: new URL(BASE).origin, permissions: ['geolocation'] })
@@ -226,7 +229,6 @@ const shotList = process.env.SHOTS ? process.env.SHOTS.split(',') : null
 const only = shotList && shotList.filter(x => /^\d+$/.test(x)).map(Number)
 const wantFeature = !shotList || shotList.includes('feature')
 await send('Network.setCookie', { name: 'metablend_app', value: '1', url: BASE })
-await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 
 // RECOMPOSE=<commit>: every caption that changed since <commit> goes onto the existing image, without a new
 // capture (SHOTS picks screens outright, for a layout change with the same words). The phone image sits in

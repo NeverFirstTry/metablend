@@ -18,18 +18,21 @@ import { spawn } from 'node:child_process'
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
 const DATA = process.env.DATA ?? null
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const WIDTH = 390
-// [name, path, how]: 'search' opens the forecast by searching Wien; 'week' then opens the Week tab
+// [name, path, how]: 'search' opens the forecast by searching Wien; 'week' then opens the Week tab;
+// 'notice' is the terms notice (lib/terms.js): the app's first-start screen, the website's one-time bar
 const PAGES = [
   ['forecast', '/', 'search'], ['forecast week', '/', 'week'],
   ['hiking', '/hike'], ['peak', '/hike?peak=grossglockner'], ['route', '/hike?peak=grossglockner&route=osm-14622955'],
   ['more', '/more'], ['rankings', '/leaderboard'], ['planner', '/planner'], ['heatmap', '/heatmap'],
   ['aviation', '/aviation'], ['airport', '/aviation/LOWW'], ['summit page', '/mountains/grossglockner'],
   ['city page', '/weather/vienna'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
+  ['terms notice', '/?terms=show', 'notice'],
 ]
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -110,6 +113,8 @@ async function openView() {
   await page.open
   send = page.call
   await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+  // the terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
   const { userAgent } = (await browser.call('Browser.getVersion')).result
   await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendLayoutCheck/1` })
   await send('Network.setBlockedURLs', { urls: ANALYTICS })
@@ -156,15 +161,17 @@ async function checkPage(view, motion, name, path, how) {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
   await send('Network.clearBrowserCookies')
   await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
-  for (const [k, v] of [['metablend_lang', 'de'], ['metablend_consent', '1']]) await send('Network.setCookie', { name: k, value: v, url: BASE + '/' })
+  await send('Network.setCookie', { name: 'metablend_lang', value: 'de', url: BASE + '/' })
   await send('Page.navigate', { url: 'about:blank' }); await sleep(200)
   // the app's forecast is its first tab; it opens from another page, like the app itself
-  const start = view === 'app' && how ? '/more' : path
+  const start = view === 'app' && how && how !== 'notice' ? '/more' : path
   // a page that never answers stops the run with its name (send throws after 45 s); an error page is a finding
   const nav = await send('Page.navigate', { url: BASE + start + (view === 'app' ? (start.includes('?') ? '&' : '?') + 'app=1' : '') })
   if (nav.error || nav.result?.errorText) throw new Error(`did not load: ${nav.error?.message ?? nav.result.errorText}`)
-  await until(view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
-  if (how) {
+  const noticeUp = visible(view === 'app' ? '.terms-notice button' : '.terms-bar button')
+  await until(how === 'notice' ? noticeUp : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
+  if (how === 'notice' && !(await ev(noticeUp))) { findings.push(`${view} ${name}: the notice did not come up`); console.log(`✗ ${view} ${name}`); return }
+  if (how && how !== 'notice') {
     if (view === 'app') await ev(`document.querySelector('.app-tabbar a').click()`)
     await until(visible('.home-search input'))
     await ev(`(() => { const i = document.querySelector('.home-search input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'Wien'); i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); return true })()`)

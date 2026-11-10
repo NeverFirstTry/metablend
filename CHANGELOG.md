@@ -8,6 +8,13 @@ All notable changes to MetaBlend. Format loosely follows
 ### Added — MetaBlend on Instagram, TikTok and X
 - Plain links to MetaBlend's Instagram, TikTok and X profiles in the website footer, on the support page and as a small row in the app's More tab. The marks are drawn on the page: no embed, script or share button from the networks, so nothing loads from them until someone follows a link. A test renders all three places and fails if a link is missing or anything from the networks is on the page.
 
+### Added — a Terms of Use notice: the app's first start, and the website's one-time bar
+- The app shows a notice once, on its first start: with "Continue" you accept the Terms of Use, the privacy notice is linked as information, and there is the one button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages.
+- On the website the one-time bar at the bottom of the forecast page carries the same two sentences and the same button instead of the cookie line. It blocks nothing.
+- The device keeps the version of the terms the notice was passed for, in its own storage, which never reaches our server. When the terms change in substance, the version in `lib/terms.js` changes with them and the notice comes once more, saying that the terms have changed.
+- Privacy notice, "What stays on your device", in all 13 languages: it names that kept version, and no longer a consent. The cookie that remembered the OK on the cookie line is not set any more and is removed from devices that still have it.
+- Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice and the bar themselves.
+
 ### Changed — link previews in the current design
 - The cards chats and social networks show for a MetaBlend link are on Slate with the faint gold glow where the sun is, white text and gold only for "Blend" and the address: the start page (which every page without its own card shows: cities, summits, airports, hiking), the language pages in all 13 languages (one design now, the start card is the English one) and a shared city (the glow by the city's time of day, none at night; the moon lavender, clouds neutral, as in the app). The old navy and sky gradients are gone.
 - A shared city's card no longer leaves a gap after longer names ("Tokyo , Japan").
