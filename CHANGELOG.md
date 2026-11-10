@@ -11,6 +11,25 @@ All notable changes to MetaBlend. Format loosely follows
 - `CONTRIBUTING.md`: no outside code for now, issues are welcome.
 - Still to follow, German first: the terms page's copyright section, which says "all rights reserved" in 13 languages.
 
+### Added — the imprint is linked from the app's terms notice
+- The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
+- Phone layout check: the app's notice without a link to the imprint is a finding.
+
+### Fixed — contrast: the Rankings link in both themes, the coloured headlines in the light theme
+- The "Rankings" link at the end of the most accurate sources (forecast page, website) is underlined, in both themes. Its gold read at 1.76:1 against the grey text around it in the light theme and 1.19:1 in the dark one; no gold reaches 3:1 against that text and 4.5:1 on the page at once, so the underline marks it. Its colour is unchanged.
+- The green, blue and orange headlines (a good window, rain, a warning) are a touch darker in the light theme and read at 4.61:1 on their tinted box over the sky, where they read at 4.31, 4.27 and 4.24:1: green #127e4b to #117948, blue #1d6dca to #1c68c0, orange #bb4a00 to #b24600. Green still means agreement and dry; the same three colours read a little darker everywhere in the light theme. The dark theme keeps its colours.
+- Accessibility check: no serious or critical finding left in either theme (18 pages, 4 dark skies and 2 light ones). Before: 14 in the light theme and 20 in the dark one.
+
+### Fixed — the home page showed two headers
+- The website's home page showed the site header twice whenever the host had rendered the page again after its hour. The page then believed its address was "/index", the host's own name for it, and the header that every other page gets did not recognise the home page. "/index" now counts as the home page, for that header and for the app's tab bar (where no tab was marked). Seen live on 2026-11-10 from 17:16 UTC; deployments a day old do the same when their home page is rendered again.
+
+### Checks cost no weather quota, and only the live site counts visits
+- Plausible, Vercel Web Analytics and Speed Insights load only on metablend.app (and in the apps, which open it), no longer on preview deployments or local builds (`app/components/SiteAnalytics.jsx`).
+- The phone layout check takes the pages' data from a recording (`scripts/layout-fixtures.json`: every `/api/` answer and the search box's place suggestions) instead of production, so a run after a deploy asks the weather sources only for the two live requests it starts with (the Vienna city page's forecast and the Großglockner summit page's), which still turn it red when the production API is broken and which those two pages read next. `RECORD=1` records the answers again. It also fails when analytics load on another host than metablend.app, or none load on metablend.app.
+- The two live answers are recorded too, and the check fails with "re-record fixtures" when a live answer's shape (its keys and their types) differs from its recording, so a renamed or removed field in the API cannot go unnoticed behind an old recording (`scripts/lib/shape.mjs`). Keys that are data (the forecast's weights and scores per source) and the `cached` flag are not counted as shape.
+- The accessibility check and the store screenshot runs block the analytics like the layout check and fail if any got through (`scripts/lib/analytics-block.mjs`).
+- Both also pick a free debugging port like the layout check (they were fixed at 9377 and 9371), so two runs at once never share a browser, and remove their browser profile when they end, also after an error or Ctrl+C (`scripts/lib/browser.mjs`); a profile is about 400 MB, and 85 left behind by earlier runs (4 GB) were removed from this PC.
+
 ### Added — MetaBlend on Instagram, TikTok and X
 - Plain links to MetaBlend's Instagram, TikTok and X profiles in the website footer, on the support page and as a small row in the app's More tab. The marks are drawn on the page: no embed, script or share button from the networks, so nothing loads from them until someone follows a link. A test renders all three places and fails if a link is missing or anything from the networks is on the page.
 
