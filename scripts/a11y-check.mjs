@@ -5,18 +5,15 @@
 //   npx next build && npx next start -p 3123     (separate terminal)
 //   npm run a11y                       (everything, ~25 min)
 //   A11Y_ONLY=light/day,large npm run a11y   (just those variants / the large-text pass)
-import { spawn } from 'node:child_process'
-import { mkdtempSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
 import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
+import { launchBrowser } from './lib/browser.mjs'
 
 const require = createRequire(import.meta.url)
 const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8')
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const BASE = process.env.BASE ?? 'http://localhost:3123'
-const PORT = 9377
 const PAGES = [
   ['/?city=Vienna', null],
   ['/?city=Vienna', null, 'warnings'], // official warnings, answered from lib/warnings/__fixtures__/api-vienna.json
@@ -78,9 +75,7 @@ const VARIANTS = [['dark', 'day'], ['dark', 'snow'], ['dark', 'dawn'], ['dark', 
 const LARGE = !ONLY || ONLY.includes('large')
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'a11y-'))}`, 'about:blank'], { stdio: 'ignore' })
-let targets
-for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
+const { targets, close } = await launchBrowser(EDGE, 'a11y-')
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
 await new Promise(r => ws.addEventListener('open', r))
 let id = 0
@@ -152,7 +147,7 @@ for (const [path, tab, mock] of LARGE ? LARGE_PAGES : []) {
   console.log(`${spots.length ? '✗' : '✓'} large text ${path}${tab ? ` [${tab}]` : ''}${spots.length ? `: ${spots.length}` : ''}`)
   for (const s of spots) console.log(`    ${s}`)
 }
-ws.close(); edge.kill()
+ws.close(); await close()
 console.log(bad ? `\n${bad} serious/critical violations` : '\nNo serious or critical violations')
 console.log(cramped ? `${cramped} spots cut off or hidden at large text` : 'Nothing cut off at large text')
 const leak = analyticsLeak(analytics)
