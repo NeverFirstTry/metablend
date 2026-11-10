@@ -11,6 +11,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The picker shows only in app builds that have the new icons. Builds from before keep their icon and show no picker until they update.
 - Under the hood: `scripts/brand/icons.mjs` holds the eleven designs (each with its icon, iOS dark and iOS tinted look, split into scene and mark for Android); `generate.mjs` writes the iPhone sets (the primary AppIcon is Slate, the ten others are alternates), one Android launcher entry per icon and the picker's previews. The website's icons and the splash stay Sky. Both native plugins report the icons the build has. Tests: the choices, builds from before, and that every icon has its preview, label, iPhone set and Android launcher entry. Checked on the Android emulator (Pixel 6): the picker with eleven icons, a switch to Summit, and the launcher showing Summit. The iPhone side is not built here.
 
+### Phone layout check: its browser profile goes after a failure too
+- The check starts its browser through the same launcher as the accessibility check and the store screenshots (`scripts/lib/browser.mjs`), so its profile (about 400 MB) is removed also when the browser never opens its debugging port, the run hits its time limit, or the run ends in an error or with Ctrl+C. Before, only the normal end removed it.
+- A live request that reaches nothing now says so with the network error ("answered nothing (ECONNREFUSED)") instead of "answered TypeError".
+
 ### Added — the imprint is linked from the app's terms notice
 - The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
 - Phone layout check: the app's notice without a link to the imprint is a finding.
