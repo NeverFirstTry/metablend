@@ -53,6 +53,10 @@ _dev.log
 # signing keys and service credentials (never commit)
 *.p8
 *.p12
+# fastlane's own output: the upload report, deliver's HTML preview, the generated lane list
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/README.md
 *.jks
 *.keystore
 google-services.json
@@ -73,3 +77,6 @@ GoogleService-Info.plist
 
 # the Playwright MCP writes page snapshots and console logs here
 /.playwright-mcp/
+
+# the Mac store run's log and summary (scripts/store-run.sh)
+/store/run/

@@ -3,6 +3,30 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-10
+
+### Changed — the app's header and the store listing
+- The Beta badge next to the logo is gone for launch, in the app as on the website.
+- On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
+- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
+- Store screenshots in Japanese, Chinese and Korean no longer split a word across caption lines (Japanese and Chinese break only between words, Korean only at spaces), and their captions are set in Noto Sans on every machine. Screen 2 drops the comma before "and" in English, German, French, Spanish, Italian and Portuguese; Dutch follows with the final capture.
+
+### Fixed — forecasts with missing sources: Open-Meteo through one gate
+- At most four requests to Open-Meteo are in flight per server instance, whatever asks (forecast, outlook, rain nowcast, summits, route weather, planner, calibration); the rest wait their turn, and the same request asked twice at the same moment is sent once. A forecast miss sent eight at once and a burst of places many times that; Open-Meteo refused some of them and the blend went thin (Vienna with 10 of 20 sources for two minutes during the store run on 2026-11-10; 82 thin blends in a day). The summit forecast's own gate, which took its refusals from 47 a day to none, is now this shared one.
+- A forecast request Open-Meteo refuses for being one too many at that instant is asked once more after 300 ms (the summit path already did); its limits per minute, hour and day are not asked again.
+- Toronto, Vancouver, Prague and other places inside the area of NWS or Bright Sky that those services do not cover no longer count as a failed source: their forecasts were marked incomplete and refreshed every 2 minutes instead of 15.
+- A request's time limit (5 seconds for a forecast source) starts when the request leaves the queue, not while it waits its turn: in a burst of twenty places the last in line waited longer than that and would have given up without having asked. The wait has its own limit of 10 seconds: a request still without a turn then counts as failed, so a flood of places cannot hold requests open without end.
+- The thin-blend log (error_log, scope forecast.partial) now says what Open-Meteo answered to each failed request: status, reason and which request.
+- The Open-Meteo count (open_meteo_calls) now covers everything asked of the forecast host: outlook, rain nowcast, summits, route weather and terrain heights, next to the forecast, the planner and the calibration. Figures from the day this goes live are higher than, and not comparable with, earlier days. The outlook's 10-year climate request and the name searches are not counted.
+
+### Legal and privacy
+- “My location” no longer shows the device’s position to a third party. The phone rounds it to 0.1°, about 10 km, and asks our own server (`/api/place`), which names the town from our own list (of the towns within 10 km the one with the most people for its distance, in the visitor’s language) and asks OpenStreetMap’s Nominatim, with the same rounded position, only where no town of 5,000 and more is that close. BigDataCloud is gone from the site, the content policy and the notice.
+- Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
+- /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
+
+### Changed — nine Open-Meteo requests per forecast miss instead of twelve
+- ECMWF IFS, NOAA GFS, DWD ICON and Météo-France share one Open-Meteo request instead of one each, and nothing a visitor sees changes: the shared request reads each model at Open-Meteo’s 15-minute step, the value its own request gave (compared live for Lienz and Perth, every field equal). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory, so four of the nine are asked once an hour per place. By Open-Meteo’s counting (variables × models) a forecast miss costs 12 calls at most, 8 while the hourly values are kept, where it cost 14. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a Lienz miss recorded through the old twelve requests and gets the same blend, source by source, from the new nine.
+
 ## 2026-11-09
 
 ### Added: a support page
@@ -11,6 +35,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Japanese footer: "All rights reserved" now reads 無断転載を禁じます. The other 12 footers were checked and are translated; a test keeps Japanese, Chinese and Korean footer lines from staying English.
 
 ### Store listing
+- The App Store text and screenshots can go up from the PC with fastlane (`fastlane/Fastfile`): an en-US text-only lane for a first check and a lane for every language with screenshots. No build upload, no submission, no release; the App Store Connect API key comes only from environment variables and must live outside the repo. Google Play has a placeholder lane. A project test pins those settings.
 - App Store keywords rewritten in all 12 languages (live with the next upload): no words the name or subtitle already carry, no "consensus" or ECMWF; rain radar, mountain weather, storms, avalanches and routes instead, each within 100 characters.
 - App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
 - New store test: no store text or screenshot caption names an old source count (16 or 26; production has up to 20). The subtitles already say "up to 20" in all 12 App Store languages and stay within 30 characters (existing limits test); support and marketing URLs stay https://metablend.app.

@@ -14,7 +14,7 @@ import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateConditi
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
-import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
+import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -600,12 +600,11 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       : await new Promise(resolve => navigator.geolocation.getCurrentPosition(p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }), () => resolve(null)))
     if (!pos) { setError(t(lang, 'locationUnavailable')); setLocating(false); return }
     try {
-      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=${lang}`)
-      const geo = await res.json()
-      const name = geo.city || geo.locality || geo.principalSubdivision
-      if (!name) throw new Error('no place name')
-      setCity(name)
-      await loadForecast(name, { near: nearParam(pos.lat, pos.lon) })
+      // our own server names the place, from the position rounded to about 10 km: the exact one stays on the device (lib/geo.js)
+      const place = await placeAt(pos, lang)
+      if (!place) throw new Error('no place name')
+      setCity(place.name)
+      await loadForecast(place.name, { near: place.near })
     } catch {
       setError(t(lang, 'locationNotDetected')) // the reverse lookup failed or found no place
     } finally {
@@ -709,9 +708,6 @@ ${url}`)
               >
                 Meta<span className="text-emerald-400">Blend</span>
               </button>
-              <span className="app-only text-[0.625rem] font-bold tracking-widest uppercase bg-amber-400/15 text-amber-300 border border-amber-400/40 rounded px-1.5 py-0.5 self-center">
-                Beta
-              </span>
             </h1>
           }
         />
@@ -940,8 +936,9 @@ ${url}`)
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h2 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">
+                {/* the refresh button stays beside the name; a long name wraps inside its own box (de, cs, ja on a phone) */}
+                <div className="flex items-center gap-2">
+                  <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight">
                     {/* the example comes in English from the server: its name in the reader's language */}
                     {isExample ? cityName('vienna', lang, data.city) : data.city}{data.country && <span className="text-zinc-400 font-normal">, {isExample ? regionLabel(data.cc ?? 'AT', lang, data.country) : data.country}</span>}
                   </h2>
@@ -950,7 +947,7 @@ ${url}`)
                     disabled={refreshing || loading}
                     title={t(lang, 'refreshNow')}
                     aria-label={t(lang, 'refreshNow')}
-                    className="press inline-flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
+                    className="press shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
                   >
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
