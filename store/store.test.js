@@ -28,6 +28,8 @@ test('App Store texts — every locale, every file, within its limit', () => {
     for (const [file, url] of Object.entries(URLS)) assert.equal(read(`fastlane/metadata/${ios}/${file}`), url)
     assert.doesNotMatch(read(`fastlane/metadata/${ios}/keywords.txt`), /, /, `${ios} keywords: no space after commas`)
   }
+  // App Store copyright is one field for all languages: the year of first publication and the owner
+  assert.equal(read('fastlane/metadata/copyright.txt'), '2026 Rene Kostmann')
 })
 
 test('Play texts — every locale, every file, within its limit', () => {
@@ -38,6 +40,14 @@ test('Play texts — every locale, every file, within its limit', () => {
       assert.doesNotMatch(s, JUNK, `${android}/${file}`)
     }
   }
+})
+
+// the listings said 16, then 26 sources; production has up to 20 since 2026-10-29
+test('no store text or caption names an old source count (16 or 26)', () => {
+  const texts = fs.readdirSync(new URL('fastlane/metadata/', root), { recursive: true })
+    .filter(f => f.endsWith('.txt')).map(f => `fastlane/metadata/${f.replaceAll('\\', '/')}`)
+  assert.ok(texts.length > 150, `${texts.length} store texts found`)
+  for (const f of [...texts, 'store/captions.json']) assert.doesNotMatch(read(f), /(?<!\d)(16|26)(?!\d)/, f)
 })
 
 test('TestFlight review texts exist', () => {

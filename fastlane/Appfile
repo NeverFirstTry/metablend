@@ -1,0 +1,3 @@
+# The app the uploads in fastlane/Fastfile are for. No credentials here: the App Store Connect API key
+# comes only from environment variables (see the Fastfile).
+app_identifier("app.metablend")
