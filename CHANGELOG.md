@@ -11,6 +11,13 @@ All notable changes to MetaBlend. Format loosely follows
 - `CONTRIBUTING.md`: no outside code for now, issues are welcome.
 - The terms page says the same in all 13 languages (the German is the original): its copyright section names the licence, what it allows, the two years, and that the MetaBlend name and logo are not covered by it. Before, it said "all rights reserved" and that publishing the code granted no licence.
 - The website's footer reads "© 2026 Rene Kostmann" in all 13 languages and leads to that section of the terms. "All rights reserved" is gone from it.
+- A link to a part of a page opens at that part (the footer's copyright line; the WeatherAPI notice from the sources panel). Before, such a link from another page ended at the top of the page.
+
+### Added — eleven app icons, Slate the new default (next native build)
+- More → App icon offers eleven icons: Slate (the new default: a white M and a gold B on the site's dark slate), Glow, Gold, Light, Pale gold, Summit, Weather, Sources, Mono, Winter, and Sky, the icon until now. Automatic and Dark are gone: on iPhone every icon has its own dark and tinted version, which follow the Home Screen setting.
+- Android: an icon picked before the update stays; everyone else gets Slate. Each icon is an adaptive icon: the scenery fills the whole layer, the letters sit inside the safe zone, and themed icons show the letters.
+- The picker shows only in app builds that have the new icons. Builds from before keep their icon and show no picker until they update.
+- Under the hood: `scripts/brand/icons.mjs` holds the eleven designs (each with its icon, iOS dark and iOS tinted look, split into scene and mark for Android); `generate.mjs` writes the iPhone sets (the primary AppIcon is Slate, the ten others are alternates), one Android launcher entry per icon and the picker's previews. The website's icons and the splash stay Sky. Both native plugins report the icons the build has. Tests: the choices, builds from before, and that every icon has its preview, label, iPhone set and Android launcher entry. Checked on the Android emulator (Pixel 6): the picker with eleven icons, a switch to Summit, and the launcher showing Summit. The iPhone side is not built here.
 
 ### Phone layout check: its browser profile goes after a failure too
 - The check starts its browser through the same launcher as the accessibility check and the store screenshots (`scripts/lib/browser.mjs`), so its profile (about 400 MB) is removed also when the browser never opens its debugging port, the run hits its time limit, or the run ends in an error or with Ctrl+C. Before, only the normal end removed it.

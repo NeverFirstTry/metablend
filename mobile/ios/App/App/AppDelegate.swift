@@ -107,8 +107,9 @@ public class TextScalePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
-// More → App icon: "auto" is the primary icon (follows light / dark /
-// tinted); the others are the alternate icon sets in Assets.xcassets.
+// More → App icon: "slate" is the primary icon; the others are the alternate
+// icon sets in Assets.xcassets (scripts/brand/icons.mjs). Each one has a dark
+// and a tinted look, which follow the Home Screen setting.
 @objc(AppIconPlugin)
 public class AppIconPlugin: CAPPlugin, CAPBridgedPlugin {
     public let identifier = "AppIconPlugin"
@@ -117,20 +118,22 @@ public class AppIconPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "get", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "set", returnType: CAPPluginReturnPromise),
     ]
-    private let sets = ["light": "AppIcon-Light", "dark": "AppIcon-Dark", "sky": "AppIcon-Sky"]
+    private let sets = Dictionary(uniqueKeysWithValues: ["glow", "gold", "light", "butter", "summit", "weather", "dots", "mono", "winter", "sky"]
+        .map { name in (name, "AppIcon-" + name.prefix(1).uppercased() + String(name.dropFirst())) })
 
     @objc func get(_ call: CAPPluginCall) {
         DispatchQueue.main.async {
             let current = UIApplication.shared.alternateIconName
-            let name = self.sets.first(where: { $0.value == current })?.key ?? "auto"
-            call.resolve(["name": name, "platform": "ios"])
+            let name = self.sets.first(where: { $0.value == current })?.key ?? "slate"
+            // the icons this build has: the website shows the picker only for these (lib/app-icon-choices.js)
+            call.resolve(["name": name, "platform": "ios", "icons": ["slate"] + Array(self.sets.keys)])
         }
     }
 
     @objc func set(_ call: CAPPluginCall) {
-        let name = call.getString("name") ?? "auto"
-        let iconSet = name == "auto" ? nil : sets[name]
-        if name != "auto" && iconSet == nil { return call.reject("unknown icon: " + name) }
+        let name = call.getString("name") ?? "slate"
+        let iconSet = name == "slate" ? nil : sets[name]
+        if name != "slate" && iconSet == nil { return call.reject("unknown icon: " + name) }
         DispatchQueue.main.async {
             guard UIApplication.shared.supportsAlternateIcons else { return call.reject("alternate icons not supported") }
             UIApplication.shared.setAlternateIconName(iconSet) { error in

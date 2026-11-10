@@ -23,7 +23,7 @@ export const THEMES = {
 }
 
 // the pair, centred on (50, 50) by its real outline
-function letters({ capH = 31, gap = 1.8 } = {}) {
+export function letters({ capH = 31, gap = 1.8 } = {}) {
   const size = capH / (font.tables.os2.sCapHeight || 700) * font.unitsPerEm
   const gm = font.charToGlyph('M'), gb = font.charToGlyph('B')
   const k = size / font.unitsPerEm

@@ -1,15 +1,17 @@
-// node scripts/brand/generate.mjs [variant] [defaultTheme] — writes every icon
+// node scripts/brand/generate.mjs [variant] [webTheme] — writes every icon
 // asset of the app and site (needs: npm i --no-save opentype.js
-// @fontsource/hanken-grotesk sharp). Web and Android get the default theme
-// (sky); iPhone gets light / dark / tinted.
+// @fontsource/hanken-grotesk sharp). The website, its splash and the
+// notification icon use the web theme (sky); the app icons are the designs in
+// icons.mjs, Slate the default on iPhone and Android.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
 import { iconSVG, monoSVG, glyphs, THEMES } from './brand.mjs'
+import { ICONS, DEFAULT_ICON, iconArt, sceneArt, markArt } from './icons.mjs'
 
 const variant = process.argv[2] ?? 'around'
-const DEFAULT = process.argv[3] ?? 'sky' // web + Android default icon
+const DEFAULT = process.argv[3] ?? 'sky' // the website's icons and the splash
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const P = (...p) => path.join(ROOT, ...p)
 const AR = P('mobile/android/app/src/main/res')
@@ -53,47 +55,35 @@ pngs.forEach((b, i) => {
 })
 fs.writeFileSync(P('app/favicon.ico'), Buffer.concat([head, ...pngs]))
 
-// ---- Android
+// ---- Android: one launcher icon per design (AndroidManifest.xml: an activity-alias each, AppIconPlugin)
 const D = { mdpi: 1, hdpi: 1.5, xhdpi: 2, xxhdpi: 3, xxxhdpi: 4 }
-for (const [q, d] of Object.entries(D)) {
-  const dir = path.join(AR, `mipmap-${q}`)
-  const s = Math.round(48 * d), f = Math.round(108 * d)
-  await render(clipped(iconSVG(variant, DEFAULT, { id: id(), size: s }), s, 'square'), path.join(dir, 'ic_launcher.png'), s)
-  await render(clipped(iconSVG(variant, DEFAULT, { id: id(), size: s }), s, 'circle'), path.join(dir, 'ic_launcher_round.png'), s)
-  await render(iconSVG(variant, DEFAULT, { id: id(), size: f, inset: 0.1667, bg: false }), path.join(dir, 'ic_launcher_foreground.png'), f)
-  await render(monoSVG(variant, { id: id(), size: f, inset: 0.1667 }), path.join(dir, 'ic_launcher_monochrome.png'), f)
-}
-// adaptive-icon background (the theme's sky as a vector gradient) and the icon XML
-const backgroundXML = theme => {
-  const stops = THEMES[theme].bg.map((c, i, all) => `<item android:offset="${(i / (all.length - 1)).toFixed(2)}" android:color="${c}"/>`).join('\n                ')
-  return `<?xml version="1.0" encoding="utf-8"?>
-<!-- Adaptive-icon background: the icon's sky, top to bottom -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path android:pathData="M0,0h108v108h-108z">
-        <aapt:attr name="android:fillColor">
-            <gradient android:type="linear" android:startX="54" android:startY="0" android:endX="54" android:endY="108">
-                ${stops}
-            </gradient>
-        </aapt:attr>
-    </path>
-</vector>
-`
-}
 const adaptiveXML = suffix => `<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@drawable/ic_launcher_background${suffix}"/>
+    <background android:drawable="@mipmap/ic_launcher_background${suffix}"/>
     <foreground android:drawable="@mipmap/ic_launcher_foreground${suffix}"/>
     <monochrome android:drawable="@mipmap/ic_launcher_monochrome"/>
 </adaptive-icon>
 `
-fs.writeFileSync(path.join(AR, 'drawable/ic_launcher_background.xml'), backgroundXML(DEFAULT))
-fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher.xml'), adaptiveXML(''))
-fs.writeFileSync(path.join(AR, 'mipmap-anydpi-v26/ic_launcher_round.xml'), adaptiveXML(''))
+for (const icon of ICONS) {
+  const suffix = icon.id === DEFAULT_ICON ? '' : `_${icon.id}`
+  for (const [q, d] of Object.entries(D)) {
+    const dir = path.join(AR, `mipmap-${q}`)
+    const s = Math.round(48 * d), f = Math.round(108 * d), v = 72 * d, e = 18 * d
+    await render(clipped(iconArt(icon, 'icon', s), s, 'square'), path.join(dir, `ic_launcher${suffix}.png`), s)
+    await render(clipped(iconArt(icon, 'icon', s), s, 'circle'), path.join(dir, `ic_launcher${suffix}_round.png`), s)
+    await render(markArt(icon, f), path.join(dir, `ic_launcher_foreground${suffix}.png`), f)
+    // the background layer: the scene over the 72 dp a launcher shows, its edge pixels carried out to the
+    // whole 108 dp layer (seen only while a launcher moves the layers)
+    await sharp(Buffer.from(sceneArt(icon, v))).resize(v, v).extend({ top: e, bottom: e, left: e, right: e, extendWith: 'copy' }).png().toFile(path.join(dir, `ic_launcher_background${suffix}.png`))
+    if (!suffix) await render(monoSVG(variant, { id: id(), size: f, inset: 0.1667 }), path.join(dir, 'ic_launcher_monochrome.png'), f)
+  }
+  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher${suffix}.xml`), adaptiveXML(suffix))
+  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher${suffix}_round.xml`), adaptiveXML(suffix))
+}
+// the designs before 2026-11-10: vector backgrounds, and Dark, which Slate replaces
+for (const d of ['', '_light', '_dark']) fs.rmSync(path.join(AR, `drawable/ic_launcher_background${d}.xml`), { force: true })
+for (const x of ['ic_launcher_dark.xml', 'ic_launcher_dark_round.xml']) fs.rmSync(path.join(AR, 'mipmap-anydpi-v26', x), { force: true })
+for (const q of Object.keys(D)) for (const x of ['ic_launcher_dark.png', 'ic_launcher_dark_round.png', 'ic_launcher_foreground_dark.png']) fs.rmSync(path.join(AR, `mipmap-${q}`, x), { force: true })
 fs.rmSync(path.join(AR, 'drawable-v24/ic_launcher_foreground.xml'), { force: true })
 
 // splash: the icon's sky with the mark in the middle
@@ -124,50 +114,31 @@ fs.writeFileSync(path.join(AR, 'drawable/ic_stat_notify.xml'), `<?xml version="1
 </vector>
 `)
 
-// ---- iOS: light / dark / tinted app icon, splash
-const icon = path.join(IOS, 'AppIcon.appiconset')
-await render(iconSVG(variant, 'light', { id: id(), size: 1024 }), path.join(icon, 'AppIcon-512@2x.png'), 1024)
-await render(iconSVG(variant, 'dark', { id: id(), size: 1024 }), path.join(icon, 'AppIcon-dark.png'), 1024)
-const tinted = `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024"><rect width="1024" height="1024" fill="#000"/>${nest(monoSVG(variant, { id: id() }), 0, 0, 1024)}</svg>`
-await render(tinted, path.join(icon, 'AppIcon-tinted.png'), 1024)
-fs.writeFileSync(path.join(icon, 'Contents.json'), JSON.stringify({
-  images: [
-    { filename: 'AppIcon-512@2x.png', idiom: 'universal', platform: 'ios', size: '1024x1024' },
-    { appearances: [{ appearance: 'luminosity', value: 'dark' }], filename: 'AppIcon-dark.png', idiom: 'universal', platform: 'ios', size: '1024x1024' },
-    { appearances: [{ appearance: 'luminosity', value: 'tinted' }], filename: 'AppIcon-tinted.png', idiom: 'universal', platform: 'ios', size: '1024x1024' },
-  ],
-  info: { author: 'xcode', version: 1 },
-}, null, 2) + '\n')
+// ---- iOS: one icon set per design, each with its dark and tinted look; the default is the primary AppIcon,
+// the others are named in ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES (project.pbxproj)
+for (const icon of ICONS) {
+  const primary = icon.id === DEFAULT_ICON
+  const set = path.join(IOS, primary ? 'AppIcon.appiconset' : `AppIcon-${icon.id[0].toUpperCase() + icon.id.slice(1)}.appiconset`)
+  fs.rmSync(set, { recursive: true, force: true })
+  fs.mkdirSync(set, { recursive: true })
+  const file = look => (primary ? 'AppIcon' : 'icon') + (look === 'icon' ? (primary ? '-512@2x' : '') : `-${look}`) + '.png'
+  for (const look of ['icon', 'dark', 'tinted']) await render(iconArt(icon, look, 1024), path.join(set, file(look)), 1024)
+  fs.writeFileSync(path.join(set, 'Contents.json'), JSON.stringify({
+    images: ['icon', 'dark', 'tinted'].map(look => ({
+      ...(look === 'icon' ? {} : { appearances: [{ appearance: 'luminosity', value: look }] }),
+      filename: file(look), idiom: 'universal', platform: 'ios', size: '1024x1024',
+    })),
+    info: { author: 'xcode', version: 1 },
+  }, null, 2) + '\n')
+}
+fs.rmSync(path.join(IOS, 'AppIcon-Dark.appiconset'), { recursive: true, force: true })
+
 for (const f of fs.readdirSync(path.join(IOS, 'Splash.imageset')).filter(f => f.endsWith('.png'))) {
   await render(splash(2732, 2732, 0.16), path.join(IOS, 'Splash.imageset', f), 2732)
 }
 
-// ---- alternate icons for More → App icon
+// ---- the picker's previews (More → App icon)
+fs.rmSync(P('public/app-icons'), { recursive: true, force: true })
 fs.mkdirSync(P('public/app-icons'), { recursive: true })
-for (const theme of Object.keys(THEMES)) {
-  const Name = theme[0].toUpperCase() + theme.slice(1)
-  // iOS: one app icon set per theme (named in ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES)
-  const set = path.join(IOS, `AppIcon-${Name}.appiconset`)
-  fs.mkdirSync(set, { recursive: true })
-  await render(iconSVG(variant, theme, { id: id(), size: 1024 }), path.join(set, 'icon.png'), 1024)
-  fs.writeFileSync(path.join(set, 'Contents.json'), JSON.stringify({ images: [{ filename: 'icon.png', idiom: 'universal', platform: 'ios', size: '1024x1024' }], info: { author: 'xcode', version: 1 } }, null, 2) + '\n')
-  // the picker's previews
-  await render(clipped(iconSVG(variant, theme, { id: id(), size: 168 }), 168, 'square'), P(`public/app-icons/${theme}.png`), 168)
-  if (theme === DEFAULT) continue // Android's main launcher icon already is this one
-  // Android: launcher icons for the activity-alias of this theme
-  for (const [q, d] of Object.entries(D)) {
-    const dir = path.join(AR, `mipmap-${q}`)
-    const s = Math.round(48 * d), f = Math.round(108 * d)
-    await render(clipped(iconSVG(variant, theme, { id: id(), size: s }), s, 'square'), path.join(dir, `ic_launcher_${theme}.png`), s)
-    await render(clipped(iconSVG(variant, theme, { id: id(), size: s }), s, 'circle'), path.join(dir, `ic_launcher_${theme}_round.png`), s)
-    await render(iconSVG(variant, theme, { id: id(), size: f, inset: 0.1667, bg: false }), path.join(dir, `ic_launcher_foreground_${theme}.png`), f)
-  }
-  fs.writeFileSync(path.join(AR, `drawable/ic_launcher_background_${theme}.xml`), backgroundXML(theme))
-  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher_${theme}.xml`), adaptiveXML(`_${theme}`))
-  fs.writeFileSync(path.join(AR, `mipmap-anydpi-v26/ic_launcher_${theme}_round.xml`), adaptiveXML(`_${theme}`))
-}
-// "Automatic" preview: the light icon top left, the dark one bottom right
-const half = (points, svg) => `<g clip-path="url(#${points})">${nest(svg, 0, 0, 168)}</g>`
-const auto = `<svg xmlns="http://www.w3.org/2000/svg" width="168" height="168" viewBox="0 0 168 168"><defs><clipPath id="tl"><polygon points="0,0 168,0 0,168"/></clipPath><clipPath id="br"><polygon points="168,0 168,168 0,168"/></clipPath></defs>${half('tl', iconSVG(variant, 'light', { id: id(), size: 168 }))}${half('br', iconSVG(variant, 'dark', { id: id(), size: 168 }))}</svg>`
-await render(clipped(auto, 168, 'square'), P('public/app-icons/auto.png'), 168)
+for (const icon of ICONS) await render(clipped(iconArt(icon, 'icon', 168), 168, 'square'), P(`public/app-icons/${icon.id}.png`), 168)
 console.log('done', variant, DEFAULT)

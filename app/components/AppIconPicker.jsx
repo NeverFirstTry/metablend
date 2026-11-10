@@ -7,18 +7,22 @@ import { currentIcon, setIcon } from '@/lib/app-icon'
 import { iconChoices, selectedIcon, switchNeedsWarning } from '@/lib/app-icon-choices'
 import { SectionTitle } from './ui'
 
-const LABEL = { auto: 'appIconAuto', light: 'appIconLight', dark: 'appIconDark', sky: 'appIconSky' }
+const label = name => `appIcon${name[0].toUpperCase()}${name.slice(1)}`
 
 // More → App icon. Renders nothing until the phone answers (website, or an
-// app build without the AppIcon plugin: never).
+// app build without the AppIcon plugin or from before 2026-11-10: never).
 export default function AppIconPicker({ lang }) {
-  const [state, setState] = useState(null) // { platform, name }
+  const [state, setState] = useState(null) // { platform, name, choices }
   const [pending, setPending] = useState(null) // Android: the icon waiting for "Switch icon"
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     let gone = false
-    currentIcon().then(r => { if (!gone && r) setState({ platform: r.platform, name: selectedIcon(r.platform, r.name) }) })
+    currentIcon().then(r => {
+      if (gone || !r) return
+      const choices = iconChoices(r.platform, r.icons)
+      if (choices.length) setState({ platform: r.platform, name: selectedIcon(r.platform, r.name, r.icons), choices })
+    })
     return () => { gone = true }
   }, [])
 
@@ -39,20 +43,19 @@ export default function AppIconPicker({ lang }) {
       <SectionTitle icon={Palette}>{t(lang, 'appIconTitle')}</SectionTitle>
       <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3">
         <div className="grid grid-cols-4 gap-3">
-          {iconChoices(state.platform).map(name => {
+          {state.choices.map(name => {
             const on = state.name === name || pending === name
             return (
               <button key={name} type="button" onClick={() => choose(name)} aria-pressed={state.name === name} disabled={busy}
                 className="press flex flex-col items-center gap-1.5 text-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element -- 56-px static previews, nothing to optimise */}
-                <img src={`/app-icons/${name}.png?v=1`} alt="" width="56" height="56" className="rounded-[22%]"
+                <img src={`/app-icons/${name}.png?v=2`} alt="" width="56" height="56" className="rounded-[22%]"
                   style={{ outline: on ? '2px solid var(--accent)' : 'none', outlineOffset: 3 }} />
-                <span style={{ color: on ? 'var(--accent)' : 'var(--muted)' }}>{t(lang, LABEL[name])}</span>
+                <span className="text-center" style={{ color: on ? 'var(--accent)' : 'var(--muted)' }}>{t(lang, label(name))}</span>
               </button>
             )
           })}
         </div>
-        {state.platform === 'ios' && <p className="text-xs text-zinc-500">{t(lang, 'appIconAutoHint')}</p>}
         {pending && (
           <div className="space-y-2">
             <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'appIconAndroidWarn')}</p>
