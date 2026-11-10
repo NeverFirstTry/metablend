@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Added — eleven app icons, Slate the new default (next native build)
+- More → App icon offers eleven icons: Slate (the new default: a white M and a gold B on the site's dark slate), Glow, Gold, Light, Pale gold, Summit, Weather, Sources, Mono, Winter, and Sky, the icon until now. Automatic and Dark are gone: on iPhone every icon has its own dark and tinted version, which follow the Home Screen setting.
+- Android: an icon picked before the update stays; everyone else gets Slate. Each icon is an adaptive icon: the scenery fills the whole layer, the letters sit inside the safe zone, and themed icons show the letters.
+- The picker shows only in app builds that have the new icons. Builds from before keep their icon and show no picker until they update.
+- Under the hood: `scripts/brand/icons.mjs` holds the eleven designs (each with its icon, iOS dark and iOS tinted look, split into scene and mark for Android); `generate.mjs` writes the iPhone sets (the primary AppIcon is Slate, the ten others are alternates), one Android launcher entry per icon and the picker's previews. The website's icons and the splash stay Sky. Both native plugins report the icons the build has. Tests: the choices, builds from before, and that every icon has its preview, label, iPhone set and Android launcher entry. Checked on the Android emulator (Pixel 6): the picker with eleven icons, a switch to Summit, and the launcher showing Summit. The iPhone side is not built here.
+
 ### Checks cost no weather quota, and only the live site counts visits
 - Plausible, Vercel Web Analytics and Speed Insights load only on metablend.app (and in the apps, which open it), no longer on preview deployments or local builds (`app/components/SiteAnalytics.jsx`).
 - The phone layout check takes the pages' data from a recording (`scripts/layout-fixtures.json`: every `/api/` answer and the search box's place suggestions) instead of production, so a run after a deploy asks the weather sources only for the two live requests it starts with (the Vienna city page's forecast and the Großglockner summit page's), which still turn it red when the production API is broken and which those two pages read next. `RECORD=1` records the answers again. It also fails when analytics load on another host than metablend.app, or none load on metablend.app.
