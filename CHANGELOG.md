@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### README for launch
 - The README is rewritten for visitors, journalists, store reviewers and developers: what MetaBlend is, how the consensus works, features, data sources and credits as on /terms, platforms and links, tech stack, local development, license (pending) and a note on AI-assisted development. No dashes; a wording test keeps em and en dashes and "safe" out of it.
+- The README links MetaBlend on Instagram, TikTok and X, and "What is consensus forecasting?" on the start page, which now has the address metablend.app/#how-it-works.
 - The README's technical sections moved unchanged to `docs/how-it-works.md`; `.env.example` lists every environment variable with no values.
 
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert

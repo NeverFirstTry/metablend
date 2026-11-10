@@ -16,7 +16,7 @@ Forecasts can be wrong. Don't rely on MetaBlend alone for safety-critical decisi
 2. The answers are blended into a weighted average, and how closely they agree becomes an agreement figure.
 3. Each source's weight comes from how close it has been lately, region by region, checked against weather stations, airport reports (METAR) and reports from people on the ground.
 
-The short version is on the start page of [metablend.app](https://metablend.app), under "What is consensus forecasting?". The technical details are in [docs/how-it-works.md](docs/how-it-works.md).
+The short version is on the start page, under ["What is consensus forecasting?"](https://metablend.app/#how-it-works). The technical details are in [docs/how-it-works.md](docs/how-it-works.md).
 
 ## Features
 
@@ -45,7 +45,7 @@ The short version is on the start page of [metablend.app](https://metablend.app)
 * **Terms and data credits:** [metablend.app/terms](https://metablend.app/terms)
 * **Legal notice (Impressum):** [metablend.app/impressum](https://metablend.app/impressum)
 * **Source code and issues:** [github.com/NeverFirstTry/metablend](https://github.com/NeverFirstTry/metablend)
-* **Social media:** none yet
+* **Social media:** [Instagram](https://www.instagram.com/metablend.app/), [TikTok](https://www.tiktok.com/@metablend.app), [X](https://x.com/MetaBlendapp)
 
 ## Data sources and credits
 
@@ -110,4 +110,4 @@ All rights reserved, for now. The source code is public for transparency; this g
 
 ## How MetaBlend is made
 
-Development is AI-assisted: much of the code is written with Claude and Claude Code. The idea, the design and every feature decision are mine.
+Development is AI-assisted: much of the code is written with Claude and Claude Code. The idea, the design, large parts of the consensus logic and every feature decision are mine.
