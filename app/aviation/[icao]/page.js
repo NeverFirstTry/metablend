@@ -20,7 +20,7 @@ export async function generateMetadata({ params }) {
   const ap = getAirport(icao)
   const code = icao.toUpperCase()
   return {
-    title: ap ? `${code} METAR, TAF & Crosswind — ${ap.name}` : `${code} — Airport not found`,
+    title: ap ? `${code} METAR, TAF & Crosswind: ${ap.name}` : `${code}: Airport not found`,
     description: ap
       ? `Live decoded METAR and TAF for ${ap.name} (${code}): flight rules, runway ` +
         `crosswind components and density altitude, from NOAA data.`
