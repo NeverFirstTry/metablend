@@ -26,6 +26,7 @@ import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import { atNow } from '@/lib/outlook/at-now'
+import { TermsBar } from './components/TermsNotice'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
 import PlaceName from './components/PlaceName'
@@ -255,7 +256,6 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   }, [])
   const [resume] = useState(() => resumeForecast({ deepLink: typeof window === 'undefined' ? null : deepLinkCity(window.location.search) }))
   const router = useRouter()
-  const [consentGiven, setConsentGiven] = useState(true)
   const [offline, setOffline] = useState(false)
   const [recent, setRecent] = useState([])
   const [favorites, setFavorites] = useState([])
@@ -284,7 +284,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   }
   const suggestSeq = useRef(0)       // drops out-of-order suggestion responses
 
-  // mount: language, unit, consent, recent cities, service worker, online/offline
+  // mount: language, unit, recent cities, service worker, online/offline
   useEffect(() => {
     // Deliberate one-time sync from cookies/localStorage AFTER hydration: the
     // server renders the defaults, so reading these in a state initializer
@@ -297,7 +297,6 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     const savedUnit = getCookie('metablend_unit') === 'F' ? 'F' : 'C'
     setUnit(savedUnit)
     publishPrefs({ unit: savedUnit })
-    setConsentGiven(!!getCookie('metablend_consent'))
     setRecent(getRecent())
     setFavorites(getFavorites())
     try {
@@ -439,11 +438,6 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   useEffect(() => {
     rememberForecast({ city: data?.city ?? '', data, outlook, tab, lang, unit, nextRefreshAt })
   }, [data, outlook, tab, lang, unit, nextRefreshAt])
-
-  function giveConsent() {
-    setCookie('metablend_consent', '1')
-    setConsentGiven(true)
-  }
 
   // Feedback returns the re-normalized weights; show them on the source cards
   // now (a re-fetch would only bring back the CDN's cached copy).
@@ -1072,18 +1066,8 @@ ${url}`)
         </div>
       )}
 
-      {/* Cookie consent banner */}
-      {!consentGiven && (
-        <div className="app-lift mb-edge animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
-          <p className="text-zinc-400 text-xs">{t(lang, 'cookieText')}</p>
-          <button
-            onClick={giveConsent}
-            className="press bg-emerald-400 text-black text-xs font-bold px-4 py-2 rounded-lg hover:bg-emerald-300 shrink-0"
-          >
-            {t(lang, 'cookieOk')}
-          </button>
-        </div>
-      )}
+      {/* The website's one-time terms notice (the app has its own screen, TermsNotice) */}
+      <TermsBar lang={lang} />
     </main>
   )
 }

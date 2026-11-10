@@ -11,6 +11,25 @@ All notable changes to MetaBlend. Format loosely follows
 - The accessibility check and the store screenshot runs block the analytics like the layout check and fail if any got through (`scripts/lib/analytics-block.mjs`).
 - Both also pick a free debugging port like the layout check (they were fixed at 9377 and 9371), so two runs at once never share a browser, and remove their browser profile at the end (`scripts/lib/browser.mjs`).
 
+### Added — MetaBlend on Instagram, TikTok and X
+- Plain links to MetaBlend's Instagram, TikTok and X profiles in the website footer, on the support page and as a small row in the app's More tab. The marks are drawn on the page: no embed, script or share button from the networks, so nothing loads from them until someone follows a link. A test renders all three places and fails if a link is missing or anything from the networks is on the page.
+
+### Added — a Terms of Use notice: the app's first start, and the website's one-time bar
+- The app shows a notice once, on its first start: with "Continue" you accept the Terms of Use, the privacy notice is linked as information, and there is the one button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages.
+- On the website the one-time bar at the bottom of the forecast page carries the same two sentences and the same button instead of the cookie line. It blocks nothing.
+- The device keeps the version of the terms the notice was passed for, in its own storage, which never reaches our server. When the terms change in substance, the version in `lib/terms.js` changes with them and the notice comes once more, saying that the terms have changed.
+- Privacy notice, "What stays on your device", in all 13 languages: it names that kept version, and no longer a consent. The cookie that remembered the OK on the cookie line is not set any more and is removed from devices that still have it.
+- Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice and the bar themselves.
+
+### Changed — link previews in the current design
+- The cards chats and social networks show for a MetaBlend link are on Slate with the faint gold glow where the sun is, white text and gold only for "Blend" and the address: the start page (which every page without its own card shows: cities, summits, airports, hiking), the language pages in all 13 languages (one design now, the start card is the English one) and a shared city (the glow by the city's time of day, none at night; the moon lavender, clouds neutral, as in the app). The old navy and sky gradients are gone.
+- A shared city's card no longer leaves a gap after longer names ("Tokyo , Japan").
+- Under the hood: lib/og-look.js holds the card colours and the glow; app/components/OgCard.jsx is the start and language card; the card font subset holds the English letters too, and its glyph test covers English.
+
+### Changed — meta tags without dashes
+- Search results and link previews show no em or en dash any more: page titles, descriptions, Open Graph and Twitter cards on every page type, the landing pages in all 13 languages ("MetaBlend · Eine Vorhersage aus bis zu 20 Wetterquellen") and the RSS feed titles. Subtitles take a colon ("Großglockner Weather: Summit Forecast (3798 m)"), the brand a middle dot. The site description is 150 characters instead of 178.
+- Under the hood: the site-wide metadata moved to lib/site-metadata.js; a new test (lib/meta-wording.test.js) reads every page type's meta texts in every language a page has, with the layout's title template, and fails on an em or en dash or a safety word. The test hooks resolve next/og and next/headers.
+
 ### Fixed — phone layout check: two runs at once no longer share a browser
 - Each run's browser picks a free debugging port (it was fixed at 9441), and the first line of the output names it. On 2026-11-10 two sessions ran the check at once on 9441: one run stalled for 25 minutes, the other saw a website page "opened as the app".
 - The app pages and the website pages run in two fresh browser contexts, so nothing the app pages set (the app flag, cookies, storage) reaches the website pages.

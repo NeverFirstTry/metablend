@@ -9,6 +9,7 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
 import { launchBrowser } from './lib/browser.mjs'
+import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const require = createRequire(import.meta.url)
 const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8')
@@ -22,7 +23,9 @@ const PAGES = [
   ['/hike?peak=grossglockner&app=1', null],
   ['/hike?peak=grossglockner&app=1', null, 'avalanche'], // avalanche danger, answered by AVALANCHE_MOCK
   ['/more?app=1', null],
+  ['/more?app=1&terms=show', null], // the terms notice of the app's first start
   ['/testers', null],
+  ['/?app=0&terms=show', null], // the website's one-time terms bar
   ['/', null],
   ['/mountains/grossglockner', null],
   ['/weather/vienna', null],
@@ -103,8 +106,9 @@ const send = (method, params = {}) => new Promise(r => { const n = ++id; pending
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.result?.value
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
 const analytics = await blockAnalytics(ws, send)
+// the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
+await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
-await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_lang', value: 'en', url: BASE })
 
 let bad = 0

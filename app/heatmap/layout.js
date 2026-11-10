@@ -2,7 +2,7 @@
 export const metadata = {
   title: 'Forecast Accuracy Heatmap',
   description:
-    'A world map of where the weather consensus was right — and where it missed — ' +
+    'A world map of where the weather consensus was right and where it missed, ' +
     'built from community weather reports.',
   alternates: { canonical: '/heatmap' },
 }
