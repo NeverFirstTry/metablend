@@ -3,7 +3,20 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-10
+
+### Legal and privacy
+- “My location” no longer shows the device’s position to a third party. The phone rounds it to 0.1°, about 10 km, and asks our own server (`/api/place`), which names the town from our own list (of the towns within 10 km the one with the most people for its distance, in the visitor’s language) and asks OpenStreetMap’s Nominatim, with the same rounded position, only where no town of 5,000 and more is that close. BigDataCloud is gone from the site, the content policy and the notice.
+- Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
+- /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
+
 ## 2026-11-09
+
+### Store listing
+- The App Store text and screenshots can go up from the PC with fastlane (`fastlane/Fastfile`): an en-US text-only lane for a first check and a lane for every language with screenshots. No build upload, no submission, no release; the App Store Connect API key comes only from environment variables and must live outside the repo. Google Play has a placeholder lane. A project test pins those settings.
+- App Store keywords rewritten in all 12 languages (live with the next upload): no words the name or subtitle already carry, no "consensus" or ECMWF; rain radar, mountain weather, storms, avalanches and routes instead, each within 100 characters.
+- App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
+- New store test: no store text or screenshot caption names an old source count (16 or 26; production has up to 20). The subtitles already say "up to 20" in all 12 App Store languages and stay within 30 characters (existing limits test); support and marketing URLs stay https://metablend.app.
 
 ### iPhone app (next native build)
 - iPhone only, finished: the last iPad setting (the iPad's screen orientations) is gone from the app's Info.plist; the app and its widgets were already iPhone-only. iPads run the iPhone version. A project test keeps it so: no iPad keys in any Info.plist, and store screenshots for iPhone and Android phones only.

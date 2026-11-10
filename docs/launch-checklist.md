@@ -46,7 +46,9 @@ Google's production review has no fixed length and can come back with questions,
 | Run `supabase/geocode-cache.sql` on dev, then production | Needs you | A city search answers from our own towns and a 30-day cache of Open-Meteo's geocoding; until it exists every search still goes to Open-Meteo, and each is logged (scope geocode.upstream) |
 | Run `supabase/open-meteo-calls.sql` on dev, then production | Needs you | Our Open-Meteo request count per UTC day and hour, weighted their way; error-log entries (scope open-meteo.quota) at 70 % and 90 % of the free tier's 10,000 a day; until it exists the count is skipped silently |
 | Run `supabase/job-runs.sql` on dev, then production | Needs you | The jobs' run log (status, duration, summary per run of cleanup, calibrate, push dispatch, warnings refresh, station calibration); until it exists the routes skip the write silently |
-| Run `supabase/feedback-lessons.sql` on dev, then production | Needs you | The regional feedback cap; `enable_rls.sql` ran on both on 2026-11-08 |
+| Run `supabase/feedback-lessons.sql` on dev, then production | Done | Ran on both by 2026-11-09 (checked read-only: `feedback_lesson_days` there, only the four-argument `claim_feedback_lesson`, not callable by the public roles); `enable_rls.sql` ran on both on 2026-11-08 |
+| Run `supabase/town-near.sql` on dev, then production, before the "my location" change is merged | Done | Ran on both on 2026-11-09 (checked read-only: Lienz's cell names Lienz, Matrei's has no town within 10 km; not callable by the public roles) |
+| Google Play Data safety: untick "Precise location" | Needs you | Once "my location" asks our own server (branch `legal/privacy-location`) is live; `store/compliance.md` lists the six types that stay |
 
 ## Android production
 

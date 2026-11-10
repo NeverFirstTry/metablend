@@ -18,6 +18,12 @@ language has its own folder (`fastlane/metadata/de-DE/`, `…/ja/`, …).
 - **Privacy Policy URL:** https://metablend.app/privacy
 
 ## 4. Version 1.0 (iOS App, "Prepare for Submission")
+The text and screenshots below can also go up from the PC with fastlane, no build, no submission:
+`fastlane ios upload_en_metadata` (en-US text only, a first check), then `fastlane ios upload_store`
+(every language, text and screenshots). The App Store Connect API key comes from three environment
+variables, the .p8 file outside the repo: see the header of `fastlane/Fastfile`. The version must
+already exist in "Prepare for Submission". Or by hand:
+
 For **each language** (switch at the top right):
 - **Screenshots (6.9" display):** `fastlane/screenshots/<language>/1.png … 5.png` — drag all five in
 - **Promotional Text:** `promotional_text.txt`

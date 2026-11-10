@@ -208,3 +208,49 @@ test('town_lookup and geocode_cache are not reachable through the API roles (ano
     await db.exec('reset role')
   }
 })
+
+// supabase/town-near.sql on towns as GeoNames has them around Vienna, Innsbruck and Lienz (districts
+// beside their cities): the place "My location" names for a position rounded to 0.1° (lib/geocode.js placeNear)
+const townNearSql = fs.readFileSync(new URL('./town-near.sql', import.meta.url), 'utf8')
+await db.exec(townNearSql)
+await db.exec(townNearSql) // safe to run twice
+// the towns go in inside the test: the load tests above count and delete towns
+const townsAroundVienna = () => db.exec(`
+  insert into public.towns (id, name, alt, country, region, population, geog) values
+    (2761369, 'Vienna', null, 'AT', 'Vienna', 1691468, ${pt(16.3721, 48.2085)}),
+    (8063098, 'Favoriten', null, 'AT', 'Vienna', 201882, ${pt(16.3823, 48.1612)}),
+    (2779469, 'Floridsdorf', null, 'AT', 'Vienna', 162779, ${pt(16.4, 48.25)}),
+    (2771706, 'Meidling', null, 'AT', 'Vienna', 97624, ${pt(16.3333, 48.1667)}),
+    (2771335, 'Mödling', null, 'AT', 'Lower Austria', 20555, ${pt(16.2892, 48.0861)}),
+    (2771940, 'Maria Enzersdorf', null, 'AT', 'Lower Austria', 8829, ${pt(16.2833, 48.1)}),
+    (2773913, 'Klosterneuburg', null, 'AT', 'Lower Austria', 15614, ${pt(16.3252, 48.3052)}),
+    (2775220, 'Innsbruck', null, 'AT', 'Tyrol', 132493, ${pt(11.3945, 47.2627)}),
+    (2775479, 'Hötting', null, 'AT', 'Tyrol', 35043, ${pt(11.3687, 47.2682)}),
+    (2768442, 'Pradl', null, 'AT', 'Tyrol', 32588, ${pt(11.4152, 47.2654)}),
+    (2771133, 'Mühlau', null, 'AT', 'Tyrol', 5435, ${pt(11.4, 47.2833)}),
+    (2772505, 'Lienz', null, 'AT', 'Tyrol', 11572, ${pt(12.769, 46.8289)})
+  on conflict (id) do nothing;
+`)
+
+test('town_near — the town a rounded position means: the city, not its nearest district; the local town, not a bigger district farther off; nothing when no town is within 10 km', async () => {
+  await townsAroundVienna()
+  const at = async (lat, lon) => (await rows(`select * from public.town_near($1, $2)`, [lat, lon]))[0] ?? null
+  assert.equal((await at(48.2, 16.4)).name, 'Vienna')
+  assert.equal((await at(48.2, 16.5)).name, 'Vienna') // the east of the city, 9.6 km from its centre
+  assert.equal((await at(47.3, 11.4)).name, 'Innsbruck') // Mühlau, a district, is nearest
+  assert.equal((await at(48.1, 16.3)).name, 'Mödling') // Favoriten, a Vienna district 9 km off, is the largest in reach
+  assert.equal((await at(48.3, 16.3)).name, 'Klosterneuburg') // Floridsdorf likewise
+  const lienz = await at(46.8, 12.8)
+  assert.deepEqual([lienz.id, lienz.name, lienz.country, lienz.population], [2772505, 'Lienz', 'AT', 11572])
+  assert.ok(Math.abs(lienz.km - 4) < 0.2, `Lienz is about 4 km from the rounded position (${lienz.km})`)
+  assert.equal(await at(47.0, 12.5), null) // Matrei in Osttirol: Lienz is 28 km away
+  assert.equal(await at(40, -40), null) // open sea
+})
+
+test('town_near is not reachable through the API roles (anon / authenticated)', async () => {
+  for (const role of ['anon', 'authenticated']) {
+    await db.exec(`set role ${role}`)
+    await assert.rejects(rows(`select * from public.town_near(48.2, 16.4)`), /permission denied/)
+    await db.exec('reset role')
+  }
+})
