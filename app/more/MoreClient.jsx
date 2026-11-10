@@ -11,6 +11,7 @@ import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { THEME_COOKIE, readThemePref, applyTheme } from '@/lib/theme'
 import { SectionTitle } from '../components/ui'
 import Credits from '../components/Credits'
+import SocialLinks from '../components/SocialLinks'
 import NotificationSettings from '../components/push/NotificationSettings'
 import AppIconPicker from '../components/AppIconPicker'
 import FeedbackLink from '../components/FeedbackLink'
@@ -100,6 +101,7 @@ export default function MoreClient() {
           {t(lang, 'footerContact')}:{' '}
           <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400">info@metablend.app</a>
         </p>
+        <SocialLinks linkClass="text-zinc-400 hover:text-emerald-400" />
         <p>© {new Date().getFullYear()} MetaBlend</p>
       </section>
     </div>

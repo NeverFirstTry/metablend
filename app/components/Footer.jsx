@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import Credits from './Credits'
+import SocialLinks from './SocialLinks'
 
 const REPO = 'https://github.com/NeverFirstTry/metablend'
 
@@ -44,6 +45,7 @@ export default function Footer({ lang = 'en', className = '' }) {
         {t(lang, 'footerContact')}:{' '}
         <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400 transition-colors">info@metablend.app</a>
       </p>
+      <SocialLinks className="mt-2 text-zinc-500" linkClass="hover:text-emerald-400 transition-colors" />
     </footer>
   )
 }

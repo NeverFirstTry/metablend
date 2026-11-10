@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Added — MetaBlend on Instagram, TikTok and X
+- Plain links to MetaBlend's Instagram, TikTok and X profiles in the website footer, on the support page and as a small row in the app's More tab. The marks are drawn on the page: no embed, script or share button from the networks, so nothing loads from them until someone follows a link. A test renders all three places and fails if a link is missing or anything from the networks is on the page.
+
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert
 - The quarter-hourly rain run asks the rain nowcast for a home place only when someone there has rain alerts on, it is not the place's quiet hours (22:00 to 07:00, when no rain alert goes out) and the outlook shows a chance of rain in the next 3 hours: an hour with 10 % or more, or any source calling rain. Before, every home place was asked every quarter hour, 96 requests to Open-Meteo a day each, rain or shine.
 - Rain is looked at every 30 minutes instead of every 15: a "rain soon" alert is for rain starting in 10 to 60 minutes, so every start still meets a run, and the alert comes up to 15 minutes later than before. Official warnings keep their quarter hour; the run between two rain runs sends only those.
