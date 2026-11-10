@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
+import { usePagePath } from '@/lib/page-path'
 import { Sun, Moon, Download } from 'lucide-react'
 import { t, LANGUAGES, LANG_SYSTEM, langChoice, detectLang, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -77,7 +78,7 @@ export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit,
 // The same header on every page but the forecast (which has its own state) and the
 // embed (it lives on other people's sites). Rendered once, by the root layout.
 export function PageHeader() {
-  const path = usePathname()
+  const path = usePagePath() // "/index" is the home page too (lib/page-path.js)
   const router = useRouter()
   const lang = useLang()
   const unit = useUnit()
