@@ -37,8 +37,8 @@ export default function Footer({ lang = 'en', className = '' }) {
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
           <Link href="/impressum" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerImpressum')}</Link>
         </div>
-        {/* the year is clock text on a cached page: a copy cached across New Year must not fail hydration */}
-        <div className="text-zinc-500" suppressHydrationWarning>© {new Date().getFullYear()} MetaBlend · {t(lang, 'footerRights')}</div>
+        {/* the copyright line of the LICENSE file; what the licence allows is in the terms' copyright section */}
+        <Link href="/terms#copyright" className="hover:text-emerald-400 transition-colors">© 2026 Rene Kostmann</Link>
       </div>
       <p className="mt-3 text-zinc-500 leading-relaxed"><Credits lang={lang} full /></p>
       <p className="mt-2 text-zinc-500">

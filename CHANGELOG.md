@@ -10,6 +10,7 @@ All notable changes to MetaBlend. Format loosely follows
 - `THIRD_PARTY_NOTICES.md` lists the software and fonts MetaBlend ships (33 components: the npm packages, Leaflet, Hanken Grotesk and Geist Mono, the apps' native libraries) with their licence texts; `node scripts/third-party-notices.mjs` writes it again after a dependency changes.
 - `CONTRIBUTING.md`: no outside code for now, issues are welcome.
 - The terms page says the same in all 13 languages (the German is the original): its copyright section names the licence, what it allows, the two years, and that the MetaBlend name and logo are not covered by it. Before, it said "all rights reserved" and that publishing the code granted no licence.
+- The website's footer reads "© 2026 Rene Kostmann" in all 13 languages and leads to that section of the terms. "All rights reserved" is gone from it.
 
 ### Phone layout check: its browser profile goes after a failure too
 - The check starts its browser through the same launcher as the accessibility check and the store screenshots (`scripts/lib/browser.mjs`), so its profile (about 400 MB) is removed also when the browser never opens its debugging port, the run hits its time limit, or the run ends in an error or with Ctrl+C. Before, only the normal end removed it.
