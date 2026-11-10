@@ -2,6 +2,7 @@ import { selfBase } from '@/lib/auth'
 import { ImageResponse } from 'next/og'
 import { t, translateCondition } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
+import { atNow } from '@/lib/outlook/at-now'
 import { skyFor, SKIES } from '@/lib/sky'
 import { pickLang, pickUnit } from '@/lib/share'
 
@@ -41,9 +42,10 @@ export async function GET(req) {
   const lang = pickLang(u.searchParams.get('lang'))
   const fmtTemp = tempFormatter(pickUnit(u.searchParams.get('unit')))
   const key = encodeURIComponent(name.toLowerCase())
-  const [now, out] = name
+  const [now, built] = name
     ? await Promise.all([getJson(`${baseFor(req)}/api/forecast?city=${key}&lang=${lang}`), getJson(`${baseFor(req)}/api/outlook?city=${key}&lang=${lang}`)])
     : [null, null]
+  const out = atNow(built) // the outlook's copy can be 2.5 h old: today and this hour, not the build's
 
   const skyName = out ? skyFor({ code: out.hourly?.[0]?.code, nowLocal: out.nowLocal, sun: out.sun }) : 'night'
   const [a, b, c] = SKIES[skyName] ?? SKIES.night

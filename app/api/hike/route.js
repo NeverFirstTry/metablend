@@ -11,9 +11,11 @@ import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
-// height. Language-neutral and CDN-cached per peak for 30 minutes.
+// height. Language-neutral and CDN-cached per peak for an hour.
 
-const TTL = 1800
+// an hour, then 30 minutes more while a new copy is built: at most 90 minutes old, as it was with
+// 30 minutes and an hour (2026-11-10), so what reads it needs no change
+const TTL = 3600, STALE = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
 
 export const GET = withErrorLog('hike', async (request) => {
@@ -37,6 +39,6 @@ export const GET = withErrorLog('hike', async (request) => {
   if (!payload.hourly.length) return noStore({ ...payload, unavailable: true }, 200)
 
   return Response.json(payload, {
-    headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` },
+    headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },
   })
 })

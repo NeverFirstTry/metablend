@@ -37,7 +37,9 @@ const IS_ANALYTICS = /plausible\.io\/|\/_vercel\/(speed-)?insights\/|va\.vercel-
 const analytics = { blocked: 0, sent: 0 }
 const edge = spawn(EDGE, ['--headless=new', ...(process.env.CI ? ['--no-sandbox'] : []), `--remote-debugging-port=${PORT}`, `--user-data-dir=${mkdtempSync(join(tmpdir(), 'layout-'))}`, '--hide-scrollbars', 'about:blank'], { stdio: 'ignore' })
 let targets
-for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
+// up to 30 s: on a busy CI runner the browser took longer than the 10 s this waited before (run 29, 2026-11-10)
+for (let i = 0; i < 120 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
+if (!targets) { console.error('The browser did not open its debugging port within 30 seconds: no page was checked.'); edge.kill(); process.exit(1) }
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
 await new Promise(r => ws.addEventListener('open', r))
 let id = 0

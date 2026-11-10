@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — the hours always start now; the outlook is kept 2 hours, the summit forecast 1 hour
+- The hour strip, the Today, Tomorrow and 7 days tabs, the headlines and the best time outside always start at the current hour of the place: the page works out "now" itself, also when the hour turns on an open page and after midnight. Before, they started at the hour the server had built its answer for, which could be 90 minutes back.
+- The outlook is kept 2 hours instead of 30 minutes, then 30 minutes more while a new copy is built: never older than two and a half hours. The models behind it change every few hours; the conditions right now (15 minutes) and the rain nowcast (10 minutes) are not affected. About a third fewer outlook requests to Open-Meteo at today's traffic (734 a day to about 470), and the push job's share falls from 48 to 12 a day per home place.
+- The summit forecast is kept 1 hour instead of 30 minutes, then 30 minutes more: 90 minutes at most, as before.
+- The city pages, the embed widget and the share image read the outlook the same way (`lib/outlook/at-now.js`); push alerts and the app's widgets already did.
+- Phone layout check: it waits up to 30 seconds for the browser on the CI runner and says so when it does not start (run 29 failed after 10 seconds without loading a page).
+
 ### Changed — the app's header and the store listing
 - The Beta badge next to the logo is gone for launch, in the app as on the website.
 - On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.

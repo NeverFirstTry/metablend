@@ -25,6 +25,7 @@ import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
+import { atNow } from '@/lib/outlook/at-now'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
 import { SectionTitle, Fold } from './components/ui'
@@ -228,7 +229,18 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [error, setError] = useState(null)
   // The future forecast (today / tomorrow / week) — fetched alongside "right
   // now" and failing independently of it.
-  const [outlook, setOutlook] = useState(() => SESSION.outlook ?? (SESSION.data ? null : example?.outlook ?? null))
+  const [outlookBuilt, setOutlook] = useState(() => SESSION.outlook ?? (SESSION.data ? null : example?.outlook ?? null))
+  // The outlook as of this quarter hour. Its copy can be two and a half hours old (the CDN's), so
+  // "now", the hours ahead and the headlines are worked out again here (lib/outlook/at-now.js), and
+  // again when the hour turns on an open page. After mount only: the first render matches the server's.
+  const [clock, setClock] = useState(null)
+  useEffect(() => {
+    const tick = () => setClock(Math.floor(Date.now() / 900e3) * 900e3)
+    tick()
+    const id = setInterval(tick, 30_000)
+    return () => clearInterval(id)
+  }, [])
+  const outlook = useMemo(() => (clock ? atNow(outlookBuilt, clock) : outlookBuilt), [outlookBuilt, clock])
   const [outlookError, setOutlookError] = useState(null)
   const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])

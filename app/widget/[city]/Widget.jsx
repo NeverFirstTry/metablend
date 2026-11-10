@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { t, translateCondition } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
+import { atNow } from '@/lib/outlook/at-now'
 import { skyFor, isDark, nightIcon } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { applyTheme } from '@/lib/theme'
@@ -41,7 +42,7 @@ export default function Widget() {
     let stale = false
     const key = encodeURIComponent(city.toLowerCase())
     Promise.all([fetchJson(`/api/forecast?city=${key}&lang=${opts.lang}`), fetchJson(`/api/outlook?city=${key}&lang=${opts.lang}`)])
-      .then(([now, out]) => { if (!stale) setState({ now, out, done: true }) })
+      .then(([now, out]) => { if (!stale) setState({ now, out: atNow(out), done: true }) }) // the outlook's copy can be 2.5 h old: its hours start now
     return () => { stale = true }
   }, [city, opts])
 
