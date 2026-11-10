@@ -10,6 +10,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Homes in the same 0.1° cell (about 11 by 8 km) share one nowcast per run, asked at the cell's position, which is up to about 6 km from a home. The alert rules and texts are unchanged.
 - The run's summary (job_runs) says how many nowcasts were asked and how many home places were skipped.
 
+### Fixed — place names in your language
+- The forecast shows the city in your language where Open-Meteo has the name ("Vienna" searched in German reads "Wien"), and the country in your language from its ISO code ("Österreich", "オーストリア"); before, every visitor read the country in English. Recent, Favourites and the share text take that name.
+- The country is named from its code in the reader's language everywhere a place is shown: forecast header, search suggestions, city pages, planner, the home city picker in Notifications and the share preview image.
+- A long city name in the header wraps between words only (Japanese, Chinese, Korean included), and the refresh button stays beside it.
+- Under the hood: /api/forecast and /api/planner send `cc`, the ISO code; one of our towns is named in the visitor's language by an Open-Meteo id lookup, once per language, kept 30 days. Test: the route and the header line in German (Wien, Österreich), Japanese and English; the golden recording gains `cc`.
+
 ### Changed — the hours always start now; the outlook is kept 2 hours, the summit forecast 1 hour
 - The hour strip, the Today, Tomorrow and 7 days tabs, the headlines and the best time outside always start at the current hour of the place: the page works out "now" itself, also when the hour turns on an open page and after midnight. Before, they started at the hour the server had built its answer for, which could be 90 minutes back.
 - The outlook is kept 2 hours instead of 30 minutes, then 30 minutes more while a new copy is built: never older than two and a half hours. The models behind it change every few hours; the conditions right now (15 minutes) and the rain nowcast (10 minutes) are not affected. About a third fewer outlook requests to Open-Meteo at today's traffic (734 a day to about 470), and the push job's share falls from 48 to 12 a day per home place.

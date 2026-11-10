@@ -5,6 +5,7 @@ import { fill, tempFormatter } from '@/lib/outlook/text'
 import { atNow } from '@/lib/outlook/at-now'
 import { skyFor, SKIES } from '@/lib/sky'
 import { pickLang, pickUnit } from '@/lib/share'
+import { countryName } from '@/lib/city-names'
 
 // The preview card a shared city link shows in chats and feeds: that city's
 // weather right now, on its sky. Reads the same CDN-cached forecast and
@@ -62,7 +63,7 @@ export async function GET(req) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', fontSize: 64, fontWeight: 700, letterSpacing: -1.5 }}>
-              {now?.city ?? (name || 'MetaBlend')}{now?.country ? <span style={{ color: 'rgba(226,234,247,0.62)', fontWeight: 400 }}>, {now.country}</span> : null}
+              {now?.city ?? (name || 'MetaBlend')}{now?.country ? <span style={{ color: 'rgba(226,234,247,0.62)', fontWeight: 400 }}>, {countryName(now.cc, lang, now.country)}</span> : null}
             </div>
             {now ? (
               <div style={{ display: 'flex', alignItems: 'flex-end', marginTop: 8 }}>

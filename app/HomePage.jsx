@@ -18,7 +18,7 @@ import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
-import { cityName } from '@/lib/city-names'
+import { cityName, countryName } from '@/lib/city-names'
 import { startCity, isAppView, deepLinkCity, firstLoad } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
@@ -28,6 +28,7 @@ import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outloo
 import { atNow } from '@/lib/outlook/at-now'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
+import PlaceName from './components/PlaceName'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
 import WarningStrip from './components/outlook/WarningStrip'
@@ -69,8 +70,6 @@ function readCachedForecast(city) {
   }
 }
 
-// a country in the reader's language (the example forecast arrives in English)
-const regionLabel = (cc, lang, fallback) => { try { return new Intl.DisplayNames([lang], { type: 'region', style: 'short' }).of(cc) || fallback } catch { return fallback } }
 
 // ── Recent cities (cookie, last 5, deduped) ───────────────────────────────────
 // Only what the user searched or tapped; links, notifications and refreshes
@@ -698,7 +697,7 @@ ${url}`)
           onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
         >
           <span>{s.name}</span>
-          <span className="text-zinc-500 text-xs">{s.admin1 ? `${s.admin1}, ` : ''}{s.country}</span>
+          <span className="text-zinc-500 text-xs">{s.admin1 ? `${s.admin1}, ` : ''}{countryName(s.country_code, lang, s.country)}</span>
         </button>
       ))}
     </div>
@@ -948,11 +947,12 @@ ${url}`)
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
-                {/* the refresh button stays beside the name; a long name wraps inside its own box (de, cs, ja on a phone) */}
+                {/* the refresh button stays beside the name; a long name wraps inside its own box (de, cs, ja on a phone),
+                    between words only (オーストリア stays whole), a single over-long name still anywhere */}
                 <div className="flex items-center gap-2">
-                  <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight">
+                  <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
                     {/* the example comes in English from the server: its name in the reader's language */}
-                    {isExample ? cityName('vienna', lang, data.city) : data.city}{data.country && <span className="text-zinc-400 font-normal">, {isExample ? regionLabel(data.cc ?? 'AT', lang, data.country) : data.country}</span>}
+                    <PlaceName city={isExample ? cityName('vienna', lang, data.city) : data.city} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
                   </h2>
                   <button
                     onClick={manualRefresh}
