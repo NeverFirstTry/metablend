@@ -12,6 +12,11 @@ All notable changes to MetaBlend. Format loosely follows
 - The city pages, the embed widget and the share image read the outlook the same way (`lib/outlook/at-now.js`); push alerts and the app's widgets already did.
 - Phone layout check: it waits up to 30 seconds for the browser on the CI runner and says so when it does not start (run 29 failed after 10 seconds without loading a page).
 
+### Added: a support page
+- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, relying on it alone in the mountains) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
+- The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
+- Japanese footer: "All rights reserved" now reads 無断転載を禁じます. The other 12 footers were checked and are translated; a test keeps Japanese, Chinese and Korean footer lines from staying English.
+
 ### Changed — the app's header and the store listing
 - The Beta badge next to the logo is gone for launch, in the app as on the website.
 - On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
