@@ -15,6 +15,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — Slate on the home screen, the splash screen and the store listing
+- Adding metablend.app to a phone's home screen now gives the Slate icon (a white M and a gold B on dark slate), the same as the app's new default. Before, it was Sky.
+- The app's splash screen is plain Slate with the white and gold letters, instead of the sky gradient with clouds (iPhone and Android; ships with the next native build).
+- The Play listing's icon is Slate, and its feature graphic has the link preview's look: Slate with a faint gold glow from the top, no navy gradient. The App Store icon comes from the app's own icon set, which is Slate already.
+- Under the hood: `generate.mjs` draws the website's icons and the splash from the default app icon (`icons.mjs`) instead of the Sky theme; the browser tab keeps its cloud. `store-shots.mjs` takes the feature graphic's colours from `lib/og-look.js`.
+
 ### Changed — the code is source-available under the Functional Source License
 - MetaBlend's code is under the Functional Source License 1.1 with Apache 2.0 as its future licence (FSL-1.1-ALv2, a Fair Source licence) instead of "all rights reserved": it may be read, run, changed and shared for any purpose except a commercial product or service that competes with MetaBlend, and each version also becomes available under the Apache License 2.0 two years after it was published. `LICENSE` is the official text with the copyright line "Copyright 2026 Rene Kostmann"; both package files name the licence.
 - `THIRD_PARTY_NOTICES.md` lists the software and fonts MetaBlend ships (33 components: the npm packages, Leaflet, Hanken Grotesk and Geist Mono, the apps' native libraries) with their licence texts; `node scripts/third-party-notices.mjs` writes it again after a dependency changes.

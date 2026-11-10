@@ -1,17 +1,16 @@
-// node scripts/brand/generate.mjs [variant] [webTheme] — writes every icon
-// asset of the app and site (needs: npm i --no-save opentype.js
-// @fontsource/hanken-grotesk sharp). The website, its splash and the
-// notification icon use the web theme (sky); the app icons are the designs in
-// icons.mjs, Slate the default on iPhone and Android.
+// node scripts/brand/generate.mjs — writes every icon asset of the app and site
+// (needs: npm i --no-save opentype.js @fontsource/hanken-grotesk sharp). The
+// app icons are the designs in icons.mjs; the default one (Slate) is also the
+// website's home-screen icon and the splash. The browser tab keeps its cloud.
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import sharp from 'sharp'
-import { iconSVG, monoSVG, glyphs, THEMES } from './brand.mjs'
-import { ICONS, DEFAULT_ICON, iconArt, sceneArt, markArt } from './icons.mjs'
+import { monoSVG, glyphs } from './brand.mjs'
+import { ICONS, DEFAULT_ICON, iconArt, sceneArt, markArt, artOnly } from './icons.mjs'
 
-const variant = process.argv[2] ?? 'around'
-const DEFAULT = process.argv[3] ?? 'sky' // the website's icons and the splash
+const variant = 'around'
+const WEB = ICONS.find(i => i.id === DEFAULT_ICON) // the website's home-screen icon and the splash
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const P = (...p) => path.join(ROOT, ...p)
 const AR = P('mobile/android/app/src/main/res')
@@ -22,15 +21,16 @@ const render = (svg, file, w, h = w) => sharp(Buffer.from(svg)).resize(w, h).png
 // place a 100×100-viewBox svg as a nested svg at (x, y), w wide
 const nest = (svg, x, y, w) => svg.replace(/ width="\d+" height="\d+"/, '').replace('<svg ', `<svg x="${x}" y="${y}" width="${w}" height="${w}" `)
 const clipped = (inner, size, shape) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><defs><clipPath id="k">${shape === 'circle' ? `<circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}"/>` : `<rect width="${size}" height="${size}" rx="${size * 0.18}"/>`}</clipPath></defs><g clip-path="url(#k)">${nest(inner, 0, 0, size)}</g></svg>`
-const T = THEMES[DEFAULT]
 
 // ---- web
-fs.writeFileSync(P('public/icon.svg'), iconSVG(variant, DEFAULT, { id: 'fav' }))
+fs.writeFileSync(P('public/icon.svg'), iconArt(WEB) + '\n')
 for (const s of [192, 512]) {
-  await render(iconSVG(variant, DEFAULT, { id: id(), size: s }), P(`public/icon-${s}.png`), s)
-  await render(iconSVG(variant, DEFAULT, { id: id(), size: s, inset: 0.1 }), P(`public/icon-maskable-${s}.png`), s)
+  await render(iconArt(WEB, 'icon', s), P(`public/icon-${s}.png`), s)
+  await render(iconArt(WEB, 'icon', s, 0.1), P(`public/icon-maskable-${s}.png`), s)
 }
-await render(iconSVG(variant, DEFAULT, { id: id(), size: 180 }), P('public/apple-touch-icon.png'), 180)
+await render(iconArt(WEB, 'icon', 180), P('public/apple-touch-icon.png'), 180)
+// the Play listing's icon is the website's 512 px one (scripts/store-shots.mjs copies it with the feature graphic)
+fs.copyFileSync(P('public/icon-512.png'), P('fastlane/metadata/android/en-US/images/icon.png'))
 // The browser-tab icon: like GitHub's, one plain mark on a transparent
 // background — the logo's cloud, navy on light tabs, white on dark ones (the
 // full icon is unreadable at 16 px).
@@ -86,11 +86,10 @@ for (const x of ['ic_launcher_dark.xml', 'ic_launcher_dark_round.xml']) fs.rmSyn
 for (const q of Object.keys(D)) for (const x of ['ic_launcher_dark.png', 'ic_launcher_dark_round.png', 'ic_launcher_foreground_dark.png']) fs.rmSync(path.join(AR, `mipmap-${q}`, x), { force: true })
 fs.rmSync(path.join(AR, 'drawable-v24/ic_launcher_foreground.xml'), { force: true })
 
-// splash: the icon's sky with the mark in the middle
+// splash: the default icon's background with its art in the middle
 const splash = (w, h, frac = 0.34) => {
   const mark = Math.round(Math.min(w, h) * frac)
-  const bgStops = T.bg.map((c, i) => `<stop offset="${i / (T.bg.length - 1)}" stop-color="${c}"/>`).join('')
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1">${bgStops}</linearGradient></defs><rect width="${w}" height="${h}" fill="url(#s)"/>${nest(iconSVG(variant, DEFAULT, { id: id(), bg: false }), (w - mark) / 2, (h - mark) / 2, mark)}</svg>`
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><rect width="${w}" height="${h}" fill="${WEB.bg}"/>${nest(artOnly(WEB, mark), (w - mark) / 2, (h - mark) / 2, mark)}</svg>`
 }
 for (const dir of fs.readdirSync(AR).filter(d => d.startsWith('drawable'))) {
   const f = path.join(AR, dir, 'splash.png')
@@ -141,4 +140,4 @@ for (const f of fs.readdirSync(path.join(IOS, 'Splash.imageset')).filter(f => f.
 fs.rmSync(P('public/app-icons'), { recursive: true, force: true })
 fs.mkdirSync(P('public/app-icons'), { recursive: true })
 for (const icon of ICONS) await render(clipped(iconArt(icon, 'icon', 168), 168, 'square'), P(`public/app-icons/${icon.id}.png`), 168)
-console.log('done', variant, DEFAULT)
+console.log('done')
