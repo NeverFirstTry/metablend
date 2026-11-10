@@ -1,1 +1,1 @@
-tiempo,previsión,consenso,montaña,senderismo,cumbre,radar,lluvia,avisos,widget,ECMWF,alpes
+previsión,clima,radar,lluvia,viento,tormenta,avisos,widget,montaña,senderismo,cumbre,alpes,aludes

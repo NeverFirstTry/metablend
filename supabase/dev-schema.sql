@@ -1140,6 +1140,123 @@ revoke all on public.station_errors from anon, authenticated;
 -- the server routes' role, not left to the project's default grants
 grant select, insert, delete on public.station_errors to service_role;
 
+-- ═══ job-runs.sql ══════════════════════════════════════════════════════════
+-- One row per run of a scheduled job (/api/cleanup, /api/calibrate, /api/push/dispatch,
+-- /api/warnings/refresh, /api/station-calibrate; lib/job-log.js): when it started, how long it
+-- took, the status it answered, the error text if it threw, and a compact summary of its answer
+-- (counts; for the station calibration a tally of the skip reasons). pg_net keeps the HTTP
+-- answers of pg_cron's calls only a few hours, so a failed night run was invisible by morning
+-- (2026-11-09); with this table a read-only check covers any night. The cleanup job removes
+-- rows after 14 days. Row level security on, no policies, no grants for the public API roles,
+-- like every other table. Safe to run more than once.
+create table if not exists public.job_runs (
+  id bigint generated always as identity primary key,
+  job text not null,
+  started_at timestamptz not null,
+  duration_ms integer not null,
+  status_code integer not null,
+  error text,
+  summary jsonb
+);
+create index if not exists job_runs_job_started_at on public.job_runs (job, started_at desc);
+alter table public.job_runs enable row level security;
+revoke all on public.job_runs from anon, authenticated;
+-- the server routes' role, not left to the project's default grants
+grant select, insert, delete on public.job_runs to service_role;
+
+-- ═══ open-meteo-calls.sql ══════════════════════════════════════════════════
+-- Our own count of requests to Open-Meteo (lib/open-meteo.js), per UTC day and hour: how many HTTP
+-- requests we made and how many "API calls" they are the way Open-Meteo counts them. Their page: one
+-- call per request; more than 10 weather variables or more than two weeks for one location count
+-- fractionally (15 variables over 2 weeks = 1.5 calls, over 4 weeks = 3.0). Several locations in one
+-- request and several models are not covered by their page; here every location, and every model's
+-- set of variables, counts as its own (the conservative reading). The free tier allows 10,000 calls a
+-- day per IP; the error log gets an entry at 70 % and 90 % of that (scope open-meteo.quota). Rows are
+-- kept 90 days (cleanup job). Row level security on, no policies, no grants for the public API roles.
+-- Safe to run more than once.
+create table if not exists public.open_meteo_calls (
+  day date not null,
+  hour smallint not null check (hour between 0 and 23),
+  requests integer not null default 0,
+  calls numeric(12,2) not null default 0,
+  primary key (day, hour)
+);
+-- one request more in its hour; answers the day's total so the caller can raise the alert
+create or replace function public.bump_open_meteo_calls(p_day date, p_hour integer, p_calls numeric)
+returns numeric
+language sql
+security definer
+set search_path = public, pg_temp
+as $$
+  insert into public.open_meteo_calls (day, hour, requests, calls) values (p_day, p_hour, 1, p_calls)
+  on conflict (day, hour) do update set requests = public.open_meteo_calls.requests + 1, calls = public.open_meteo_calls.calls + excluded.calls;
+  select coalesce(sum(calls), 0) from public.open_meteo_calls where day = p_day;
+$$;
+alter table public.open_meteo_calls enable row level security;
+revoke all on public.open_meteo_calls from anon, authenticated;
+grant select, insert, update, delete on public.open_meteo_calls to service_role;
+revoke execute on function public.bump_open_meteo_calls(date, integer, numeric) from public, anon, authenticated;
+grant execute on function public.bump_open_meteo_calls(date, integer, numeric) to service_role;
+
+-- ═══ geocode-cache.sql ═════════════════════════════════════════════════════
+-- The city geocoder's two helpers (lib/geocode.js): town_lookup answers a city name from our towns
+-- (GeoNames places of 5,000 and more, lib/places) by any of their names, the most populous first;
+-- geocode_cache keeps Open-Meteo's geocoding answers for 30 days: the result list for a name our towns
+-- lack (villages, misspellings, an empty list too) and the English name of a place by its GeoNames id.
+-- Together a city search no longer needs Open-Meteo (the quota card of 2026-11-09); every ask that still
+-- goes upstream is logged (error_log, scope geocode.upstream). Rows older than 30 days go with the
+-- cleanup job. Row level security on, no policies, no grants for the public API roles, like every other
+-- table. Safe to run more than once.
+create index if not exists towns_names_idx on public.towns using gin (string_to_array(search, ' | '));
+
+create or replace function public.town_lookup(q text, lim integer default 20)
+returns table (id integer, name text, alt text, country text, region text, population integer, lat double precision, lon double precision)
+language sql stable parallel safe
+set search_path = public, extensions, pg_temp
+as $$
+  select t.id, t.name, t.alt, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
+    from public.towns t
+   where string_to_array(t.search, ' | ') @> array[public.place_norm(btrim(q))]
+   order by t.population desc
+   limit least(greatest(lim, 1), 50)
+$$;
+revoke execute on function public.town_lookup(text, integer) from public, anon, authenticated;
+grant execute on function public.town_lookup(text, integer) to service_role;
+
+create table if not exists public.geocode_cache (
+  key text primary key,            -- "<lang>|<name>" or "<lang>|w|<name>" (the wide list), or "get:<GeoNames id>"
+  results jsonb not null,          -- Open-Meteo's answer: the result list, or { name, admin1 } for an id
+  fetched_at timestamptz not null default now()
+);
+alter table public.geocode_cache enable row level security;
+revoke all on public.geocode_cache from anon, authenticated;
+grant select, insert, update, delete on public.geocode_cache to service_role;
+
+-- ═══ town-near.sql ═════════════════════════════════════════════════════════
+-- "My location" (lib/geocode.js placeNear, /api/place): the town at a position the phone has rounded
+-- to 0.1°, about 10 km; the exact position never leaves the device. A rounded position cannot tell
+-- neighbours apart, and our towns (GeoNames places of 5,000 and more) list city districts beside the
+-- cities, so neither the nearest (a district: Mühlau for Innsbruck) nor the largest in reach (a Vienna
+-- district for Mödling) is the place meant. So: of the towns within radius_km, the one with the most
+-- people for its distance, population / (km + 1)². No row: no town that close, and the API asks
+-- OpenStreetMap's Nominatim with the same rounded position. Only the API (service-role key) calls it.
+-- Safe to run more than once.
+create or replace function public.town_near(lat double precision, lon double precision, radius_km double precision default 10)
+returns table (id integer, name text, country text, population integer, km double precision)
+language sql stable parallel safe
+set search_path = public, extensions, pg_temp
+as $$
+  select c.id, c.name, c.country, c.population, c.km
+    from (select t.id, t.name, t.country, t.population,
+                 st_distance(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography) / 1000 as km
+            from public.towns t
+           where st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
+   order by c.population / power(c.km + 1, 2) desc, c.id
+   limit 1
+$$;
+revoke execute on function public.town_near(double precision, double precision, double precision) from public, anon, authenticated;
+grant execute on function public.town_near(double precision, double precision, double precision) to service_role;
+
 -- ═══ enable_rls.sql ════════════════════════════════════════════════════════
 -- ════════════════════════════════════════════════════════════════════════════
 -- MetaBlend — lock down the database (run AFTER setup_all.sql).

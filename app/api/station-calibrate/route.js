@@ -1,9 +1,11 @@
+import { openMeteoFetch } from '@/lib/open-meteo'
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
 import { applyDeltas } from '@/lib/weights'
 import { updateCityBias, shownConsensus } from '@/lib/blend'
 import { withErrorLog, logError } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 import { jobKeyProblem } from '@/lib/auth'
 import { haversineKm } from '@/lib/geo'
 import { localHourIso } from '@/lib/localtime'
@@ -81,7 +83,7 @@ async function saveShadow(cities, forecasts, observations, since) {
   await Promise.all(SUMMITS.filter(s => temps.has(s.station)).map(async s => {
     // temperature only, one day: the app's summit request is far bigger than this needs
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&elevation=${s.elev}&hourly=temperature_2m&models=${OM_MODELS.map(m => m.model).join(',')}&forecast_days=1&timezone=auto`
-    const answer = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+    const answer = await openMeteoFetch(url, { timeoutMs: 8000 }).catch(() => null)
     const parsed = answer?.ok ? parseSummitMulti(await answer.json().catch(() => null)) : null // one bad body costs one summit, not the hour
     if (!parsed) return
     const actual = temps.get(s.station)
@@ -93,7 +95,7 @@ async function saveShadow(cities, forecasts, observations, since) {
   if (error && error.code !== 'PGRST205') await logError('station-errors', error)
 }
 
-export const GET = withErrorLog('station-calibrate', async (request) => {
+export const GET = withErrorLog('station-calibrate', withJobLog('station-calibrate', async (request) => {
   // Triggered by an external scheduler (GitHub Action / cron-job.org) rather than
   // a Vercel cron: needs CALIBRATE_SECRET, configured and matching.
   const denied = jobKeyProblem(request)
@@ -195,4 +197,4 @@ export const GET = withErrorLog('station-calibrate', async (request) => {
   await purgeShortLived(supabase, runStart)
 
   return Response.json({ calibrated, since, radiusKm: RADIUS_KM, results })
-})
+}))

@@ -14,12 +14,12 @@ import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateConditi
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
-import { askName, nearParam, rememberName, withNear } from '@/lib/geo'
+import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
 import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { cityName } from '@/lib/city-names'
-import { startCity, isAppView, deepLinkCity, typedLink } from '@/lib/app-client'
+import { startCity, isAppView, deepLinkCity, firstLoad } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
 import { skyFor, isDark } from '@/lib/sky'
@@ -297,20 +297,20 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     // per-city SEO pages and the RSS feed links).
     // Inside the app the Forecast tab reloads the page, so it brings back the
     // last city looked at.
-    const deepLink = deepLinkCity(window.location.search)
     if (resume.restore) {
       // the last screen is already showing (state initializers); refresh it quietly when due
       if (resume.refresh) loadForecast(SESSION.city, { silent: true, lang: detectedLang })
     } else {
-      const first = resume.load ?? startCity({
-        deepLink,
+      // which place, and whether it goes into Recent (lib/app-client.js, tested there)
+      const { city: first, remember } = firstLoad({
+        search: window.location.search,
+        resumed: resume.load,
         last: (() => { try { return sessionStorage.getItem(LAST_KEY) } catch { return null } })(),
         recent: getRecent(),
       })
       if (first) {
         setCity(askName(nameMap(), first, detectedLang))
-        // a link or the start city stays out of Recent; a place typed into the error screen's search goes in
-        loadForecast(first, { lang: detectedLang, remember: first === deepLink && typedLink(window.location.search) })
+        loadForecast(first, { lang: detectedLang, remember })
       } else delete document.documentElement.dataset.returning
     }
     /* eslint-enable react-hooks/set-state-in-effect */
@@ -600,12 +600,11 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       : await new Promise(resolve => navigator.geolocation.getCurrentPosition(p => resolve({ lat: p.coords.latitude, lon: p.coords.longitude }), () => resolve(null)))
     if (!pos) { setError(t(lang, 'locationUnavailable')); setLocating(false); return }
     try {
-      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${pos.lat}&longitude=${pos.lon}&localityLanguage=${lang}`)
-      const geo = await res.json()
-      const name = geo.city || geo.locality || geo.principalSubdivision
-      if (!name) throw new Error('no place name')
-      setCity(name)
-      await loadForecast(name, { near: nearParam(pos.lat, pos.lon) })
+      // our own server names the place, from the position rounded to about 10 km: the exact one stays on the device (lib/geo.js)
+      const place = await placeAt(pos, lang)
+      if (!place) throw new Error('no place name')
+      setCity(place.name)
+      await loadForecast(place.name, { near: place.near })
     } catch {
       setError(t(lang, 'locationNotDetected')) // the reverse lookup failed or found no place
     } finally {

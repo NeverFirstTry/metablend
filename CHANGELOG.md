@@ -3,16 +3,73 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-09
+## 2026-11-10
+
+### Fixed — forecasts with missing sources: Open-Meteo through one gate
+- At most four requests to Open-Meteo are in flight per server instance, whatever asks (forecast, outlook, rain nowcast, summits, route weather, planner, calibration); the rest wait their turn, and the same request asked twice at the same moment is sent once. A forecast miss sent eight at once and a burst of places many times that; Open-Meteo refused some of them and the blend went thin (Vienna with 10 of 20 sources for two minutes during the store run on 2026-11-10; 82 thin blends in a day). The summit forecast's own gate, which took its refusals from 47 a day to none, is now this shared one.
+- A forecast request Open-Meteo refuses for being one too many at that instant is asked once more after 300 ms (the summit path already did); its limits per minute, hour and day are not asked again.
+- Toronto, Vancouver, Prague and other places inside the area of NWS or Bright Sky that those services do not cover no longer count as a failed source: their forecasts were marked incomplete and refreshed every 2 minutes instead of 15.
+- A request's time limit (5 seconds for a forecast source) starts when the request leaves the queue, not while it waits its turn: in a burst of twenty places the last in line waited longer than that and would have given up without having asked. The wait has its own limit of 10 seconds: a request still without a turn then counts as failed, so a flood of places cannot hold requests open without end.
+- The thin-blend log (error_log, scope forecast.partial) now says what Open-Meteo answered to each failed request: status, reason and which request.
+- The Open-Meteo count (open_meteo_calls) now covers everything asked of the forecast host: outlook, rain nowcast, summits, route weather and terrain heights, next to the forecast, the planner and the calibration. Figures from the day this goes live are higher than, and not comparable with, earlier days. The outlook's 10-year climate request and the name searches are not counted.
 
 ### Legal and privacy
+- “My location” no longer shows the device’s position to a third party. The phone rounds it to 0.1°, about 10 km, and asks our own server (`/api/place`), which names the town from our own list (of the towns within 10 km the one with the most people for its distance, in the visitor’s language) and asks OpenStreetMap’s Nominatim, with the same rounded position, only where no town of 5,000 and more is that close. BigDataCloud is gone from the site, the content policy and the notice.
+- Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
+- /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
+
+### Changed — nine Open-Meteo requests per forecast miss instead of twelve
+- ECMWF IFS, NOAA GFS, DWD ICON and Météo-France share one Open-Meteo request instead of one each, and nothing a visitor sees changes: the shared request reads each model at Open-Meteo’s 15-minute step, the value its own request gave (compared live for Lienz and Perth, every field equal). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory, so four of the nine are asked once an hour per place. By Open-Meteo’s counting (variables × models) a forecast miss costs 12 calls at most, 8 while the hourly values are kept, where it cost 14. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a Lienz miss recorded through the old twelve requests and gets the same blend, source by source, from the new nine.
+
+## 2026-11-09
+
+### Store listing
+- The App Store text and screenshots can go up from the PC with fastlane (`fastlane/Fastfile`): an en-US text-only lane for a first check and a lane for every language with screenshots. No build upload, no submission, no release; the App Store Connect API key comes only from environment variables and must live outside the repo. Google Play has a placeholder lane. A project test pins those settings.
+- App Store keywords rewritten in all 12 languages (live with the next upload): no words the name or subtitle already carry, no "consensus" or ECMWF; rain radar, mountain weather, storms, avalanches and routes instead, each within 100 characters.
+- App Store copyright set: "2026 Rene Kostmann" (`fastlane/metadata/copyright.txt`, one field for all languages).
+- New store test: no store text or screenshot caption names an old source count (16 or 26; production has up to 20). The subtitles already say "up to 20" in all 12 App Store languages and stay within 30 characters (existing limits test); support and marketing URLs stay https://metablend.app.
+
+### iPhone app (next native build)
+- iPhone only, finished: the last iPad setting (the iPad's screen orientations) is gone from the app's Info.plist; the app and its widgets were already iPhone-only. iPads run the iPhone version. A project test keeps it so: no iPad keys in any Info.plist, and store screenshots for iPhone and Android phones only.
+
+### Tests
+- Play production access answers (`docs/play-production-access.md`) fit Google's 300-character limit per text field: seven answers, each with its count, plus the two choices. `lib/play-answers.test.js` fails if an answer is longer than 300 characters, its stated count is wrong, or it has an em or en dash or the word safe or reliable.
+- Recent places: the home page's first load decides in one tested helper which place goes into Recent (a place typed into the error screen's search, never a link, the start city or a resumed load); the test renders the error screen's form instead of reading its source, and fails if the decision or the form's mark breaks.
+- New guard (`lib/source-match.test.js`): a test may not check an app/ code line only by its source text. It flags tests that read an app/ file and match its text while rendering, calling or requesting nothing from app/; bans (text that must not appear) don't count, and an opt-out comment must give a reason. 18 existing tests flagged: one fixed with a render (the tile's classes), 17 opted out with their reasons, plus the Recent test above.
+- Route behaviour tests for the scheduled jobs and the summit forecast, with every outside call faked (`lib/test-route-fakes.js`, the forecast route test's pattern): each of the five jobs writes one job_runs row under its own name and none when refused; the cleanup prunes job_runs after 14 days and WeatherAPI rows after an hour; the hourly station calibration purges them on both exits, after the weights are saved; /api/hike answers an Open-Meteo refusal with 200, unavailable and no-store, the summit page throws on it and the widget answers 502. Four source-match opt-outs gone (one stays for the peak view, which fetches in an effect). The test hooks load the app's JSON imports and give server pages notFound().
+- The source-match guard reads test files with a parser: a test generated inside a loop is judged on its own, together with the loop that feeds it, and paths listed between tests no longer count against the test before them. The job-log route test is back to its plain form (a list of route paths, each imported inside its test). Over the whole suite with every opt-out removed, the old and the new guard flag the same 13 tests.
+
+### Legal and privacy
+- /terms: the liability section is rewritten, German first, all 13 languages, five paragraphs each. Forecasts are probability statements that can be off; MetaBlend is a planning aid that replaces no official warning, avalanche report or judgement on site; the Aviation pages are not for flight preparation; the exclusion covers slight negligence only, and intent, gross negligence and culpably caused injury to life, body or health are expressly not excluded (§ 6 Abs. 1 Z 9 KSchG); uninterrupted availability is not promised. A test checks in every language that all three exceptions stand in the not-excluded sentence, none of them in the exclusion, and that the availability sentence closes the paragraph, so no translation is wider than the German.
 - /privacy: the ImprovMX sentence names the standard contractual clauses of its data processing agreement (version of 9 September 2026 with Annexes I–III, countersigned by both sides on 2026-11-09) and says that ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days — German first, all 13 languages, add-only.
 - /terms: the WeatherAPI.com end-user disclaimer now stands in WeatherAPI’s own words, with a German version beside it. The Sources panel shows one short line in the visitor’s language whenever WeatherAPI data is in the blend, linking to that notice (13 languages).
 - /privacy: WeatherAPI named as a processor for the coordinates we send (data processing agreement signed 2026-11-09, Art. 28 GDPR) — German first, all 13 languages, add-only.
 - Data retention, WeatherAPI: it feeds only current conditions, no forecast values are stored anywhere; its rows already go after the hourly scoring (60-minute cap), and the daily cleanup now purges any older than an hour should an hourly run be missed. The Vienna test fixture carries no WeatherAPI reading any more.
 - WeatherAPI can be called through the EU-only hostname its data processing agreement offers (clause 9.6): WEATHERAPI_HOST names it, api.weatherapi.com stays the default.
 
+### Fixed — a model missing from Open-Meteo’s shared answer makes the blend thin
+- Sources that came back empty without failing (a global model absent from Open-Meteo’s multi-model answer, or that request refused) did not count toward partial, so a thin blend was kept 15 minutes: Vienna showed 10 of 18 sources with one failed source reported. Now the shared request is null when refused and the global models missing from its answer are named with the failed sources (partial: true, 2-minute copy, listed in the error log); regional models may be absent outside their area.
+
+### Changed — a city search no longer needs Open-Meteo
+- A searched city is found in our own towns first (GeoNames places of 5,000 and more, by any of their names, the most populous first, the nearest when the search came from somewhere; the visitor’s spelling is kept, “Wien” stays “Wien”), then in a 30-day cache of Open-Meteo’s geocoding answers, and only then at Open-Meteo, whose answer is cached and whose ask is logged (scope geocode.upstream). The English name a place is filed under is still Open-Meteo’s, looked up by id and cached 30 days. The geocoder moved to lib/geocode.js. Needs supabase/geocode-cache.sql on dev and production.
+
+### Added — our own count of Open-Meteo requests
+- Every request to Open-Meteo is counted per UTC day and hour, weighted the way Open-Meteo counts API calls (one per request; more than 10 variables or more than two weeks count fractionally; every location and every model counted on its own, which their page leaves open). The error log gets an entry at 70 % and 90 % of the free tier’s 10,000 a day. Needs supabase/open-meteo-calls.sql on dev and production; rows are kept 90 days.
+
+### Fixed — a blend thinned by Open-Meteo’s daily limit is kept 15 minutes
+- When Open-Meteo answers that its daily limit is used up, its sources stay away until midnight UTC, so a blend missing them keeps the full 15 minutes instead of the 2 minutes a thin blend otherwise gets; refetching every 2 minutes would only hit the limit again and load the other sources. The thin-blend log entry says when the limit was the cause.
+
+### Changed — the rain nowcast is kept 10 minutes
+- The next-two-hours rain answer for a place is kept 10 minutes instead of 5, in memory and on the CDN: half the Open-Meteo requests for the same places. The steps are 15 minutes apart, so the picture does not change within that time.
+
+### Added — a run log for the scheduled jobs
+- Cleanup, calibration, push dispatch, warnings refresh and the hourly station calibration each write one row per run to job_runs (started, duration, status, error, a summary with the station calibration’s skip reasons), kept 14 days, so a failed night run is visible the next morning. A thin forecast blend is logged too (scope forecast.partial). Needs supabase/job-runs.sql on dev and production.
+
+### Fixed — a thin blend is not kept for long
+- When a weather source that was asked fails, or Open-Meteo’s shared model request comes back empty, the forecast is kept for 2 minutes instead of 15, in memory and on the CDN, and carries partial: true; a full blend keeps its 15 minutes. Lienz had shown 10 of its 19 sources for a quarter of an hour. (A first version of this change broke the forecast route for two minutes on 2026-11-09 and was reverted.)
+
 ### Fixed — summit forecasts when Open-Meteo is busy
+- Summit requests to Open-Meteo go through a gate: at most four in flight per server instance, the rest wait their turn, and visitors asking for the same peak at the same moment share one request. The bursts behind the "Too many concurrent requests" refusals came from parallel summit requests on cache misses.
 - When Open-Meteo refuses a summit request with "Too many concurrent requests", the request waits a moment and tries again instead of giving up; the three-model fallback gets the same second try. If nothing comes back at all, the summit API no longer answers with a server error: the peak page shows its retry card, the summit pages are regenerated on the next visit, no plan notification goes out, and the widget says the forecast is unavailable. Until now every such moment was a 502.
 
 ### Changed — the beta banner is gone

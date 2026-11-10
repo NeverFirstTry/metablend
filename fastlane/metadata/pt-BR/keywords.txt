@@ -1,1 +1,1 @@
-tempo,previsão,consenso,montanha,trilha,cume,radar,chuva,alertas,widget,ECMWF,alpes
+tempo,clima,radar,chuva,vento,neve,tempestade,alertas,widget,montanha,trilha,cume,alpes,avalanche

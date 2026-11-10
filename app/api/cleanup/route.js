@@ -3,7 +3,8 @@ import { readAll } from '@/lib/push/paging'
 import { deltaFromDiff, median } from '@/lib/scoring'
 import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
-import { logError } from '@/lib/log'
+import { withErrorLog, logError } from '@/lib/log'
+import { withJobLog } from '@/lib/job-log'
 import { runOutlookVerification } from '@/lib/outlook/job'
 import { CACHE_DAYS as NOMINATIM_DAYS } from '@/lib/hike/nominatim'
 import { purgeShortLived } from '@/lib/retention'
@@ -128,7 +129,7 @@ async function runMeteostatValidation() {
 }
 
 // ── GET handler ───────────────────────────────────────────────────────────────
-export async function GET(request) {
+export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request) => {
   if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
   const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString()
@@ -160,6 +161,15 @@ export async function GET(request) {
   // the feedback lesson counters (one row per region and day): a month is plenty; the table may not exist yet either
   const lessonDays = await supabase.from('feedback_lesson_days').delete().lt('day', retentionCutoff.slice(0, 10))
   if (lessonDays.error && lessonDays.error.code !== 'PGRST205') await logError('cleanup.lesson-days', lessonDays.error)
+  // the jobs' run log (lib/job-log.js): two weeks; the table may not exist yet either
+  const jobRuns = await supabase.from('job_runs').delete().lt('started_at', new Date(Date.now() - 14 * 86_400_000).toISOString())
+  if (jobRuns.error && jobRuns.error.code !== 'PGRST205') await logError('cleanup.job-runs', jobRuns.error)
+  // our Open-Meteo request count (lib/open-meteo.js): 90 days; the table may not exist yet either
+  const omCalls = await supabase.from('open_meteo_calls').delete().lt('day', new Date(Date.now() - 90 * 86_400_000).toISOString().slice(0, 10))
+  if (omCalls.error && omCalls.error.code !== 'PGRST205') await logError('cleanup.open-meteo-calls', omCalls.error)
+  // Open-Meteo's geocoding answers we keep (lib/geocode.js): 30 days; the table may not exist yet either
+  const geocodes = await supabase.from('geocode_cache').delete().lt('fetched_at', new Date(Date.now() - 30 * 86_400_000).toISOString())
+  if (geocodes.error && geocodes.error.code !== 'PGRST205') await logError('cleanup.geocode-cache', geocodes.error)
 
   let validation
   try {
@@ -184,4 +194,4 @@ export async function GET(request) {
   }
 
   return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook })
-}
+}))

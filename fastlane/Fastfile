@@ -1,0 +1,71 @@
+# App Store text and screenshots from the files in this folder, through the App Store Connect API.
+# Run from the repository root:
+#   fastlane ios upload_en_metadata   en-US text only, no screenshots (a first check in App Store Connect)
+#   fastlane ios upload_store         every language: text and screenshots (they replace the ones there)
+# Never uploads a build, never submits for review, never releases. Before uploading, deliver writes
+# fastlane/Preview.html and asks y/n.
+#
+# The API key comes only from the environment, the .p8 file outside the repository:
+#   APP_STORE_CONNECT_API_KEY_KEY_ID, APP_STORE_CONNECT_API_KEY_ISSUER_ID,
+#   APP_STORE_CONNECT_API_KEY_KEY_FILEPATH
+#
+# Ruby code in this file runs in fastlane/, actions run in the repository root: paths handed to
+# deliver are made absolute here, so both agree.
+require "tmpdir"
+require "fileutils"
+
+default_platform(:ios)
+
+platform :ios do
+  # the key from the environment; ENV.fetch stops with the name of a missing variable
+  def store_api_key
+    key_file = File.expand_path(ENV.fetch("APP_STORE_CONNECT_API_KEY_KEY_FILEPATH"))
+    repo = File.expand_path("..")
+    UI.user_error!("Keep the .p8 file outside the repository (#{repo})") if key_file.downcase.start_with?("#{repo.downcase}/")
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_KEY_ID"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_API_KEY_ISSUER_ID"),
+      key_filepath: key_file
+    )
+  end
+
+  # what every upload shares: text and screenshots only, no build, no review, no release
+  def upload(options)
+    deliver(
+      api_key: store_api_key,
+      skip_binary_upload: true,
+      skip_app_version_update: true,
+      submit_for_review: false,
+      automatic_release: false,
+      run_precheck_before_submit: false,
+      # metadata/review/ holds the TestFlight texts, not a language (deliver skips metadata/android/ by itself)
+      ignore_language_directory_validation: true,
+      **options
+    )
+  end
+
+  desc "en-US text only, no screenshots: a first check in App Store Connect"
+  lane :upload_en_metadata do
+    # deliver has no language filter (it uploads every language folder it finds), so it gets a copy of en-US alone
+    Dir.mktmpdir do |dir|
+      FileUtils.cp_r(File.expand_path("metadata/en-US"), dir)
+      upload(metadata_path: dir, skip_screenshots: true)
+    end
+  end
+
+  desc "Every language: text and screenshots (the screenshots replace the ones in App Store Connect)"
+  lane :upload_store do
+    upload(
+      metadata_path: File.expand_path("metadata"),
+      screenshots_path: File.expand_path("screenshots"),
+      overwrite_screenshots: true
+    )
+  end
+end
+
+platform :android do
+  desc "Google Play (supply): not set up yet"
+  lane :upload_store do
+    UI.user_error!("Google Play uploads (supply) are not set up yet")
+  end
+end

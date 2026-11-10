@@ -6,12 +6,13 @@ import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
+import { geocodeCity, learnName } from '@/lib/geocode'
 import {
-  geocodeCity, learnName, getRegion,
+  getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
   fetchMeteoFrance, fetchOpenMeteoModels, fetchPirateWeather, fetchGeoSphere,
   fetchECMWF, fetchGFS, fetchICON, fetchNWS, fetchBrightSky, fetchSMHI,
-  fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp,
+  fetchOpenMeteoExtras, fetchOpenMeteoDetails, fetchYesterdayTemp, missingModels,
 } from '@/lib/weather'
 import { getCityBias } from '@/lib/blend'
 import { isNightAt, localDateForLon } from '@/lib/localtime'
@@ -20,6 +21,8 @@ import { sourceName, isRetired, covers, publicSources } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
+import { blendTtl, freshCopy, FULL_TTL } from '@/lib/forecast-cache'
+import { dailyLimited, failuresSince } from '@/lib/open-meteo'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -37,10 +40,10 @@ async function timedFetch(id, fn) {
 // time) is /api/outlook's job.
 //
 // Two cache layers: Vercel's CDN (shared by every visitor of a city, the one
-// that actually saves upstream quota) and a 15-min in-memory copy per warm
-// instance as a second line. Errors are never cached.
+// that actually saves upstream quota) and an in-memory copy per warm instance
+// as a second line; a copy lives 15 minutes, a thin one (a source failed) 2
+// (lib/forecast-cache.js). Errors are never cached.
 const CACHE = new Map()
-const CACHE_TTL = 15 * 60 * 1000
 const cacheKey = (city, lang, near) => `${city.trim().toLowerCase()}|${lang}|${near ? `${near.lat},${near.lon}` : ''}`
 const cdnHeaders = ttlSec => ({ 'Cache-Control': `public, s-maxage=${ttlSec}, stale-while-revalidate=${ttlSec * 2}` })
 
@@ -64,11 +67,8 @@ export const GET = withErrorLog('forecast', async (request) => {
   // serve a fresh in-memory copy if we have one — the CDN may keep it only
   // for what's left of its 15 minutes
   const key = cacheKey(city, lang, near)
-  const cached = CACHE.get(key)
-  const age = cached ? Date.now() - cached.ts : Infinity
-  if (age < CACHE_TTL) {
-    return Response.json({ ...cached.payload, cached: true }, { headers: cdnHeaders(Math.max(1, Math.round((CACHE_TTL - age) / 1000))) })
-  }
+  const cached = freshCopy(CACHE.get(key))
+  if (cached) return Response.json({ ...cached.payload, cached: true }, { headers: cdnHeaders(Math.max(1, Math.round((cached.ttl - (Date.now() - cached.ts)) / 1000))) })
 
   // Cache miss → this request will hit the metered upstream APIs, so throttle.
   if (!isInternal(request) && limiter.limited(clientIp(request))) {
@@ -92,6 +92,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   // 2. All source APIs in parallel, each timed — plus the extra national and
   // AI models, which come in one shared Open-Meteo request
   // and the extras (UV, air, details, yesterday), which needn't wait for them
+  const asked = Date.now()
   const [[timed, models], [extras, details, yesterdayTemp]] = await Promise.all([Promise.all([Promise.all([
     timedFetch('open-meteo',           () => fetchOpenMeteo(geo.lat, geo.lon)),
     timedFetch('owm',                  () => fetchOWM(geo.lat, geo.lon)),
@@ -125,6 +126,14 @@ export const GET = withErrorLog('forecast', async (request) => {
     .map(t => ({ apiId: t.id, displayName: sourceName(t.id), down: true, responseMs: t.ms }))
 
   if (results.length === 0) return noStore({ error: 'No API data available' }, 500)
+  const limited = dailyLimited() // Open-Meteo's daily limit: its sources stay away until midnight UTC
+  // what gave nothing: sources that were asked and failed, and the global models missing from the shared
+  // model answer (a model absent without failing thinned Vienna to 10 sources for 15 minutes, 2026-11-09)
+  const failed = [...timed.filter(t => t.down || t.value === null).map(t => t.id), ...missingModels(models.value)]
+  const ttl = blendTtl(failed, limited) // a thin blend is kept 2 minutes, not 15, unless the limit is the cause
+  // logged (error_log, scope forecast.partial) so thin blends can be counted and checked the next day,
+  // with what Open-Meteo answered to the requests of this miss that failed (status 0: no answer in time)
+  if (failed.length) logError('forecast.partial', new Error(limited ? 'thin blend, Open-Meteo daily limit' : 'thin blend'), { city: geo.name, failed, limited, upstream: failuresSince(asked, `latitude=${geo.lat}&longitude=${geo.lon}`) })
 
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
@@ -243,11 +252,12 @@ export const GET = withErrorLog('forecast', async (request) => {
     yesterdayTemp: yesterdayTemp ?? null,
     warning,
     rainingNow,
+    partial: failed.length > 0, // a source that was asked gave nothing: fewer sources than usual
     generatedAt: new Date().toISOString(),
   }
 
   // expired copies go once the map grows (a warm instance lives for hours)
-  if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= CACHE_TTL) CACHE.delete(k)
-  CACHE.set(key, { ts: Date.now(), payload })
-  return Response.json(payload, { headers: cdnHeaders(CACHE_TTL / 1000) })
+  if (CACHE.size > 500) for (const [k, v] of CACHE) if (!freshCopy(v)) CACHE.delete(k)
+  CACHE.set(key, { ts: Date.now(), payload, ttl })
+  return Response.json(payload, { headers: cdnHeaders(ttl / 1000) })
 })

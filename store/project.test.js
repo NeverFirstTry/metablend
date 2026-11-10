@@ -17,6 +17,12 @@ test('project settings — no encryption question, iPhone only, release signing 
   for (const p of ['keystore.properties', '*.jks', '*.keystore']) assert.ok(ignore.split(/\r?\n/).includes(p), p)
 })
 
+test('iPhone only — no iPad keys in any Info.plist, and the store screenshots are iPhone and Android phones only', () => {
+  for (const p of ['mobile/ios/App/App/Info.plist', 'mobile/ios/App/MetaBlendWidgets/Info.plist']) assert.doesNotMatch(read(p), /~ipad|UIRequiresFullScreen|UIDeviceFamily/i, p)
+  const devices = [...read('scripts/store-shots.mjs').matchAll(/\{ id: '(\w+)', w: (\d+), h: (\d+), scale: (\d+)/g)].map(m => m.slice(1).join(' '))
+  assert.deepEqual(devices, ['ios 430 932 3', 'android 360 640 3']) // 1290×2796 (the 6.9" set) and 1080×1920
+})
+
 test('compliance sheet — every store form has its answers', () => {
   const md = read('store/compliance.md')
   for (const h of ['## App Store — App Privacy', '## Google Play — Data safety', '## Content rating', '## Export compliance', '## Target audience', '## Ads', '## App access']) assert.ok(md.includes(h), h)
@@ -40,6 +46,18 @@ test('secrets hygiene — key files ignored at the root, the device key not in A
   const ignore = read('.gitignore').split(/\r?\n/)
   for (const p of ['*.p8', '*.p12', '*.jks', '*.keystore', 'google-services.json', 'GoogleService-Info.plist', '*service-account*.json']) assert.ok(ignore.includes(p), p)
   assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
+})
+
+// App Store text and screenshots go up from the owner's PC with fastlane deliver (fastlane/Fastfile)
+test('fastlane — deliver never uploads a build, submits or releases; the API key comes only from the environment', () => {
+  const fastfile = read('fastlane/Fastfile'), appfile = read('fastlane/Appfile')
+  for (const s of ['skip_binary_upload: true', 'submit_for_review: false', 'automatic_release: false', 'ignore_language_directory_validation: true']) assert.ok(fastfile.includes(s), s)
+  assert.doesNotMatch(fastfile, /submit_for_review: true|automatic_release: true|skip_binary_upload: false|edit_live/)
+  for (const v of ['APP_STORE_CONNECT_API_KEY_KEY_ID', 'APP_STORE_CONNECT_API_KEY_ISSUER_ID', 'APP_STORE_CONNECT_API_KEY_KEY_FILEPATH']) assert.ok(fastfile.includes(`ENV.fetch("${v}")`), v)
+  assert.doesNotMatch(fastfile + appfile, /\.p8"|key_id: "|issuer_id: "|key_content|BEGIN PRIVATE KEY/, 'no key, key id or issuer id in the repo')
+  assert.match(appfile, /app_identifier\("app\.metablend"\)/)
+  const ignore = read('.gitignore').split(/\r?\n/)
+  for (const p of ['*.p8', 'fastlane/report.xml', 'fastlane/Preview.html', 'fastlane/README.md']) assert.ok(ignore.includes(p), p)
 })
 
 test('iOS entitlements — Release builds sign with aps-environment production, Debug keeps development, both carry the widgets\' app group', () => {

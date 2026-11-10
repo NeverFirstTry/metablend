@@ -1,1 +1,1 @@
-wetter,vorhersage,konsens,berge,wandern,gipfel,radar,regen,warnungen,widget,ECMWF,alpen
+wetter,vorhersage,bergwetter,regenradar,schnee,gewitter,unwetter,widget,wandern,gipfel,alpen,lawinen

@@ -7,7 +7,7 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 
 ## Ground rules
 
-- **Databases:** `.env.local` is the dev project; test against it. Production keys live in `.env.production-admin`. Production is written only by the deployed site, or by an admin script after its ref is confirmed (`scripts/lib/production.mjs`). The owner runs those scripts. Give the command and stop.
+- **Databases:** `.env.local` is the dev project; test against it. Production keys live in `.env.production-admin`. Production is written only by the deployed site, or by an admin script after its ref is confirmed (`./scripts/lib/production.mjs`). The owner runs those scripts. Give the command and stop. Schema changes (new tables, columns) go to the owner as exact SQL for dev, then production; don't run them on either.
 - **Production checks:** short and read-only. No load or burst tests.
 - **Before every push:** `npm test`, `npx eslint .`, `npx next build`. Then a dated entry in `CHANGELOG.md`, user-facing first, one line per change.
 - **13 languages:** en de fr es it nl pl cs sl pt ja zh ko. All user-facing text goes in `lib/i18n/<lang>.js`; `lib/i18n/parity.test.js` checks every pack has every key.
@@ -25,8 +25,9 @@ These stand for every design task; the owner should not have to repeat them. Re-
 - **Cards:** no nested cards.
 - **Wording:** no "safe" or "sicher". No em or en dashes in UI copy: full stops and commas, a plain hyphen for ranges (`lib/wording.test.js`). All user-facing text as i18n keys in all 13 languages.
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
-- **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go.
-  - Run `scripts/check-phone-layout.mjs` (also enforced in CI).
+- **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go. For any change to an API route (`app/api/**`): check the branch's Vercel preview deployment before main, every time (`MSYS_NO_PATHCONV=1 npx vercel curl "/api/..." --deployment <preview url> --scope never-s-projects1 -- -s -D -`, cold and warm); the 2026-11-09 forecast outage passed tests, lint and build.
+  - Run `./scripts/check-phone-layout.mjs` (also enforced in CI).
+- **Captures:** a new folder per run, capture ports cleared, language pinned by cookie. First grep the served CSS for the change (stale: delete `.next/dev`) and re-pin fixtures that expire or that the diff computes. Ready means visible and complete (all sources), not just present.
 
 ## Android release
 
@@ -49,7 +50,7 @@ These stand for every design task; the owner should not have to repeat them. Re-
 ## Store screenshots
 
 Captions are in `store/captions.json`. After a change to a screen or caption:
-`npx next build`, `SELF_BASE=http://localhost:3123 npx next start -p 3123` (without SELF_BASE the start page fetches localhost:3000 and the forecast screens fail), then `SHOTS=4,5 node scripts/store-shots.mjs` (the changed screens) or without `SHOTS` for all. Form answers are in `store/compliance.md`; keep them in step with `app/privacy/content.jsx`.
+`npx next build`, `SELF_BASE=http://localhost:3123 npx next start -p 3123` (without SELF_BASE the start page fetches localhost:3000 and the forecast screens fail), then `SHOTS=4,5 node ./scripts/store-shots.mjs` (the changed screens) or without `SHOTS` for all. Form answers are in `store/compliance.md`; keep them in step with `app/privacy/content.jsx`.
 
 ## Places refresh
 
@@ -58,7 +59,7 @@ Captions are in `store/captions.json`. After a change to a screen or caption:
 When the issue appears:
 1. **"Ready for production":** check the row counts, the size and that every check is ✅. Try search and Near you on the local server (dev database).
 2. **A region failed:** Actions → Places refresh → Run workflow, with `regions` set to that region. To reload a good build, use `data_from_run=<run id>`; the data is kept for 90 days.
-3. **Good:** the owner runs `node scripts/places/load.mjs --production --run=<run id>`. It asks for the ref. It refuses to delete more than a tenth of a table unless `--allow-shrink` is passed; use that only after explaining why the data shrank.
+3. **Good:** the owner runs `node ./scripts/places/load.mjs --production --run=<run id>`. It asks for the ref. It refuses to delete more than a tenth of a table unless `--allow-shrink` is passed; use that only after explaining why the data shrank.
 4. Close the issue with the row counts.
 
 Scheduled workflows pause after 60 days without commits to the repo.

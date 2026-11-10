@@ -43,7 +43,12 @@ Google's production review has no fixed length and can come back with questions,
 | Countersign the ImprovMX data processing agreement | Done | Countersigned by both sides 2026-11-09 (version of 9 September 2026 with SCC Annexes I–III); the /privacy sentence names the clauses and the 7-day retention of basic mail metadata (log level Minimum) |
 | Sign the WeatherAPI.com data processing agreement | Done | Signed in the WeatherAPI dashboard 2026-11-09; /privacy names WeatherAPI as a processor for the coordinates we send (Art. 28 GDPR) |
 | WeatherAPI EU-only API hostname (DPA clause 9.6) | Done | Not needed: since 2026-11-09 (00:24 UTC) every server function, the hourly calibration and the daily crons run in Vercel's fra1 (Frankfurt), so all WeatherAPI calls originate in Europe and the clause's non-adequacy case (BunnyCDN points of presence outside Europe) does not apply. WEATHERAPI_HOST stays supported should the region ever change (default api.weatherapi.com) |
-| Run `supabase/feedback-lessons.sql` on dev, then production | Needs you | The regional feedback cap; `enable_rls.sql` ran on both on 2026-11-08 |
+| Run `supabase/geocode-cache.sql` on dev, then production | Needs you | A city search answers from our own towns and a 30-day cache of Open-Meteo's geocoding; until it exists every search still goes to Open-Meteo, and each is logged (scope geocode.upstream) |
+| Run `supabase/open-meteo-calls.sql` on dev, then production | Needs you | Our Open-Meteo request count per UTC day and hour, weighted their way; error-log entries (scope open-meteo.quota) at 70 % and 90 % of the free tier's 10,000 a day; until it exists the count is skipped silently |
+| Run `supabase/job-runs.sql` on dev, then production | Needs you | The jobs' run log (status, duration, summary per run of cleanup, calibrate, push dispatch, warnings refresh, station calibration); until it exists the routes skip the write silently |
+| Run `supabase/feedback-lessons.sql` on dev, then production | Done | Ran on both by 2026-11-09 (checked read-only: `feedback_lesson_days` there, only the four-argument `claim_feedback_lesson`, not callable by the public roles); `enable_rls.sql` ran on both on 2026-11-08 |
+| Run `supabase/town-near.sql` on dev, then production, before the "my location" change is merged | Done | Ran on both on 2026-11-09 (checked read-only: Lienz's cell names Lienz, Matrei's has no town within 10 km; not callable by the public roles) |
+| Google Play Data safety: untick "Precise location" | Needs you | Once "my location" asks our own server (branch `legal/privacy-location`) is live; `store/compliance.md` lists the six types that stay |
 
 ## Android production
 
@@ -87,6 +92,7 @@ The pages load live, so web changes reach the apps at once. These native parts a
 - iPhone: swipe from the left edge goes back (`34729a2`).
 - Android: the home-screen widget's light colours follow the new palette (`69363a5`).
 - Android: the notification tint and the Retry button on the no-connection page in gold (`8439450`).
+- iPhone only, finished: the last iPad key (`UISupportedInterfaceOrientations~ipad`) is gone from `App/Info.plist`; the app and the widget extension were already `TARGETED_DEVICE_FAMILY = 1` in Debug and Release. iPads run the iPhone version; no iPad screenshots. Check the archive's `UIDeviceFamily` is `[1]`.
 - Both: app launch background Slate #0f151b, matching dark mode (`mobile/capacitor.config.json`, `mobile/www/index.html`; needs `npx cap sync`).
 - iPhone: Release builds sign with `aps-environment` production (`mobile/ios/App/App/AppRelease.entitlements`, set in the project's Release configuration); Debug keeps development. Check the archive's entitlements once in Xcode's organizer.
 
