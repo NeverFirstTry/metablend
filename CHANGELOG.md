@@ -11,6 +11,10 @@ All notable changes to MetaBlend. Format loosely follows
 - `CONTRIBUTING.md`: no outside code for now, issues are welcome.
 - The terms page says the same in all 13 languages (the German is the original): its copyright section names the licence, what it allows, the two years, and that the MetaBlend name and logo are not covered by it. Before, it said "all rights reserved" and that publishing the code granted no licence.
 
+### Phone layout check: its browser profile goes after a failure too
+- The check starts its browser through the same launcher as the accessibility check and the store screenshots (`scripts/lib/browser.mjs`), so its profile (about 400 MB) is removed also when the browser never opens its debugging port, the run hits its time limit, or the run ends in an error or with Ctrl+C. Before, only the normal end removed it.
+- A live request that reaches nothing now says so with the network error ("answered nothing (ECONNREFUSED)") instead of "answered TypeError".
+
 ### Added — the imprint is linked from the app's terms notice
 - The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
 - Phone layout check: the app's notice without a link to the imprint is a finding.

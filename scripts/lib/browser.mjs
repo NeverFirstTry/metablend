@@ -45,7 +45,9 @@ export async function launchBrowser(exe, prefix, args = []) {
     let port, path
     try { [port, path] = readFileSync(join(profile, 'DevToolsActivePort'), 'utf8').split('\n').map(s => s.trim()) } catch { continue } // not written yet
     const targets = port && path && await fetch(`http://127.0.0.1:${port}/json`).then(r => r.json()).catch(() => null)
-    if (targets) return { browser, targets, close: () => close(`ws://127.0.0.1:${port}${path}`) }
+    // active: the browser-level DevTools address (browser contexts, new targets)
+    const active = `ws://127.0.0.1:${port}${path}`
+    if (targets) return { browser, targets, active, close: () => close(active) }
   }
   await close(null)
   throw new Error('The browser did not open its debugging port within 30 seconds')
