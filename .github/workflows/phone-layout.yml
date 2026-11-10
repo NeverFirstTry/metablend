@@ -4,7 +4,9 @@ name: Phone layout check
 # scripts/check-phone-layout.mjs against metablend.app. 17 pages, website and app, at 390 px, with
 # and without reduced motion: no page wider than the screen, no text below 13 px. A failure marks
 # the commit red; it does not undo the deploy. Read-only: it only loads pages, with its own user agent
-# and the analytics blocked, so it never shows up in Plausible or Vercel Analytics.
+# and the analytics blocked, so it never shows up in Plausible or Vercel Analytics. The pages' data comes
+# from scripts/layout-fixtures.json, so it asks no weather source; two live requests (Vienna, Großglockner)
+# check that the production API answers.
 
 on:
   push:

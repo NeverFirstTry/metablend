@@ -2,26 +2,42 @@
 // page sideways; a wide row scrolls inside its own container) and no visible text is below 13 px.
 //   npx next build && SELF_BASE=http://localhost:3123 npx next start -p 3123   (separate terminal)
 //   node scripts/check-phone-layout.mjs [base]          (default http://localhost:3123)
-//   DATA=https://metablend.app node scripts/check-phone-layout.mjs   (the pages' /api/ answers from there,
-//   when Open-Meteo rate-limits this PC). Exits 1 and names the cause on any finding.
+// Exits 1 and names the cause on any finding.
 // Runs each page with and without reduced motion (the peak page's overflow showed only with it),
-// every fold open, in German (long words). Only fixed places, so after the first load every answer
-// comes from the CDN: the forecast for Wien, Großglockner and one of its routes, airport LOWW.
+// every fold open, in German (long words). Only fixed places: Wien, Großglockner and one of its routes,
+// airport LOWW.
+// Layout only, no weather: the pages' /api/ answers and the search box's place suggestions come from
+// scripts/layout-fixtures.json, so a run asks no weather source. A request recorded with other values
+// (a date, a time) gets its route's recorded answer; one with no recorded answer at all is a finding.
+// When a page asks for something new or an answer changes shape, record them again:
+//   RECORD=1 node scripts/check-phone-layout.mjs https://metablend.app     (then commit the file)
+// Two live requests first, the city page's forecast for Vienna and the summit page's for Großglockner,
+// so a broken production API still turns the check red; they are the answers those two pages fetch
+// when they render on the server, so after a deploy they cost nothing extra. The city, summit and airport
+// pages render on the server on their first visit after a deploy and fetch their own data there.
 // The check is no visitor: it sends its own user agent (…MetaBlendLayoutCheck/1) and blocks the
-// analytics (Plausible, Vercel Web Analytics and Speed Insights), and fails if any of them got through.
+// analytics (Plausible, Vercel Web Analytics and Speed Insights), and fails if any of them got through,
+// if any load on another host than metablend.app, or if none load on metablend.app.
 // In CI (.github/workflows/phone-layout.yml) it runs against metablend.app after every production
 // deploy of a push to main, with EDGE=/usr/bin/google-chrome.
 // The app pages and the website pages each run in a fresh browser context, and the browser picks its own
 // debugging port, so neither another view nor another run on the same machine can leak into a page.
 // A call to the browser has 45 s, a page 2 minutes and the run 20 minutes: a hang fails fast and names the page.
 import { spawn } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import featured from '../lib/hike/featured.json' with { type: 'json' }
+import { hikeApiPath } from '../lib/hike/params.js'
+import { ANALYTICS, IS_ANALYTICS, analyticsLeak } from './lib/analytics-block.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
+import { shapeDiff } from './lib/shape.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
-const DATA = process.env.DATA ?? null
+const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'layout-fixtures.json')
+const RECORD = !!process.env.RECORD
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const WIDTH = 390
 // [name, path, how]: 'search' opens the forecast by searching Wien; 'week' then opens the Week tab;
@@ -37,9 +53,42 @@ const PAGES = [
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].some(e => e.getClientRects().length > 0)`
-const ANALYTICS = ['*plausible.io/*', '*/_vercel/insights/*', '*/_vercel/speed-insights/*', '*va.vercel-scripts.com/*', '*vitals.vercel-insights.com/*']
-const IS_ANALYTICS = /plausible\.io\/|\/_vercel\/(speed-)?insights\/|va\.vercel-scripts\.com|vitals\.vercel-insights\.com/
 const analytics = { blocked: 0, sent: 0 }
+const findings = []
+
+// The recorded answers, keyed by method, path with query, and a hash of a POST body; the search box asks
+// Open-Meteo's place search from the browser, so its answers are recorded too.
+const PLACES = 'https://geocoding-api.open-meteo.com/' // app/HomePage.jsx
+const recorded = RECORD ? { recorded: new Date().toISOString(), from: BASE, answers: {} } : JSON.parse(readFileSync(FIXTURES, 'utf8'))
+
+// The live smoke requests: [what, path, the answer is usable, shape options]. A thin blend is no failure, a broken API is.
+// Each is recorded too, and a live answer whose shape (keys and types) differs from its recording means the
+// recording no longer matches what the pages get: re-record.
+const SMOKE = [
+  ['city forecast', '/api/forecast?city=vienna&lang=en', j => j.sources?.length > 0 && typeof j.consensus?.temp === 'number',
+    { maps: ['.weights', '.recentScores'], optional: ['.cached'] }], // app/weather/[city]/page.js; weights and scores per source; cached: from the route's own cache
+  ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0, {}], // app/mountains/[peak]/page.js
+]
+const RERECORD = 're-record fixtures (RECORD=1, see the top of this file)'
+for (const [what, path, usable, shape] of SMOKE) {
+  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: e.name }))
+  const j = r.ok ? await r.json().catch(() => null) : null
+  const ok = j && usable(j)
+  if (RECORD) { if (ok) recorded.answers[`GET ${path}`] = { status: 200, type: 'application/json', body: j }; else findings.push(`live ${what} (${path}): not recorded, it ${r.ok ? 'answered without its data' : `answered ${r.status}`}`); continue }
+  if (!ok) findings.push(`live ${what} (${path}): ${r.ok ? 'answered without its data' : `answered ${r.status}`}`)
+  const was = recorded.answers[`GET ${path}`]?.body
+  const diff = ok ? (was ? shapeDiff(was, j, shape) : ['it has no recording']) : []
+  if (diff.length) findings.push(`live ${what}: its shape differs from the recording (${diff.slice(0, 4).join('; ')}${diff.length > 4 ? `; ${diff.length - 4} more` : ''}): ${RERECORD}`)
+  console.log(`${ok && !diff.length ? '✓' : '✗'} live ${what}`)
+}
+
+const routeOf = (method, u) => `${method} ${u.hostname === new URL(BASE).hostname ? '' : u.hostname}${u.pathname}`
+const keyOf = ({ method, url, postData }) => { const u = new URL(url); return `${routeOf(method, u)}${u.search}${postData ? ' ' + createHash('sha1').update(postData).digest('hex').slice(0, 12) : ''}` }
+const byRoute = new Map()
+for (const [key, a] of Object.entries(recorded.answers)) { const route = key.split(/[? ]/, 2).join(' '); if (!byRoute.has(route)) byRoute.set(route, a) }
+const served = { exact: 0, route: 0, missing: new Set() }
+// requests the browser sends to other hosts (map tiles, the radar): counted, not answered
+const outside = new Map()
 // The browser: a free debugging port of its own (port 0: the browser picks one and writes it into
 // DevToolsActivePort in its profile), so two runs at once never drive each other's browser (two sessions
 // shared the fixed port 9441 on 2026-11-10; one run stalled, one saw a website page "opened as the app").
@@ -57,7 +106,7 @@ console.log(`browser on debugging port ${new URL(active).port}`)
 
 // Time limits, so a stuck browser fails fast and names the page instead of running on: every browser
 // call 45 s, a page 2 minutes (which stops the run), the whole run 20 minutes: a full run takes 6 to 6.5 minutes
-// on CI (346 to 380 s, 27 runs to 2026-11-10) and about 5 on a PC through DATA (315 s, also with a second run at once).
+// on CI (346 to 380 s, 27 runs to 2026-11-10) and about 5 on a PC (315 s, also with a second run at once).
 const CALL_LIMIT = 45_000, PAGE_LIMIT = 120_000, RUN_LIMIT = 20 * 60_000
 let current = 'starting the browser'
 const runTimer = setTimeout(async () => { console.error(`\nThe run took longer than ${RUN_LIMIT / 60_000} minutes, at ${current}.`); await closeBrowser(); process.exit(1) }, RUN_LIMIT)
@@ -91,18 +140,28 @@ async function closeBrowser() {
 }
 // the page connection of the view being checked
 let send = null
-async function fromData({ requestId, request }) {
-  const u = new URL(request.url)
-  try {
-    const r = await fetch(DATA + u.pathname + u.search, { method: request.method, headers: { 'content-type': 'application/json' }, body: request.postData })
-    if (!r.ok) throw new Error(String(r.status))
-    await send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: r.headers.get('content-type') ?? 'application/json' }], body: Buffer.from(await r.arrayBuffer()).toString('base64') })
-  } catch { await send('Fetch.continueRequest', { requestId }).catch(() => {}) }
+// a paused request: answered from the recording (RECORD=1: asked once from where it was going, and kept)
+async function answer({ requestId, request }) {
+  const key = keyOf(request), u = new URL(request.url)
+  if (RECORD && !recorded.answers[key]) {
+    const r = await fetch(request.url, { method: request.method, headers: { 'content-type': 'application/json' }, body: request.postData })
+    const type = r.headers.get('content-type') ?? 'application/json', text = await r.text()
+    recorded.answers[key] = { status: r.status, type, body: type.includes('json') ? JSON.parse(text) : text }
+  }
+  const a = recorded.answers[key] ?? byRoute.get(routeOf(request.method, u))
+  if (!a) { served.missing.add(routeOf(request.method, u)); return send('Fetch.failRequest', { requestId, errorReason: 'Failed' }) }
+  served[a === recorded.answers[key] ? 'exact' : 'route']++
+  const body = Buffer.from(typeof a.body === 'string' ? a.body : JSON.stringify(a.body)).toString('base64')
+  return send('Fetch.fulfillRequest', { requestId, responseCode: a.status, responseHeaders: [{ name: 'Content-Type', value: a.type }, { name: 'Access-Control-Allow-Origin', value: '*' }], body })
 }
 const onEvent = m => {
-  if (m.method === 'Fetch.requestPaused') fromData(m.params)
+  if (m.method === 'Fetch.requestPaused') answer(m.params).catch(() => send('Fetch.failRequest', { requestId: m.params.requestId, errorReason: 'Failed' }).catch(() => {}))
   if (m.method === 'Network.loadingFailed' && m.params.blockedReason === 'inspector') analytics.blocked++
   if (m.method === 'Network.responseReceived' && IS_ANALYTICS.test(m.params.response.url)) analytics.sent++
+  if (m.method === 'Network.requestWillBeSent') {
+    const url = m.params.request.url, host = URL.canParse(url) ? new URL(url).hostname : ''
+    if (host && host !== new URL(BASE).hostname && !url.startsWith(PLACES) && !IS_ANALYTICS.test(url)) outside.set(host, (outside.get(host) ?? 0) + 1)
+  }
 }
 // A view (app or website) in a fresh browser context: its own cookies, storage, session storage and cache,
 // so nothing the app pages set (the app flag) reaches the website pages.
@@ -118,7 +177,7 @@ async function openView() {
   const { userAgent } = (await browser.call('Browser.getVersion')).result
   await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendLayoutCheck/1` })
   await send('Network.setBlockedURLs', { urls: ANALYTICS })
-  if (DATA) await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` }] })
+  await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` }, { urlPattern: `${PLACES}*` }] })
   await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true })
   await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
   return async () => { page.ws.close(); await browser.call('Target.disposeBrowserContext', { browserContextId }).catch(() => {}) }
@@ -189,7 +248,6 @@ async function checkPage(view, motion, name, path, how) {
   console.log(`${wide ? '✗' : '✓'} ${label}`)
 }
 
-const findings = []
 let checked = 0
 const started = Date.now()
 try {
@@ -215,7 +273,18 @@ try {
   }
 } finally { clearTimeout(runTimer); await closeBrowser() }
 const took = `${Math.round((Date.now() - started) / 1000)} s`
+if (RECORD) {
+  // one answer per line, sorted, so a new recording shows in a diff as the answers that changed
+  const lines = Object.entries(recorded.answers).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`)
+  writeFileSync(FIXTURES, `{\n"recorded": ${JSON.stringify(recorded.recorded)},\n"from": ${JSON.stringify(recorded.from)},\n"answers": {\n${lines.join(',\n')}\n}}\n`)
+  console.log(`recorded ${lines.length} answers from ${BASE} into scripts/layout-fixtures.json`)
+} else console.log(`data: ${served.exact} answers from the recording of ${recorded.recorded.slice(0, 10)}, ${served.route} by their route's answer, ${SMOKE.length} live`)
+if (served.missing.size) findings.push(`no recorded answer for ${[...served.missing].join(', ')}: ${RERECORD}`)
+console.log(`other hosts (not answered here): ${[...outside].sort((a, b) => b[1] - a[1]).map(([h, n]) => `${h} ${n}`).join(', ') || 'none'}`)
 console.log(`analytics: ${analytics.blocked} requests blocked, ${analytics.sent} reached their service`)
-if (analytics.sent) findings.push(`analytics: ${analytics.sent} requests reached Plausible or Vercel; the check would count as visits`)
+const leak = analyticsLeak(analytics), onSite = new URL(BASE).hostname === 'metablend.app', tried = analytics.blocked + analytics.sent
+if (leak) findings.push(leak)
+if (!onSite && tried) findings.push(`analytics: ${tried} requests on ${new URL(BASE).host}; they load only on metablend.app (app/components/SiteAnalytics.jsx)`)
+if (onSite && !tried) findings.push('analytics: none loaded on metablend.app, so the site counts no visits (app/components/SiteAnalytics.jsx)')
 if (findings.length) { console.log(`\n${findings.length} finding(s) in ${checked} page checks (${took}):`); for (const f of findings) console.log('  ' + f); process.exit(1) }
 console.log(`\nAll ${checked} page checks fit ${WIDTH} px, no text below 13 px (${took}).`)
