@@ -445,6 +445,10 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .bg-zinc-800\/60.border-zinc-700 { background-color: var(--glass); }
   & .osm-dark { filter: invert(1) hue-rotate(185deg) brightness(0.85) contrast(0.95) saturate(0.6); }
 }
+/* A gold link inside running text is underlined, in both themes: against the grey text around it the
+   gold reads 1.76:1 by day and 1.19:1 by night, and no gold reaches 3:1 there and 4.5:1 on the page at
+   once (axe link-in-text-block). */
+p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text-underline-offset: 4px; }
 /* daylight: ink on pale sky, frosted white glass, a deep-sky accent, ink pills.
    :root raises these above the paper remaps of the light-theme block. */
 :root[data-theme="light"] {
@@ -494,9 +498,6 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .text-zinc-600 { color: var(--muted); }
   & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
   & .text-emerald-300 { color: var(--accent-strong); }
-  /* a gold link inside running text is underlined: no gold reaches 3:1 against the grey
-     text and 4.5:1 on white at once (axe link-in-text-block) */
-  & p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text-underline-offset: 4px; }
   /* status text: the deep daylight set, readable straight on the sky */
   & .text-red-300, & .text-red-400 { color: var(--bad); }
   & .text-yellow-400, & .text-amber-200, & .text-amber-200\/90, & .text-amber-300,

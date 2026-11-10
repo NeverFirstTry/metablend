@@ -5,10 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
-### Fixed — light theme: contrast of the Rankings link and the coloured headlines
-- In the light theme the "Rankings" link at the end of the most accurate sources (forecast page, website) is underlined. Its gold read at 1.76:1 against the grey text around it; no gold reaches 3:1 against that text and 4.5:1 on white at once, so the underline marks it. Its colour is unchanged.
-- The green, blue and orange headlines (a good window, rain, a warning) are a touch darker in the light theme and read at 4.61:1 on their tinted box over the sky, where they read at 4.31, 4.27 and 4.24:1: green #127e4b to #117948, blue #1d6dca to #1c68c0, orange #bb4a00 to #b24600. Green still means agreement and dry; the same three colours read a little darker everywhere in the light theme. The dark theme is unchanged.
-- Accessibility check: no serious or critical finding left in the light theme (18 pages, day and snow sky; 14 before). The dark theme is as it was: its one finding is the same Rankings link (1.19:1 against the text around it, 20 times over the 4 skies).
+### Fixed — contrast: the Rankings link in both themes, the coloured headlines in the light theme
+- The "Rankings" link at the end of the most accurate sources (forecast page, website) is underlined, in both themes. Its gold read at 1.76:1 against the grey text around it in the light theme and 1.19:1 in the dark one; no gold reaches 3:1 against that text and 4.5:1 on the page at once, so the underline marks it. Its colour is unchanged.
+- The green, blue and orange headlines (a good window, rain, a warning) are a touch darker in the light theme and read at 4.61:1 on their tinted box over the sky, where they read at 4.31, 4.27 and 4.24:1: green #127e4b to #117948, blue #1d6dca to #1c68c0, orange #bb4a00 to #b24600. Green still means agreement and dry; the same three colours read a little darker everywhere in the light theme. The dark theme keeps its colours.
+- Accessibility check: no serious or critical finding left in either theme (18 pages, 4 dark skies and 2 light ones). Before: 14 in the light theme and 20 in the dark one.
 
 ### Checks cost no weather quota, and only the live site counts visits
 - Plausible, Vercel Web Analytics and Speed Insights load only on metablend.app (and in the apps, which open it), no longer on preview deployments or local builds (`app/components/SiteAnalytics.jsx`).
