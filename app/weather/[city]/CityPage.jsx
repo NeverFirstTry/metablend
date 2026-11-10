@@ -6,14 +6,10 @@ import { fill, headlineText, tempFormatter, spanFormatter } from '@/lib/outlook/
 import { formatCalendarDate } from '@/lib/localtime'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
-import { cityName } from '@/lib/city-names'
+import { cityName, countryName } from '@/lib/city-names'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
 
-// The country in the visitor's language where its code is known. The browser has the names.
-const regionName = (lang, cc, fallback) => {
-  try { return (cc && new Intl.DisplayNames([lang], { type: 'region', style: 'short' }).of(cc.toUpperCase())) || fallback } catch { return fallback }
-}
 
 // A gap to normal in whole degrees, with a real minus sign and the unit's scale.
 const wholeDelta = (d, unit) => {
@@ -49,7 +45,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
 
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-1">{fill(t(lang, 'shareTitle'), { city: name })}</h1>
         <p className="text-zinc-500 text-sm mb-8 tracking-widest uppercase" suppressHydrationWarning>
-          {fill(t(lang, 'citySub'), { n: sourceCount })}{country ? ` · ${regionName(lang, outlook?.cc, country)}` : ''}
+          {fill(t(lang, 'citySub'), { n: sourceCount })}{country ? ` · ${countryName(outlook?.cc, lang, country)}` : ''}
         </p>
 
         {/* Current consensus */}

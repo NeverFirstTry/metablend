@@ -50,7 +50,7 @@ export const GET = withErrorLog('planner', async (request) => {
     avgRainDays: yearsPerMonth[m].size ? Math.round(rainy[m] / yearsPerMonth[m].size) : null,
   }))
 
-  return Response.json({ city: geo.name, country: geo.country, months }, {
+  return Response.json({ city: geo.name, country: geo.country, cc: geo.cc ?? null, months }, {
     headers: { 'Cache-Control': `public, s-maxage=${DAY}, stale-while-revalidate=${DAY * 7}` },
   })
 })
