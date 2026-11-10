@@ -39,10 +39,10 @@ export async function generateMetadata({ params }) {
   const peak = peakById((await params).peak)
   if (!peak) return {}
   return {
-    title: `${peak.name} Weather — Summit Forecast (${peak.elev} m)`,
+    title: `${peak.name} Weather: Summit Forecast (${peak.elev} m)`,
     description:
       `${peak.name} summit weather at ${peak.elev} m: today's favourable summit window, wind up top, ` +
-      `freezing level and thunderstorm risk for 7 days — blended from up to 9 weather models.`,
+      `freezing level and thunderstorm risk for 7 days, blended from up to 9 weather models.`,
     alternates: { canonical: `/mountains/${peak.id}` },
   }
 }

@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — meta tags without dashes
+- Search results and link previews show no em or en dash any more: page titles, descriptions, Open Graph and Twitter cards on every page type, the landing pages in all 13 languages ("MetaBlend · Eine Vorhersage aus bis zu 20 Wetterquellen") and the RSS feed titles. Subtitles take a colon ("Großglockner Weather: Summit Forecast (3798 m)"), the brand a middle dot. The site description is 150 characters instead of 178.
+- Under the hood: the site-wide metadata moved to lib/site-metadata.js; a new test (lib/meta-wording.test.js) reads every page type's meta texts in every language a page has, with the layout's title template, and fails on an em or en dash or a safety word. The test hooks resolve next/og and next/headers.
+
 ### Fixed — place names in your language
 - The forecast shows the city in your language where Open-Meteo has the name ("Vienna" searched in German reads "Wien"), and the country in your language from its ISO code ("Österreich", "オーストリア"); before, every visitor read the country in English. Recent, Favourites and the share text take that name.
 - The country is named from its code in the reader's language everywhere a place is shown: forecast header, search suggestions, city pages, planner, the home city picker in Notifications and the share preview image.

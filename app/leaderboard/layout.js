@@ -1,6 +1,6 @@
 // Metadata for the client page (server layouts own SEO tags in the App Router).
 export const metadata = {
-  title: 'Weather API Leaderboard — Which Forecast Is Most Accurate?',
+  title: 'Weather API Leaderboard: Which Forecast Is Most Accurate?',
   description:
     'Which weather source is most accurate? Live per-region rankings of up to 20 ' +
     'sources, scored hourly against real station observations.',

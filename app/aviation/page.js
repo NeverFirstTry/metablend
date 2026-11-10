@@ -8,7 +8,7 @@ import { skyInfo } from '@/lib/metar'
 export const revalidate = 600
 
 export const metadata = {
-  title: 'Aviation Weather — METAR, TAF, Crosswind & Density Altitude',
+  title: 'Aviation Weather: METAR, TAF, Crosswind & Density Altitude',
   description:
     'Decoded METAR and TAF, flight rules, runway crosswind components and density ' +
     'altitude for 12,000+ ICAO airports. Free, no key, no account.',
