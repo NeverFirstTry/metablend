@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Fixed — phone layout check: two runs at once no longer share a browser
+- Each run's browser picks a free debugging port (it was fixed at 9441), and the first line of the output names it. On 2026-11-10 two sessions ran the check at once on 9441: one run stalled for 25 minutes, the other saw a website page "opened as the app".
+- The app pages and the website pages run in two fresh browser contexts, so nothing the app pages set (the app flag, cookies, storage) reaches the website pages.
+- Time limits: every browser call 45 seconds, a page 2 minutes (the page is named and the run stops there), the whole run 20 minutes. A normal run takes 6 to 6.5 minutes on CI (346 to 380 s over 27 runs) and about 5 minutes on a PC through DATA (315 to 316 s, also with a second run going at the same time). The last line counts the page checks and gives the time.
+- At the end the browser is closed over DevTools and its profile folder (about 400 MB) removed; a killed browser kept it locked, and every run left one behind in TEMP (34 folders, 13.8 GB on one PC by 2026-11-10).
+- Proof against the local build of this branch with DATA: three runs, 68 of 68 page checks each, two of them at the same time on ports 61795 and 58954; a run against a closed port stops after one page and leaves no profile behind.
+
 ### README for launch
 - The README is rewritten for visitors, journalists, store reviewers and developers: what MetaBlend is, how the consensus works, features, data sources and credits as on /terms, platforms and links, tech stack, local development, license (pending) and a note on AI-assisted development. No dashes; a wording test keeps em and en dashes and "safe" out of it.
 - The README links MetaBlend on Instagram, TikTok and X, and "What is consensus forecasting?" on the start page, which now has the address metablend.app/#how-it-works.
