@@ -9,6 +9,11 @@ All notable changes to MetaBlend. Format loosely follows
 - The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
 - Phone layout check: the app's notice without a link to the imprint is a finding.
 
+### Fixed — contrast: the Rankings link in both themes, the coloured headlines in the light theme
+- The "Rankings" link at the end of the most accurate sources (forecast page, website) is underlined, in both themes. Its gold read at 1.76:1 against the grey text around it in the light theme and 1.19:1 in the dark one; no gold reaches 3:1 against that text and 4.5:1 on the page at once, so the underline marks it. Its colour is unchanged.
+- The green, blue and orange headlines (a good window, rain, a warning) are a touch darker in the light theme and read at 4.61:1 on their tinted box over the sky, where they read at 4.31, 4.27 and 4.24:1: green #127e4b to #117948, blue #1d6dca to #1c68c0, orange #bb4a00 to #b24600. Green still means agreement and dry; the same three colours read a little darker everywhere in the light theme. The dark theme keeps its colours.
+- Accessibility check: no serious or critical finding left in either theme (18 pages, 4 dark skies and 2 light ones). Before: 14 in the light theme and 20 in the dark one.
+
 ### Fixed — the home page showed two headers
 - The website's home page showed the site header twice whenever the host had rendered the page again after its hour. The page then believed its address was "/index", the host's own name for it, and the header that every other page gets did not recognise the home page. "/index" now counts as the home page, for that header and for the app's tab bar (where no tab was marked). Seen live on 2026-11-10 from 17:16 UTC; deployments a day old do the same when their home page is rendered again.
 
