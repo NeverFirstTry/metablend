@@ -22,7 +22,7 @@ export const GET = withErrorLog('nowcast', async (request) => {
   const age = hit ? Date.now() - hit.ts : Infinity
   if (age < TTL * 1000) return Response.json(hit.nc, { headers: cdn(Math.max(1, Math.round(TTL - age / 1000))) })
   if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
-  const nc = blendSteps(await getJson(nowcastUrl(q), { ms: 8000, retries: 1 }))
+  const nc = blendSteps(await getJson(nowcastUrl(q), { ms: 8000, retries: 1, kind: 'nowcast' }))
   if (!nc) {
     await logError('nowcast.upstream', new Error('nowcast unavailable'), { upstream: lastUpstreamFailure() })
     return noStore({ error: 'Rain for the next 2 hours is unavailable right now' }, 502)

@@ -25,7 +25,7 @@ export const GET = withErrorLog('planner', async (request) => {
   const startYear = endYear - 9
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${geo.lat}&longitude=${geo.lon}&start_date=${startYear}-01-01&end_date=${endYear}-12-31&daily=temperature_2m_mean,precipitation_sum&timezone=auto`
 
-  const res = await openMeteoFetch(url, { next: { revalidate: DAY }, timeoutMs: 20000 })
+  const res = await openMeteoFetch(url, { next: { revalidate: DAY }, timeoutMs: 20000, kind: 'planner' })
   if (!res.ok) return noStore({ error: 'Historical data unavailable' }, 502)
   const day = (await res.json()).daily
   if (!day?.time) return noStore({ error: 'No historical data' }, 502)
