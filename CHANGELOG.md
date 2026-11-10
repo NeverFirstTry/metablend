@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — the app's header and the store listing
+- The Beta badge next to the logo is gone for launch, in the app as on the website.
+- On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
+- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
+- Store screenshots in Japanese, Chinese and Korean no longer split a word across caption lines (Japanese and Chinese break only between words, Korean only at spaces), and their captions are set in Noto Sans on every machine. Screen 2 drops the comma before "and" in English, German, French, Spanish, Italian and Portuguese; Dutch follows with the final capture.
+
 ### Fixed — forecasts with missing sources: Open-Meteo through one gate
 - At most four requests to Open-Meteo are in flight per server instance, whatever asks (forecast, outlook, rain nowcast, summits, route weather, planner, calibration); the rest wait their turn, and the same request asked twice at the same moment is sent once. A forecast miss sent eight at once and a burst of places many times that; Open-Meteo refused some of them and the blend went thin (Vienna with 10 of 20 sources for two minutes during the store run on 2026-11-10; 82 thin blends in a day). The summit forecast's own gate, which took its refusals from 47 a day to none, is now this shared one.
 - A forecast request Open-Meteo refuses for being one too many at that instant is asked once more after 300 ms (the summit path already did); its limits per minute, hour and day are not asked again.
@@ -79,12 +85,6 @@ All notable changes to MetaBlend. Format loosely follows
 - No em or en dashes in the app’s and website’s texts any more, in all 13 languages: a sentence dash is now a full stop or a comma, a time range a plain hyphen. A test keeps every language pack that way.
 
 ## 2026-11-08
-
-### Changed — the app's header and the store listing
-- The Beta badge next to the logo is gone for launch, in the app as on the website.
-- On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
-- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
-- Store screenshots in Japanese, Chinese and Korean no longer split a word across caption lines (Japanese and Chinese break only between words, Korean only at spaces), and their captions are set in Noto Sans on every machine. Screen 2 drops the comma before "and" in English, German, French, Spanish, Italian and Portuguese; Dutch follows with the final capture.
 
 ### Changed — the moon in lavender
 - At night the moon icon is a soft lavender-grey in dark mode; the pale blue-grey read as white next to the rain blue. Light mode shows the same lavender, darker (4.7:1 on its tile), so the moon is one colour family in both.
