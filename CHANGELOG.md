@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-10
+
+### Fixed — forecasts with missing sources: Open-Meteo through one gate
+- At most four requests to Open-Meteo are in flight per server instance, whatever asks (forecast, outlook, rain nowcast, summits, route weather, planner, calibration); the rest wait their turn, and the same request asked twice at the same moment is sent once. A forecast miss sent eight at once and a burst of places many times that; Open-Meteo refused some of them and the blend went thin (Vienna with 10 of 20 sources for two minutes during the store run on 2026-11-10; 82 thin blends in a day). The summit forecast's own gate, which took its refusals from 47 a day to none, is now this shared one.
+- A forecast request Open-Meteo refuses for being one too many at that instant is asked once more after 300 ms (the summit path already did); its limits per minute, hour and day are not asked again.
+- Toronto, Vancouver, Prague and other places inside the area of NWS or Bright Sky that those services do not cover no longer count as a failed source: their forecasts were marked incomplete and refreshed every 2 minutes instead of 15.
+- The thin-blend log (error_log, scope forecast.partial) now says what Open-Meteo answered to each failed request: status, reason and which request.
+
 ## 2026-11-09
 
 ### Store listing
