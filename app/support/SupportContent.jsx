@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import Footer from '../components/Footer'
+import SocialLinks from '../components/SocialLinks'
 
 const EMAIL = 'info@metablend.app'
 const heading = 'text-emerald-400 text-xs uppercase tracking-widest'
@@ -28,6 +29,7 @@ export function SupportBody({ lang }) {
         <h2 className={heading}>{t(lang, 'footerContact')}</h2>
         <p className="text-lg"><a href={`mailto:${EMAIL}`} className={link}>{EMAIL}</a></p>
         <p className="text-sm text-zinc-300 leading-relaxed">{t(lang, 'supportApp').replace('{path}', inApp(lang, 'more', 'feedbackSend'))}</p>
+        <SocialLinks className="text-sm pt-1" linkClass={link} size={16} />
       </section>
 
       <section className="space-y-4">

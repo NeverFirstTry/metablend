@@ -13,20 +13,20 @@
 // plus the Play feature graphic and icon in en-US.
 // Screens 4 and 5 show the feature working with real data: run them in the morning (Alps time),
 // when a candidate peak has an open summit window today; the script stops if none has.
-import { execFileSync, spawn } from 'node:child_process'
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
-import { tmpdir } from 'node:os'
+import { execFileSync } from 'node:child_process'
+import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { LOCALES } from '../store/locales.js'
 import { t } from '../lib/i18n.js'
 import { captionProblems } from '../lib/wording.js'
+import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
+import { launchBrowser } from './lib/browser.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const BASE = process.env.BASE ?? 'http://localhost:3123'
-const PORT = 9371
 const CAPTIONS = JSON.parse(readFileSync(join(ROOT, 'store/captions.json'), 'utf8'))
 // no dash, no safety, no reliability or accuracy claim, no word that also means cheap (lib/wording.js)
 const problems = captionProblems(CAPTIONS)
@@ -106,13 +106,9 @@ const androidFonts = lang => {
   })()`
 }
 
-const prof = mkdtempSync(join(tmpdir(), 'storeshots-'))
-const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, 'about:blank'], { stdio: 'ignore' })
-// however the run ends (a screen that never got ready throws), the browser goes with it: a leftover
-// would keep the debugging port, and the next try (scripts/store-run.sh) would talk to it
-process.on('exit', () => { edge.kill(); try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run, ${api.thin} thin or partial not kept`) } catch {} })
-let targets
-for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
+// however the run ends (a screen that never got ready throws), the browser and its profile go with it (scripts/lib/browser.mjs)
+const { targets, close } = await launchBrowser(EDGE, 'storeshots-')
+process.on('exit', () => { try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run, ${api.thin} thin or partial not kept`) } catch {} })
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
 await new Promise(r => ws.addEventListener('open', r))
 let id = 0
@@ -170,6 +166,7 @@ const until = async (expr, ms = 30000) => { for (let s = 0; s < ms; s += 250) { 
 const png = async () => Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')
 const sizeOf = buf => [buf.readUInt32BE(16), buf.readUInt32BE(20)]
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+const analytics = await blockAnalytics(ws, send)
 // the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
 await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 await send('Fetch.enable', { patterns: [{ urlPattern: '*/api/peaks/near*' }, ...(DATA ? [{ urlPattern: '*/api/*' }] : [])] })
@@ -295,7 +292,7 @@ if (process.env.RECOMPOSE) {
     }
   }
   if (refused.length) console.log(`needs a new capture:\n  ${refused.join('\n  ')}`)
-  ws.close(); edge.kill(); process.exit(refused.length ? 4 : 0)
+  ws.close(); await close(); process.exit(refused.length ? 4 : 0)
 }
 
 // Screens 4 and 5: find a peak with an open summit window today and a route with a favourable start
@@ -323,7 +320,7 @@ if (!only || only.some(n => n >= 4)) {
   if (!PICK) {
     console.error('No candidate peak has an open summit window today and a favourable start: capture screens 4 and 5 another morning.')
     // 3, not 1: scripts/store-run.sh tries again later for this, but not for a failure
-    ws.close(); edge.kill(); process.exit(3)
+    ws.close(); await close(); process.exit(3)
   }
   console.log(`screens 4 and 5: ${PICK.peak}, route ${PICK.route}, start ${PICK.day ? 'tomorrow' : 'today'}`)
 }
@@ -401,4 +398,7 @@ img{width:220px;height:220px;border-radius:48px}h1{font-size:64px;line-height:1.
   copyFileSync(join(ROOT, 'public/icon-512.png'), join(img, 'icon.png'))
   console.log('feature graphic + icon ✓')
 }
-ws.close(); edge.kill(); process.exit(0)
+ws.close(); await close()
+const leak = analyticsLeak(analytics)
+console.log(leak ?? `analytics: ${analytics.blocked} requests blocked, none reached their service`)
+process.exit(leak ? 1 : 0)
