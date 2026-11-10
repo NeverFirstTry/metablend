@@ -27,6 +27,7 @@ const PAGES = [
   ['/more?app=1', null],
   ['/more?app=1&terms=show', null], // the terms notice of the app's first start
   ['/testers', null],
+  ['/?app=0&terms=show', null], // the website's one-time terms bar
   ['/', null],
   ['/mountains/grossglockner', null],
   ['/weather/vienna', null],
@@ -111,7 +112,6 @@ await send('Page.enable'); await send('Runtime.enable'); await send('Network.ena
 // the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
 await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
-await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_lang', value: 'en', url: BASE })
 
 let bad = 0

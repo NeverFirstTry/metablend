@@ -229,7 +229,6 @@ const shotList = process.env.SHOTS ? process.env.SHOTS.split(',') : null
 const only = shotList && shotList.filter(x => /^\d+$/.test(x)).map(Number)
 const wantFeature = !shotList || shotList.includes('feature')
 await send('Network.setCookie', { name: 'metablend_app', value: '1', url: BASE })
-await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 
 // RECOMPOSE=<commit>: every caption that changed since <commit> goes onto the existing image, without a new
 // capture (SHOTS picks screens outright, for a layout change with the same words). The phone image sits in

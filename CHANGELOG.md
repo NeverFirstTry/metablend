@@ -5,11 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
-### Added — the app's first start shows the Terms of Use notice
-- The app shows a notice once, on its first start: "By using MetaBlend you accept the Terms of Use", the privacy notice linked as information, and a Continue button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages; the website is unchanged.
-- The phone keeps the version of the terms the notice was passed for, in its own storage, which never reaches our server. When the terms change in substance, the version in `lib/terms.js` changes with them and the notice comes once more, saying that the terms have changed.
-- In the app the notice stands in for the cookie line at the bottom of the forecast.
-- Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice itself.
+### Added — a Terms of Use notice: the app's first start, and the website's one-time bar
+- The app shows a notice once, on its first start: with "Continue" you accept the Terms of Use, the privacy notice is linked as information, and there is the one button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages.
+- On the website the one-time bar at the bottom of the forecast page carries the same two sentences and the same button instead of the cookie line. It blocks nothing.
+- The device keeps the version of the terms the notice was passed for, in its own storage, which never reaches our server. When the terms change in substance, the version in `lib/terms.js` changes with them and the notice comes once more, saying that the terms have changed.
+- Privacy notice, "What stays on your device", in all 13 languages: it names that kept version, and no longer a consent. The cookie that remembered the OK on the cookie line is not set any more and is removed from devices that still have it.
+- Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice and the bar themselves.
 
 ### README for launch
 - The README is rewritten for visitors, journalists, store reviewers and developers: what MetaBlend is, how the consensus works, features, data sources and credits as on /terms, platforms and links, tech stack, local development, license (pending) and a note on AI-assisted development. No dashes; a wording test keeps em and en dashes and "safe" out of it.

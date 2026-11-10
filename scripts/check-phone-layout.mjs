@@ -27,7 +27,7 @@ const PAGES = [
   ['hiking', '/hike'], ['peak', '/hike?peak=grossglockner'], ['route', '/hike?peak=grossglockner&route=osm-14622955'],
   ['more', '/more'], ['rankings', '/leaderboard'], ['planner', '/planner'], ['heatmap', '/heatmap'],
   ['aviation', '/aviation'], ['airport', '/aviation/LOWW'], ['summit page', '/mountains/grossglockner'],
-  ['city page', '/weather/vienna'], ['first start notice', '/more?terms=show', 'notice'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
+  ['city page', '/weather/vienna'], ['terms notice', '/?terms=show', 'notice'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
 ]
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -107,20 +107,21 @@ const findings = []
 let checked = 0
 try {
   for (const view of ['app', 'website']) for (const motion of ['reduce', 'no-preference']) for (const [name, path, how] of PAGES) {
-    if (how === 'notice' && view !== 'app') continue // the terms notice is the app's
     checked++
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
     await send('Network.clearBrowserCookies')
     await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
-    for (const [k, v] of [['metablend_lang', 'de'], ['metablend_consent', '1']]) await send('Network.setCookie', { name: k, value: v, url: BASE + '/' })
+    await send('Network.setCookie', { name: 'metablend_lang', value: 'de', url: BASE + '/' })
     await send('Page.navigate', { url: 'about:blank' }); await sleep(200)
     // the app's forecast is its first tab; it opens from another page, like the app itself
     const start = view === 'app' && how && how !== 'notice' ? '/more' : path
     // a page that never answers is a finding, not a hang
     const loaded = await Promise.race([send('Page.navigate', { url: BASE + start + (view === 'app' ? (start.includes('?') ? '&' : '?') + 'app=1' : '') }).then(r => !r.error), sleep(45000).then(() => false)])
     if (!loaded) { findings.push(`${view} ${name}: did not load within 45 s`); console.log(`✗ ${view} ${name}`); continue }
-    await until(how === 'notice' ? visible('.terms-notice button') : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
-    if (how === 'notice' && !(await ev(visible('.terms-notice button')))) { findings.push(`${view} ${name}: the notice did not come up`); console.log(`✗ ${view} ${name}`); continue }
+    // the terms notice: the app's first-start screen, the website's one-time bar
+    const noticeUp = visible(view === 'app' ? '.terms-notice button' : '.terms-bar button')
+    await until(how === 'notice' ? noticeUp : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
+    if (how === 'notice' && !(await ev(noticeUp))) { findings.push(`${view} ${name}: the notice did not come up`); console.log(`✗ ${view} ${name}`); continue }
     if (how && how !== 'notice') {
       if (view === 'app') await ev(`document.querySelector('.app-tabbar a').click()`)
       await until(visible('.home-search input'))
