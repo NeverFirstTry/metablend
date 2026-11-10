@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Added: a support page
+- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, relying on it alone in the mountains) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
+- The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
+- Japanese footer: "All rights reserved" now reads 無断転載を禁じます. The other 12 footers were checked and are translated; a test keeps Japanese, Chinese and Korean footer lines from staying English.
+
 ### Changed — the app's header and the store listing
 - The Beta badge next to the logo is gone for launch, in the app as on the website.
 - On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
@@ -28,11 +33,6 @@ All notable changes to MetaBlend. Format loosely follows
 - ECMWF IFS, NOAA GFS, DWD ICON and Météo-France share one Open-Meteo request instead of one each, and nothing a visitor sees changes: the shared request reads each model at Open-Meteo’s 15-minute step, the value its own request gave (compared live for Lienz and Perth, every field equal). UV, air quality, the current-conditions details and yesterday’s temperature are kept an hour per place in memory, so four of the nine are asked once an hour per place. By Open-Meteo’s counting (variables × models) a forecast miss costs 12 calls at most, 8 while the hourly values are kept, where it cost 14. A golden test (lib/forecast-golden.test.js, scripts/record-golden.mjs) replays a Lienz miss recorded through the old twelve requests and gets the same blend, source by source, from the new nine.
 
 ## 2026-11-09
-
-### Added: a support page
-- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, relying on it alone in the mountains) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
-- The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
-- Japanese footer: "All rights reserved" now reads 無断転載を禁じます. The other 12 footers were checked and are translated; a test keeps Japanese, Chinese and Korean footer lines from staying English.
 
 ### Store listing
 - The App Store text and screenshots can go up from the PC with fastlane (`fastlane/Fastfile`): an en-US text-only lane for a first check and a lane for every language with screenshots. No build upload, no submission, no release; the App Store Connect API key comes only from environment variables and must live outside the repo. Google Play has a placeholder lane. A project test pins those settings.
