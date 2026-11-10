@@ -3,6 +3,16 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-11
+
+### Changed — the terms: acceptance by use on the website, mountain sports in the safety section, credits in each language
+- Website: the one-time bar now reads "By using MetaBlend you accept the Terms of Use" in all 13 languages. The site works without a click, so the bar no longer ties acceptance to its button; the button stays and puts the bar away. The app's first-start notice is unchanged.
+- Terms: a sentence near the start says that using the website means accepting the terms, and that the app asks once at first start with "Continue". All 13 languages, German first.
+- Terms, "Not for safety-critical use": hiking, mountaineering and ski touring join the list, and a new sentence says to always check the official mountain weather forecast and the official avalanche bulletin of the region for mountain tours and avalanche danger. All 13 languages.
+- Terms, "Data sources & attribution": what stands around the credit lines (what the data is used for, that it is blended with other sources) is in each page's language; it was English on every page. The credit lines themselves stay in the words their providers ask for.
+- No em or en dash is left on the legal pages in any language: 45 went from the terms and 126 from the privacy notice (colons, commas, full stops; a plain hyphen in the authority's house numbers); the imprint and the support page had none. A test fails if one appears again.
+- Privacy notice, Spanish: one verb in the tester sentence now uses the formal address like the rest of the notice.
+
 ## 2026-11-10
 
 ### Changed — the code is source-available under the Functional Source License

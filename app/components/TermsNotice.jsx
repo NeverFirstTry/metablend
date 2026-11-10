@@ -17,10 +17,12 @@ function pass() {
   if (getCookie('metablend_consent')) clearCookie('metablend_consent')
 }
 
-// The notice's words, shared by the app's screen and the website's bar: with "Continue" the terms are
-// accepted, the privacy notice is pointed to (nobody agrees to it: its basis is legitimate interest);
-// after a change of the terms a line says so first. The link is the bracketed part of each sentence.
-function TermsText({ lang, changed, lineClass = '' }) {
+// The notice's words, shared by the app's screen and the website's bar: the terms are accepted, the
+// privacy notice is pointed to (nobody agrees to it: its basis is legitimate interest); after a change
+// of the terms a line says so first. In the app the terms are accepted with "Continue"; the website
+// works without a click, so its bar says "by using MetaBlend" (acceptKey) and the terms page says the
+// same. The link is the bracketed part of each sentence.
+function TermsText({ lang, changed, lineClass = '', acceptKey = 'termsNoticeAccept' }) {
   const sentence = (key, href) => {
     const [before, label, after] = linkedParts(t(lang, key))
     return <>{before}{label && <Link href={href} className="text-emerald-400 underline underline-offset-4">{label}</Link>}{after}</>
@@ -28,7 +30,7 @@ function TermsText({ lang, changed, lineClass = '' }) {
   return (
     <>
       {changed && <p className={`font-semibold ${lineClass}`}>{t(lang, 'termsNoticeChanged')}</p>}
-      <p className={lineClass}>{sentence('termsNoticeAccept', '/terms')}</p>
+      <p className={lineClass}>{sentence(acceptKey, '/terms')}</p>
       <p className={`text-zinc-400 ${lineClass}`}>{sentence('termsNoticePrivacy', '/privacy')}</p>
     </>
   )
@@ -79,8 +81,9 @@ export default function TermsNotice({ lang, path }) {
 }
 
 // The website's one-time bar at the bottom of the forecast page (it was the cookie line until
-// 2026-11-10): the same words and the same button, and it blocks nothing, so a first visitor and a
-// search engine see the page at once. Never in the app, which has the notice above.
+// 2026-11-10): its own first sentence (use is acceptance, the button only puts the bar away), the
+// same privacy sentence and button, and it blocks nothing, so a first visitor and a search engine see
+// the page at once. Never in the app, which has the notice above.
 export function TermsBar({ lang }) {
   const [bar, setBar] = useState(null) // null: nothing to show | { changed }
   useEffect(() => {
@@ -92,7 +95,7 @@ export function TermsBar({ lang }) {
   return (
     <div role="region" aria-label={t(lang, 'footerTerms')}
       className="terms-bar app-lift mb-edge animate-fade-in-up fixed bottom-0 left-0 right-0 bg-zinc-900/95 backdrop-blur border-t border-zinc-800 px-4 py-3 flex items-center justify-between gap-4 z-50">
-      <div className="min-w-0 space-y-1"><TermsText lang={lang} changed={bar.changed} lineClass="text-[0.8125rem]" /></div>
+      <div className="min-w-0 space-y-1"><TermsText lang={lang} changed={bar.changed} lineClass="text-[0.8125rem]" acceptKey="termsBarAccept" /></div>
       <button onClick={() => { pass(); setBar(null) }} className="press bg-emerald-400 text-black text-[0.8125rem] font-bold px-4 py-2 rounded-lg hover:bg-emerald-300 shrink-0">
         {t(lang, 'termsNoticeContinue')}
       </button>
