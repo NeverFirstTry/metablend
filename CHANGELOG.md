@@ -9,7 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - MetaBlend's code is under the Functional Source License 1.1 with Apache 2.0 as its future licence (FSL-1.1-ALv2, a Fair Source licence) instead of "all rights reserved": it may be read, run, changed and shared for any purpose except a commercial product or service that competes with MetaBlend, and each version also becomes available under the Apache License 2.0 two years after it was published. `LICENSE` is the official text with the copyright line "Copyright 2026 Rene Kostmann"; both package files name the licence.
 - `THIRD_PARTY_NOTICES.md` lists the software and fonts MetaBlend ships (33 components: the npm packages, Leaflet, Hanken Grotesk and Geist Mono, the apps' native libraries) with their licence texts; `node scripts/third-party-notices.mjs` writes it again after a dependency changes.
 - `CONTRIBUTING.md`: no outside code for now, issues are welcome.
-- Still to follow, German first: the terms page's copyright section, which says "all rights reserved" in 13 languages.
+- The terms page says the same in all 13 languages (the German is the original): its copyright section names the licence, what it allows, the two years, and that the MetaBlend name and logo are not covered by it. Before, it said "all rights reserved" and that publishing the code granted no licence.
 
 ### Added — the imprint is linked from the app's terms notice
 - The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
