@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Search, Loader2, AlertTriangle, CalendarCheck } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { countryName } from '@/lib/city-names'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { tempFormatter } from '@/lib/outlook/text'
@@ -137,7 +138,7 @@ export default function Planner() {
         {data && !loading && (
           <div className="animate-fade-in-up">
             <div className="text-emerald-400 text-xs tracking-widest uppercase mb-4">
-              {data.city}{data.country ? `, ${data.country}` : ''}
+              {data.city}{data.country ? `, ${countryName(data.cc, lang, data.country)}` : ''}
             </div>
 
             {best.length > 0 && (

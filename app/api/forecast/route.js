@@ -6,7 +6,7 @@ import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
-import { geocodeCity, learnName } from '@/lib/geocode'
+import { geocodeCity, placeNames } from '@/lib/geocode'
 import {
   getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
@@ -86,8 +86,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   // name, whatever language it was searched in — "Wien", "Vienne" and "Vienna"
   // are one city (the outlook does the same); a same-name town picked by
   // position adds its region (lib/weather.js learnName). Fetched alongside
-  // the sources; if the lookup fails, the searched name stands in.
-  const learnCityP = learnName(geo, lang).then(n => n ?? geo.name)
+  // the sources; if the lookup fails, the searched name stands in. The visitor
+  // sees the city in their own language where Open-Meteo has the name.
+  const namesP = placeNames(geo, lang)
+  const learnCityP = namesP.then(n => n.learn ?? geo.name)
 
   // 2. All source APIs in parallel, each timed — plus the extra national and
   // AI models, which come in one shared Open-Meteo request
@@ -236,9 +238,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   const payload = {
-    city:     geo.name,
+    city:     (await namesP).shown,
     learnCity, // the key feedback reports are matched by (see above)
-    country:  geo.country,
+    country:  geo.country, // English; the page names it from cc in the reader's language
+    cc:       geo.cc ?? null,
     lat:      geo.lat,
     lon:      geo.lon,
     region,

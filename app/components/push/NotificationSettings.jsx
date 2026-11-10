@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { countryName } from '@/lib/city-names'
 import { SectionTitle } from '../ui'
 import { pushApi, permission, enablePush, promptState } from '@/lib/push-client'
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
@@ -118,7 +119,7 @@ export default function NotificationSettings({ lang, unit }) {
                 {hits.map(h => (
                   <button key={h.id} onClick={() => { save({ home_name: h.name }); setEditHome(false); setQuery(''); setHits([]) }}
                     className="press-row block w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-zinc-800">
-                    {h.name}<span className="text-zinc-500"> · {[h.admin1, h.country].filter(Boolean).join(', ')}</span>
+                    {h.name}<span className="text-zinc-500"> · {[h.admin1, countryName(h.country_code, lang, h.country)].filter(Boolean).join(', ')}</span>
                   </button>
                 ))}
               </div>
