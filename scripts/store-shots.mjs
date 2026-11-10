@@ -53,7 +53,8 @@ const DEVICES = [
 ]
 const FORECAST_READY = `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`
 const SOURCES_SEEN = `(+([...document.querySelectorAll('button')].find(b => b.textContent.includes(${JSON.stringify('§sourcesFold')}))?.querySelector('.block')?.textContent.match(/\\d+/)?.[0] ?? 0))`
-const SOURCES_IN = `(${SOURCES_SEEN} >= 18)`
+const MIN_SOURCES = 18
+const SOURCES_IN = `(${SOURCES_SEEN} >= ${MIN_SOURCES})`
 const PEAK_READY = `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` // the hour strip, in any language (French says CAS, not SAC)
 const ROUTE_READY = `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`
 // the route screen's row of 7 day buttons: 0 = today, 1 = tomorrow
@@ -106,7 +107,7 @@ const prof = mkdtempSync(join(tmpdir(), 'storeshots-'))
 const edge = spawn(EDGE, ['--headless=new', `--remote-debugging-port=${PORT}`, `--user-data-dir=${prof}`, 'about:blank'], { stdio: 'ignore' })
 // however the run ends (a screen that never got ready throws), the browser goes with it: a leftover
 // would keep the debugging port, and the next try (scripts/store-run.sh) would talk to it
-process.on('exit', () => { edge.kill(); try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run`) } catch {} })
+process.on('exit', () => { edge.kill(); try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run, ${api.thin} thin or partial not kept`) } catch {} })
 let targets
 for (let i = 0; i < 40 && !targets; i++) { await sleep(250); targets = await fetch(`http://127.0.0.1:${PORT}/json`).then(r => r.json()).catch(() => null) }
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
@@ -120,10 +121,12 @@ const NEAR = readFileSync(join(ROOT, 'store/near-lienz.json'))
 const DATA = process.env.DATA ?? null
 // Gentle on production and the forecast providers behind it: every answer is asked for once per run and
 // reused by every language and device that asks the same (POST bodies included; a language in the URL
-// keeps its own answer), and production gets one request at a time with a short gap. A screen that is
-// not ready drops the reused answers before its next try, so a bad answer is never repeated.
+// keeps its own answer), and production gets one request at a time with a short gap. A thin or partial
+// answer is never kept, and a screen that is not ready drops the reused answers before its next try.
 const answers = new Map()
-const api = { sent: 0, reused: 0 }
+const api = { sent: 0, reused: 0, thin: 0 }
+// a thin or partial answer is handed to the page once and never kept: the next request asks production again
+const thinAnswer = (path, buf) => { try { const j = JSON.parse(buf); return j.partial === true || (path === '/api/forecast' && (j.sources?.length ?? 0) < MIN_SOURCES) } catch { return false } }
 let lane = Promise.resolve()
 const oneAtATime = job => { const p = lane.then(job); lane = p.catch(() => {}).then(() => sleep(300)); return p }
 async function fromData({ requestId, request }) {
@@ -136,12 +139,14 @@ async function fromData({ requestId, request }) {
       api.sent++
       const r = await fetch(DATA + u.pathname + u.search, { method: request.method, headers: { 'content-type': 'application/json' }, body: request.postData })
       if (!r.ok) throw new Error(String(r.status))
-      return { type: r.headers.get('content-type') ?? 'application/json', body: Buffer.from(await r.arrayBuffer()).toString('base64') }
+      const buf = Buffer.from(await r.arrayBuffer())
+      return { type: r.headers.get('content-type') ?? 'application/json', body: buf.toString('base64'), keep: !thinAnswer(u.pathname, buf) }
     })
     answers.set(key, answer)
   }
   try {
-    const { type, body } = await answer
+    const { type, body, keep } = await answer
+    if (!keep && answers.get(key) === answer) { answers.delete(key); api.thin++ }
     await send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: [{ name: 'Content-Type', value: type }], body })
   } catch (e) {
     answers.delete(key)
