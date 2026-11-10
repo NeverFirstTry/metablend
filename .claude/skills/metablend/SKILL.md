@@ -27,7 +27,7 @@ These stand for every design task; the owner should not have to repeat them. Re-
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
 - **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go. For any change to an API route (`app/api/**`): check the branch's Vercel preview deployment before main, every time (`MSYS_NO_PATHCONV=1 npx vercel curl "/api/..." --deployment <preview url> --scope never-s-projects1 -- -s -D -`, cold and warm); the 2026-11-09 forecast outage passed tests, lint and build.
   - Run `./scripts/check-phone-layout.mjs` (also enforced in CI).
-- **Captures:** a new folder per run, capture ports cleared, language pinned by cookie. First grep the served CSS for the change (stale: delete `.next/dev`) and re-pin fixtures that expire or that the diff computes. Ready means visible and complete (all sources), not just present.
+- **Captures:** a new folder per run, language pinned by cookie. Stop only processes this session started, by the process ID it got when starting them, never whatever holds a port: another session's server or browser may hold it. A busy port means pick another one. First grep the served CSS for the change (stale: delete `.next/dev`) and re-pin fixtures that expire or that the diff computes. Ready means visible and complete (all sources), not just present.
 
 ## Android release
 
