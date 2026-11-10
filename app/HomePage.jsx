@@ -1051,7 +1051,8 @@ ${url}`)
             only real prose on an otherwise UI-heavy page (search engines
             index this for generic consensus/accuracy queries). */}
         {/* collapsed: the title shows, a tap opens it; still in the HTML for search engines */}
-        <div className="mt-16 max-w-2xl">
+        {/* id: linked from the README as metablend.app/#how-it-works */}
+        <div id="how-it-works" className="mt-16 max-w-2xl">
           <Fold icon={Info} title={t(lang, 'howTitle')} keep>
             <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
               <p>{t(lang, 'howP1')}</p>
