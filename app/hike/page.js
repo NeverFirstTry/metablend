@@ -19,7 +19,7 @@ import AppRescue from './AppRescue'
 import LangPack from '../components/LangPack'
 
 export const metadata = {
-  title: 'Mountain Weather & Summit Forecasts — MetaBlend App',
+  title: { absolute: 'Mountain Weather & Summit Forecasts · MetaBlend App' }, // the brand once, not again from the layout's template
   description: 'Summit forecasts for 195 peaks: wind up top, freezing level, thunderstorm risk and the favourable summit window. In the MetaBlend app.',
   alternates: { canonical: '/hike' },
 }
