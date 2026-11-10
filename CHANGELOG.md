@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert
 - The quarter-hourly rain run asks the rain nowcast for a home place only when someone there has rain alerts on, it is not the place's quiet hours (22:00 to 07:00, when no rain alert goes out) and the outlook shows a chance of rain in the next 3 hours: an hour with 10 % or more, or any source calling rain. Before, every home place was asked every quarter hour, 96 requests to Open-Meteo a day each, rain or shine.
+- Rain is looked at every 30 minutes instead of every 15: a "rain soon" alert is for rain starting in 10 to 60 minutes, so every start still meets a run, and the alert comes up to 15 minutes later than before. Official warnings keep their quarter hour; the run between two rain runs sends only those.
 - Homes in the same 0.1° cell (about 11 by 8 km) share one nowcast per run, asked at the cell's position, which is up to about 6 km from a home. The alert rules and texts are unchanged.
 - The run's summary (job_runs) says how many nowcasts were asked and how many home places were skipped.
 
