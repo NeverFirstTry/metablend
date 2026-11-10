@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "FSL-1.1-ALv2",
   "type": "commonjs",
   "dependencies": {
     "@capacitor/android": "^8.5.2",

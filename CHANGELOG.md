@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — the code is source-available under the Functional Source License
+- MetaBlend's code is under the Functional Source License 1.1 with Apache 2.0 as its future licence (FSL-1.1-ALv2, a Fair Source licence) instead of "all rights reserved": it may be read, run, changed and shared for any purpose except a commercial product or service that competes with MetaBlend, and each version also becomes available under the Apache License 2.0 two years after it was published. `LICENSE` is the official text with the copyright line "Copyright 2026 Rene Kostmann"; both package files name the licence.
+- `THIRD_PARTY_NOTICES.md` lists the software and fonts MetaBlend ships (33 components: the npm packages, Leaflet, Hanken Grotesk and Geist Mono, the apps' native libraries) with their licence texts; `node scripts/third-party-notices.mjs` writes it again after a dependency changes.
+- `CONTRIBUTING.md`: no outside code for now, issues are welcome.
+- Still to follow, German first: the terms page's copyright section, which says "all rights reserved" in 13 languages.
+
 ### Added — MetaBlend on Instagram, TikTok and X
 - Plain links to MetaBlend's Instagram, TikTok and X profiles in the website footer, on the support page and as a small row in the app's More tab. The marks are drawn on the page: no embed, script or share button from the networks, so nothing loads from them until someone follows a link. A test renders all three places and fails if a link is missing or anything from the networks is on the page.
 

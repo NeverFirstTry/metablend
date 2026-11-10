@@ -106,7 +106,9 @@ CI and Vercel use Node.js 24. The apps are in [mobile/](mobile/README.md).
 
 ## License
 
-All rights reserved, for now. The source code is public for transparency; this grants no license to copy, modify or redistribute it (see [LICENSE](LICENSE) and the [terms](https://metablend.app/terms)). A license decision is pending. Weather and map data remain the property of their providers and are used under their licences.
+MetaBlend is source-available under the [Functional Source License 1.1 with Apache 2.0 as its future licence](LICENSE) (FSL-1.1-ALv2), a [Fair Source](https://fair.io) licence: you may read, run, change and share the code for any purpose except a commercial product or service that competes with MetaBlend. Each version also becomes available under the Apache License 2.0 two years after it was published.
+
+The licence covers the code. The name MetaBlend and its logo are not part of it, and weather and map data remain the property of their providers and are used under their licences. The software and fonts MetaBlend ships are listed with their licences in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md); how to take part is in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## How MetaBlend is made
 
