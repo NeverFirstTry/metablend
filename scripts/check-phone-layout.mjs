@@ -15,6 +15,7 @@ import { spawn } from 'node:child_process'
 import { mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
 const DATA = process.env.DATA ?? null
@@ -26,7 +27,7 @@ const PAGES = [
   ['hiking', '/hike'], ['peak', '/hike?peak=grossglockner'], ['route', '/hike?peak=grossglockner&route=osm-14622955'],
   ['more', '/more'], ['rankings', '/leaderboard'], ['planner', '/planner'], ['heatmap', '/heatmap'],
   ['aviation', '/aviation'], ['airport', '/aviation/LOWW'], ['summit page', '/mountains/grossglockner'],
-  ['city page', '/weather/vienna'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
+  ['city page', '/weather/vienna'], ['first start notice', '/more?terms=show', 'notice'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
 ]
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -94,6 +95,8 @@ const WIDE = `(() => {
 })()`
 
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+// the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
+await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 const { userAgent } = (await send('Browser.getVersion')).result
 await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendLayoutCheck/1` })
 await send('Network.setBlockedURLs', { urls: ANALYTICS })
@@ -101,20 +104,24 @@ if (DATA) await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` 
 await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true })
 await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
 const findings = []
+let checked = 0
 try {
   for (const view of ['app', 'website']) for (const motion of ['reduce', 'no-preference']) for (const [name, path, how] of PAGES) {
+    if (how === 'notice' && view !== 'app') continue // the terms notice is the app's
+    checked++
     await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
     await send('Network.clearBrowserCookies')
     await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
     for (const [k, v] of [['metablend_lang', 'de'], ['metablend_consent', '1']]) await send('Network.setCookie', { name: k, value: v, url: BASE + '/' })
     await send('Page.navigate', { url: 'about:blank' }); await sleep(200)
     // the app's forecast is its first tab; it opens from another page, like the app itself
-    const start = view === 'app' && how ? '/more' : path
+    const start = view === 'app' && how && how !== 'notice' ? '/more' : path
     // a page that never answers is a finding, not a hang
     const loaded = await Promise.race([send('Page.navigate', { url: BASE + start + (view === 'app' ? (start.includes('?') ? '&' : '?') + 'app=1' : '') }).then(r => !r.error), sleep(45000).then(() => false)])
     if (!loaded) { findings.push(`${view} ${name}: did not load within 45 s`); console.log(`✗ ${view} ${name}`); continue }
-    await until(view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
-    if (how) {
+    await until(how === 'notice' ? visible('.terms-notice button') : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
+    if (how === 'notice' && !(await ev(visible('.terms-notice button')))) { findings.push(`${view} ${name}: the notice did not come up`); console.log(`✗ ${view} ${name}`); continue }
+    if (how && how !== 'notice') {
       if (view === 'app') await ev(`document.querySelector('.app-tabbar a').click()`)
       await until(visible('.home-search input'))
       await ev(`(() => { const i = document.querySelector('.home-search input'); Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, 'Wien'); i.dispatchEvent(new Event('input', { bubbles: true })); i.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })); return true })()`)
@@ -135,4 +142,4 @@ try {
 console.log(`analytics: ${analytics.blocked} requests blocked, ${analytics.sent} reached their service`)
 if (analytics.sent) findings.push(`analytics: ${analytics.sent} requests reached Plausible or Vercel; the check would count as visits`)
 if (findings.length) { console.log(`\n${findings.length} finding(s):`); for (const f of findings) console.log('  ' + f); process.exit(1) }
-console.log(`\nAll ${PAGES.length * 4} page checks fit ${WIDTH} px, no text below 13 px.`)
+console.log(`\nAll ${checked} page checks fit ${WIDTH} px, no text below 13 px.`)

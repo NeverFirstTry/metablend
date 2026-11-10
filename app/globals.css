@@ -312,6 +312,9 @@ html:not([data-app]) .app-only { display: none !important; }
 @media (min-width: 40rem) { .site-header { padding: 2rem 2rem 0; } }
 .site-logo { font-size: 1.5rem; line-height: 2rem; font-weight: 700; }
 html:not([data-app]) .site-header ~ main { min-height: 0; flex: 1 0 auto; }
+/* the app before the terms notice is passed (lib/terms.js; the boot script marks it before first
+   paint): nothing of the app shows or can be reached, the notice is the one thing on the screen */
+html[data-app][data-terms-due] body > :not(.terms-notice) { visibility: hidden; }
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }

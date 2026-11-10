@@ -16,6 +16,7 @@ import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
 import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp } from '@/lib/app-tabs'
 import { repairHeights } from '@/lib/route-store'
+import TermsNotice from './TermsNotice'
 
 const TABS = [['/', 'tabForecast', CloudSun], ['/hike', 'hiking', MountainSnow], ['/more', 'more', Menu]]
 
@@ -73,7 +74,8 @@ export default function AppChrome() {
     // coming back to Hiking finds the peak or route you had open (lib/app-tabs.js)
     rememberTabUrl(activeTab, window.location.pathname + window.location.search)
   }
-  return (
+  return (<>
+    <TermsNotice lang={lang} path={path} />
     <nav aria-label="MetaBlend" className="app-tabbar fixed bottom-0 inset-x-0 z-40 border-t border-zinc-800 bg-[#0e0e12]/95 backdrop-blur">
       <div className="max-w-3xl mx-auto grid grid-cols-3">
         {TABS.map(([href, key, Icon]) => (
@@ -91,5 +93,5 @@ export default function AppChrome() {
         ))}
       </div>
     </nav>
-  )
+  </>)
 }

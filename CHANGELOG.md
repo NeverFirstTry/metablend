@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Added — the app's first start shows the Terms of Use notice
+- The app shows a notice once, on its first start: "By using MetaBlend you accept the Terms of Use", the privacy notice linked as information, and a Continue button. Until it is passed nothing else of the app shows; the terms, the privacy notice and the imprint can be read from it. In all 13 languages; the website is unchanged.
+- The phone keeps the version of the terms the notice was passed for, in its own storage, which never reaches our server. When the terms change in substance, the version in `lib/terms.js` changes with them and the notice comes once more, saying that the terms have changed.
+- In the app the notice stands in for the cookie line at the bottom of the forecast.
+- Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice itself.
+
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert
 - The quarter-hourly rain run asks the rain nowcast for a home place only when someone there has rain alerts on, it is not the place's quiet hours (22:00 to 07:00, when no rain alert goes out) and the outlook shows a chance of rain in the next 3 hours: an hour with 10 % or more, or any source calling rain. Before, every home place was asked every quarter hour, 96 requests to Open-Meteo a day each, rain or shine.
 - Rain is looked at every 30 minutes instead of every 15: a "rain soon" alert is for rain starting in 10 to 60 minutes, so every start still meets a run, and the alert comes up to 15 minutes later than before. Official warnings keep their quarter hour; the run between two rain runs sends only those.

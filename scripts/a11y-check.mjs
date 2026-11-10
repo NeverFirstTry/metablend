@@ -10,6 +10,7 @@ import { mkdtempSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 
 const require = createRequire(import.meta.url)
 const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8')
@@ -24,6 +25,7 @@ const PAGES = [
   ['/hike?peak=grossglockner&app=1', null],
   ['/hike?peak=grossglockner&app=1', null, 'avalanche'], // avalanche danger, answered by AVALANCHE_MOCK
   ['/more?app=1', null],
+  ['/more?app=1&terms=show', null], // the terms notice of the app's first start
   ['/testers', null],
   ['/', null],
   ['/mountains/grossglockner', null],
@@ -106,6 +108,8 @@ const openFirstWarning = () => ev(`document.querySelector('#warnings button[aria
 const send = (method, params = {}) => new Promise(r => { const n = ++id; pending.set(n, r); ws.send(JSON.stringify({ id: n, method, params })) })
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.result?.value
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+// the app's terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
+await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
 await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_lang', value: 'en', url: BASE })
