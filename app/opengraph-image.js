@@ -1,63 +1,13 @@
 import { ImageResponse } from 'next/og'
+import { landingCard } from './components/OgCard'
 
-// Branded 1200×630 social-share card, generated at the edge (no static asset to
-// keep in sync). Next wires this into <meta property="og:image"> automatically.
+// The start page's share card (every page without its own: city, summit, airport pages ...): the language
+// pages' card in English, built once in the build. Next wires it into og:image and twitter:image.
 export const alt = 'MetaBlend: one forecast from up to 20 sources'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export default function OpengraphImage() {
-  return new ImageResponse(
-    (
-      <div
-        style={{
-          height: '100%',
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          padding: '72px 80px',
-          background: '#0b1022',
-          color: '#ffffff',
-          fontFamily: 'sans-serif',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            fontSize: 26,
-            letterSpacing: 8,
-            textTransform: 'uppercase',
-            color: '#ffd98a',
-          }}
-        >
-          Weather · Consensus
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', fontSize: 128, letterSpacing: -3 }}>
-            <span>Meta</span>
-            <span style={{ color: '#ffd98a' }}>Blend</span>
-          </div>
-          <div style={{ display: 'flex', fontSize: 46, color: '#a1a1aa', marginTop: 18 }}>
-            One forecast from up to 20 sources.
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: 28,
-            color: '#71717a',
-          }}
-        >
-          <div style={{ display: 'flex' }}>Weighted by each source’s past accuracy</div>
-          <div style={{ display: 'flex', color: '#ffd98a' }}>metablend.app</div>
-        </div>
-      </div>
-    ),
-    { ...size }
-  )
+export default async function OpengraphImage() {
+  const { element, fonts } = await landingCard('en')
+  return new ImageResponse(element, { ...size, fonts })
 }

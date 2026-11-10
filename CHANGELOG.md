@@ -12,6 +12,15 @@ All notable changes to MetaBlend. Format loosely follows
 - Privacy notice, "What stays on your device", in all 13 languages: it names that kept version, and no longer a consent. The cookie that remembered the OK on the cookie line is not set any more and is removed from devices that still have it.
 - Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice and the bar themselves.
 
+### Changed — link previews in the current design
+- The cards chats and social networks show for a MetaBlend link are on Slate with the faint gold glow where the sun is, white text and gold only for "Blend" and the address: the start page (which every page without its own card shows: cities, summits, airports, hiking), the language pages in all 13 languages (one design now, the start card is the English one) and a shared city (the glow by the city's time of day, none at night; the moon lavender, clouds neutral, as in the app). The old navy and sky gradients are gone.
+- A shared city's card no longer leaves a gap after longer names ("Tokyo , Japan").
+- Under the hood: lib/og-look.js holds the card colours and the glow; app/components/OgCard.jsx is the start and language card; the card font subset holds the English letters too, and its glyph test covers English.
+
+### Changed — meta tags without dashes
+- Search results and link previews show no em or en dash any more: page titles, descriptions, Open Graph and Twitter cards on every page type, the landing pages in all 13 languages ("MetaBlend · Eine Vorhersage aus bis zu 20 Wetterquellen") and the RSS feed titles. Subtitles take a colon ("Großglockner Weather: Summit Forecast (3798 m)"), the brand a middle dot. The site description is 150 characters instead of 178.
+- Under the hood: the site-wide metadata moved to lib/site-metadata.js; a new test (lib/meta-wording.test.js) reads every page type's meta texts in every language a page has, with the layout's title template, and fails on an em or en dash or a safety word. The test hooks resolve next/og and next/headers.
+
 ### Fixed — phone layout check: two runs at once no longer share a browser
 - Each run's browser picks a free debugging port (it was fixed at 9441), and the first line of the output names it. On 2026-11-10 two sessions ran the check at once on 9441: one run stalled for 25 minutes, the other saw a website page "opened as the app".
 - The app pages and the website pages run in two fresh browser contexts, so nothing the app pages set (the app flag, cookies, storage) reaches the website pages.

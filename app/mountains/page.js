@@ -7,7 +7,7 @@ const groups = byRegion(peaks).map(g => ({ region: g.region, peaks: g.peaks.map(
 
 // Crawlable hub for the summit weather pages: every featured peak by region.
 export const metadata = {
-  title: `Mountain Weather — Summit Forecasts for ${peaks.length} Peaks`,
+  title: `Mountain Weather: Summit Forecasts for ${peaks.length} Peaks`,
   description:
     `Summit weather for ${peaks.length} mountains worldwide: the favourable summit window, wind up top, freezing level ` +
     'and thunderstorm risk for 7 days, blended from up to 9 weather models.',
