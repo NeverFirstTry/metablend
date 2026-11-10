@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — link previews in the current design
+- The cards chats and social networks show for a MetaBlend link are on Slate with the faint gold glow where the sun is, white text and gold only for "Blend" and the address: the start page (which every page without its own card shows: cities, summits, airports, hiking), the language pages in all 13 languages (one design now, the start card is the English one) and a shared city (the glow by the city's time of day, none at night; the moon lavender, clouds neutral, as in the app). The old navy and sky gradients are gone.
+- A shared city's card no longer leaves a gap after longer names ("Tokyo , Japan").
+- Under the hood: lib/og-look.js holds the card colours and the glow; app/components/OgCard.jsx is the start and language card; the card font subset holds the English letters too, and its glyph test covers English.
+
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert
 - The quarter-hourly rain run asks the rain nowcast for a home place only when someone there has rain alerts on, it is not the place's quiet hours (22:00 to 07:00, when no rain alert goes out) and the outlook shows a chance of rain in the next 3 hours: an hour with 10 % or more, or any source calling rain. Before, every home place was asked every quarter hour, 96 requests to Open-Meteo a day each, rain or shine.
 - Rain is looked at every 30 minutes instead of every 15: a "rain soon" alert is for rain starting in 10 to 60 minutes, so every start still meets a run, and the alert comes up to 15 minutes later than before. Official warnings keep their quarter hour; the run between two rain runs sends only those.

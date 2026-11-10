@@ -12,7 +12,6 @@ mkdirSync(out, { recursive: true })
 const textOf = lang => ogText(key => t(lang, key))
 const need = { latin: new Set(OG_BRAND), ja: new Set(), zh: new Set(), ko: new Set() }
 for (const { code } of LANGUAGES) {
-  if (code === 'en') continue
   for (const ch of textOf(code)) need[need[code] ? code : 'latin'].add(ch)
 }
 
