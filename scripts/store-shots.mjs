@@ -21,6 +21,7 @@ import { fileURLToPath } from 'node:url'
 import { LOCALES } from '../store/locales.js'
 import { t } from '../lib/i18n.js'
 import { captionProblems } from '../lib/wording.js'
+import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
@@ -169,6 +170,7 @@ const until = async (expr, ms = 30000) => { for (let s = 0; s < ms; s += 250) { 
 const png = async () => Buffer.from((await send('Page.captureScreenshot', { format: 'png' })).result.data, 'base64')
 const sizeOf = buf => [buf.readUInt32BE(16), buf.readUInt32BE(20)]
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+const analytics = await blockAnalytics(ws, send)
 await send('Fetch.enable', { patterns: [{ urlPattern: '*/api/peaks/near*' }, ...(DATA ? [{ urlPattern: '*/api/*' }] : [])] })
 // location allowed and standing in Lienz (the hiking screens); the forecast screens open Vienna by link
 await send('Browser.grantPermissions', { origin: new URL(BASE).origin, permissions: ['geolocation'] })
@@ -399,4 +401,7 @@ img{width:220px;height:220px;border-radius:48px}h1{font-size:64px;line-height:1.
   copyFileSync(join(ROOT, 'public/icon-512.png'), join(img, 'icon.png'))
   console.log('feature graphic + icon ✓')
 }
-ws.close(); edge.kill(); process.exit(0)
+ws.close(); edge.kill()
+const leak = analyticsLeak(analytics)
+console.log(leak ?? `analytics: ${analytics.blocked} requests blocked, none reached their service`)
+process.exit(leak ? 1 : 0)

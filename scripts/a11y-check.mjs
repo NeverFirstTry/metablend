@@ -10,6 +10,7 @@ import { mkdtempSync, readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
 
 const require = createRequire(import.meta.url)
 const AXE = readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8')
@@ -106,6 +107,7 @@ const openFirstWarning = () => ev(`document.querySelector('#warnings button[aria
 const send = (method, params = {}) => new Promise(r => { const n = ++id; pending.set(n, r); ws.send(JSON.stringify({ id: n, method, params })) })
 const ev = async expr => (await send('Runtime.evaluate', { expression: expr, awaitPromise: true, returnByValue: true })).result?.result?.value
 await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+const analytics = await blockAnalytics(ws, send)
 await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
 await send('Network.setCookie', { name: 'metablend_consent', value: '1', url: BASE })
 await send('Network.setCookie', { name: 'metablend_lang', value: 'en', url: BASE })
@@ -153,4 +155,6 @@ for (const [path, tab, mock] of LARGE ? LARGE_PAGES : []) {
 ws.close(); edge.kill()
 console.log(bad ? `\n${bad} serious/critical violations` : '\nNo serious or critical violations')
 console.log(cramped ? `${cramped} spots cut off or hidden at large text` : 'Nothing cut off at large text')
-process.exit(bad || cramped ? 1 : 0)
+const leak = analyticsLeak(analytics)
+console.log(leak ?? `analytics: ${analytics.blocked} requests blocked, none reached their service`)
+process.exit(bad || cramped || leak ? 1 : 0)

@@ -1,10 +1,8 @@
 import { Suspense } from 'react'
 import { Geist_Mono, Hanken_Grotesk } from 'next/font/google'
-import Script from 'next/script'
-import { SpeedInsights } from '@vercel/speed-insights/next'
-import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import AppChrome from './components/AppChrome'
+import SiteAnalytics from './components/SiteAnalytics'
 import { PageHeader } from './components/SiteHeader'
 import ThemeSync from './components/ThemeSync'
 import ScrollReset from './components/ScrollReset'
@@ -132,14 +130,7 @@ export default function RootLayout({ children }) {
         <LocaleReady />
         {/* reads the query, so it gets its own boundary: pages stay prerendered */}
         <Suspense fallback={null}><ScrollReset /></Suspense>
-        <Script
-          defer
-          data-domain="metablend.app"
-          src="https://plausible.io/js/script.js"
-        />
-        {/* Cookieless Core Web Vitals (disclosed in the privacy notice) */}
-        <SpeedInsights />
-        <Analytics />
+        <SiteAnalytics />
       </body>
     </html>
   )

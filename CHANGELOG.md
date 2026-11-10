@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Checks cost no weather quota, and only the live site counts visits
+- Plausible, Vercel Web Analytics and Speed Insights load only on metablend.app (and in the apps, which open it), no longer on preview deployments or local builds (`app/components/SiteAnalytics.jsx`).
+- The accessibility check and the store screenshot runs block the analytics like the layout check and fail if any got through (`scripts/lib/analytics-block.mjs`).
+
 ### Fixed — phone layout check: two runs at once no longer share a browser
 - Each run's browser picks a free debugging port (it was fixed at 9441), and the first line of the output names it. On 2026-11-10 two sessions ran the check at once on 9441: one run stalled for 25 minutes, the other saw a website page "opened as the app".
 - The app pages and the website pages run in two fresh browser contexts, so nothing the app pages set (the app flag, cookies, storage) reaches the website pages.
