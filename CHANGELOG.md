@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-10
+
+### Legal and privacy
+- “My location” no longer shows the device’s position to a third party. The phone rounds it to 0.1°, about 10 km, and asks our own server (`/api/place`), which names the town from our own list (of the towns within 10 km the one with the most people for its distance, in the visitor’s language) and asks OpenStreetMap’s Nominatim, with the same rounded position, only where no town of 5,000 and more is that close. BigDataCloud is gone from the site, the content policy and the notice.
+- Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
+- /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
+
 ## 2026-11-09
 
 ### Store listing
@@ -22,9 +29,6 @@ All notable changes to MetaBlend. Format loosely follows
 - The source-match guard reads test files with a parser: a test generated inside a loop is judged on its own, together with the loop that feeds it, and paths listed between tests no longer count against the test before them. The job-log route test is back to its plain form (a list of route paths, each imported inside its test). Over the whole suite with every opt-out removed, the old and the new guard flag the same 13 tests.
 
 ### Legal and privacy
-- “My location” no longer shows the device’s position to a third party. The phone rounds it to 0.1°, about 10 km, and asks our own server (`/api/place`), which names the town from our own list (of the towns within 10 km the one with the most people for its distance, in the visitor’s language) and asks OpenStreetMap’s Nominatim, with the same rounded position, only where no town of 5,000 and more is that close. BigDataCloud is gone from the site, the content policy and the notice. Needs `supabase/town-near.sql` on dev, then production, before the merge.
-- Maps load Leaflet from our own site (`public/vendor/leaflet-1.9.4`: the published 1.9.4 files, their hashes checked by a test) instead of unpkg.
-- /privacy, German first, all 13 languages: the app’s cookie metablend_app and its 30 days; stored forecasts go after up to 72 hours (it said about 48); the list of summits near you rounds the position to about 5 km, the searches to about 10 km; map tiles, the rain radar and search suggestions come straight from the browser, so those providers see the IP address and the map area or the typed text; BigDataCloud and unpkg are no longer named; the retention paragraph has no dashes left. Store answers (`store/compliance.md`): precise location is not collected any more; untick it in Play’s Data safety form once this is live.
 - /terms: the liability section is rewritten, German first, all 13 languages, five paragraphs each. Forecasts are probability statements that can be off; MetaBlend is a planning aid that replaces no official warning, avalanche report or judgement on site; the Aviation pages are not for flight preparation; the exclusion covers slight negligence only, and intent, gross negligence and culpably caused injury to life, body or health are expressly not excluded (§ 6 Abs. 1 Z 9 KSchG); uninterrupted availability is not promised. A test checks in every language that all three exceptions stand in the not-excluded sentence, none of them in the exclusion, and that the availability sentence closes the paragraph, so no translation is wider than the German.
 - /privacy: the ImprovMX sentence names the standard contractual clauses of its data processing agreement (version of 9 September 2026 with Annexes I–III, countersigned by both sides on 2026-11-09) and says that ImprovMX keeps only basic mail metadata (log level Minimum) for 7 days — German first, all 13 languages, add-only.
 - /terms: the WeatherAPI.com end-user disclaimer now stands in WeatherAPI’s own words, with a German version beside it. The Sources panel shows one short line in the visitor’s language whenever WeatherAPI data is in the blend, linking to that notice (13 languages).
