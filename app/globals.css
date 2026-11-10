@@ -449,8 +449,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
    :root raises these above the paper remaps of the light-theme block. */
 :root[data-theme="light"] {
   /* Every colour here clears AA (4.5:1) on the page and on a card. The status colours
-     are the lightest step of their hue that does; yellow has to become a burnt orange,
-     no true yellow reaches AA on white. */
+     are the lightest step of their hue that does, also as a headline on its own tinted
+     box over the darkest sky (#f3f6fb): 4.6:1 for ok, warn and info. Yellow has to become
+     a burnt orange, no true yellow reaches AA on white. */
   --foreground: #141c2b;
   --muted: #4a5566;
   --accent: #966400;          /* the gold, dark enough to read on white */
@@ -460,7 +461,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   --on-fill: #6b4300;
   --chart-band: #141c2b;
   --chart-band-opacity: 0.08;
-  --ok: #127e4b; --warn: #bb4a00; --bad: #d22923; --info: #1d6dca; --hot: #c83b10; --lifr: #5b1a8f; --neutral: #4a5566;
+  --ok: #117948; --warn: #b24600; --bad: #d22923; --info: #1c68c0; --hot: #c83b10; --lifr: #5b1a8f; --neutral: #4a5566;
   --moon: #6b5d9d;            /* the same lavender, darker: 4.7:1 on the light tile */
   --surface-2: rgb(20 28 43 / 0.06); --surface-3: rgb(20 28 43 / 0.1);
   --glass: #ffffff;
@@ -493,6 +494,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .text-zinc-600 { color: var(--muted); }
   & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
   & .text-emerald-300 { color: var(--accent-strong); }
+  /* a gold link inside running text is underlined: no gold reaches 3:1 against the grey
+     text and 4.5:1 on white at once (axe link-in-text-block) */
+  & p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text-underline-offset: 4px; }
   /* status text: the deep daylight set, readable straight on the sky */
   & .text-red-300, & .text-red-400 { color: var(--bad); }
   & .text-yellow-400, & .text-amber-200, & .text-amber-200\/90, & .text-amber-300,
