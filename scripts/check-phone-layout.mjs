@@ -33,6 +33,7 @@ import featured from '../lib/hike/featured.json' with { type: 'json' }
 import { hikeApiPath } from '../lib/hike/params.js'
 import { ANALYTICS, IS_ANALYTICS, analyticsLeak } from './lib/analytics-block.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
+import { shapeDiff } from './lib/shape.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'layout-fixtures.json')
@@ -55,22 +56,32 @@ const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].s
 const analytics = { blocked: 0, sent: 0 }
 const findings = []
 
-// the live smoke requests: [what, path, the answer is usable]; a thin blend is no failure, a broken API is
-const SMOKE = [
-  ['city forecast', '/api/forecast?city=vienna&lang=en', j => j.sources?.length > 0 && typeof j.consensus?.temp === 'number'], // app/weather/[city]/page.js
-  ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0], // app/mountains/[peak]/page.js
-]
-if (!RECORD) for (const [what, path, usable] of SMOKE) {
-  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: e.name }))
-  const j = r.ok ? await r.json().catch(() => null) : null
-  if (!j || !usable(j)) findings.push(`live ${what} (${path}): ${r.ok ? 'answered without its data' : `answered ${r.status}`}`)
-  console.log(`${j && usable(j) ? '✓' : '✗'} live ${what}`)
-}
-
 // The recorded answers, keyed by method, path with query, and a hash of a POST body; the search box asks
 // Open-Meteo's place search from the browser, so its answers are recorded too.
 const PLACES = 'https://geocoding-api.open-meteo.com/' // app/HomePage.jsx
 const recorded = RECORD ? { recorded: new Date().toISOString(), from: BASE, answers: {} } : JSON.parse(readFileSync(FIXTURES, 'utf8'))
+
+// The live smoke requests: [what, path, the answer is usable, shape options]. A thin blend is no failure, a broken API is.
+// Each is recorded too, and a live answer whose shape (keys and types) differs from its recording means the
+// recording no longer matches what the pages get: re-record.
+const SMOKE = [
+  ['city forecast', '/api/forecast?city=vienna&lang=en', j => j.sources?.length > 0 && typeof j.consensus?.temp === 'number',
+    { maps: ['.weights', '.recentScores'], optional: ['.cached'] }], // app/weather/[city]/page.js; weights and scores per source; cached: from the route's own cache
+  ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0, {}], // app/mountains/[peak]/page.js
+]
+const RERECORD = 're-record fixtures (RECORD=1, see the top of this file)'
+for (const [what, path, usable, shape] of SMOKE) {
+  const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: e.name }))
+  const j = r.ok ? await r.json().catch(() => null) : null
+  const ok = j && usable(j)
+  if (RECORD) { if (ok) recorded.answers[`GET ${path}`] = { status: 200, type: 'application/json', body: j }; else findings.push(`live ${what} (${path}): not recorded, it ${r.ok ? 'answered without its data' : `answered ${r.status}`}`); continue }
+  if (!ok) findings.push(`live ${what} (${path}): ${r.ok ? 'answered without its data' : `answered ${r.status}`}`)
+  const was = recorded.answers[`GET ${path}`]?.body
+  const diff = ok ? (was ? shapeDiff(was, j, shape) : ['it has no recording']) : []
+  if (diff.length) findings.push(`live ${what}: its shape differs from the recording (${diff.slice(0, 4).join('; ')}${diff.length > 4 ? `; ${diff.length - 4} more` : ''}): ${RERECORD}`)
+  console.log(`${ok && !diff.length ? '✓' : '✗'} live ${what}`)
+}
+
 const routeOf = (method, u) => `${method} ${u.hostname === new URL(BASE).hostname ? '' : u.hostname}${u.pathname}`
 const keyOf = ({ method, url, postData }) => { const u = new URL(url); return `${routeOf(method, u)}${u.search}${postData ? ' ' + createHash('sha1').update(postData).digest('hex').slice(0, 12) : ''}` }
 const byRoute = new Map()
@@ -268,7 +279,7 @@ if (RECORD) {
   writeFileSync(FIXTURES, `{\n"recorded": ${JSON.stringify(recorded.recorded)},\n"from": ${JSON.stringify(recorded.from)},\n"answers": {\n${lines.join(',\n')}\n}}\n`)
   console.log(`recorded ${lines.length} answers from ${BASE} into scripts/layout-fixtures.json`)
 } else console.log(`data: ${served.exact} answers from the recording of ${recorded.recorded.slice(0, 10)}, ${served.route} by their route's answer, ${SMOKE.length} live`)
-if (served.missing.size) findings.push(`no recorded answer for ${[...served.missing].join(', ')}: record them again (RECORD=1, see the top of this file)`)
+if (served.missing.size) findings.push(`no recorded answer for ${[...served.missing].join(', ')}: ${RERECORD}`)
 console.log(`other hosts (not answered here): ${[...outside].sort((a, b) => b[1] - a[1]).map(([h, n]) => `${h} ${n}`).join(', ') || 'none'}`)
 console.log(`analytics: ${analytics.blocked} requests blocked, ${analytics.sent} reached their service`)
 const leak = analyticsLeak(analytics), onSite = new URL(BASE).hostname === 'metablend.app', tried = analytics.blocked + analytics.sent

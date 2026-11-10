@@ -106,10 +106,9 @@ const androidFonts = lang => {
   })()`
 }
 
-const { browser: edge, targets, close } = await launchBrowser(EDGE, 'storeshots-')
-// however the run ends (a screen that never got ready throws), the browser goes with it: no headless
-// browser is left running after a try (scripts/store-run.sh tries again later)
-process.on('exit', () => { edge.kill(); try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run, ${api.thin} thin or partial not kept`) } catch {} })
+// however the run ends (a screen that never got ready throws), the browser and its profile go with it (scripts/lib/browser.mjs)
+const { targets, close } = await launchBrowser(EDGE, 'storeshots-')
+process.on('exit', () => { try { if (DATA) console.log(`production API: ${api.sent} requests sent, ${api.reused} answered again from this run, ${api.thin} thin or partial not kept`) } catch {} })
 const ws = new WebSocket(targets.find(x => x.type === 'page').webSocketDebuggerUrl)
 await new Promise(r => ws.addEventListener('open', r))
 let id = 0
