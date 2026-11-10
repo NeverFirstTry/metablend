@@ -11,6 +11,11 @@ All notable changes to MetaBlend. Format loosely follows
 - In the app the notice stands in for the cookie line at the bottom of the forecast.
 - Layout check, accessibility check and store screenshots mark the notice as passed, so pages are captured as before; the layout check and the accessibility check also look at the notice itself.
 
+### README for launch
+- The README is rewritten for visitors, journalists, store reviewers and developers: what MetaBlend is, how the consensus works, features, data sources and credits as on /terms, platforms and links, tech stack, local development, license (pending) and a note on AI-assisted development. No dashes; a wording test keeps em and en dashes and "safe" out of it.
+- The README links MetaBlend on Instagram, TikTok and X, and "What is consensus forecasting?" on the start page, which now has the address metablend.app/#how-it-works.
+- The README's technical sections moved unchanged to `docs/how-it-works.md`; `.env.example` lists every environment variable with no values.
+
 ### Changed — push alerts ask the rain nowcast only where it can lead to an alert
 - The quarter-hourly rain run asks the rain nowcast for a home place only when someone there has rain alerts on, it is not the place's quiet hours (22:00 to 07:00, when no rain alert goes out) and the outlook shows a chance of rain in the next 3 hours: an hour with 10 % or more, or any source calling rain. Before, every home place was asked every quarter hour, 96 requests to Open-Meteo a day each, rain or shine.
 - Rain is looked at every 30 minutes instead of every 15: a "rain soon" alert is for rain starting in 10 to 60 minutes, so every start still meets a run, and the alert comes up to 15 minutes later than before. Official warnings keep their quarter hour; the run between two rain runs sends only those.
