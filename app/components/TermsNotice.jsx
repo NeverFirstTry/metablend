@@ -68,6 +68,8 @@ export default function TermsNotice({ lang, path }) {
         style={{ paddingTop: 'calc(2rem + var(--sa-top))', paddingBottom: 'calc(2rem + var(--sa-bottom))' }}>
         <p className="text-2xl font-bold tracking-tight">Meta<span className="text-emerald-400">Blend</span></p>
         <TermsText lang={lang} changed={notice.changed} />
+        {/* the imprint has to be reachable at all times (Austria), so also from here, before the More tab is */}
+        <p className="text-sm"><Link href="/impressum" className="text-emerald-400 underline underline-offset-4">{t(lang, 'footerImpressum')}</Link></p>
         <button onClick={go} className="press mt-3 w-full bg-emerald-400 text-black font-semibold rounded-full px-6 py-3 hover:bg-emerald-300">
           {t(lang, 'termsNoticeContinue')}
         </button>

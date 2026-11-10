@@ -230,6 +230,8 @@ async function checkPage(view, motion, name, path, how) {
   const noticeUp = visible(view === 'app' ? '.terms-notice button' : '.terms-bar button')
   await until(how === 'notice' ? noticeUp : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
   if (how === 'notice' && !(await ev(noticeUp))) { findings.push(`${view} ${name}: the notice did not come up`); console.log(`✗ ${view} ${name}`); return }
+  // the imprint has to be reachable at all times: the app's notice links to it, since the More tab is out of reach behind it
+  if (how === 'notice' && view === 'app' && !(await ev(visible('.terms-notice a[href="/impressum"]')))) findings.push(`${view} ${name}: no link to the imprint`)
   if (how && how !== 'notice') {
     if (view === 'app') await ev(`document.querySelector('.app-tabbar a').click()`)
     await until(visible('.home-search input'))
