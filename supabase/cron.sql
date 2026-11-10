@@ -59,8 +59,11 @@ select cron.schedule(
   $job$
 );
 
--- Rain in the next 2 hours: the "Rain soon" alert from the 15-minute
--- nowcast, every quarter hour (the hourly job above covers everything else).
+-- The quarter-hourly run (the hourly job above covers everything else): official
+-- warnings every time, and the "Rain soon" alert from the 15-minute nowcast on
+-- the runs at :02 and :32. Rain every 30 minutes is decided in the code
+-- (lib/push/dispatch.js, rainTurn), not here: this schedule also carries the
+-- warnings, which stay at a quarter hour.
 select cron.schedule(
   'push-dispatch-nowcast',
   '2,17,32,47 * * * *',
