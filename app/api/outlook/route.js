@@ -15,9 +15,13 @@ import { noStore } from '@/lib/no-store'
 
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
-// for 30 minutes, so 1 or 1,000 viewers cost the same upstream calls.
+// for 2 hours, so 1 or 1,000 viewers cost the same upstream calls. The models
+// behind it change every few hours; what changes by the hour is "now", and
+// every reader works that out itself (lib/outlook/at-now.js). After the 2 hours
+// the copy is served for 30 minutes more while a new one is built: an answer is
+// never older than two and a half hours.
 
-const TTL = 1800
+const TTL = 7200, STALE = 1800
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
 
 export const GET = withErrorLog('outlook', async (request) => {
@@ -62,6 +66,6 @@ export const GET = withErrorLog('outlook', async (request) => {
   }
 
   return Response.json(payload, {
-    headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` },
+    headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },
   })
 })

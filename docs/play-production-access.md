@@ -50,6 +50,6 @@ Characters: 297 / 300
 
 ## Why the app is ready for production
 
-> Over 14 days, 30 testers used the app on their own phones. The problems they reported were fixed and released within days, one of them in a new build. Every release passes over 800 automated tests and a phone layout check of 16 screens. The same forecasts already serve the metablend.app website.
+> Over 14 days, 30 testers used the app on their own phones. The problems they reported were fixed and released within days, one of them in a new build. Every release passes over 800 automated tests and a phone layout check of 17 screens. The same forecasts already serve the metablend.app website.
 
 Characters: 296 / 300

@@ -77,3 +77,6 @@ GoogleService-Info.plist
 
 # the Playwright MCP writes page snapshots and console logs here
 /.playwright-mcp/
+
+# the Mac store run's log and summary (scripts/store-run.sh)
+/store/run/

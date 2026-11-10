@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
 import { heroCondition } from '@/lib/conditions'
 import { readForecast } from '@/lib/weather-page'
+import { atNow } from '@/lib/outlook/at-now'
 import CityPage from './CityPage'
 
 // Server-rendered per-city weather page: real consensus data in crawlable
@@ -44,7 +45,7 @@ async function getOutlook(slug) {
     const res = await fetch(`${BASE}/api/outlook?city=${cityQuery(slug)}&lang=en`, { next: { revalidate: 900 } })
     if (!res.ok) return null
     const json = await res.json()
-    return json.error ? null : json
+    return json.error ? null : atNow(json) // the copy can be 2.5 h old: its hours and headlines as of this render
   } catch {
     return null
   }

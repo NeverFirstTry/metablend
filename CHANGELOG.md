@@ -5,6 +5,24 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Changed — the hours always start now; the outlook is kept 2 hours, the summit forecast 1 hour
+- The hour strip, the Today, Tomorrow and 7 days tabs, the headlines and the best time outside always start at the current hour of the place: the page works out "now" itself, also when the hour turns on an open page and after midnight. Before, they started at the hour the server had built its answer for, which could be 90 minutes back.
+- The outlook is kept 2 hours instead of 30 minutes, then 30 minutes more while a new copy is built: never older than two and a half hours. The models behind it change every few hours; the conditions right now (15 minutes) and the rain nowcast (10 minutes) are not affected. About a third fewer outlook requests to Open-Meteo at today's traffic (734 a day to about 470), and the push job's share falls from 48 to 12 a day per home place.
+- The summit forecast is kept 1 hour instead of 30 minutes, then 30 minutes more: 90 minutes at most, as before.
+- The city pages, the embed widget and the share image read the outlook the same way (`lib/outlook/at-now.js`); push alerts and the app's widgets already did.
+- Phone layout check: it waits up to 30 seconds for the browser on the CI runner and says so when it does not start (run 29 failed after 10 seconds without loading a page).
+
+### Added: a support page
+- metablend.app/support in all 13 languages: the contact address, how to send feedback from the app, five common questions (where the forecasts come from, why MetaBlend differs from other apps, notifications, deleting your data, relying on it alone in the mountains) and the legal pages. The website footer links to it as "Support"; the app shows no footer and is unchanged.
+- The App Store support URL is now https://metablend.app/support in all 12 languages (live with the next upload). The page is in the sitemap and in the phone layout check (17 pages); a test renders it in every language.
+- Japanese footer: "All rights reserved" now reads 無断転載を禁じます. The other 12 footers were checked and are translated; a test keeps Japanese, Chinese and Korean footer lines from staying English.
+
+### Changed — the app's header and the store listing
+- The Beta badge next to the logo is gone for launch, in the app as on the website.
+- On a phone in German, Czech or Japanese, the refresh button stays next to the city name; a long name wraps instead of pushing the button onto its own line.
+- Store screenshots: captions with no dashes and no claims of safety, reliability or accuracy, screen 2 "The week ahead and where the sources agree", screen 4 "The best window for the summit"; the hiking screens stand in Lienz, so the list shows the Alps; screens 4 and 5 show an open summit window and a favourable start with real data; the Play feature graphic says "One forecast from up to 20 sources". The capture script refuses a caption that breaks these rules.
+- Store screenshots in Japanese, Chinese and Korean no longer split a word across caption lines (Japanese and Chinese break only between words, Korean only at spaces), and their captions are set in Noto Sans on every machine. Screen 2 drops the comma before "and" in English, German, French, Spanish, Italian and Portuguese; Dutch follows with the final capture.
+
 ### Fixed — forecasts with missing sources: Open-Meteo through one gate
 - At most four requests to Open-Meteo are in flight per server instance, whatever asks (forecast, outlook, rain nowcast, summits, route weather, planner, calibration); the rest wait their turn, and the same request asked twice at the same moment is sent once. A forecast miss sent eight at once and a burst of places many times that; Open-Meteo refused some of them and the blend went thin (Vienna with 10 of 20 sources for two minutes during the store run on 2026-11-10; 82 thin blends in a day). The summit forecast's own gate, which took its refusals from 47 a day to none, is now this shared one.
 - A forecast request Open-Meteo refuses for being one too many at that instant is asked once more after 300 ms (the summit path already did); its limits per minute, hour and day are not asked again.
