@@ -70,12 +70,15 @@ export const DEFAULT_ICON = 'slate'
 const svg = (inner, defs = '', size) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"${size ? ` width="${size}" height="${size}"` : ''}><defs>${defs}</defs>${inner}</svg>`
 const frame = (inset, inner) => `<g transform="translate(${inset * 100} ${inset * 100}) scale(${1 - inset * 2})">${inner}</g>`
 
-// a whole look: 'icon' on its background, 'dark' on transparent (iOS draws its own), 'tinted' on black
-export function iconArt(icon, look = 'icon', size) {
+// a whole look: 'icon' on its background, 'dark' on transparent (iOS draws its own), 'tinted' on black;
+// inset shrinks the art inside the full background (the website's maskable icon keeps a safe zone)
+export function iconArt(icon, look = 'icon', size, inset = 0) {
   const [scene, mark] = icon[look]
   const bg = look === 'icon' ? icon.bg : look === 'tinted' ? '#000' : null
-  return svg(`${bg ? `<rect width="100" height="100" fill="${bg}"/>` : ''}${scene}${mark}`, icon.defs, size)
+  return svg(`${bg ? `<rect width="100" height="100" fill="${bg}"/>` : ''}${inset ? frame(inset, scene + mark) : scene + mark}`, icon.defs, size)
 }
+// the art without its background: the splash puts it on a colour of its own
+export const artOnly = (icon, size) => svg(icon.icon[0] + icon.icon[1], icon.defs, size)
 // Android adaptive icon: the background layer (background and scene, full bleed) and the foreground (the
 // mark alone, inset so the 100 units fill the 72 dp a launcher shows of the 108 dp layer)
 export const sceneArt = (icon, size) => svg(`<rect width="100" height="100" fill="${icon.bg}"/>${icon.icon[0]}`, icon.defs, size)

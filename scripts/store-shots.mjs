@@ -23,6 +23,7 @@ import { captionProblems } from '../lib/wording.js'
 import { analyticsLeak, blockAnalytics } from './lib/analytics-block.mjs'
 import { launchBrowser } from './lib/browser.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
+import { OG, ogBackground } from '../lib/og-look.js'
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
@@ -382,15 +383,17 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
   }
 }
 
-// Play feature graphic (1024×500) and icon (512×512), English listing only
+// Play feature graphic (1024×500) and icon (512×512), English listing only. The graphic has the link preview's
+// look (lib/og-look.js): Slate with the faint gold glow of the day sky; the icon tile keeps a hairline edge on it.
 if (langs.includes('en') && wantFeature) {
+  const bg = ogBackground('day')
   const img = join(ROOT, 'fastlane/metadata/android/en-US/images')
   mkdirSync(img, { recursive: true })
   const icon = readFileSync(join(ROOT, 'public/icon-512.png'))
   const fg = { w: 1024, h: 500, scale: 1 }
   const html = `<!doctype html><html><head>${HEAD}<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&display=block" rel="stylesheet">
-<style>html,body{margin:0;width:1024px;height:500px;overflow:hidden}body{background:linear-gradient(120deg,#0f1b33,#1d3a6b 60%,#3f6fb0);display:flex;align-items:center;gap:56px;padding:0 80px;box-sizing:border-box;font-family:'Hanken Grotesk',system-ui,sans-serif;color:#fff}
-img{width:220px;height:220px;border-radius:48px}h1{font-size:64px;line-height:1.05;margin:0 0 16px;font-weight:800}p{font-size:30px;margin:0;color:#ffd98a;font-weight:700}</style></head>
+<style>html,body{margin:0;width:1024px;height:500px;overflow:hidden}body{background-color:${bg.backgroundColor};background-image:${bg.backgroundImage};display:flex;align-items:center;gap:56px;padding:0 80px;box-sizing:border-box;font-family:'Hanken Grotesk',system-ui,sans-serif;color:${OG.ink}}
+img{width:220px;height:220px;border-radius:48px;box-shadow:0 0 0 1px rgba(226,234,247,.16),0 18px 48px rgba(0,0,0,.45)}h1{font-size:64px;line-height:1.05;margin:0 0 16px;font-weight:800}p{font-size:30px;margin:0;color:${OG.gold};font-weight:700}</style></head>
 <body><img src="data:image/png;base64,${icon.toString('base64')}"><div><h1>MetaBlend</h1><p>${t('en', 'tagline')}</p></div></body></html>`
   const out = await render(html, fg)
   if (sizeOf(out).join('×') !== '1024×500') throw new Error('feature graphic size')
