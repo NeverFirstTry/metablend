@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-10
 
+### Added — the imprint is linked from the app's terms notice
+- The notice on the app's first start links to the imprint as well, next to the terms and the privacy notice, in all 13 languages: the imprint has to be reachable at all times, and until the notice is passed the More tab is not.
+- Phone layout check: the app's notice without a link to the imprint is a finding.
+
 ### Fixed — the home page showed two headers
 - The website's home page showed the site header twice whenever the host had rendered the page again after its hour. The page then believed its address was "/index", the host's own name for it, and the header that every other page gets did not recognise the home page. "/index" now counts as the home page, for that header and for the app's tab bar (where no tab was marked). Seen live on 2026-11-10 from 17:16 UTC; deployments a day old do the same when their home page is rendered again.
 
