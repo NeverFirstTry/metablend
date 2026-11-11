@@ -1,4 +1,4 @@
-Ningún modelo meteorológico acierta todos los días. MetaBlend compara hasta 20 fuentes meteorológicas a la vez — ECMWF, GFS, ICON, MET Norway, el NWS y más — y las combina en una sola previsión. Las fuentes que aciertan una y otra vez en tu región cuentan más, comprobadas con mediciones reales de aeropuertos.
+Ningún modelo meteorológico acierta todos los días. MetaBlend compara hasta 20 fuentes meteorológicas a la vez, entre ellas ECMWF, GFS, ICON, MET Norway y el NWS, y las combina en una sola previsión. Las fuentes que aciertan una y otra vez en tu región cuentan más, comprobadas con estaciones meteorológicas, informes de aeropuertos y las observaciones de personas sobre el terreno.
 
 La previsión
 • Hoy, mañana y la semana, hora a hora
@@ -17,7 +17,7 @@ Siempre al día
 
 Sin cuenta, sin anuncios, gratis. En 13 idiomas.
 
-El tiempo en la montaña cambia rápido: MetaBlend es una previsión, no una garantía de seguridad. Consulta las previsiones oficiales y da la vuelta si dudas.
+El tiempo en la montaña cambia rápido. Las previsiones pueden fallar. En las salidas a la montaña, consulta siempre la previsión meteorológica oficial de montaña y el boletín de aludes, y da la vuelta si dudas.
 
 Privacidad: https://metablend.app/privacy
 Condiciones: https://metablend.app/terms
