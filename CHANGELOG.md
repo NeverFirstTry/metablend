@@ -9,6 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - "Warmer than yesterday" on the forecast now reads yesterday from the forecast service's past day, in the place's own time zone. It came from the archive, which Open-Meteo's Standard plan does not include. The value can differ from before: by up to 2° in three places compared on the preview (Vienna 7.0 instead of 5.2, Lienz 7.4 instead of 8.9, Perth the same).
 - A place the archive gives nothing for borrows the climate record of the nearest kept place within 25 km and 300 m of height, so the planner and the outlook's normals keep working for new places near known ones. With no such neighbour the outlook shows no normals and the planner says the data is unavailable, as before.
 - A climate record now carries the height it was asked for; records kept without one are asked once more.
+- New setting `OPEN_METEO_ARCHIVE=off`, unset by default: with it the archive is not asked at all, so a new place costs no failing request first. It is for the day the plan changes.
 - `scripts/climate-prefill.mjs` fills the records ahead of the plan change: set A (the sitemap's cities and places asked lately) or set B (A and the larger towns), a set number of places per run with a pause between requests, going on where the last run stopped, every request counted. Not run yet.
 
 ### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
