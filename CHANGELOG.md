@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-11
 
 ### Changed — a place's climate is asked from Open-Meteo once a year, and every request is counted
-- Nothing changes on screen: the outlook's "against normal" and normal highs and lows, and the planner's months, show the same values.
+- On screen the outlook's normal highs and lows and its rainy days stay as they are. A planner month can differ by 0.1°: the place is now asked at the outlook's precision (0.01°), so both read one record.
 - The 10-year climate request behind them is asked once per place and year and its result kept in the database (`place_climate`, about 4 KB a place); before, the outlook asked it once a day per place and the planner once a day per city. One request now serves both.
 - The request count now includes every Open-Meteo host (the archive and the peak search's geocoding were left out), under the new kind `climate`, and weighs a request the way Open-Meteo's own calculator does: a 10-year request with 2 daily values is 52 calls, not 261.
 - Needs `supabase/place-climate.sql` on dev and production first. Without the table the site works as before and asks once a day.
