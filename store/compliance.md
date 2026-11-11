@@ -47,7 +47,7 @@ Grow users → Store presence → Store settings.
 **Step 2 — Data collection and security**
 - Collect or share required data types? **Yes**
 - Encrypted in transit? **Yes**
-- Users can request deletion? **Yes** (email info@metablend.app; turning notifications off deletes the push record)
+- Users can request deletion? **Yes** (email info@metablend.app; turning notifications off in the app deletes the push record at once; turning them off in the phone's settings deletes it at the next app start, except on Android 12 and older, where the app cannot tell and the record stays until notifications are also turned off in the app or the phone has been idle for 90 days)
 - Accounts? **None**
 
 **Step 3 — Data types:** tick these six, nothing else (Precise location is no longer ticked since "my location" asks our own server with a rounded position; untick it in the form once that version is live).

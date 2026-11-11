@@ -5,7 +5,7 @@ import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { countryName } from '@/lib/city-names'
 import { SectionTitle } from '../ui'
-import { pushApi, permission, enablePush, promptState, forgetWhenOff } from '@/lib/push-client'
+import { pushApi, permission, enablePush, disablePush, promptState, forgetWhenOff } from '@/lib/push-client'
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { haptic } from '@/lib/native'
@@ -54,6 +54,14 @@ export default function NotificationSettings({ lang, unit }) {
     syncWidgets({ refresh: true })
     await load()
     if (!topCity) setEditHome(true) // no city viewed yet: pick one, or the alerts have nowhere to look
+  }
+
+  // the off switch: the server deletes this phone's push record right away; the screen goes back to "Turn on"
+  async function turnOff() {
+    if (!(await disablePush().catch(() => false))) { setMsg(t(lang, 'notifError')); return }
+    setState(s => ({ ...s, settings: null, plans: [] }))
+    setEditHome(false)
+    syncWidgets({ refresh: true })
   }
 
   function search(v) {
@@ -108,6 +116,13 @@ export default function NotificationSettings({ lang, unit }) {
         </div>
       ) : (
         <>
+          <div className={box}>
+            <label className="flex items-center justify-between gap-3 text-sm py-1">
+              <span>{t(lang, 'notifOn')}</span>
+              <input type="checkbox" role="switch" className="h-5 w-5 accent-emerald-400" checked onChange={() => { haptic('selection'); turnOff() }} />
+            </label>
+            <p className="text-xs text-zinc-400">{t(lang, 'notifOffDeletes')}</p>
+          </div>
           <div className={box}>
             <div className="flex items-center justify-between gap-3">
               <div><div className={caption}>{t(lang, 'notifHome')}</div><div className="text-sm mt-0.5">{s.home_name ?? '–'}</div></div>
