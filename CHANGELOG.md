@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Added — the Google Play listing goes up from the PC
+- `fastlane android upload_store` uploads the Play listing in all 13 languages: title, descriptions, the Slate icon, the feature graphic and the five phone screenshots of the current store set, which replace the old ones on Play. It never uploads an app bundle, never creates a release, never changes a track; `validate:true` only checks with Google. The service account key comes only from `SUPPLY_JSON_KEY`, a file outside the repository (the lane refuses one inside). Setup in Google Cloud and the Play Console, and the PowerShell commands, in German: `store/play-upload.md`. Test: the lane's safety settings, like the App Store lane's.
+
 ### Changed — the terms: acceptance by use on the website, mountain sports in the safety section, credits in each language
 - Website: the one-time bar now reads "By using MetaBlend you accept the Terms of Use" in all 13 languages. The site works without a click, so the bar no longer ties acceptance to its button; the button stays and puts the bar away. The app's first-start notice is unchanged.
 - Terms: a sentence near the start says that using the website means accepting the terms, and that the app asks once at first start with "Continue". All 13 languages, German first.

@@ -60,6 +60,13 @@ test('fastlane — deliver never uploads a build, submits or releases; the API k
   for (const p of ['*.p8', 'fastlane/report.xml', 'fastlane/Preview.html', 'fastlane/README.md']) assert.ok(ignore.includes(p), p)
 })
 
+// The Play listing goes up the same way with fastlane supply (store/play-upload.md)
+test('fastlane — supply never uploads a bundle, releases or changes a track; the Play key comes only from the environment', () => {
+  const fastfile = read('fastlane/Fastfile')
+  for (const s of ['package_name: "app.metablend"', 'skip_upload_apk: true', 'skip_upload_aab: true', 'skip_upload_changelogs: true', 'ENV.fetch("SUPPLY_JSON_KEY")']) assert.ok(fastfile.includes(s), s)
+  assert.doesNotMatch(fastfile, /track_promote_to|release_status|rollout|skip_upload_(apk|aab): false|json_key_data|"private_key"/)
+})
+
 test('iOS entitlements — Release builds sign with aps-environment production, Debug keeps development, both carry the widgets\' app group', () => {
   const pbx = read('mobile/ios/App/App.xcodeproj/project.pbxproj')
   const pairs = [...pbx.matchAll(/CODE_SIGN_ENTITLEMENTS = (App\/[^;]+);[\s\S]*?name = (Debug|Release);/g)].map(m => [m[2], m[1]]).sort()
