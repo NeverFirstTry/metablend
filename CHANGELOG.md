@@ -5,9 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Added: an off switch for notifications in the app
+- The app's notification settings get a "Notifications on" switch at the top. Turning it off deletes the phone's push record from our server at once (token, home city, settings, and with them the planned hikes and the send log), and the screen goes back to "Turn on notifications". A line under the switch says so, in all 13 languages. This works on every phone, Android 12 and older included, and like the rest of the notification settings it is website code, so every installed app gets it with the merge.
+
 ### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
 - Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
-- Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.
+- Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record stays as long as alerts go out to it (every send counts as the phone being seen); the off switch in the app (above) covers those phones.
 
 ### Changed — the store screenshots on Slate
 - The App Store and Google Play screenshots have the link preview's look: the frame behind the phone is Slate with a faint gold glow, like the feature graphic, instead of the blue gradient. The phone pictures and captions are the approved ones, recomposed without a new capture (125 pictures, 13 languages). The Dutch screen 2 keeps its caption until the new capture on 28 November.
