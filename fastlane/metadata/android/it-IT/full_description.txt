@@ -1,4 +1,4 @@
-Nessun modello meteo ci azzecca ogni giorno. MetaBlend confronta fino a 20 fonti meteo alla volta — ECMWF, GFS, ICON, MET Norway, il NWS e altre — e le unisce in un’unica previsione. Le fonti che indovinano spesso nella tua zona contano di più, verificate con misure reali degli aeroporti.
+Nessun modello meteo ci azzecca ogni giorno. MetaBlend confronta fino a 20 fonti meteo alla volta, tra cui ECMWF, GFS, ICON, MET Norway e il NWS, e le unisce in un’unica previsione. Le fonti che indovinano spesso nella tua zona contano di più, verificate con stazioni meteo, bollettini degli aeroporti e le segnalazioni di chi è sul posto.
 
 La previsione
 • Oggi, domani e la settimana, ora per ora
@@ -17,7 +17,7 @@ Sempre aggiornato
 
 Nessun account, nessuna pubblicità, gratis. In 13 lingue.
 
-Il meteo in montagna cambia in fretta: MetaBlend è una previsione, non una garanzia di sicurezza. Consulta i bollettini ufficiali e torna indietro nel dubbio.
+Il meteo in montagna cambia in fretta. Le previsioni possono sbagliare. Per le gite in montagna consulta sempre il bollettino meteo di montagna ufficiale e il bollettino valanghe, e torna indietro nel dubbio.
 
 Privacy: https://metablend.app/privacy
 Termini: https://metablend.app/terms

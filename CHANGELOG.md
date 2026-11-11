@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed — the store texts: no dashes, no safety wording, the real ground truth
+- App Store and Google Play, all 13 languages: no em or en dash left (the sources sentence now reads "including ECMWF, GFS, ICON, MET Norway and the NWS"; the promotional text and the Play release note use commas and brackets).
+- The mountain note reads "Forecasts can be wrong. For mountain tours, always check the official mountain weather forecast and avalanche bulletin, and turn back when in doubt." instead of "a forecast, not a safety guarantee", so no store text says safe or safety in any language.
+- What the source weights are checked against: "weather stations, airport reports and feedback from people on the ground" instead of "real airport measurements".
+- A guard test over every text in `fastlane/metadata` (App Store and Play) fails on an em or en dash and on the safety words of the 13 languages.
+
 ### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
 - Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
 - Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.

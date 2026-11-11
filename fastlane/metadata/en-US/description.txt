@@ -1,4 +1,4 @@
-No single weather model gets every day right. MetaBlend compares up to 20 weather sources at once — ECMWF, GFS, ICON, MET Norway, the NWS and more — and blends them into one forecast. Sources that keep getting your region right count for more, checked against real airport measurements.
+No single weather model gets every day right. MetaBlend compares up to 20 weather sources at once, including ECMWF, GFS, ICON, MET Norway and the NWS, and blends them into one forecast. Sources that keep getting your region right count for more, checked against weather stations, airport reports and feedback from people on the ground.
 
 The forecast
 • Today, tomorrow and the week, hour by hour
@@ -17,7 +17,7 @@ Always up to date
 
 No account, no ads, free. In 13 languages.
 
-Mountain weather changes fast: MetaBlend is a forecast, not a safety guarantee. Check official mountain forecasts and turn back when in doubt.
+Mountain weather changes fast. Forecasts can be wrong. For mountain tours, always check the official mountain weather forecast and avalanche bulletin, and turn back when in doubt.
 
 Privacy: https://metablend.app/privacy
 Terms: https://metablend.app/terms
