@@ -5,7 +5,8 @@ import { getRegion } from '@/lib/weather'
 import { geocodeCity, learnName as learnNameOf } from '@/lib/geocode'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
-import { fetchOpenMeteoMultiRaw, fetchClimateRaw } from '@/lib/outlook/sources'
+import { fetchOpenMeteoMultiRaw } from '@/lib/outlook/sources'
+import { loadClimate } from '@/lib/climate-store'
 import { fetchNationalRaw, fetchMetNorwayRaw } from '@/lib/outlook/national'
 import { buildOutlook } from '@/lib/outlook/build'
 import { loadOutlookWeights } from '@/lib/outlook/weights'
@@ -41,7 +42,7 @@ export const GET = withErrorLog('outlook', async (request) => {
 
   const [multi, climate, national, weights, learnName] = await Promise.all([
     fetchOpenMeteoMultiRaw(geo.lat, geo.lon),
-    fetchClimateRaw(geo.lat, geo.lon),
+    loadClimate(geo.lat, geo.lon),
     fetchNationalRaw(geo.lat, geo.lon),
     loadOutlookWeights(region),
     learnNameOf(geo, lang),
