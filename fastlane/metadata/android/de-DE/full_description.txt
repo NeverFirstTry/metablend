@@ -1,4 +1,4 @@
-Kein einzelnes Wettermodell liegt jeden Tag richtig. MetaBlend vergleicht bis zu 20 Wetterquellen gleichzeitig — ECMWF, GFS, ICON, MET Norway, den NWS und mehr — und verbindet sie zu einer Vorhersage. Quellen, die in deiner Region immer wieder richtig liegen, zählen mehr, geprüft an echten Messungen von Flughäfen.
+Kein einzelnes Wettermodell liegt jeden Tag richtig. MetaBlend vergleicht bis zu 20 Wetterquellen gleichzeitig, darunter ECMWF, GFS, ICON, MET Norway und den NWS, und verbindet sie zu einer Vorhersage. Quellen, die in deiner Region immer wieder richtig liegen, zählen mehr, geprüft an Wetterstationen, Flughafenmeldungen und Rückmeldungen von Menschen vor Ort.
 
 Die Vorhersage
 • Heute, morgen und die Woche, Stunde für Stunde
@@ -17,7 +17,7 @@ Immer auf dem Laufenden
 
 Kein Konto, keine Werbung, kostenlos. In 13 Sprachen.
 
-Bergwetter ändert sich schnell: MetaBlend ist eine Vorhersage, keine Sicherheitsgarantie. Prüfe offizielle Bergwetterberichte und kehre im Zweifel um.
+Bergwetter ändert sich schnell. Vorhersagen können falsch sein. Prüfe bei Bergtouren immer den offiziellen Bergwetterbericht und den Lawinenlagebericht und kehre im Zweifel um.
 
 Datenschutz: https://metablend.app/privacy
 Nutzungsbedingungen: https://metablend.app/terms

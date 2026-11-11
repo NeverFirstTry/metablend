@@ -67,6 +67,26 @@ test('fastlane — deliver never uploads a build, submits or releases; the API k
   for (const p of ['*.p8', 'fastlane/report.xml', 'fastlane/Preview.html', 'fastlane/README.md']) assert.ok(ignore.includes(p), p)
 })
 
+// Every store text, App Store and Google Play, every language (owner 2026-11-11): no em or en dash, and no
+// safety promise. The safety words by language, as word starts, so "nebezpečné" (cs) and "nevaren" (sl),
+// "dangerous", stay allowed; German "sicher" counts anywhere ("unsicher" too).
+const SAFETY_WORDS = /\bsafe|sicher|sécurité|\bsûr|\bsegur|\bsicur|\bveilig|\bbezpiecz|\bbezpeč|\bvar(?:en|na|no|ni|nost)|安全|안전/i
+test('store texts — no em or en dash, and no safety words, in fastlane/metadata (App Store and Play, every language)', () => {
+  const walk = dir => fs.readdirSync(new URL(dir, root), { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(`${dir}${e.name}/`) : e.name.endsWith('.txt') ? [`${dir}${e.name}`] : [])
+  const files = walk('fastlane/metadata/')
+  assert.ok(files.length > 150, `found only ${files.length} store texts`)
+  const problems = files.flatMap(f => {
+    const t = read(f), dash = t.match(/[—–]/), word = t.match(SAFETY_WORDS)
+    return [...(dash ? [`${f}: dash "${dash[0]}"`] : []), ...(word ? [`${f}: "${word[0]}"`] : [])]
+  })
+  assert.deepEqual(problems, [])
+})
+
+test('store texts guard — catches what it is for, and lets "dangerous" through', () => {
+  for (const s of ['not a safety guarantee', 'keine Sicherheitsgarantie', 'pas une garantie de sécurité', 'garantía de seguridad', 'gwarancja bezpieczeństwa', 'záruka bezpečí', 'zagotovilo varnosti', '安全を保証', '안전을 보장']) assert.match(s, SAFETY_WORDS, s)
+  for (const s of ['nebezpečné počasí', 'nevarno vreme', 'Forecasts can be wrong']) assert.doesNotMatch(s, SAFETY_WORDS, s)
+})
+
 // The Play listing goes up the same way with fastlane supply (store/play-upload.md)
 test('fastlane — supply never uploads a bundle, releases or changes a track; the Play key comes only from the environment', () => {
   const fastfile = read('fastlane/Fastfile')

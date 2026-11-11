@@ -1,4 +1,4 @@
-Žádný jednotlivý model počasí se netrefí každý den. MetaBlend porovnává až 20 zdrojů počasí najednou — ECMWF, GFS, ICON, MET Norway, NWS a další — a spojuje je do jedné předpovědi. Zdroje, které se ve vašem regionu opakovaně trefují, mají větší váhu, ověřenou skutečnými měřeními z letišť.
+Žádný jednotlivý model počasí se netrefí každý den. MetaBlend porovnává až 20 zdrojů počasí najednou, mezi nimi ECMWF, GFS, ICON, MET Norway a NWS, a spojuje je do jedné předpovědi. Zdroje, které se ve vašem regionu opakovaně trefují, mají větší váhu, ověřenou meteostanicemi, zprávami z letišť a hlášeními lidí v terénu.
 
 Předpověď
 • Dnes, zítra a celý týden, hodinu po hodině
@@ -17,7 +17,7 @@ Vždy aktuální
 
 Bez účtu, bez reklam, zdarma. Ve 13 jazycích.
 
-Počasí v horách se rychle mění: MetaBlend je předpověď, ne záruka bezpečí. Sledujte oficiální horské předpovědi a v případě pochybností se vraťte.
+Počasí v horách se rychle mění. Předpovědi se mohou mýlit. Před horskou túrou vždy zkontrolujte oficiální horskou předpověď počasí a lavinovou předpověď a v případě pochybností se vraťte.
 
 Soukromí: https://metablend.app/privacy
 Podmínky: https://metablend.app/terms
