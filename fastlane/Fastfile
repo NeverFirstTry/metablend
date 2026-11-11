@@ -1,13 +1,16 @@
-# App Store text and screenshots from the files in this folder, through the App Store Connect API.
+# App Store and Google Play text and pictures from the files in this folder.
 # Run from the repository root:
 #   fastlane ios upload_en_metadata   en-US text only, no screenshots (a first check in App Store Connect)
 #   fastlane ios upload_store         every language: text and screenshots (they replace the ones there)
-# Never uploads a build, never submits for review, never releases. Before uploading, deliver writes
-# fastlane/Preview.html and asks y/n.
+#   fastlane android upload_store validate:true   checks the Play listing upload with Google, changes nothing
+#   fastlane android upload_store     every Play language: text, icon, feature graphic, phone screenshots
+# Never uploads a build, never submits for review, never releases, never changes a track. Before
+# uploading, deliver writes fastlane/Preview.html and asks y/n.
 #
-# The API key comes only from the environment, the .p8 file outside the repository:
-#   APP_STORE_CONNECT_API_KEY_KEY_ID, APP_STORE_CONNECT_API_KEY_ISSUER_ID,
-#   APP_STORE_CONNECT_API_KEY_KEY_FILEPATH
+# The keys come only from the environment, their files outside the repository:
+#   App Store Connect API: APP_STORE_CONNECT_API_KEY_KEY_ID, APP_STORE_CONNECT_API_KEY_ISSUER_ID,
+#     APP_STORE_CONNECT_API_KEY_KEY_FILEPATH
+#   Google Play service account: SUPPLY_JSON_KEY (the .json file); see store/play-upload.md
 #
 # Ruby code in this file runs in fastlane/, actions run in the repository root: paths handed to
 # deliver are made absolute here, so both agree.
@@ -64,8 +67,28 @@ platform :ios do
 end
 
 platform :android do
-  desc "Google Play (supply): not set up yet"
-  lane :upload_store do
-    UI.user_error!("Google Play uploads (supply) are not set up yet")
+  # Google Play listing (supply) from metadata/android/<language>/: title, short and full description, the
+  # icon and feature graphic (en-US) and the phone screenshots, which replace the ones on Play. No app
+  # bundle, so no release and no track change; changelogs belong to a release and stay out. Supply still
+  # reads one release of a track to hang the listing on: the closed test's, "alpha" unless SUPPLY_TRACK
+  # names another (and SUPPLY_VERSION_CODE picks one if that track holds several releases).
+  desc "Every Play language: text, icon, feature graphic, phone screenshots. validate:true only checks with Google"
+  lane :upload_store do |options|
+    key_file = File.expand_path(ENV.fetch("SUPPLY_JSON_KEY"))
+    repo = File.expand_path("..")
+    UI.user_error!("Keep the service account key outside the repository (#{repo})") if key_file.downcase.start_with?("#{repo.downcase}/")
+    supply(
+      package_name: "app.metablend",
+      json_key: key_file,
+      metadata_path: File.expand_path("metadata/android"),
+      track: ENV.fetch("SUPPLY_TRACK", "alpha"),
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_changelogs: true,
+      skip_upload_metadata: false,
+      skip_upload_images: false,
+      skip_upload_screenshots: false,
+      validate_only: options[:validate].to_s == "true"
+    )
   end
 end

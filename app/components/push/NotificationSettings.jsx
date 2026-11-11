@@ -5,7 +5,7 @@ import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { countryName } from '@/lib/city-names'
 import { SectionTitle } from '../ui'
-import { pushApi, permission, enablePush, promptState } from '@/lib/push-client'
+import { pushApi, permission, enablePush, promptState, forgetWhenOff } from '@/lib/push-client'
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { haptic } from '@/lib/native'
@@ -29,6 +29,8 @@ export default function NotificationSettings({ lang, unit }) {
     try {
       const perm = await permission()
       if (perm === 'unavailable') { setState({ loading: false, unavailable: true }); return }
+      // turned off in the phone's settings while the app was open: forgotten before the screen shows
+      if (perm !== 'granted') await forgetWhenOff().catch(() => {})
       const r = await pushApi('settings')
       setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [], canOpen: canOpenSettings() })
     } catch {

@@ -11,6 +11,17 @@ All notable changes to MetaBlend. Format loosely follows
 - A climate record now carries the height it was asked for; records kept without one are asked once more.
 - `scripts/climate-prefill.mjs` fills the records ahead of the plan change: set A (the sitemap's cities and places asked lately) or set B (A and the larger towns), a set number of places per run with a pause between requests, going on where the last run stopped, every request counted. Not run yet.
 
+### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
+- Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
+- Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.
+
+### Changed — the store screenshots on Slate
+- The App Store and Google Play screenshots have the link preview's look: the frame behind the phone is Slate with a faint gold glow, like the feature graphic, instead of the blue gradient. The phone pictures and captions are the approved ones, recomposed without a new capture (125 pictures, 13 languages). The Dutch screen 2 keeps its caption until the new capture on 28 November.
+- Under the hood: `scripts/store-shots.mjs` frames with `ogBackground('day')` from `lib/og-look.js`. RECOMPOSE checks a lifted phone against the frame the picture was made on (today's or the blue one) and, where a new caption would need a new capture, keeps the picture's caption and changes only the frame.
+
+### Added — the Google Play listing goes up from the PC
+- `fastlane android upload_store` uploads the Play listing in all 13 languages: title, descriptions, the Slate icon, the feature graphic and the five phone screenshots of the current store set, which replace the old ones on Play. It never uploads an app bundle, never creates a release, never changes a track; `validate:true` only checks with Google. The service account key comes only from `SUPPLY_JSON_KEY`, a file outside the repository (the lane refuses one inside). Setup in Google Cloud and the Play Console, and the PowerShell commands, in German: `store/play-upload.md`. Test: the lane's safety settings, like the App Store lane's.
+
 ### Changed — a place's climate is asked from Open-Meteo once a year, and every request is counted
 - On screen the outlook's normal highs and lows and its rainy days stay as they are. A planner month can differ by 0.1°: the place is now asked at the outlook's precision (0.01°), so both read one record.
 - The 10-year climate request behind them is asked once per place and year and its result kept in the database (`place_climate`, about 4 KB a place); before, the outlook asked it once a day per place and the planner once a day per city. One request now serves both.

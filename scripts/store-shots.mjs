@@ -185,12 +185,18 @@ const captionHtml = (caption, lang) => ['ja', 'zh'].includes(lang) ? caption.spl
 // Hanken Grotesk has no Japanese, Chinese or Korean letters: those captions add Noto Sans (loaded, so a Mac and a
 // PC draw the same letters, not Hiragino or Yu Gothic), with Hanken Grotesk kept for digits and Latin letters
 const cjkFont = lang => NOTO[lang] ?? null
-function frame(caption, shot, d, lang = null) {
+// The frame behind the phone has the link preview's look (lib/og-look.js): Slate with the day sky's faint gold
+// glow, like the feature graphic. Until 2026-11-11 it was a blue gradient, which RECOMPOSE still recognizes in a
+// picture made on it.
+const bgCss = b => `background-color:${b.backgroundColor};${b.backgroundImage ? `background-image:${b.backgroundImage};` : ''}`
+const FRAME_BG = bgCss(ogBackground('day'))
+const BLUE_BG = 'background:linear-gradient(180deg,#0f1b33 0%,#1d3a6b 55%,#3f6fb0 100%);'
+function frame(caption, shot, d, lang = null, bg = FRAME_BG) {
   const cjk = cjkFont(lang)
   return `<!doctype html><html><head>${HEAD}
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800${cjk ? `&family=${cjk.replace(/ /g, '+')}:wght@800` : ''}&display=block" rel="stylesheet">
 <style>html,body{margin:0;width:${d.w}px;height:${d.h}px;overflow:hidden}
-body{background:linear-gradient(180deg,#0f1b33 0%,#1d3a6b 55%,#3f6fb0 100%);font-family:'Hanken Grotesk',${cjk ? `'${cjk}',` : ''}system-ui,sans-serif;color:#fff;display:flex;flex-direction:column;align-items:center}
+body{${bg}font-family:'Hanken Grotesk',${cjk ? `'${cjk}',` : ''}system-ui,sans-serif;color:${OG.ink};display:flex;flex-direction:column;align-items:center}
 h1{margin:${Math.round(d.h * 0.07)}px ${Math.round(d.w * 0.08)}px ${Math.round(d.h * 0.035)}px;font-size:${Math.round(d.w * 0.075)}px;line-height:1.15;font-weight:800;text-align:center;letter-spacing:-0.01em;text-wrap:balance}
 h1:is(:lang(ja),:lang(zh),:lang(ko)){word-break:keep-all}
 img{width:${Math.round(d.w * 0.8)}px;border-radius:${Math.round(d.w * 0.06)}px;box-shadow:0 12px 40px rgba(0,0,0,.45)}</style></head>
@@ -252,7 +258,7 @@ if (process.env.RECOMPOSE) {
     i.style.position = 'relative'; i.style.left = (Math.round(r.left * k) - r.left * k) / k + 'px'; i.style.top = (Math.round(r.top * k) - r.top * k) / k + 'px'
     const s = i.getBoundingClientRect(); return { x: Math.round(s.left * k), y: Math.round(s.top * k), w: Math.round(s.width * k), h: Math.round(s.height * k) } })()`
   const nLines = n => `(document.querySelector('h1').innerHTML = Array(${n}).fill('Xg').join('<br>'), true)`
-  const refused = []
+  const refused = [], kept = []
   for (const l of LOCALES.filter(x => langs.includes(x.lang))) for (const d of DEVICES) {
     const dir = d.out(l)
     if (!dir) continue
@@ -276,22 +282,34 @@ if (process.env.RECOMPOSE) {
       const shot = Buffer.from(await inPage(`const i = await load(a.done); const c = Object.assign(document.createElement('canvas'), { width: a.at.w, height: a.at.h }); const g = c.getContext('2d'); g.drawImage(i, -a.at.x, -a.at.y)
         const have = a.H - a.at.y; for (let y = have; y < Math.min(a.at.h, have + a.k); y++) g.drawImage(c, 0, have - 1, a.at.w, 1, 0, y, a.at.w, 1)
         ${canvasPng}`, { done: done.toString('base64'), at, H, k }), 'base64')
-      // the check: set back under the old line count, it must give back the picture from just above the phone down
-      await show(frame('Xg', shot, d), d); await ev(nLines(lines)); await ev(snap(true)); await sleep(100)
-      const again = await png()
-      const fit = await inPage(`const [x, y] = await Promise.all([load(a.p), load(a.q)]); const p = px(x), q = px(y), row = x.width * 4, start = (a.from - 1) * row
-        const dd = (o, j) => Math.abs(p[o] - q[j]) + Math.abs(p[o + 1] - q[j + 1]) + Math.abs(p[o + 2] - q[j + 2]); let same = 0, up = 0, down = 0
-        for (let o = start; o < p.length - row; o += 4) { same += dd(o, o); up += dd(o, o - row); down += dd(o, o + row) }
-        const m = (p.length - row - start) / 4; return { same: same / m, shifted: Math.min(up, down) / m }`, { p: done.toString('base64'), q: again.toString('base64'), from: at.y - 15 * k })
+      // the check: set back under the old line count, it must give back the picture from just above the phone down,
+      // on the frame the picture was made on (today's, or the blue one before 2026-11-11)
+      let fit
+      for (const bg of [FRAME_BG, BLUE_BG]) {
+        await show(frame('Xg', shot, d, null, bg), d); await ev(nLines(lines)); await ev(snap(true)); await sleep(100)
+        const again = await png()
+        fit = await inPage(`const [x, y] = await Promise.all([load(a.p), load(a.q)]); const p = px(x), q = px(y), row = x.width * 4, start = (a.from - 1) * row
+          const dd = (o, j) => Math.abs(p[o] - q[j]) + Math.abs(p[o + 1] - q[j + 1]) + Math.abs(p[o + 2] - q[j + 2]); let same = 0, up = 0, down = 0
+          for (let o = start; o < p.length - row; o += 4) { same += dd(o, o); up += dd(o, o - row); down += dd(o, o + row) }
+          const m = (p.length - row - start) / 4; return { same: same / m, shifted: Math.min(up, down) / m }`, { p: done.toString('base64'), q: again.toString('base64'), from: at.y - 15 * k })
+        if (fit.same <= 8) break
+      }
       if (fit.same > 8) throw new Error(`${l.lang} ${d.id} ${n}: the lifted phone does not give back the picture (difference ${fit.same.toFixed(1)}, one row off ${fit.shifted.toFixed(1)})`)
-      await show(frame(now, shot, d, l.lang), d)
-      const to = await ev(snap(true))
-      if (H - to.y > H - at.y + k && at.y + at.h > H) { refused.push(`${l.lang} ${d.id} ${n}: the phone moves up ${at.y - to.y} px past what the old picture cut off`); continue }
+      // a caption that pulls the phone up past what the picture cut off needs a new capture; until then the picture
+      // keeps the caption it already has (the one in RECOMPOSE=<commit>) and takes only the new frame
+      const movesUp = to => H - to.y > H - at.y + k && at.y + at.h > H
+      let caption = now
+      await show(frame(caption, shot, d, l.lang), d)
+      let to = await ev(snap(true))
+      if (movesUp(to) && was !== now) { caption = was; await show(frame(caption, shot, d, l.lang), d); to = await ev(snap(true)) }
+      if (movesUp(to)) { refused.push(`${l.lang} ${d.id} ${n}: the phone moves up ${at.y - to.y} px past what the old picture cut off`); continue }
+      if (caption !== now) kept.push(`${l.lang} ${d.id} ${n}: "${caption.replaceAll('|', '')}"`)
       await sleep(100)
       writeFileSync(file, await png())
-      console.log(`${l.lang} ${d.id} ${n}: "${now.replaceAll('|', '')}" (${lines} lines before; phone ${to.y >= at.y ? '+' : ''}${to.y - at.y} px; check ${fit.same.toFixed(1)}, one row off ${fit.shifted.toFixed(1)})`)
+      console.log(`${l.lang} ${d.id} ${n}: "${caption.replaceAll('|', '')}" (${lines} lines before; phone ${to.y >= at.y ? '+' : ''}${to.y - at.y} px; check ${fit.same.toFixed(1)}, one row off ${fit.shifted.toFixed(1)})`)
     }
   }
+  if (kept.length) console.log(`kept their caption until a new capture:\n  ${kept.join('\n  ')}`)
   if (refused.length) console.log(`needs a new capture:\n  ${refused.join('\n  ')}`)
   ws.close(); await close(); process.exit(refused.length ? 4 : 0)
 }

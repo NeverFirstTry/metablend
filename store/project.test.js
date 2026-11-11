@@ -48,6 +48,13 @@ test('secrets hygiene — key files ignored at the root, the device key not in A
   assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
 })
 
+// store/compliance.md answers "Precise location: not collected": the app may only ask for the approximate one
+test('Android asks for the approximate location only, never the precise one', () => {
+  const manifest = read('mobile/android/app/src/main/AndroidManifest.xml')
+  assert.match(manifest, /android\.permission\.ACCESS_COARSE_LOCATION/)
+  assert.doesNotMatch(manifest, /android\.permission\.ACCESS_FINE_LOCATION/)
+})
+
 // App Store text and screenshots go up from the owner's PC with fastlane deliver (fastlane/Fastfile)
 test('fastlane — deliver never uploads a build, submits or releases; the API key comes only from the environment', () => {
   const fastfile = read('fastlane/Fastfile'), appfile = read('fastlane/Appfile')
@@ -58,6 +65,13 @@ test('fastlane — deliver never uploads a build, submits or releases; the API k
   assert.match(appfile, /app_identifier\("app\.metablend"\)/)
   const ignore = read('.gitignore').split(/\r?\n/)
   for (const p of ['*.p8', 'fastlane/report.xml', 'fastlane/Preview.html', 'fastlane/README.md']) assert.ok(ignore.includes(p), p)
+})
+
+// The Play listing goes up the same way with fastlane supply (store/play-upload.md)
+test('fastlane — supply never uploads a bundle, releases or changes a track; the Play key comes only from the environment', () => {
+  const fastfile = read('fastlane/Fastfile')
+  for (const s of ['package_name: "app.metablend"', 'skip_upload_apk: true', 'skip_upload_aab: true', 'skip_upload_changelogs: true', 'ENV.fetch("SUPPLY_JSON_KEY")']) assert.ok(fastfile.includes(s), s)
+  assert.doesNotMatch(fastfile, /track_promote_to|release_status|rollout|skip_upload_(apk|aab): false|json_key_data|"private_key"/)
 })
 
 test('iOS entitlements — Release builds sign with aps-environment production, Debug keeps development, both carry the widgets\' app group', () => {
