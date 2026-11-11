@@ -33,6 +33,7 @@ export default function Footer({ lang = 'en', className = '' }) {
           <Link href="/mountains" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerMountains')}</Link>
           <Link href="/aviation" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerAviation')}</Link>
           <Link href="/support" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerSupport')}</Link>
+          <Link href="/press" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPress')}</Link>
           <Link href="/privacy" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerPrivacy')}</Link>
           <Link href="/terms" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerTerms')}</Link>
           <Link href="/impressum" className="hover:text-emerald-400 transition-colors">{t(lang, 'footerImpressum')}</Link>

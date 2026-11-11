@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Added: a press page and a press kit for the launch
+- New page `/press` in English and German (German readers get German, everyone else English): what MetaBlend is, key facts (up to 20 sources, 13 languages, web, iPhone and Android, free with no ads and no account, one developer in Lienz), the press contact info@metablend.app, where to get the app (a note until the store links are set in `lib/hike/stores.js`), and the press kit with previews of the logos and the app icon. Linked from the footer next to Support, in all 13 languages; in the sitemap.
+- The press kit is one ZIP (8.5 MB, 25 files): the wordmark and the MB mark for dark and light backgrounds as SVG and PNG, the app icon in Slate as SVG and 1024 px PNG, the five English store screenshots for each store with the Slate frame, the Google Play feature graphic, three app screenshots without captions, and a README in English and German.
+- `node scripts/brand/press-kit.mjs` builds it into `public/press/`. The wordmark is drawn from Hanken Grotesk 700 (`scripts/brand/wordmark.mjs`); the ZIP is written by `scripts/lib/zip.mjs` (node:zlib, no new dependency). The three app screenshots come from metablend.app in the app view with the analytics blocked; the script refuses to take them when the summit shows a day past Today or "No favourable", so it runs in the morning, Alps time.
+- Tests: the press texts in both languages pass the store wording rules (no dashes, no safety word, no reliability claim, no bargain word); the ZIP reads back byte for byte with its CRCs; the files the page shows exist and the SVGs hold no broken path data.
+
 ### Changed — ready for a plan without Open-Meteo's archive: a neighbour's climate, yesterday from the forecast
 - "Warmer than yesterday" on the forecast now reads yesterday from the forecast service's past day, in the place's own time zone. It came from the archive, which Open-Meteo's Standard plan does not include. The value can differ from before: by up to 2° in three places compared on the preview (Vienna 7.0 instead of 5.2, Lienz 7.4 instead of 8.9, Perth the same).
 - A place the archive gives nothing for borrows the climate record of the nearest kept place within 25 km and 300 m of height, so the planner and the outlook's normals keep working for new places near known ones. With no such neighbour the outlook shows no normals and the planner says the data is unavailable, as before.

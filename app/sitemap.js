@@ -24,6 +24,7 @@ export default function sitemap() {
     { url: `${BASE}/terms`, lastModified: termsUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/impressum`, lastModified: termsUpdated, changeFrequency: 'yearly', priority: 0.3 },
     { url: `${BASE}/support`, lastModified: new Date('2026-11-09'), changeFrequency: 'yearly', priority: 0.3 },
+    { url: `${BASE}/press`, lastModified: new Date('2026-11-11'), changeFrequency: 'monthly', priority: 0.3 },
     { url: `${BASE}/aviation`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${BASE}/hike`, lastModified: now, changeFrequency: 'daily', priority: 0.7 },
     { url: `${BASE}/mountains`, lastModified: now, changeFrequency: 'weekly', priority: 0.7 },
