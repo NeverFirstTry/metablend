@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import featured from '@/lib/hike/featured.json'
 import { hikeApiPath } from '@/lib/hike/params'
+import { loadSummit } from '@/lib/hike/summit-fetch'
 import { jsonForScript } from '@/lib/html'
 import SummitPage from './SummitPage'
 
@@ -20,12 +21,7 @@ export async function generateStaticParams() { return [] }
 const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000')
 const peakById = id => featured.find(p => p.id === id && p.kind !== 'hut') ?? null
 
-async function getSummit(peak) {
-  const res = await fetch(`${BASE}${hikeApiPath(peak)}`, { next: { revalidate: 1800 } })
-  const body = res.ok ? await res.json() : null
-  if (!res.ok || body.unavailable) throw new Error(`hike api ${res.ok ? 'unavailable' : res.status}`) // 500 → crawlers retry instead of dropping the page
-  return body
-}
+const getSummit = peak => loadSummit(`${BASE}${hikeApiPath(peak)}`)
 async function getAvalanche(peak) {
   try {
     const res = await fetch(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { next: { revalidate: 1800 } })

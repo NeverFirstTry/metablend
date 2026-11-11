@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-11
+
+### Fixed — a summit page no longer fails for half an hour after one bad moment, and stays in the app
+- A summit page whose forecast was unavailable for a moment kept failing for up to 30 minutes for everyone, because the empty answer was kept with the page's data (Großglockner, 2026-11-10, about 22:20 to 22:50 UTC). It now asks once more, fresh, before it gives up.
+- When the summit forecast really can't be had, the page shows the peak and the card the app's summit view shows ("The summit forecast could not be loaded." with Retry), instead of "Something went wrong". It still answers 500, so search engines come back and no empty page is kept.
+- Inside the app, a page that fails on the server stays in the app: tab bar and app view, not the website's header. Before, such a page lost app mode because its start script never ran.
+- Under the hood: `lib/hike/summit-fetch.js` (loadSummit: an unavailable answer is asked again under a key of its own, since Next keeps every 200 for 30 minutes and /api/hike sends "unavailable" with 200), `app/mountains/[peak]/error.js`, and `restoreAppMark` (lib/app-client.js) decides from the browser when the start script left no verdict. Tests: a kept unavailable answer gets the forecast on the second ask, a still unavailable one fails, and app mode without a verdict. Checked against a stand-in API that answers "unavailable" once: main's build stays at 500 and loses app mode, this branch answers 200 in the app.
+
 ## 2026-11-10
 
 ### Changed — Slate on the home screen, the splash screen and the store listing
