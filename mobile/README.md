@@ -29,6 +29,7 @@ store release); only native changes need a new build.
 - [ ] Tabs switch between Forecast, Hiking and More; the active tab is green; a tap gives a light haptic tick (phones with haptics).
 - [ ] Hiking shows the full app view (search, popular peaks), not the "lives in the app" teaser.
 - [ ] "Near me" asks for location once and then sorts the popular peaks by distance; denying it changes nothing and doesn't crash.
+- [ ] Approximate location only (Android, A52; from the build after 2026-11-11, which no longer declares the precise permission): with location reset in the app's settings, "my location" on the forecast and "Near me" in Hiking ask for the approximate location only (no Precise choice), find the right town, and the app's location settings show no "Use precise location" switch. The emulator gave no position to any build, so this needs the phone.
 - [ ] Share on the forecast opens the native share sheet.
 - [ ] Android back button goes back; on the first screen it closes the app.
 - [ ] iPhone: a swipe from the left edge goes back; on the first screen it does nothing; dragging the hour strip or a map away from the edge still works.
