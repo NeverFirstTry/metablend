@@ -48,6 +48,13 @@ test('secrets hygiene — key files ignored at the root, the device key not in A
   assert.match(read('mobile/android/app/src/main/AndroidManifest.xml'), /android:allowBackup="false"/)
 })
 
+// store/compliance.md answers "Precise location: not collected": the app may only ask for the approximate one
+test('Android asks for the approximate location only, never the precise one', () => {
+  const manifest = read('mobile/android/app/src/main/AndroidManifest.xml')
+  assert.match(manifest, /android\.permission\.ACCESS_COARSE_LOCATION/)
+  assert.doesNotMatch(manifest, /android\.permission\.ACCESS_FINE_LOCATION/)
+})
+
 // App Store text and screenshots go up from the owner's PC with fastlane deliver (fastlane/Fastfile)
 test('fastlane — deliver never uploads a build, submits or releases; the API key comes only from the environment', () => {
   const fastfile = read('fastlane/Fastfile'), appfile = read('fastlane/Appfile')

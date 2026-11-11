@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
+- Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
+- Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.
+
 ### Fixed — a summit page no longer fails for half an hour after one bad moment, and stays in the app
 - A summit page whose forecast was unavailable for a moment kept failing for up to 30 minutes for everyone, because the empty answer was kept with the page's data (Großglockner, 2026-11-10, about 22:20 to 22:50 UTC). It now asks once more, fresh, before it gives up.
 - When the summit forecast really can't be had, the page shows the peak and the card the app's summit view shows ("The summit forecast could not be loaded." with Retry), instead of "Something went wrong". It still answers 500, so search engines come back and no empty page is kept.
