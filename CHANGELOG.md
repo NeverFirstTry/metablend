@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed — the store screenshots on Slate
+- The App Store and Google Play screenshots have the link preview's look: the frame behind the phone is Slate with a faint gold glow, like the feature graphic, instead of the blue gradient. The phone pictures and captions are the approved ones, recomposed without a new capture (125 pictures, 13 languages). The Dutch screen 2 keeps its caption until the new capture on 28 November.
+- Under the hood: `scripts/store-shots.mjs` frames with `ogBackground('day')` from `lib/og-look.js`. RECOMPOSE checks a lifted phone against the frame the picture was made on (today's or the blue one) and, where a new caption would need a new capture, keeps the picture's caption and changes only the frame.
+
 ### Added — the Google Play listing goes up from the PC
 - `fastlane android upload_store` uploads the Play listing in all 13 languages: title, descriptions, the Slate icon, the feature graphic and the five phone screenshots of the current store set, which replace the old ones on Play. It never uploads an app bundle, never creates a release, never changes a track; `validate:true` only checks with Google. The service account key comes only from `SUPPLY_JSON_KEY`, a file outside the repository (the lane refuses one inside). Setup in Google Cloud and the Play Console, and the PowerShell commands, in German: `store/play-upload.md`. Test: the lane's safety settings, like the App Store lane's.
 
