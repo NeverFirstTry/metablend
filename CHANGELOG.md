@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed: the privacy notice says what ending notifications does to the stored data
+- Privacy notice, "Notifications (app)", all 13 languages (the German is the original): turning notifications off in the app deletes the data at once; turning them off only in the phone's settings deletes it at the next app start; on Android 12 and older the app cannot detect that, so the data stays until notifications are also turned off in the app or the 90 days have passed. Before, the notice only said that turning them off stops them.
+- Store checklist (`store/compliance.md`): the deletion answer says the same.
+
 ### Changed: the app asks for the approximate location only, and turning notifications off deletes the phone's push data at once
 - Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
 - Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.
