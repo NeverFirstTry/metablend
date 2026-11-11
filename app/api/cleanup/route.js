@@ -170,6 +170,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   // Open-Meteo's geocoding answers we keep (lib/geocode.js): 30 days; the table may not exist yet either
   const geocodes = await supabase.from('geocode_cache').delete().lt('fetched_at', new Date(Date.now() - 30 * 86_400_000).toISOString())
   if (geocodes.error && geocodes.error.code !== 'PGRST205') await logError('cleanup.geocode-cache', geocodes.error)
+  // a place's climate table (lib/climate-store.js) is asked again after a year; one nobody asked for since goes after 400 days
+  const climates = await supabase.from('place_climate').delete().lt('fetched_at', new Date(Date.now() - 400 * 86_400_000).toISOString())
+  if (climates.error && climates.error.code !== 'PGRST205') await logError('cleanup.place-climate', climates.error)
 
   let validation
   try {

@@ -1,4 +1,4 @@
-import { openMeteoFetch } from '@/lib/open-meteo'
+import { loadClimate } from '@/lib/climate-store'
 import { geocodeCity } from '@/lib/geocode'
 import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
@@ -6,9 +6,9 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { noStore } from '@/lib/no-store'
 
 // Per-month climate normals (avg temp + rainy days) from ~10 years of ERA5 data.
-// Climate doesn't change within a day: the CDN keeps each city's answer for a
-// day and Next's fetch cache keeps the archive response, because a 10-year
-// request counts as many calls against Open-Meteo's quota.
+// They come from the place's climate table, which is asked from Open-Meteo once a
+// year and kept in the database (lib/climate-store.js): a 10-year request weighs
+// about 104 calls against their quota. The CDN keeps each city's answer for a day.
 const DAY = 86400
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
 
@@ -21,34 +21,8 @@ export const GET = withErrorLog('planner', async (request) => {
   const geo = await geocodeCity(city)
   if (!geo) return noStore({ error: `"${city}" was not found.` }, 404)
 
-  const endYear = new Date().getFullYear() - 1
-  const startYear = endYear - 9
-  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${geo.lat}&longitude=${geo.lon}&start_date=${startYear}-01-01&end_date=${endYear}-12-31&daily=temperature_2m_mean,precipitation_sum&timezone=auto`
-
-  const res = await openMeteoFetch(url, { next: { revalidate: DAY }, timeoutMs: 20000, kind: 'planner' })
-  if (!res.ok) return noStore({ error: 'Historical data unavailable' }, 502)
-  const day = (await res.json()).daily
-  if (!day?.time) return noStore({ error: 'No historical data' }, 502)
-
-  // accumulate per calendar month
-  const tSum = Array(12).fill(0), tN = Array(12).fill(0), rainy = Array(12).fill(0)
-  const yearsPerMonth = Array.from({ length: 12 }, () => new Set())
-
-  day.time.forEach((d, i) => {
-    const m = parseInt(d.slice(5, 7)) - 1
-    const year = d.slice(0, 4)
-    yearsPerMonth[m].add(year)
-    const t = day.temperature_2m_mean[i]
-    const p = day.precipitation_sum[i]
-    if (t != null) { tSum[m] += t; tN[m]++ }
-    if (p != null && p >= 1) rainy[m]++
-  })
-
-  const months = Array.from({ length: 12 }, (_, m) => ({
-    month: m + 1,
-    avgTemp: tN[m] ? Math.round(tSum[m] / tN[m] * 10) / 10 : null,
-    avgRainDays: yearsPerMonth[m].size ? Math.round(rainy[m] / yearsPerMonth[m].size) : null,
-  }))
+  const months = (await loadClimate(geo.lat, geo.lon))?.months
+  if (!months) return noStore({ error: 'Historical data unavailable' }, 502)
 
   return Response.json({ city: geo.name, country: geo.country, cc: geo.cc ?? null, months }, {
     headers: { 'Cache-Control': `public, s-maxage=${DAY}, stale-while-revalidate=${DAY * 7}` },

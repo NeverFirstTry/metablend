@@ -12,6 +12,12 @@ All notable changes to MetaBlend. Format loosely follows
 ### Added — the Google Play listing goes up from the PC
 - `fastlane android upload_store` uploads the Play listing in all 13 languages: title, descriptions, the Slate icon, the feature graphic and the five phone screenshots of the current store set, which replace the old ones on Play. It never uploads an app bundle, never creates a release, never changes a track; `validate:true` only checks with Google. The service account key comes only from `SUPPLY_JSON_KEY`, a file outside the repository (the lane refuses one inside). Setup in Google Cloud and the Play Console, and the PowerShell commands, in German: `store/play-upload.md`. Test: the lane's safety settings, like the App Store lane's.
 
+### Changed — a place's climate is asked from Open-Meteo once a year, and every request is counted
+- On screen the outlook's normal highs and lows and its rainy days stay as they are. A planner month can differ by 0.1°: the place is now asked at the outlook's precision (0.01°), so both read one record.
+- The 10-year climate request behind them is asked once per place and year and its result kept in the database (`place_climate`, about 4 KB a place); before, the outlook asked it once a day per place and the planner once a day per city. One request now serves both.
+- The request count now includes every Open-Meteo host (the archive and the peak search's geocoding were left out), under the new kind `climate`, and weighs a request the way Open-Meteo's own calculator does: a 10-year request with 2 daily values is 52 calls, not 261.
+- Needs `supabase/place-climate.sql` on dev and production first. Without the table the site works as before and asks once a day.
+
 ### Changed — the terms: acceptance by use on the website, mountain sports in the safety section, credits in each language
 - Website: the one-time bar now reads "By using MetaBlend you accept the Terms of Use" in all 13 languages. The site works without a click, so the bar no longer ties acceptance to its button; the button stays and puts the bar away. The app's first-start notice is unchanged.
 - Terms: a sentence near the start says that using the website means accepting the terms, and that the app asks once at first start with "Continue". All 13 languages, German first.
