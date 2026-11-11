@@ -20,6 +20,7 @@ export const SCHEMA_FILES = [
   'open-meteo-calls.sql', // our Open-Meteo request count per UTC day and hour
   'geocode-cache.sql', // town_lookup over our towns, and Open-Meteo's geocoding answers for 30 days
   'town-near.sql', // the town at a rounded position, for "My location"
+  'place-climate.sql', // a place's climate table, asked from Open-Meteo once a year
   'enable_rls.sql',
 ]
 

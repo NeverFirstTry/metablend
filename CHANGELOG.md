@@ -9,6 +9,20 @@ All notable changes to MetaBlend. Format loosely follows
 - Android: the app no longer declares the precise location permission (`ACCESS_FINE_LOCATION`), so Android offers only the approximate one and the app's location settings lose the "Use precise location" switch. The position was rounded on the phone anyway. Ships with the next native build; a test keeps the precise permission out of the manifest.
 - Notifications turned off in the phone's settings after saying yes in the app: at the next app start, or when the notification settings open, the server deletes the phone's push record (token, home city, settings) and with it its planned hikes and send log, instead of keeping them until 90 days unseen. New `DELETE /api/push/register`. This is website code, so it reaches every installed app build with the merge. Android 12 and older report notifications as allowed whatever the setting, so there the record still goes after the 90 days.
 
+### Changed — a place's climate is asked from Open-Meteo once a year, and every request is counted
+- On screen the outlook's normal highs and lows and its rainy days stay as they are. A planner month can differ by 0.1°: the place is now asked at the outlook's precision (0.01°), so both read one record.
+- The 10-year climate request behind them is asked once per place and year and its result kept in the database (`place_climate`, about 4 KB a place); before, the outlook asked it once a day per place and the planner once a day per city. One request now serves both.
+- The request count now includes every Open-Meteo host (the archive and the peak search's geocoding were left out), under the new kind `climate`, and weighs a request the way Open-Meteo's own calculator does: a 10-year request with 2 daily values is 52 calls, not 261.
+- Needs `supabase/place-climate.sql` on dev and production first. Without the table the site works as before and asks once a day.
+
+### Changed — the terms: acceptance by use on the website, mountain sports in the safety section, credits in each language
+- Website: the one-time bar now reads "By using MetaBlend you accept the Terms of Use" in all 13 languages. The site works without a click, so the bar no longer ties acceptance to its button; the button stays and puts the bar away. The app's first-start notice is unchanged.
+- Terms: a sentence near the start says that using the website means accepting the terms, and that the app asks once at first start with "Continue". All 13 languages, German first.
+- Terms, "Not for safety-critical use": hiking, mountaineering and ski touring join the list, and a new sentence says to always check the official mountain weather forecast and the official avalanche bulletin of the region for mountain tours and avalanche danger. All 13 languages.
+- Terms, "Data sources & attribution": what stands around the credit lines (what the data is used for, that it is blended with other sources) is in each page's language; it was English on every page. The credit lines themselves stay in the words their providers ask for.
+- No em or en dash is left on the legal pages in any language: 45 went from the terms and 126 from the privacy notice (colons, commas, full stops; a plain hyphen in the authority's house numbers); the imprint and the support page had none. A test fails if one appears again.
+- Privacy notice, Spanish: one verb in the tester sentence now uses the formal address like the rest of the notice.
+
 ### Fixed — a summit page no longer fails for half an hour after one bad moment, and stays in the app
 - A summit page whose forecast was unavailable for a moment kept failing for up to 30 minutes for everyone, because the empty answer was kept with the page's data (Großglockner, 2026-11-10, about 22:20 to 22:50 UTC). It now asks once more, fresh, before it gives up.
 - When the summit forecast really can't be had, the page shows the peak and the card the app's summit view shows ("The summit forecast could not be loaded." with Retry), instead of "Something went wrong". It still answers 500, so search engines come back and no empty page is kept.
