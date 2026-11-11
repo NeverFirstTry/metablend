@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed: summit pages arrive with a stored forecast, a visitor's browser fetches the live one
+- The 195 summit pages (`/mountains/…`) and the summit teaser on `/hike` are built from a forecast of three weather models that is kept six hours. Before, each build asked all ten models and was kept 30 minutes. When a person opens a summit page, their browser fetches the live forecast of all models and the avalanche danger and puts them in place of the stored ones; if that fails, the stored forecast stays.
+- Why: the pages are asked mostly by crawlers, round the clock, and every build cost a full summit forecast (17 Open-Meteo calls; 714 requests and 11,603 calls counted as `summit` on 2026-11-11 until 21:50 UTC). A build now costs 5.1 calls and happens at most four times a day per page: at most about 4,000 calls a day on a day without a deploy (195 × 4 × 5.1), plus the live forecasts people ask for.
+- `/api/hike?…&models=core` is the stored copy: three core models, kept six hours by the CDN, counted on its own as `summit-page`. `/api/hike` without the parameter is unchanged (ten models, an hour, counted as `summit`), and so is the peak view in the app.
+- Crawlers do not fetch the live forecast: `robots.txt` keeps them off `/api/`.
+
 ### Changed: the privacy notice says what ending notifications does to the stored data
 - Privacy notice, "Notifications (app)", all 13 languages (the German is the original): turning notifications off in the app deletes the data at once; turning them off only in the phone's settings deletes it at the next app start; on Android 12 and older the app cannot detect that, so the data stays until notifications are also turned off in the app or the 90 days have passed. Before, the notice only said that turning them off stops them.
 - Store checklist (`store/compliance.md`): the deletion answer says the same.

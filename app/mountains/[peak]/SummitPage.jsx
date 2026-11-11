@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
@@ -8,13 +9,30 @@ import { formatCalendarDate } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
+import { hikeApiPath } from '@/lib/hike/params'
+import { summitProps } from '@/lib/hike/summit-props'
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
 
 // One summit in the visitor's language and unit. The server renders it in English for
 // search engines; the URL stays the same in every language.
-export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, ava, nearby }) {
+export default function SummitPage({ peak, ava: storedAva, nearby, ...stored }) {
+  // The page arrives with a stored forecast (three models, up to six hours old). A visitor's browser
+  // then fetches the live one and the avalanche danger; crawlers stay off /api/ (robots.txt).
+  const [live, setLive] = useState(null)
+  const [liveAva, setLiveAva] = useState(null)
+  useEffect(() => {
+    if (document.visibilityState !== 'visible') return
+    let gone = false
+    const json = url => fetch(url).then(r => (r.ok ? r.json() : null)).catch(() => null)
+    json(hikeApiPath(peak)).then(d => { if (!gone && d?.days?.length && !d.unavailable) setLive(summitProps(d)) })
+    json(`/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`).then(a => { if (!gone && a) setLiveAva({ today: a.today, tomorrow: a.tomorrow }) })
+    return () => { gone = true }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one peak per page
+  }, [peak.id])
+  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources } = live ?? stored
+  const ava = liveAva ?? storedAva
   const lang = useLang()
   const fmt = tempFormatter(useUnit())
   const today = windows?.today !== undefined ? windowText(lang, windows.today, { date: todayLocal, todayLocal, stormUnknown }) : null
