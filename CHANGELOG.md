@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-11
 
+### Changed — ready for a plan without Open-Meteo's archive: a neighbour's climate, yesterday from the forecast
+- "Warmer than yesterday" on the forecast now reads yesterday from the forecast service's past day, in the place's own time zone. It came from the archive, which Open-Meteo's Standard plan does not include. The value can differ a little from before.
+- A place the archive gives nothing for borrows the climate record of the nearest kept place within 25 km and 300 m of height, so the planner and the outlook's normals keep working for new places near known ones. With no such neighbour the outlook shows no normals and the planner says the data is unavailable, as before.
+- A climate record now carries the height it was asked for; records kept without one are asked once more.
+
 ### Changed — a place's climate is asked from Open-Meteo once a year, and every request is counted
 - On screen the outlook's normal highs and lows and its rainy days stay as they are. A planner month can differ by 0.1°: the place is now asked at the outlook's precision (0.01°), so both read one record.
 - The 10-year climate request behind them is asked once per place and year and its result kept in the database (`place_climate`, about 4 KB a place); before, the outlook asked it once a day per place and the planner once a day per city. One request now serves both.

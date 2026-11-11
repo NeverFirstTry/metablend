@@ -45,10 +45,10 @@
       "file": "13-air-quality-api-v1-air-quality.json"
     },
     {
-      "key": "GET https://archive-api.open-meteo.com/v1/archive?latitude=46.8289&longitude=12.76903&start_date=2026-11-08&end_date=2026-11-08&daily=temperature_2m_max,temperature_2m_min&timezone=auto",
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&daily=temperature_2m_max,temperature_2m_min&past_days=1&forecast_days=1&timezone=auto",
       "status": 200,
       "contentType": "application/json",
-      "file": "15-archive-api-v1-archive.json"
+      "file": "15-api-v1-forecast-past-day.json"
     },
     {
       "key": "GET https://proj.supabase.co/rest/v1/geocode_cache?select=results%2Cfetched_at&key=eq.get%3A2772505&limit=1",
