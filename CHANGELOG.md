@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: summit pages show a stored forecast with its time, and a button for the live one
+- The 195 summit pages (`/mountains/…`) and the summit teaser on `/hike` are built from a forecast of three weather models, and a built page is kept six hours. Before, each build asked every model and was kept 30 minutes. The page says when its forecast was made ("Stand: 12. Nov., 14:00"), and the same at the avalanche danger.
+- A button, "Live mit allen Modellen" / "Live with all models", fetches the live forecast of all models and the current avalanche danger. Nothing is fetched without the click. If the live forecast cannot be reached, the stored one stays and the page says so. The page keeps room for the live result, so nothing moves when it arrives. All texts in 13 languages.
+- Why: the pages are asked mostly by crawlers, round the clock, and every build cost a full summit forecast (750 requests and 12,215 Open-Meteo calls counted as `summit` on 2026-11-11). A build now costs 5.1 calls and happens at most four times a day per page: at most about 4,000 calls a day on a day without a deploy (195 × 4 × 5.1). A click on the button costs 15.3 calls for a peak in the Alps, unless that peak was asked within the hour.
+- Counted apart: page builds as `summit-page`, the button as `summit-live`; the peak view in the app stays `summit`. The button asks the same address as the app, so both share the hourly copy.
+
 ### Changed: the footer line and the note under the forecast say what is at stake
 - Footer line, all 13 languages (the German is the original): "Vorhersagen können falsch sein. Nicht für Entscheidungen, von denen Leben, Gesundheit oder Sachwerte abhängen: Dafür gelten die amtlichen Warnungen." In English: "Forecasts can be wrong. Not for decisions that life, health or property depend on. For those, follow the official warnings." Before: "Not for safety-critical decisions."
 - Note under the forecast, all 13 languages: "Vorhersagen können danebenliegen. Verlass dich nicht allein darauf, wenn Leben, Gesundheit oder Sachwerte davon abhängen." In English: "Forecasts can be wrong. Don’t rely on them alone for decisions that life, health or property depend on." Before it named safety-critical decisions.
@@ -22,12 +28,6 @@ All notable changes to MetaBlend. Format loosely follows
 - The link to the WeatherAPI notice is not clicked: it only shows while WeatherAPI answers, which a recording cannot promise. The disclaimer sits at the top of the terms, so only the copyright link tells a landing from the top of the page.
 
 ## 2026-11-11
-
-### Changed: summit pages arrive with a stored forecast, a visitor's browser fetches the live one
-- The 195 summit pages (`/mountains/…`) and the summit teaser on `/hike` are built from a forecast of three weather models that is kept six hours. Before, each build asked all ten models and was kept 30 minutes. When a person opens a summit page, their browser fetches the live forecast of all models and the avalanche danger and puts them in place of the stored ones; if that fails, the stored forecast stays.
-- Why: the pages are asked mostly by crawlers, round the clock, and every build cost a full summit forecast (17 Open-Meteo calls; 714 requests and 11,603 calls counted as `summit` on 2026-11-11 until 21:50 UTC). A build now costs 5.1 calls and happens at most four times a day per page: at most about 4,000 calls a day on a day without a deploy (195 × 4 × 5.1), plus the live forecasts people ask for.
-- `/api/hike?…&models=core` is the stored copy: three core models, kept six hours by the CDN, counted on its own as `summit-page`. `/api/hike` without the parameter is unchanged (ten models, an hour, counted as `summit`), and so is the peak view in the app.
-- Crawlers do not fetch the live forecast: `robots.txt` keeps them off `/api/`.
 
 ### Changed: the privacy notice says what ending notifications does to the stored data
 - Privacy notice, "Notifications (app)", all 13 languages (the German is the original): turning notifications off in the app deletes the data at once; turning them off only in the phone's settings deletes it at the next app start; on Android 12 and older the app cannot detect that, so the data stays until notifications are also turned off in the app or the 90 days have passed. Before, the notice only said that turning them off stops them.

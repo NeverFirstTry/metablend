@@ -1,4 +1,4 @@
-import { STORED_SECONDS } from '@/lib/hike/summit-props'
+import { LIVE_HEADER } from '@/lib/hike/summit-props'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
@@ -22,15 +22,18 @@ const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
 export const GET = withErrorLog('hike', async (request) => {
   const sp = new URL(request.url).searchParams
   const peak = parsePeakQuery(sp)
-  // models=core: the summit pages' stored copy, three models, kept six hours (lib/hike/summit-props.js)
+  // models=core: the summit pages' stored copy, three models (lib/hike/summit-props.js). Who is counted
+  // for the Open-Meteo request: the stored copy, the page's live button (it names itself in a header, so
+  // the address and the CDN's hourly copy stay the shared ones) or everyone else
   const stored = sp.get('models') === 'core'
+  const kind = stored ? 'summit-page' : request.headers.get(LIVE_HEADER) === '1' ? 'summit-live' : 'summit'
   if (!peak) return noStore({ error: 'lat, lon and elev are required' }, 400)
   // only cache misses reach this point — CDN hits never invoke the function
   if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
 
   const region = getRegion(peak.lat, peak.lon)
   const [multi, weights] = await Promise.all([
-    fetchSummitRaw(peak.lat, peak.lon, peak.elev, undefined, { coreOnly: stored }),
+    fetchSummitRaw(peak.lat, peak.lon, peak.elev, undefined, { coreOnly: stored, kind }),
     loadOutlookWeights(region),
   ])
   // Open-Meteo hangs now and then on the full request: note how often
@@ -43,6 +46,6 @@ export const GET = withErrorLog('hike', async (request) => {
   if (!payload.hourly.length) return noStore({ ...payload, unavailable: true }, 200)
 
   return Response.json(payload, {
-    headers: { 'Cache-Control': `public, s-maxage=${stored ? STORED_SECONDS : TTL}, stale-while-revalidate=${STALE}` },
+    headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },
   })
 })

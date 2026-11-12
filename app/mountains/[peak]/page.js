@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 import featured from '@/lib/hike/featured.json'
 import { hikeApiPath } from '@/lib/hike/params'
 import { loadSummit } from '@/lib/hike/summit-fetch'
-import { summitProps, storedPath, STORED_SECONDS } from '@/lib/hike/summit-props'
+import { summitProps, storedPath } from '@/lib/hike/summit-props'
+import { OM_MODELS, modelCovers } from '@/lib/outlook/models'
+import { SOURCE_NAMES } from '@/lib/sources'
 import { jsonForScript } from '@/lib/html'
 import SummitPage from './SummitPage'
 
@@ -11,7 +13,7 @@ import SummitPage from './SummitPage'
 // HTML — "Großglockner weather" lands here, the app has the rest. Rendered on
 // demand and kept six hours, from a stored forecast of three models: the pages
 // are asked mostly by crawlers, and each render used to cost a full summit
-// forecast. A visitor's browser fetches the live one (SummitPage.jsx).
+// forecast. The live one comes with the button on the page (SummitPage.jsx).
 export const revalidate = 21600 // STORED_SECONDS; Next wants the number itself here
 
 // On-demand caching: no pages are built ahead; each is rendered on its first
@@ -24,7 +26,7 @@ export async function generateStaticParams() { return [] }
 const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000')
 const peakById = id => featured.find(p => p.id === id && p.kind !== 'hut') ?? null
 
-const getSummit = peak => loadSummit(`${BASE}${storedPath(hikeApiPath(peak))}`, fetch, STORED_SECONDS)
+const getSummit = peak => loadSummit(`${BASE}${storedPath(hikeApiPath(peak))}`)
 async function getAvalanche(peak) {
   try {
     const res = await fetch(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { next: { revalidate: 1800 } })
@@ -75,6 +77,7 @@ export default async function MountainWeather({ params }) {
       <SummitPage
         peak={{ id: peak.id, name: peak.name, elev: peak.elev, lat: peak.lat, lon: peak.lon, region: peak.region, country: peak.country, grade: peak.grade }}
         {...summitProps(d)}
+        fullList={OM_MODELS.filter(m => modelCovers(m.model, peak.lat, peak.lon)).map(m => SOURCE_NAMES[m.id] ?? m.id)}
         ava={ava ? { today: ava.today, tomorrow: ava.tomorrow } : null}
         nearby={nearby}
       />
