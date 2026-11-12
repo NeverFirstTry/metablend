@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Added, not switched on: a comparison run for our own Open-Meteo server (shadow mode)
+- Nothing changes until a setting is set. `OPEN_METEO_SHADOW` is a share (0.2 is one request in five). With it and `OPEN_METEO_SELF` set, the public service answers every request as before, and that share is asked from our own server as well, after the public answer is in hand. Nothing a visitor sees comes from our server in this mode, and no visitor waits for it.
+- Each pair of answers is compared value by value and counted: the same, differing (further apart than rounding explains), missing (a value the public service gave and ours did not, for example a model our server does not have) or failed (no usable answer). How long our server took is counted too: within 1, 2 or 4 seconds, or slower.
+- The first twenty pairs of a day that are not the same go to the error log as notes, with what differed and where most. The place is kept to one decimal (about 10 km), as everywhere in that log; the notes go after 7 days and do not count as failures for the health address.
+- At most two comparisons run at a time, outside the queue the visitors' requests use; more are skipped.
+- Ignored while the public service is switched off: there is nothing to compare with.
+
 ### Added, not switched on: a switch to our own Open-Meteo server
 - Nothing changes until a setting is set. Every server request to Open-Meteo already passes one place (`openMeteoFetch`, `lib/open-meteo.js`); the switch lives there.
 - `OPEN_METEO_SELF` (an https address): forecasts, heights and air quality are asked from our own server first, same path and question. A failure (no answer in 4 seconds, an error, a refused token) sends the same request to the public service. After three failures in a row our server is left out for a minute.
