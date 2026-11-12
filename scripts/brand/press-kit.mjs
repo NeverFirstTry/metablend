@@ -3,8 +3,11 @@
 //   Logo: wordmark (scripts/brand/wordmark.mjs) and MB mark (brand.mjs), dark and light, SVG and PNG
 //   App icon in Slate (icons.mjs), SVG and PNG
 //   The store screenshots in English (fastlane/, Slate frame) and the Play feature graphic
-//   Three app screenshots without captions, taken now from <base> (default https://metablend.app) in the
-//   app view at the App Store's size: read-only page loads with the analytics blocked, like the other captures.
+//   Three screenshots without captions, taken now from <base> (default https://metablend.app) at the App
+//   Store's size: the forecast in the app view, a summit page (with its "Live with all models" button and
+//   "As of" line) in the website view, and one of its routes in the app view (routes live only in the app;
+//   owner 2026-11-12); read-only page loads with
+//   the analytics blocked, like the other captures. A route with no favourable start today shows tomorrow's.
 //   Run it in the morning, Alps time: it refuses a summit past Today or "No favourable" (from the evening on).
 //   It also refuses a shot that shows a dash or a safety word anywhere on screen.
 //   KEEP=2-summit,3-route keeps those shots from the last kit in public/press/ instead of taking them again
@@ -60,10 +63,11 @@ for (let n = 1; n <= 5; n++) {
 add('feature-graphic/metablend-feature-graphic.png', fs.readFileSync(P('fastlane/metadata/android/en-US/images/featureGraphic.png')))
 
 // ---- three app screenshots without captions, from the live app view
+// [name, address, ready, view]: Schafberg and its Purtschellersteig, the peak the store shots show
 const SHOTS = [
-  ['1-forecast', '/?city=Vienna', `!!document.querySelector('.text-7xl')`],
-  ['2-summit', '/hike?peak=grossglockner', `!![...document.querySelectorAll('[role=tab]')].length`],
-  ['3-route', '/hike?peak=grossglockner&route=osm-14622955', `!!document.querySelector('.leaflet-tile-loaded')`],
+  ['1-forecast', '/?city=Vienna', `!!document.querySelector('.text-7xl')`, 'app'],
+  ['2-summit', '/mountains/schafberg', `[...document.querySelectorAll('button')].some(b => b.textContent.includes('Live with all models'))`, 'web'],
+  ['3-route', '/hike?peak=schafberg&route=osm-275437', `!!document.querySelector('.leaflet-tile-loaded') && /Start|No favourable/.test(document.body.innerText)`, 'app'],
 ]
 const KEEP = (process.env.KEEP ?? '').split(',').filter(Boolean)
 for (const name of KEEP) if (!SHOTS.some(s => s[0] === name)) throw new Error(`KEEP: no shot called ${name}`)
@@ -90,7 +94,7 @@ await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRI
 await send('Emulation.setDeviceMetricsOverride', { width: 430, height: 932, deviceScaleFactor: 3, mobile: true })
 for (const [k, v] of [['metablend_lang', 'en'], ['metablend_theme', 'dark']]) await send('Network.setCookie', { name: k, value: v, url: BASE + '/' })
 try {
-  for (const [name, url, ready] of SHOTS) {
+  for (const [name, url, ready, view] of SHOTS) {
     if (KEEP.includes(name)) {
       const kept = last[`${KIT}/screenshots/app/${name}.png`]
       if (!kept) throw new Error(`${name}: not in the last kit, so it cannot be kept`)
@@ -98,10 +102,17 @@ try {
       console.log(`${name} kept from the last kit`)
       continue
     }
+    await send('Network.setUserAgentOverride', { userAgent: `${userAgent}${view === 'app' ? ' MetaBlendApp' : ''} MetaBlendLayoutCheck/1` })
+    if (view !== 'app') await send('Network.deleteCookies', { name: 'metablend_app', url: BASE + '/' }) // the app view's marker, if an app shot left one
     await send('Page.navigate', { url: BASE + url })
     let ok = false
-    for (let i = 0; i < 120 && !ok; i++) { await sleep(250); ok = await ev(`document.documentElement.dataset.app === '1' && ${ready}`) }
-    if (!ok) throw new Error(`${name}: ${url} did not show in the app view`)
+    for (let i = 0; i < 120 && !ok; i++) { await sleep(250); ok = await ev(`(document.documentElement.dataset.app === '1') === ${view === 'app'} && ${ready}`) }
+    if (!ok) throw new Error(`${name}: ${url} did not show in the ${view === 'app' ? 'app' : 'website'} view`)
+    // a route with no favourable start today: tomorrow's, from the row of seven day buttons
+    if (await ev(`document.body.innerText.includes('No favourable start today')`)) {
+      await ev(`[...document.querySelectorAll('[role=group]')].find(g => g.querySelectorAll('button').length === 7)?.querySelectorAll('button')[1]?.click()`)
+      await sleep(5000)
+    }
     // the search field stays empty, as on the store screenshots
     await ev(`(() => { const i = document.querySelector('.home-search input'); if (!i) return; Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ''); i.dispatchEvent(new Event('input', { bubbles: true })); i.blur() })()`)
     await sleep(4000) // the entrance and the map tiles settle
