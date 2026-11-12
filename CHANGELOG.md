@@ -11,6 +11,26 @@ All notable changes to MetaBlend. Format loosely follows
 - Traditional-Chinese browsers (zh-TW, zh-HK, zh-MO, zh-Hant) read English, as before: the site has simplified Chinese only.
 - The converter loads in the browser only for Chinese readers.
 
+### Added: a health address for an outside monitor
+- `/api/health` answers 200 when all is well and 503 with a list of problems when not. An outside monitor asks it every five minutes and sends the mail; the site itself sends none, and nothing is added to the pages.
+- A problem is: more than 10 errors of our own routes in 15 minutes (a normal week has none; the forecast outage of 2026-11-09 had 22), more than 45 failed requests to outside services in 15 minutes (the week's highest was 30), a scheduled job that has not run in time or ended with an error (warnings and push: 60 minutes, station comparison: 150 minutes, the two daily jobs: 26 hours), or no answer from the database.
+
+### Changed: a route's heights are asked once and kept
+- Why: Open-Meteo's elevation service charges one call per point. Every peak's routes were looked up again each week and every point asked again (up to 300 a route, eight routes a peak). On 2026-11-12 a check that opened about twenty peaks cost 22,705 calls in one hour and ran into Open-Meteo's per-minute limit: seven summit forecasts, two rain forecasts and one outlook request failed in that hour.
+- Now a route's line is sampled to at most 100 points and their heights are stored for good (new table `route_heights`, by route and by the line's fingerprint). A line the store knows asks nothing, also at the weekly lookup; heights the route cache already holds are taken over without a call. The points between the samples take their height from their neighbours.
+- A line longer than 40 km one way is a long-distance trail that passes the peak, not a way up it (Nordalpenweg 01, about 700 km, stood in a peak's list). Such lines are no longer listed among a peak's routes and get no heights from the live service. They stay in the route cache.
+- At most 3,000 route points a day are asked, all visitors together (`OPEN_METEO_ROUTE_POINTS`); beyond that a new route is listed without ascent and time until the next day.
+- The saved-route repair (`/api/route-heights`) goes through the same store: at most 100 points of a saved route are asked, where it was up to 500. It has its own daily budget of 1,000 points (`OPEN_METEO_SAVED_POINTS`), so it cannot use up what the listed routes may ask.
+- Only heights from the elevation service go into the store. A height that came with a request (the summit's, or a saved route's own values) is used for that answer and never stored, so nobody can plant wrong heights for others.
+- Counted on their own as `route-heights` and `saved-heights`; `heights` stays for summits and single points.
+- Needs `supabase/route-heights.sql` on dev and production before the merge.
+
+### Changed: limits per address for the share card, the RSS feed, the heatmap and the rankings
+- Share card (`/api/og/city`): ten new cards a minute per address. A card for a new name costs a forecast and an outlook; over the limit the plain card comes back (the name without weather), so a link preview still shows something. The card's own reads of the forecast and outlook now carry the site's key, so they no longer share one visitor limit between all cards.
+- RSS (`/api/rss`): thirty a minute per address, then "429, try again in a minute" (feed readers understand that; an empty feed would read as "nothing happened"). The CDN now keeps a city's feed for 15 minutes, so readers of the same feed share one copy.
+- Heatmap and rankings (`/api/heatmap`, `/api/leaderboard`): thirty a minute per address; over that the last answer built on that server comes back, not an error.
+- Each limit is far above what a visitor does: the heatmap and rankings pages ask once per visit, and the share card is fetched by link previews, not by browsers. Only requests the CDN could not answer count.
+
 ### Added: the layout check measures the forecast's fold-out panels open, in German and English
 - `scripts/check-phone-layout.mjs` (also run in CI) opens the Details and Sources panels of the forecast before it measures, and checks the forecast in English as well as in German. 81 page checks instead of 77.
 - New measurement: content of an open panel that sticks out of its card is a finding. The forecast page clips anything wider than the screen, so such content was cut off without the page getting wider, and the page-width test could not see it. With a 600 px wide element put into the Sources panel, the check as it was passed and the extended one fails.

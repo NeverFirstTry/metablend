@@ -1,9 +1,19 @@
 import { supabase } from '@/lib/supabase'
 import { logError } from '@/lib/log'
+import { clientIp } from '@/lib/auth'
+import { createRateLimiter } from '@/lib/ratelimit'
+import { noStore } from '@/lib/no-store'
 import { HORIZONS } from '@/lib/outlook/weights'
 import { groupByRegion } from '@/lib/rankings'
 
-export async function GET() {
+// The page asks this once per visit and the CDN answers almost all of it; only an address that gets past
+// the CDN (a new query string each time) reaches the database. Thirty a minute is far above a visitor.
+// Over that the last answer built here comes back, not an error; 429 only when there is none yet.
+const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
+let last = null
+
+export async function GET(request) {
+  if (limiter.limited(clientIp(request))) return last ? Response.json(last, { headers: { 'Cache-Control': 'no-store' } }) : noStore({ error: 'Too many requests — please slow down.' }, 429)
   const { data, error } = await supabase
     .from('api_weights')
     .select('id, name, weight, score, reports, updated_at, region, delta_history')
@@ -39,5 +49,6 @@ export async function GET() {
   )
 
   // weights change with the hourly calibration: one copy per 5 minutes
-  return Response.json({ regions, horizons }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } })
+  last = { regions, horizons }
+  return Response.json(last, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } })
 }

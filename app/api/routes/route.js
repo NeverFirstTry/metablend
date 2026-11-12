@@ -6,7 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { parsePeakQuery } from '@/lib/hike/params'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
-import { findRoutes, healRoutes, withoutGuesses, replacesCache } from '@/lib/route/find'
+import { findRoutes, healRoutes, withoutGuesses, replacesCache, listedRoutes } from '@/lib/route/find'
+import { routeHeights, dailyBudget, LIVE_MAX_KM } from '@/lib/route/height-store'
 import { noStore } from '@/lib/no-store'
 
 // The marked routes up a peak (OpenStreetMap). One OSM lookup per peak a
@@ -16,7 +17,14 @@ import { noStore } from '@/lib/no-store'
 
 const WEEK = 7 * 86400e3
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
-const ok = (routes, fresh = 86400) => Response.json({ routes }, { headers: { 'Cache-Control': `public, s-maxage=${fresh}, stale-while-revalidate=${fresh === 86400 ? 604800 : fresh}` } })
+// A route's heights are kept for good (route_heights): at most 100 points a route are asked, once, short
+// lines only, within a daily budget; the weekly lookup of a peak's routes asks none for a line it knows.
+const budget = dailyBudget(supabase)
+const routeElevations = points => fetchElevations(points, { kind: 'route-heights' })
+// what the route cache already holds for a place costs nothing: "lat,lon" → height
+const knownHeights = routes => new Map((routes ?? []).filter(r => r.heights === 'terrain').flatMap(r => r.points.filter(p => typeof p[2] === 'number').map(p => [`${p[0].toFixed(5)},${p[1].toFixed(5)}`, p[2]])))
+const heightsWith = known => (id, points) => routeHeights(id, points, { db: supabase, getElevations: routeElevations, budget, known })
+const ok = (routes, fresh = 86400) => Response.json({ routes: listedRoutes(routes, LIVE_MAX_KM) }, { headers: { 'Cache-Control': `public, s-maxage=${fresh}, stale-while-revalidate=${fresh === 86400 ? 604800 : fresh}` } })
 
 export const GET = withErrorLog('routes', async (request) => {
   const peak = parsePeakQuery(new URL(request.url).searchParams)
@@ -35,7 +43,7 @@ export const GET = withErrorLog('routes', async (request) => {
     if (!now.missing) return ok(now.routes)
     // just looked up: its heights were tried a moment ago — the next request retries
     if (heal) after(async () => {
-      const { routes, changed } = await healRoutes(stored, fetchElevations)
+      const { routes, changed } = await healRoutes(stored, routeElevations, { heightsFor: heightsWith(knownHeights(stored)) })
       if (changed) await supabase.from('route_cache').update({ routes }).eq('peak_key', key)
     })
     return ok(now.routes, 600)
@@ -43,7 +51,7 @@ export const GET = withErrorLog('routes', async (request) => {
 
   const { data: cached } = await supabase.from('route_cache').select('routes, fetched_at').eq('peak_key', key).maybeSingle()
   if (cached && Date.now() - Date.parse(cached.fetched_at) < WEEK) return serve(cached.routes)
-  const fresh = await findRoutes(peak, { getJson, getElevations: fetchElevations })
+  const fresh = await findRoutes(peak, { getJson, getElevations: routeElevations, heightsFor: heightsWith(knownHeights(cached?.routes)) })
   if (fresh && replacesCache(fresh, cached)) {
     // some lookups failed: dated so it's looked up again in a day, not a week
     const at = fresh.complete ? Date.now() : Date.now() - WEEK + 86400e3

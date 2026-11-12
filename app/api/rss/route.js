@@ -1,5 +1,7 @@
 import { ilikeExact } from '@/lib/html'
 import { supabase } from '@/lib/supabase'
+import { clientIp } from '@/lib/auth'
+import { createRateLimiter } from '@/lib/ratelimit'
 
 const SITE = 'https://metablend.app'
 
@@ -12,6 +14,11 @@ function escapeXml(s = '') {
     .replace(/'/g, '&apos;')
 }
 
+// A feed reader asks each of its city feeds every 15 to 60 minutes; thirty requests a minute from one
+// address is a reader with thirty feeds refreshing at once. Over that it gets 429 with Retry-After, which
+// readers understand; an empty feed would read as "nothing happened".
+const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
+
 // RSS 2.0 feed of the last 24h of consensus snapshots for a city.
 export async function GET(request) {
   const { searchParams } = new URL(request.url)
@@ -19,6 +26,9 @@ export async function GET(request) {
 
   if (!city) {
     return new Response('Missing ?city= parameter', { status: 400 })
+  }
+  if (limiter.limited(clientIp(request))) {
+    return new Response('Too many requests. Please try again in a minute.', { status: 429, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' } })
   }
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -59,7 +69,7 @@ ${items}
   return new Response(xml, {
     headers: {
       'Content-Type': 'application/rss+xml; charset=utf-8',
-      'Cache-Control': 'public, max-age=900',
+      'Cache-Control': 'public, max-age=900, s-maxage=900', // the CDN keeps it as long as a browser did: readers of one feed share a copy
     },
   })
 }

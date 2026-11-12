@@ -1,8 +1,18 @@
 import { supabase } from '@/lib/supabase'
 import { logError } from '@/lib/log'
+import { clientIp } from '@/lib/auth'
+import { createRateLimiter } from '@/lib/ratelimit'
+import { noStore } from '@/lib/no-store'
 
 // Feedback points with coords, each tagged with how accurate the consensus was.
-export async function GET() {
+// The page asks this once per visit and the CDN answers almost all of it; only an address that gets past
+// the CDN (a new query string each time) reaches the database. Thirty a minute is far above a visitor.
+// Over that the last answer built here comes back, not an error; 429 only when there is none yet.
+const limiter = createRateLimiter({ max: 30, windowMs: 60 * 1000 })
+let last = null
+
+export async function GET(request) {
+  if (limiter.limited(clientIp(request))) return last ? Response.json(last, { headers: { 'Cache-Control': 'no-store' } }) : noStore({ error: 'Too many requests — please slow down.' }, 429)
   const { data, error } = await supabase
     .from('feedback')
     .select('city, lat, lon, accuracy, actual_temp, created_at')
@@ -29,5 +39,6 @@ export async function GET() {
     }))
 
   // the map changes with new reports, not by the second: one copy per 10 minutes
-  return Response.json({ points }, { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200' } })
+  last = { points }
+  return Response.json(last, { headers: { 'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1200' } })
 }
