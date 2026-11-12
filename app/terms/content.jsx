@@ -18,7 +18,7 @@ const A = ({ href, children }) => (
 // The attribution list. The credit lines stay in the words their providers ask for, in every
 // language; what stands around them (what the data is used for, that it is blended) is in the
 // page's language, and a colon stands between the two.
-const MODELS = 'NOAA (GFS, NBM), DWD ICON, Météo-France, UK Met Office, MeteoSwiss, ItaliaMeteo, KNMI, DMI, JMA, CMA'
+const MODELS = 'NOAA (GFS, NBM), DWD ICON, Météo-France, CHMI, MeteoSwiss, ItaliaMeteo, KNMI, DMI, JMA, CMA'
 const ATTRIBUTION = {
   en: {
     sep: ': ',
@@ -225,6 +225,7 @@ function AttributionList({ lang }) {
     <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
       <li><a href="https://open-meteo.com" {...EXT}>Open-Meteo</a> (CC BY 4.0){a.sep}“Weather data by Open-Meteo.com”, {a.models.replace('{models}', MODELS)}</li>
       <li>This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source: <a href="https://www.ecmwf.int" {...EXT}>www.ecmwf.int</a>. Licence: <a href="https://creativecommons.org/licenses/by/4.0/" {...EXT}>CC BY 4.0</a>. {a.ecmwf}</li>
+      <li>ALADIN model forecasts. Source: Czech Hydrometeorological Institute (ČHMÚ), <a href="https://www.chmi.cz" {...EXT}>www.chmi.cz</a>. Licence: <a href="https://creativecommons.org/licenses/by/4.0/" {...EXT}>CC BY 4.0</a>. {a.ecmwf}</li>
       <li><a href="https://avalanches.org" {...EXT}>EAWS</a>{a.sep}{a.eaws}</li>
       <li><a href="https://meteoalarm.org" {...EXT}>MeteoAlarm</a> (EUMETNET, CC BY 4.0){a.sep}{a.meteoalarm}</li>
       <li><a href="https://www.met.no" {...EXT}>MET Norway</a> (NLOD / CC BY 4.0){a.sep}“Data from MET Norway”</li>
