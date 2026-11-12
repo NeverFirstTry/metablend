@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Added: a health address for an outside monitor
+- `/api/health` answers 200 when all is well and 503 with a list of problems when not. An outside monitor asks it every five minutes and sends the mail; the site itself sends none, and nothing is added to the pages.
+- A problem is: more than 10 errors of our own routes in 15 minutes (a normal week has none; the forecast outage of 2026-11-09 had 22), more than 45 failed requests to outside services in 15 minutes (the week's highest was 30), a scheduled job that has not run in time or ended with an error (warnings and push: 60 minutes, station comparison: 150 minutes, the two daily jobs: 26 hours), or no answer from the database.
+
 ### Changed: a route's heights are asked once and kept
 - Why: Open-Meteo's elevation service charges one call per point. Every peak's routes were looked up again each week and every point asked again (up to 300 a route, eight routes a peak). On 2026-11-12 a check that opened about twenty peaks cost 22,705 calls in one hour and ran into Open-Meteo's per-minute limit: seven summit forecasts, two rain forecasts and one outlook request failed in that hour.
 - Now a route's line is sampled to at most 100 points and their heights are stored for good (new table `route_heights`, by route and by the line's fingerprint). A line the store knows asks nothing, also at the weekly lookup; heights the route cache already holds are taken over without a call. The points between the samples take their height from their neighbours.
