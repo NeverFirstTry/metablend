@@ -1,6 +1,30 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { shapeDiff } from './shape.mjs'
+import { readFileSync } from 'node:fs'
+import { shapeDiff, FORECAST_SHAPE, SUMMIT_SHAPE } from './shape.mjs'
+
+// The recording the layout check compares its two live answers with (CI on main went red on 2026-11-12 when
+// heavy rain in Vienna switched the forecast's warning on: "its shape differs from the recording (.warning.type is new)")
+const answers = JSON.parse(readFileSync(new URL('../layout-fixtures.json', import.meta.url), 'utf8')).answers
+const recorded = start => answers[Object.keys(answers).find(k => k.startsWith(start))].body
+
+test('weather is no change of shape: a warning that is on, an answer from the cache, a kept summit answer', () => {
+  const city = recorded('GET /api/forecast?city=vienna&lang=en')
+  for (const type of ['heavy_rain', 'thunderstorm']) {
+    const live = { ...city, warning: { active: true, type }, cached: true }
+    assert.deepEqual(shapeDiff(city, live, FORECAST_SHAPE), [])
+    assert.deepEqual(shapeDiff(live, city, FORECAST_SHAPE), [], 'recorded on a rainy day, checked on a dry one')
+    // what CI reported, without the option
+    assert.deepEqual(shapeDiff(city, live, { ...FORECAST_SHAPE, optional: ['.cached'] }), ['.warning.type is new'])
+  }
+  const summit = recorded('GET /api/hike?')
+  assert.deepEqual(shapeDiff(summit, { ...summit, kept: '2026-11-12T20:00:00.000Z' }, SUMMIT_SHAPE), [])
+  // a changed API still counts, next to the weather
+  assert.deepEqual(shapeDiff(city, { ...city, warning: { on: true, type: 'heavy_rain' } }, FORECAST_SHAPE), ['.warning.active is gone', '.warning.on is new'])
+  const { hourly, ...without } = summit
+  assert.ok(hourly.length > 0)
+  assert.deepEqual(shapeDiff(summit, { ...without, kept: 'x' }, SUMMIT_SHAPE).slice(0, 1), ['.hourly is gone'])
+})
 
 const forecast = { city: 'Vienna', consensus: { temp: 7.3, rainPct: 2 }, sources: [{ id: 'icon', temp: 7.1 }, { id: 'gfs', temp: 7.6 }], warning: null, notes: [] }
 

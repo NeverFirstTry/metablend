@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Fixed: the phone layout check no longer turns red on a rainy day
+- Nothing changes for visitors. The check that runs after every deploy asks two live forecasts (Vienna, Großglockner) and compares their shape with a recording. On 2026-11-12 heavy rain in Vienna switched the forecast's warning on. An active warning carries its kind (`warning.type`), the recording was made on a dry day, and the check read that as a changed API ("its shape differs from the recording (.warning.type is new)") and marked main red for 35b6cc5. All 81 page checks of that run had passed; no page was affected.
+- `warning.type` now counts as a key that comes and goes with the weather, like the `cached` flag of an answer from the cache. The same for `kept` on the summit forecast (the last good answer served during an outage, added on 2026-11-12), which would have raised the same false alarm on the first outage.
+- Test (`scripts/lib/shape.test.mjs`): the recorded Vienna answer with a warning switched on gives no difference, the same without the new option gives exactly what CI reported, and a renamed key still counts.
+- Found on the way: the test of the cleanup's keeping times (`lib/retention-rules.test.js`, written on 2026-11-12) failed every evening from 22:48 UTC to midnight, because it rounded "90 days and the hours since midnight" to 91. The test now accepts 90 to 91 days; the cleanup itself was right and is unchanged.
+
 ## 2026-11-12
 
 ### Fixed: the weight shown for a source is its real share of the blend
