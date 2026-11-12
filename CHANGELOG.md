@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Added, not switched on: a switch to our own Open-Meteo server
+- Nothing changes until a setting is set. Every server request to Open-Meteo already passes one place (`openMeteoFetch`, `lib/open-meteo.js`); the switch lives there.
+- `OPEN_METEO_SELF` (an https address): forecasts, heights and air quality are asked from our own server first, same path and question. A failure (no answer in 4 seconds, an error, a refused token) sends the same request to the public service. After three failures in a row our server is left out for a minute.
+- `OPEN_METEO_PUBLIC=off`: the public service is never asked, whatever happens. This is the setting for launch (the free public service is for non-commercial use). A request our server cannot answer then fails like any failed source; the place search and the archive, which our server does not have, are refused without a request.
+- `OPEN_METEO_SELF_ID` and `OPEN_METEO_SELF_SECRET`: the access token of the tunnel in front of our server. It is sent to that address only, never to the public service, and a redirect is refused so it cannot follow one elsewhere. An address without https is not used.
+- Requests to our own server are counted as `self:forecast`, `self:outlook` and so on, with their number only: weighted calls are the public service's bill and stay what they were.
+- Fixed on the way: the check for an Open-Meteo address accepted any host ending in those letters ("evil-open-meteo.com"); now only open-meteo.com and its subdomains.
+- Not in this step: serving the last good answer when our server is down, the comparison run (shadow mode), the place search from our own table. Each follows on its own branch.
+
 ### Changed: logs are kept a shorter time
 - The nightly cleanup now deletes the blend history (`consensus_history`) after 7 days, the error log after 14 days and the station comparison log (`station_errors`) after 14 days. Each was 30 days.
 - Notes in the error log that are not failures (`geocode.upstream`, `open-meteo.quota`, `warnings.database`) go after 7 days.
