@@ -49,6 +49,15 @@ const PAGES = [
   ['city page', '/weather/vienna'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
   ['terms notice', '/?terms=show', 'notice'],
 ]
+// [name, path, how, link, part, only this view]: a link to a part of a page has to land on that part
+// (2026-11-10: the footer's link to the terms' copyright section ended at the top of the terms). Without
+// a link the address itself is opened: the link to the WeatherAPI notice only shows while WeatherAPI
+// answers (app/components/outlook/SourcesPanel.jsx), which a recording cannot promise.
+const PART_LINKS = [
+  ['copyright link in the footer', '/privacy', undefined, 'footer a[href="/terms#copyright"]', 'copyright', 'website'],
+  ['disclaimer link', '/aviation', undefined, 'a[href="/terms#disclaimer"]', 'disclaimer'],
+  ['WeatherAPI notice by its address', '/terms#weatherapi-notice', undefined, null, 'weatherapi-notice'],
+]
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].some(e => e.getClientRects().length > 0)`
@@ -202,7 +211,7 @@ const WIDE = `(() => {
 })()`
 
 // one page in one view and motion setting; findings go into the list
-async function checkPage(view, motion, name, path, how) {
+async function checkPage(view, motion, name, path, how, link, part) {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
   await send('Network.clearBrowserCookies')
   await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
@@ -211,7 +220,8 @@ async function checkPage(view, motion, name, path, how) {
   // the app's forecast is its first tab; it opens from another page, like the app itself
   const start = view === 'app' && how && how !== 'notice' ? '/more' : path
   // a page that never answers stops the run with its name (send throws after 45 s); an error page is a finding
-  const nav = await send('Page.navigate', { url: BASE + start + (view === 'app' ? (start.includes('?') ? '&' : '?') + 'app=1' : '') })
+  const [page, hash] = start.split('#') // the app's marker goes before a part's name
+  const nav = await send('Page.navigate', { url: BASE + page + (view === 'app' ? (page.includes('?') ? '&' : '?') + 'app=1' : '') + (hash ? '#' + hash : '') })
   if (nav.error || nav.result?.errorText) throw new Error(`did not load: ${nav.error?.message ?? nav.result.errorText}`)
   const noticeUp = visible(view === 'app' ? '.terms-notice button' : '.terms-bar button')
   await until(how === 'notice' ? noticeUp : view === 'app' ? visible('.app-tabbar a') : 'document.readyState === "complete"')
@@ -234,6 +244,15 @@ async function checkPage(view, motion, name, path, how) {
   if (wide) findings.push(`${label}: ${wide}`)
   for (const s of motion === 'reduce' ? await ev(SMALL) : []) findings.push(`${label}: text below 13 px: ${s}`)
   console.log(`${wide ? '✗' : '✓'} ${label}`)
+  if (!part) return
+  // the link is clicked like a visitor's tap (a client-side navigation), then the part has to stand in the
+  // upper half of the screen, or anywhere on it when the page cannot scroll further
+  const clicked = !link || await ev(`(() => { const a = [...document.querySelectorAll(${JSON.stringify(link)})].find(e => e.getClientRects().length > 0); if (a) a.click(); return !!a })()`)
+  const opened = clicked && await until(`location.hash === ${JSON.stringify('#' + part)} && !!document.getElementById(${JSON.stringify(part)})`, 15000)
+  await sleep(1500)
+  const at = opened ? await ev(`(() => { const top = Math.round(document.getElementById(${JSON.stringify(part)}).getBoundingClientRect().top), end = innerHeight + scrollY >= document.documentElement.scrollHeight - 4; return { top, lands: top >= -4 && top <= (end ? innerHeight - 40 : innerHeight / 2) } })()`) : null
+  if (!at?.lands) findings.push(`${label}: ${!clicked ? `no link ${link} on the page` : !opened ? `the link did not open #${part}` : `the link ended ${at.top} px away from #${part}, not on it`}`)
+  console.log(`${at?.lands ? '✓' : '✗'} ${label}: lands on #${part}`)
 }
 
 let checked = 0
@@ -242,11 +261,12 @@ try {
   views: for (const view of ['app', 'website']) {
     const close = await openView()
     try {
-      for (const motion of ['reduce', 'no-preference']) for (const [name, path, how] of PAGES) {
+      for (const motion of ['reduce', 'no-preference']) for (const [name, path, how, link, part, only] of [...PAGES, ...(motion === 'reduce' ? [] : PART_LINKS)]) {
+        if (only && only !== view) continue
         current = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
         let timer
         const outcome = await Promise.race([
-          checkPage(view, motion, name, path, how).then(() => 'done', e => `failed: ${e.message}`),
+          checkPage(view, motion, name, path, how, link, part).then(() => 'done', e => `failed: ${e.message}`),
           new Promise(r => { timer = setTimeout(() => r('timeout'), PAGE_LIMIT) }),
         ])
         clearTimeout(timer)
