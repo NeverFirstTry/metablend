@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: regional weather models are asked only where they have data
+- The forecast, the 7-day outlook and the live summit forecast ask Open-Meteo's regional models (KNMI, DMI, MET Nordic, MeteoSwiss, ItaliaMeteo, NOAA NBM) only inside the area each one covers. The global models are asked everywhere, as before. Nothing changes in what is shown: a model asked outside its area had no values (the recorded Lienz forecast gives the same answer without NBM in the request).
+- Why: Open-Meteo charges variables × models, also for a model with nothing to say. Per request: the forecast's model part costs 4.5 calls in the Alps, 3 in New York and 2.5 in Perth instead of 5; the outlook 11.7 in Vienna and 9.1 in Perth instead of 13 (still 13 in Oslo, where all ten models cover); the summit forecast 15.3 on the Großglockner instead of 17.
+- Over the places production was asked for in the last seven days, the average is 7.05 of 10 models for the forecast and 8.36 of 10 for the outlook: 3.5 instead of 5 and 10.9 instead of 13 calls.
+- The areas were measured on 2026-11-12 by asking grids of places. Each box is the outermost places that answered plus one grid step on every side, so it errs towards asking (`MODEL_BOXES`, `lib/outlook/models.js`).
+- Unchanged: the station comparison job (about 110 calls a day) and the rain nowcast (one call whatever the models).
+
 ### Added: the layout check follows links to a part of a page
 - `scripts/check-phone-layout.mjs` (also run in CI) clicks the footer's copyright link and a disclaimer link, and opens the WeatherAPI notice by its address, on the website and in the app view. It fails when the page does not end on that part. With the fault of 2026-11-10 put back (such links ended at the top of the terms) it reports "the link ended 1722 px away from #copyright". Five more page checks, 77 in all.
 - The link to the WeatherAPI notice is not clicked: it only shows while WeatherAPI answers, which a recording cannot promise. The disclaimer sits at the top of the terms, so only the copyright link tells a landing from the top of the page.
