@@ -66,8 +66,8 @@ consensus + local correction beats the raw APIs.
 
 "Right now" is something anyone can see out of the window, so the page leads
 with what's coming. `/api/outlook` blends the future from ~10 independent
-weather models in one Open-Meteo request (ECMWF, GFS, ICON, UKMO, GEM, JMA,
-Météo-France, plus the KNMI / DMI / MET Nordic high-resolution models where they
+weather models in one Open-Meteo request (ECMWF, GFS, ICON, GEM, JMA,
+Météo-France, plus the CHMI ALADIN / KNMI / DMI / MET Nordic high-resolution models where they
 cover the city) and the national services that publish real forecasts (NWS,
 SMHI, DWD MOSMIX via Bright Sky). Two rules keep the consensus honest:
 
@@ -151,8 +151,8 @@ plan's 500 calls a day missed one forecast in six).
 | --- | --- | --- |
 | [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
 | ECMWF IFS · NOAA GFS · DWD ICON · Météo-France | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
-| UK Met Office · Canada GEM · JMA · CMA GRAPES · ECMWF AIFS (AI) | no | More global models via Open-Meteo, all in one shared request |
-| MeteoSwiss ICON-CH · ItaliaMeteo ICON-2I · KNMI / DMI HARMONIE · NOAA NBM | no | Regional models via the same request — they only appear inside their own area |
+| Canada GEM · JMA · CMA GRAPES · ECMWF AIFS (AI) | no | More global models via Open-Meteo, all in one shared request |
+| CHMI ALADIN · MeteoSwiss ICON-CH · ItaliaMeteo ICON-2I · KNMI / DMI HARMONIE · NOAA NBM | no | Regional models via the same request — they only appear inside their own area |
 | KNMI HARMONIE · DMI HARMONIE · MET Nordic | no | Outlook only (via Open-Meteo): high-resolution regional models, ~2.5 days, Europe / Nordics |
 | [DWD MOSMIX](https://brightsky.dev) (Bright Sky) | no | Outlook only: Germany, statistical forecast |
 | [MET Norway](https://api.met.no) | no | Yr.no's public API |

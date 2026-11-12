@@ -5,6 +5,16 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: the Czech ALADIN model takes the place of UK Met Office
+- UK Met Office is no longer one of the sources. Its model data comes under a share-alike licence (CC BY-SA 4.0), which does not fit a blend shown under our own terms. Its place is taken by the Czech Hydrometeorological Institute's ALADIN model (CHMI, 2.3 km grid, CC BY 4.0), shown as "CHMI ALADIN".
+- Where: the forecast's source list, the 7-day outlook and the summit forecast. CHMI ALADIN covers central Europe (measured: from about 40° N to 56° N, from the Channel to the Black Sea) for the next three and a half days, at a finer grid than UK Met Office's 10 km. Inside that area the number of sources stays what it was.
+- Outside that area there is one source fewer, because UK Met Office was global: the forecast's sources that answer everywhere are now Canada GEM, JMA, CMA GRAPES and ECMWF AIFS besides the main ones.
+- The rain forecast for the next two hours no longer asks UK Met Office's 2 km model, which only covered the British Isles.
+- Credits: /terms and the README name CHMI with its licence in place of UK Met Office; the footer's credit list gains "ČHMÚ (CHMI)".
+- Old rows of UK Met Office in the rankings keep their name; its weight is no longer used. CHMI ALADIN starts as an average source and earns its weight like every other.
+- Open-Meteo requests cost the same in central Europe and less elsewhere (an outlook outside Europe asks six models, 7.8 weighted calls, where it asked seven, 9.1).
+- Tests: the recorded Lienz answer gives the same blend (5.5°, 80 %) with the entry renamed; no model id of UK Met Office is asked anywhere.
+
 ### Added: the last good forecast is kept for an outage
 - When the weather models give nothing (our own Open-Meteo server down and the public service switched off), the 7-day outlook and a summit's forecast now show the place's last good answer, up to 24 hours old, and the rain forecast one up to 1 hour old. The page says when it was made ("Stand: 12. Nov., 13:31", in all 13 languages, the words the summit pages already use). Until now the outlook fell back to one source or an error, the summit view to its retry card, and the rain card disappeared.
 - Order when the models give nothing: the kept answer with its time; else, for the outlook, MET Norway as before; else the error.
