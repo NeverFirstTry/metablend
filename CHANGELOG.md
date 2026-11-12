@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: logs are kept a shorter time
+- The nightly cleanup now deletes the blend history (`consensus_history`) after 7 days, the error log after 14 days and the station comparison log (`station_errors`) after 14 days. Each was 30 days.
+- Notes in the error log that are not failures (`geocode.upstream`, `open-meteo.quota`, `warnings.database`) go after 7 days.
+- Unchanged: stored forecasts and bookkeeping rows (up to 72 hours), the job log (14 days), the feedback lesson counters (30 days), the request counter (90 days).
+- Why: nothing on the site reads blend history older than a day, the health address reads 15 minutes of the error log and the reports two weeks. It frees about 3 MB now and keeps the three tables from growing.
+- The privacy notice still names 30 days for the blend history and the error log. Both now go sooner than it says; its wording is changed separately.
+
 ### Fixed: Chinese place names in simplified characters
 - Chinese readers now see place names in simplified characters everywhere: the forecast's heading, the search suggestions, recent places and favourites, the notification home city and notification texts, the phone and embed widgets, and summit names on the hiking screens. Vienna is "维也纳", no longer "維也納". The geocoder (GeoNames) and OpenStreetMap often give Chinese names in traditional script; a listed city takes its own Chinese name from `lib/city-names.js`, anything else is converted character by character with OpenCC's table (`lib/zh-hans.js`, `lib/zh-hans-table.js`, Apache License 2.0, made by `scripts/zh-hans-table.mjs`).
 - Only what is shown changes. The name a place goes by stays as the geocoder wrote it, because the page sends it back to find the place again and GeoNames files many places under the traditional name only (维也纳 finds Vienna, West Virginia). The forecast answer carries a new `cityShown` where the shown name differs; the search box shows it after a load and still asks by the original. Summit rows: simplified on the way out, and a new load takes `name:zh-Hans` first.
