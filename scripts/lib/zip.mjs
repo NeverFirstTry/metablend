@@ -1,6 +1,27 @@
 // A ZIP archive from in-memory files (the press kit, scripts/brand/press-kit.mjs): deflated entries, CRC-32 and
 // deflate from node:zlib, UTF-8 names. shortcut: no ZIP64, so under 4 GB and 65535 entries; enough for a press kit.
-import { crc32, deflateRawSync } from 'node:zlib'
+import { crc32, deflateRawSync, inflateRawSync } from 'node:zlib'
+
+// Read an archive back through its central directory, as an unzip tool does (the press kit keeps shots
+// from its last build this way). Stored and deflated entries; a CRC that does not match throws.
+export function unzip(buf) {
+  const end = buf.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]))
+  if (end < 0) throw new Error('not a ZIP: no end of central directory')
+  const out = []
+  for (let i = 0, at = buf.readUInt32LE(end + 16); i < buf.readUInt16LE(end + 10); i++) {
+    if (buf.readUInt32LE(at) !== 0x02014b50) throw new Error(`entry ${i}: no central directory header`)
+    const method = buf.readUInt16LE(at + 10), crc = buf.readUInt32LE(at + 16), packed = buf.readUInt32LE(at + 20)
+    const nameLen = buf.readUInt16LE(at + 28), local = buf.readUInt32LE(at + 42)
+    const name = buf.toString('utf8', at + 46, at + 46 + nameLen)
+    const start = local + 30 + buf.readUInt16LE(local + 26) + buf.readUInt16LE(local + 28)
+    const raw = buf.subarray(start, start + packed)
+    const data = method === 8 ? inflateRawSync(raw) : Buffer.from(raw)
+    if (crc32(data) !== crc) throw new Error(`${name}: CRC does not match`)
+    out.push({ name, data })
+    at += 46 + nameLen + buf.readUInt16LE(at + 30) + buf.readUInt16LE(at + 32)
+  }
+  return out
+}
 
 export function zip(entries, date = new Date()) {
   // DOS time and date, as ZIP stores them

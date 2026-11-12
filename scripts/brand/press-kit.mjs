@@ -6,6 +6,9 @@
 //   Three app screenshots without captions, taken now from <base> (default https://metablend.app) in the
 //   app view at the App Store's size: read-only page loads with the analytics blocked, like the other captures.
 //   Run it in the morning, Alps time: it refuses a summit past Today or "No favourable" (from the evening on).
+//   It also refuses a shot that shows a dash or a safety word anywhere on screen.
+//   KEEP=2-summit,3-route keeps those shots from the last kit in public/press/ instead of taking them again
+//   (while a page they show is about to change).
 // Needs: npm i --no-save opentype.js @fontsource/hanken-grotesk sharp
 import fs from 'node:fs'
 import path from 'node:path'
@@ -14,7 +17,8 @@ import sharp from 'sharp'
 import { letters } from './brand.mjs'
 import { ICONS, DEFAULT_ICON, iconArt } from './icons.mjs'
 import { wordmarkSVG, WORDMARK } from './wordmark.mjs'
-import { zip } from '../lib/zip.mjs'
+import { zip, unzip } from '../lib/zip.mjs'
+import { DASH } from '../../lib/wording.js'
 import { launchBrowser } from '../lib/browser.mjs'
 import { blockAnalytics, analyticsLeak } from '../lib/analytics-block.mjs'
 import { PRESS } from '../../lib/press.js'
@@ -61,6 +65,14 @@ const SHOTS = [
   ['2-summit', '/hike?peak=grossglockner', `!![...document.querySelectorAll('[role=tab]')].length`],
   ['3-route', '/hike?peak=grossglockner&route=osm-14622955', `!!document.querySelector('.leaflet-tile-loaded')`],
 ]
+const KEEP = (process.env.KEEP ?? '').split(',').filter(Boolean)
+for (const name of KEEP) if (!SHOTS.some(s => s[0] === name)) throw new Error(`KEEP: no shot called ${name}`)
+const last = KEEP.length ? Object.fromEntries(unzip(fs.readFileSync(path.join(OUT, 'metablend-press-kit.zip'))).map(f => [f.name, f.data])) : {}
+// every text node on screen, for the check that no shot shows a dash or a safety word
+const ON_SCREEN = `(() => { const out = [], r = document.createRange(), w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT)
+  for (let n; (n = w.nextNode());) { if (!n.textContent.trim()) continue; r.selectNodeContents(n); const b = r.getBoundingClientRect()
+    if (b.width && b.height && b.bottom > 0 && b.top < innerHeight && b.right > 0 && b.left < innerWidth && n.parentElement.checkVisibility({ opacityProperty: true, visibilityProperty: true })) out.push(n.textContent.trim()) }
+  return out })()`
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 const { targets, close } = await launchBrowser(EDGE, 'press-')
 const ws = new WebSocket(targets.find(t => t.type === 'page').webSocketDebuggerUrl)
@@ -79,6 +91,13 @@ await send('Emulation.setDeviceMetricsOverride', { width: 430, height: 932, devi
 for (const [k, v] of [['metablend_lang', 'en'], ['metablend_theme', 'dark']]) await send('Network.setCookie', { name: k, value: v, url: BASE + '/' })
 try {
   for (const [name, url, ready] of SHOTS) {
+    if (KEEP.includes(name)) {
+      const kept = last[`${KIT}/screenshots/app/${name}.png`]
+      if (!kept) throw new Error(`${name}: not in the last kit, so it cannot be kept`)
+      add(`screenshots/app/${name}.png`, kept)
+      console.log(`${name} kept from the last kit`)
+      continue
+    }
     await send('Page.navigate', { url: BASE + url })
     let ok = false
     for (let i = 0; i < 120 && !ok; i++) { await sleep(250); ok = await ev(`document.documentElement.dataset.app === '1' && ${ready}`) }
@@ -90,6 +109,8 @@ try {
     // which in the Alps means a capture in the morning
     const night = await ev(`document.body.innerText.includes('No favourable') || [...document.querySelectorAll('[role=tab][aria-selected=true]')].some(t => /Tomorrow|Week/.test(t.textContent))`)
     if (night) throw new Error(`${name}: shows "No favourable" or a tab past Today; run this in the morning, Alps time`)
+    const bad = (await ev(ON_SCREEN)).filter(t => DASH.test(t) || /safe|sicher/i.test(t))
+    if (bad.length) throw new Error(`${name}: shows ${bad.map(t => `"${t}"`).join(', ')}`)
     const { result } = await send('Page.captureScreenshot', { format: 'png' })
     add(`screenshots/app/${name}.png`, Buffer.from(result.data, 'base64'))
     console.log(`${name} ✓`)
