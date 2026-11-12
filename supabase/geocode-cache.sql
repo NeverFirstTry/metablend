@@ -8,12 +8,17 @@
 -- table. Safe to run more than once.
 create index if not exists towns_names_idx on public.towns using gin (string_to_array(search, ' | '));
 
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.town_lookup(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.town_lookup(text, integer);
+  end if;
+end $$;
 create or replace function public.town_lookup(q text, lim integer default 20)
-returns table (id integer, name text, alt text, country text, region text, population integer, lat double precision, lon double precision)
+returns table (id integer, name text, alt text, names jsonb, country text, region text, population integer, lat double precision, lon double precision)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  select t.id, t.name, t.alt, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
+  select t.id, t.name, t.alt, t.names, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
     from public.towns t
    where string_to_array(t.search, ' | ') @> array[public.place_norm(btrim(q))]
    order by t.population desc

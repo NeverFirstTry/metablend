@@ -72,7 +72,7 @@ export default function NotificationSettings({ lang, unit }) {
     if (v.trim().length < 2) { setHits([]); return }
     timer.current = setTimeout(async () => {
       try {
-        const d = await (await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(v)}&count=5&language=${lang}`)).json()
+        const d = await (await fetch(`/api/places/search?q=${encodeURIComponent(v)}&lang=${lang}`)).json()
         setHits(d.results ?? [])
       } catch { setHits([]) }
     }, 250)

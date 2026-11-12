@@ -67,9 +67,8 @@ const visible = sel => `[...document.querySelectorAll(${JSON.stringify(sel)})].s
 const analytics = { blocked: 0, sent: 0 }
 const findings = []
 
-// The recorded answers, keyed by method, path with query, and a hash of a POST body; the search box asks
-// Open-Meteo's place search from the browser, so its answers are recorded too.
-const PLACES = 'https://geocoding-api.open-meteo.com/' // app/HomePage.jsx
+// The recorded answers, keyed by method, path with query, and a hash of a POST body. (The search box asks
+// our own /api/places/search since 2026-11-12, so it needs no pattern of its own.)
 const recorded = RECORD ? { recorded: new Date().toISOString(), from: BASE, answers: {} } : JSON.parse(readFileSync(FIXTURES, 'utf8'))
 
 // The live smoke requests: [what, path, the answer is usable, shape options]. A thin blend is no failure, a broken API is.
@@ -158,7 +157,7 @@ const onEvent = m => {
   if (m.method === 'Network.responseReceived' && IS_ANALYTICS.test(m.params.response.url)) analytics.sent++
   if (m.method === 'Network.requestWillBeSent') {
     const url = m.params.request.url, host = URL.canParse(url) ? new URL(url).hostname : ''
-    if (host && host !== new URL(BASE).hostname && !url.startsWith(PLACES) && !IS_ANALYTICS.test(url)) outside.set(host, (outside.get(host) ?? 0) + 1)
+    if (host && host !== new URL(BASE).hostname && !IS_ANALYTICS.test(url)) outside.set(host, (outside.get(host) ?? 0) + 1)
   }
 }
 // A view (app or website) in a fresh browser context: its own cookies, storage, session storage and cache,
@@ -175,7 +174,7 @@ async function openView() {
   const { userAgent } = (await browser.call('Browser.getVersion')).result
   await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendLayoutCheck/1` })
   await send('Network.setBlockedURLs', { urls: ANALYTICS })
-  await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` }, { urlPattern: `${PLACES}*` }] })
+  await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*` }] })
   await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true })
   await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
   return async () => { page.ws.close(); await browser.call('Target.disposeBrowserContext', { browserContextId }).catch(() => {}) }

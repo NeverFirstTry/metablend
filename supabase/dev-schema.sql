@@ -709,6 +709,9 @@ create table if not exists public.towns (
   search text generated always as (public.place_norm(name || ' | ' || coalesce(alt, ''))) stored,
   loaded_at timestamptz not null default now()
 );
+-- since 2026-11-12 (our own place search, supabase/place-search.sql): what a reader of each language sees,
+-- and in English what everything learned about a place is filed under
+alter table public.towns add column if not exists names jsonb; -- its name in our 13 languages, where it differs from the main name
 
 create index if not exists summits_geog_idx on public.summits using gist (geog);
 -- names: GIN for substrings and typos, a sorted one for how a name starts.
@@ -792,8 +795,13 @@ $$;
 
 -- Towns by name or another name of theirs (cities with 5 000+ people).
 -- exact: the query is one of its names; prefix: one of its names starts so.
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.towns_search(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.towns_search(text, integer);
+  end if;
+end $$;
 create or replace function public.towns_search(q text, lim integer default 5)
-returns table (id integer, name text, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
+returns table (id integer, name text, names jsonb, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
@@ -804,7 +812,7 @@ as $$
      order by t.search <->> public.place_norm(q)
      limit 40
   )
-  select h.id, h.name, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
+  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
          h.n = any(string_to_array(h.search, ' | ')) as exact,
          exists (select 1 from unnest(string_to_array(h.search, ' | ')) as a(v) where a.v like h.n || '%') as prefix
     from hits h
@@ -881,18 +889,18 @@ language sql volatile
 set search_path = public, extensions, pg_temp
 as $$
   with r as (
-    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, country text, region text, population integer,
+    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, names jsonb, country text, region text, population integer,
                                                  lat double precision, lon double precision)
   ), w as (
-    insert into public.towns as t (id, name, alt, country, region, population, geog, loaded_at)
-    select r.id, r.name, r.alt, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
+    insert into public.towns as t (id, name, alt, names, country, region, population, geog, loaded_at)
+    select r.id, r.name, r.alt, r.names, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
       from r
     on conflict (id) do update
-       set name = excluded.name, alt = excluded.alt, country = excluded.country, region = excluded.region,
+       set name = excluded.name, alt = excluded.alt, names = excluded.names, country = excluded.country, region = excluded.region,
            population = excluded.population, geog = excluded.geog, loaded_at = excluded.loaded_at
-     where (t.name, t.alt, t.country, t.region, t.population, st_asbinary(t.geog))
+     where (t.name, t.alt, t.names, t.country, t.region, t.population, st_asbinary(t.geog))
            is distinct from
-           (excluded.name, excluded.alt, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
+           (excluded.name, excluded.alt, excluded.names, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
     returning 1
   )
   select count(*)::integer from w
@@ -1239,12 +1247,17 @@ notify pgrst, 'reload schema';
 -- table. Safe to run more than once.
 create index if not exists towns_names_idx on public.towns using gin (string_to_array(search, ' | '));
 
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.town_lookup(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.town_lookup(text, integer);
+  end if;
+end $$;
 create or replace function public.town_lookup(q text, lim integer default 20)
-returns table (id integer, name text, alt text, country text, region text, population integer, lat double precision, lon double precision)
+returns table (id integer, name text, alt text, names jsonb, country text, region text, population integer, lat double precision, lon double precision)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  select t.id, t.name, t.alt, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
+  select t.id, t.name, t.alt, t.names, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
     from public.towns t
    where string_to_array(t.search, ' | ') @> array[public.place_norm(btrim(q))]
    order by t.population desc
