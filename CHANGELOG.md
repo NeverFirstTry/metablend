@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Prepared, not switched on: a smaller summits table for an emergency
+- Nothing changes for anyone. `supabase/summits-lean.sql` is a prepared script for the case that the database passes 420 MB; it has not been run on dev or production and no job runs it.
+- What it would do: keep every hut, every peak with a mark (Wikipedia, Wikidata or a summit cross) and every peak in AT, DE, CH, IT, SI, FR and LI; remove the unmarked peaks elsewhere. Counted on 2026-11-12: 316,865 of 568,262 rows would go; the table would shrink from 206 MB to about 87 MB (measured on a copy in the dev database).
+- The price: an unmarked hill outside the seven countries would no longer be found by the search or by "Near you".
+- The half-yearly places refresh has the same rule (`keepLean` in `lib/places/rows.js`), switched off (`LEAN = false`). It is switched on in the same hour the script runs on production, or the refresh would load the rows back.
+- Test: the script's DELETE runs in a real Postgres and must remove exactly the rows the refresh rule would not keep; the search and "Near you" must still answer afterwards.
+
 ### Changed: the privacy notice names the shorter periods
 - The privacy notice said the server's error log and the blend history ("consensus snapshots") are kept 30 days. Since today's cleanup change they are kept 14 and 7 days. The notice now says so, in both places and in all 13 languages: a failed request's address stays in the error log for 14 days; consensus snapshots are deleted after 7 days, server error logs after 14.
 - German first, the 12 translations follow it. Nothing else in the notice changes.
