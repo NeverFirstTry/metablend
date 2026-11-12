@@ -10,8 +10,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Now a route's line is sampled to at most 100 points and their heights are stored for good (new table `route_heights`, by route and by the line's fingerprint). A line the store knows asks nothing, also at the weekly lookup; heights the route cache already holds are taken over without a call. The points between the samples take their height from their neighbours.
 - A line longer than 40 km one way (a long-distance trail, not a way up a summit) gets no heights from the live service: no ascent and no walking time are shown for it, as for any route without heights. Heights already stored are still used.
 - At most 3,000 route points a day are asked, all visitors together (`OPEN_METEO_ROUTE_POINTS`); beyond that a new route is listed without ascent and time until the next day.
-- The saved-route repair (`/api/route-heights`) goes through the same store: at most 100 points of a saved route are asked, where it was up to 500.
-- Counted on their own as `route-heights`; `heights` stays for summits and single points.
+- The saved-route repair (`/api/route-heights`) goes through the same store: at most 100 points of a saved route are asked, where it was up to 500. It has its own daily budget of 1,000 points (`OPEN_METEO_SAVED_POINTS`), so it cannot use up what the listed routes may ask.
+- Only heights from the elevation service go into the store. A height that came with a request (the summit's, or a saved route's own values) is used for that answer and never stored, so nobody can plant wrong heights for others.
+- Counted on their own as `route-heights` and `saved-heights`; `heights` stays for summits and single points.
 - Needs `supabase/route-heights.sql` on dev and production before the merge.
 
 ### Added: the layout check measures the forecast's fold-out panels open, in German and English
