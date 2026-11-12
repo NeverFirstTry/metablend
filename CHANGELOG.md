@@ -3,7 +3,7 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-13
+## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
 - Nothing changes for visitors. The check that runs after every deploy asks two live forecasts (Vienna, Großglockner) and compares their shape with a recording. On 2026-11-12 heavy rain in Vienna switched the forecast's warning on. An active warning carries its kind (`warning.type`), the recording was made on a dry day, and the check read that as a changed API ("its shape differs from the recording (.warning.type is new)") and marked main red for 35b6cc5. All 81 page checks of that run had passed; no page was affected.
@@ -11,7 +11,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Test (`scripts/lib/shape.test.mjs`): the recorded Vienna answer with a warning switched on gives no difference, the same without the new option gives exactly what CI reported, and a renamed key still counts.
 - Found on the way: the test of the cleanup's keeping times (`lib/retention-rules.test.js`, written on 2026-11-12) failed every evening from 22:48 UTC to midnight, because it rounded "90 days and the hours since midnight" to 91. The test now accepts 90 to 91 days; the cleanup itself was right and is unchanged.
 
-## 2026-11-12
+### Changed: the automatic checks run on a named Ubuntu version and on current action versions
+- Nothing changes for visitors. GitHub warned on the layout check's runs that `actions/checkout@v4` and `actions/setup-node@v4` run on Node 20, which it is retiring. The check now uses version 7 of both, which run on Node 24 (as do versions 5 and 6; version 7 is what the places refresh already used).
+- All five workflows (layout check, backup, IndexNow, station calibration, places refresh) name their runner image, `ubuntu-26.04`, where they said `ubuntu-latest`. That label changes its version by itself. It already pointed to 26.04 in the last runs (the layout check's last three, the backup, IndexNow, the last places refresh), so the image stays the one in use and changes only when we change the line.
 
 ### Fixed: the weight shown for a source is its real share of the blend
 - The Sources panel showed each source's saved weight as a percentage (5 % and 3 % in central Europe). The blend counts a source by that weight among the sources that answered, so the real shares were higher (6.0 % and 3.6 % with nineteen sources) and the numbers shown did not add up to 100.
