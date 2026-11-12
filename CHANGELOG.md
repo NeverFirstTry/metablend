@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Changed: the automatic checks run on a named Ubuntu version and on current action versions
+- Nothing changes for visitors. GitHub warned on the layout check's runs that `actions/checkout@v4` and `actions/setup-node@v4` run on Node 20, which it is retiring. The check now uses version 7 of both, which run on Node 24 (as do versions 5 and 6; version 7 is what the places refresh already used).
+- All five workflows (layout check, backup, IndexNow, station calibration, places refresh) name their runner image, `ubuntu-26.04`, where they said `ubuntu-latest`. That label changes its version by itself. It already pointed to 26.04 in the last runs (the layout check's last three, the backup, IndexNow, the last places refresh), so the image stays the one in use and changes only when we change the line.
+
 ## 2026-11-12
 
 ### Fixed: the weight shown for a source is its real share of the blend
