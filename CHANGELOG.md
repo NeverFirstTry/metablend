@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-12
+
+### Added: the layout check follows links to a part of a page
+- `scripts/check-phone-layout.mjs` (also run in CI) clicks the footer's copyright link and a disclaimer link, and opens the WeatherAPI notice by its address, on the website and in the app view. It fails when the page does not end on that part. With the fault of 2026-11-10 put back (such links ended at the top of the terms) it reports "the link ended 1722 px away from #copyright". Five more page checks, 77 in all.
+- The link to the WeatherAPI notice is not clicked: it only shows while WeatherAPI answers, which a recording cannot promise. The disclaimer sits at the top of the terms, so only the copyright link tells a landing from the top of the page.
+
 ## 2026-11-11
 
 ### Changed: the privacy notice says what ending notifications does to the stored data
