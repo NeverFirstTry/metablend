@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: the rain forecast asks RRFS instead of HRRR in the United States
+- NOAA ends its HRRR model on 30 November 2026; Open-Meteo's page says to move to the successor RRFS. The rain forecast for the next two hours named HRRR in its request and now names RRFS (`ncep_rrfs_conus`), which has 15-minute rain for the same area.
+- Without the change nothing would have failed loudly: Open-Meteo answers a discontinued model without values, so places in the United States would have lost their fine model from 30 November.
+- Nothing else needs a change for that date: `icon_seamless`, `icon_d2` and `gfs_seamless` keep their names, and Open-Meteo moves them to DWD's new grids and to RRFS itself.
+
 ### Changed: the Czech ALADIN model takes the place of UK Met Office
 - UK Met Office is no longer one of the sources. Its model data comes under a share-alike licence (CC BY-SA 4.0), which does not fit a blend shown under our own terms. Its place is taken by the Czech Hydrometeorological Institute's ALADIN model (CHMI, 2.3 km grid, CC BY 4.0), shown as "CHMI ALADIN".
 - Where: the forecast's source list, the 7-day outlook and the summit forecast. CHMI ALADIN covers central Europe (measured: from about 40° N to 56° N, from the Channel to the Black Sea) for the next three and a half days, at a finer grid than UK Met Office's 10 km. Inside that area the number of sources stays what it was.
