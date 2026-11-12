@@ -21,6 +21,7 @@ export const SCHEMA_FILES = [
   'geocode-cache.sql', // town_lookup over our towns, and Open-Meteo's geocoding answers for 30 days
   'town-near.sql', // the town at a rounded position, for "My location"
   'place-climate.sql', // a place's climate table, asked from Open-Meteo once a year
+  'route-heights.sql', // a route's heights, asked from Open-Meteo once and kept
   'enable_rls.sql',
 ]
 

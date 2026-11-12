@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: a route's heights are asked once and kept
+- Why: Open-Meteo's elevation service charges one call per point. Every peak's routes were looked up again each week and every point asked again (up to 300 a route, eight routes a peak). On 2026-11-12 a check that opened about twenty peaks cost 22,705 calls in one hour and ran into Open-Meteo's per-minute limit: seven summit forecasts, two rain forecasts and one outlook request failed in that hour.
+- Now a route's line is sampled to at most 100 points and their heights are stored for good (new table `route_heights`, by route and by the line's fingerprint). A line the store knows asks nothing, also at the weekly lookup; heights the route cache already holds are taken over without a call. The points between the samples take their height from their neighbours.
+- A line longer than 40 km one way (a long-distance trail, not a way up a summit) gets no heights from the live service: no ascent and no walking time are shown for it, as for any route without heights. Heights already stored are still used.
+- At most 3,000 route points a day are asked, all visitors together (`OPEN_METEO_ROUTE_POINTS`); beyond that a new route is listed without ascent and time until the next day.
+- The saved-route repair (`/api/route-heights`) goes through the same store: at most 100 points of a saved route are asked, where it was up to 500.
+- Counted on their own as `route-heights`; `heights` stays for summits and single points.
+- Needs `supabase/route-heights.sql` on dev and production before the merge.
+
 ### Added: the layout check measures the forecast's fold-out panels open, in German and English
 - `scripts/check-phone-layout.mjs` (also run in CI) opens the Details and Sources panels of the forecast before it measures, and checks the forecast in English as well as in German. 81 page checks instead of 77.
 - New measurement: content of an open panel that sticks out of its card is a finding. The forecast page clips anything wider than the screen, so such content was cut off without the page getting wider, and the page-width test could not see it. With a 600 px wide element put into the Sources panel, the check as it was passed and the extended one fails.
