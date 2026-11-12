@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: limits per address for the share card, the RSS feed, the heatmap and the rankings
+- Share card (`/api/og/city`): ten new cards a minute per address. A card for a new name costs a forecast and an outlook; over the limit the plain card comes back (the name without weather), so a link preview still shows something. The card's own reads of the forecast and outlook now carry the site's key, so they no longer share one visitor limit between all cards.
+- RSS (`/api/rss`): thirty a minute per address, then "429, try again in a minute" (feed readers understand that; an empty feed would read as "nothing happened"). The CDN now keeps a city's feed for 15 minutes, so readers of the same feed share one copy.
+- Heatmap and rankings (`/api/heatmap`, `/api/leaderboard`): thirty a minute per address; over that the last answer built on that server comes back, not an error.
+- Each limit is far above what a visitor does: the heatmap and rankings pages ask once per visit, and the share card is fetched by link previews, not by browsers. Only requests the CDN could not answer count.
+
 ### Added: the layout check measures the forecast's fold-out panels open, in German and English
 - `scripts/check-phone-layout.mjs` (also run in CI) opens the Details and Sources panels of the forecast before it measures, and checks the forecast in English as well as in German. 81 page checks instead of 77.
 - New measurement: content of an open panel that sticks out of its card is a finding. The forecast page clips anything wider than the screen, so such content was cut off without the page getting wider, and the page-width test could not see it. With a 600 px wide element put into the Sources panel, the check as it was passed and the extended one fails.
