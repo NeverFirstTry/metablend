@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Fixed: the weight shown for a source is its real share of the blend
+- The Sources panel showed each source's saved weight as a percentage (5 % and 3 % in central Europe). The blend counts a source by that weight among the sources that answered, so the real shares were higher (6.0 % and 3.6 % with nineteen sources) and the numbers shown did not add up to 100.
+- A source without a saved weight was shown as 25 %, while the blend counted it like an average source (about 5 %). The new CHMI ALADIN source would have appeared with 25 %.
+- MetaBlend Local was shown with a weight although it has no share of the blend it is made from. It now shows 0 %.
+- The panel and the city pages' "most trusted" line now take the share from the same function the blend itself uses (`lib/consensus.js`), so they cannot differ again. The rankings page keeps showing the saved weights, which is what it ranks.
+
 ### Changed: the rain forecast asks RRFS instead of HRRR in the United States
 - NOAA ends its HRRR model on 30 November 2026; Open-Meteo's page says to move to the successor RRFS. The rain forecast for the next two hours named HRRR in its request and now names RRFS (`ncep_rrfs_conus`), which has 15-minute rain for the same area.
 - Without the change nothing would have failed loudly: Open-Meteo answers a discontinued model without values, so places in the United States would have lost their fine model from 30 November.
