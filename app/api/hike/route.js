@@ -10,6 +10,7 @@ import { buildHike } from '@/lib/hike/build'
 import featured from '@/lib/hike/featured.json'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
+import { keepAnswer, lastAnswer, keptResponse, placeKey } from '@/lib/last-answer'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
 // height. Language-neutral and CDN-cached per peak for an hour.
@@ -43,7 +44,15 @@ export const GET = withErrorLog('hike', async (request) => {
   const payload = buildHike({ peak: { ...peak, grade: listed?.grade }, region, multi, weights })
   // Open-Meteo refused or dropped every request: say so with 200, never cached, so the peak view shows
   // its retry card instead of a server error; the summit pages, push dispatch and the widget treat it as missing
-  if (!payload.hourly.length) return noStore({ ...payload, unavailable: true }, 200)
+  // (first the peak's last good answer, up to 24 hours old and marked with its time: lib/last-answer.js)
+  const place = `${placeKey(peak.lat, peak.lon)},${peak.elev}${stored ? ',core' : ''}`
+  if (!payload.hourly.length) {
+    const kept = await lastAnswer('summit', place)
+    if (kept) return keptResponse({ ...kept.body, peak: payload.peak }, kept.madeAt)
+    return noStore({ ...payload, unavailable: true }, 200)
+  }
+  // kept for an outage, without the name this request gave the peak: one request must not name it for others
+  await keepAnswer('summit', place, { ...payload, peak: { ...payload.peak, name: null } })
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },

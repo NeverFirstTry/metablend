@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Added: the last good forecast is kept for an outage
+- When the weather models give nothing (our own Open-Meteo server down and the public service switched off), the 7-day outlook and a summit's forecast now show the place's last good answer, up to 24 hours old, and the rain forecast one up to 1 hour old. The page says when it was made ("Stand: 12. Nov., 13:31", in all 13 languages, the words the summit pages already use). Until now the outlook fell back to one source or an error, the summit view to its retry card, and the rain card disappeared.
+- Order when the models give nothing: the kept answer with its time; else, for the outlook, MET Norway as before; else the error.
+- A new table `last_answers` holds one row per place and kind, compressed (an outlook 4.6 KB, a summit forecast 6.5 KB, rain 0.2 KB). At most 3,000 rows, about 20 MB at the very most; a normal day has under 1,000. Rows older than 24 hours go at the nightly cleanup.
+- A kept answer holds nothing a visitor typed: a place's name is taken from the asking request, and a peak's name is removed before keeping. The key is the town's or the peak's rounded position.
+- The CDN keeps a served kept answer for 5 minutes only, so a recovered server shows quickly.
+- Why a table and not the CDN alone: measured on a preview (2026-11-12), Vercel's CDN serves a failed route's last good copy only when that copy is past its "serve while rebuilding" window; inside it the copy is lost after one answer. Vercel's own key-value cache has no free amount on the Pro plan.
+- Needs `supabase/last-answers.sql` on dev and production before the merge. Without the table the routes behave as before.
+
 ### Added, not switched on: a comparison run for our own Open-Meteo server (shadow mode)
 - Nothing changes until a setting is set. `OPEN_METEO_SHADOW` is a share (0.2 is one request in five). With it and `OPEN_METEO_SELF` set, the public service answers every request as before, and that share is asked from our own server as well, after the public answer is in hand. Nothing a visitor sees comes from our server in this mode, and no visitor waits for it.
 - Each pair of answers is compared value by value and counted: the same, differing (further apart than rounding explains), missing (a value the public service gave and ours did not, for example a model our server does not have) or failed (no usable answer). How long our server took is counted too: within 1, 2 or 4 seconds, or slower.

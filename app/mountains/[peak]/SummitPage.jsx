@@ -37,12 +37,12 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
     setLive({ ...summitProps(d), ava: a ? { today: a.today, tomorrow: a.tomorrow } : null })
     setState('live')
   }
-  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, madeAt } = live ?? stored
+  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, madeAt, kept } = live ?? stored
   const ava = live?.ava ?? storedAva
   const lang = useLang()
   const asOf = when => (when ? fill(t(lang, 'mtnAsOf'), { when: madeAtText(when, lang) }) : '')
   // the line next to the button: every text it can show lies in the same place, so the tallest sets its height
-  const status = { stored: asOf(madeAt), loading: t(lang, 'mtnLiveLoading'), live: fill(t(lang, 'mtnLiveAsOf'), { when: madeAtText(madeAt, lang) }), failed: `${t(lang, 'mtnLiveFailed')} ${asOf(madeAt)}` }
+  const status = { stored: asOf(madeAt), loading: t(lang, 'mtnLiveLoading'), live: kept ? asOf(madeAt) : fill(t(lang, 'mtnLiveAsOf'), { when: madeAtText(madeAt, lang) }), failed: `${t(lang, 'mtnLiveFailed')} ${asOf(madeAt)}` }
   const blend = list => fill(t(lang, 'mtnBlend'), { elev: peak.elev, n: list.length, list: list.join(', ') })
   const fmt = tempFormatter(useUnit())
   const today = windows?.today !== undefined ? windowText(lang, windows.today, { date: todayLocal, todayLocal, stormUnknown }) : null

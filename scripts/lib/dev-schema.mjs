@@ -22,6 +22,7 @@ export const SCHEMA_FILES = [
   'town-near.sql', // the town at a rounded position, for "My location"
   'place-climate.sql', // a place's climate table, asked from Open-Meteo once a year
   'route-heights.sql', // a route's heights, asked from Open-Meteo once and kept
+  'last-answers.sql', // the last good answer per place, served when a forecast build fails
   'enable_rls.sql',
 ]
 

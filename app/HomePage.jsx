@@ -969,7 +969,7 @@ ${url}`)
                     <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                   </button>
                 </div>
-                {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} />}
+                {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} />}
               </div>
               <div className="flex gap-2 shrink-0">
                 <button
