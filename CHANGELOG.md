@@ -8,7 +8,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: no safety word in any text of the app
 - Summit note (hiking and the summit pages), all 13 languages: "Das ist eine Prognose, keine Garantie." / "This is a forecast, not a guarantee." Before: "keine Sicherheitsgarantie" / "not a safety guarantee".
 - Storm warning in English, Chinese and Korean: it ends "Take care." instead of "Stay safe."
-- The wording guard now checks every text of all 13 language packs, for the adjective and for the noun with its compounds ("sicher", "Sicherheit…", "safe", "safety" and the equivalents in the other languages). One text is excepted: the short WeatherAPI note, which stays as WeatherAPI.com requires. The legal pages (terms, privacy) keep their wording.
+- The wording guard now checks every text of all 13 language packs, for the adjective and for the noun with its compounds ("sicher", "Sicherheit…", "safe", "safety" and the equivalents in the other languages). Nothing is excepted. The legal pages (terms, privacy) keep their wording, and the notice WeatherAPI.com requires is quoted there word for word.
+- Short WeatherAPI note in the Sources panel, all 13 languages: "… keine alleinige Grundlage für Entscheidungen, von denen Leben, Gesundheit oder Sachwerte abhängen (siehe Hinweis)." / "… not the sole basis for decisions that life, health or property depend on (see the notice)."
 
 ### Changed: summit pages show a stored forecast with its time, and a button for the live one
 - The 195 summit pages (`/mountains/…`) and the summit teaser on `/hike` are built from a forecast of three weather models, and a built page is kept six hours. Before, each build asked every model and was kept 30 minutes. The page says when its forecast was fetched from the weather models, to the minute and in the summit's own time ("Stand: 12. Nov., 14:07"), and the same at the avalanche danger.
