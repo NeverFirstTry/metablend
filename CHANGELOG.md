@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Fixed: Chinese place names in simplified characters
+- Chinese readers now see place names in simplified characters everywhere: the forecast's heading, the search suggestions, recent places and favourites, the notification home city and notification texts, the phone and embed widgets, and summit names on the hiking screens. Vienna is "维也纳", no longer "維也納". The geocoder (GeoNames) and OpenStreetMap often give Chinese names in traditional script; a listed city takes its own Chinese name from `lib/city-names.js`, anything else is converted character by character with OpenCC's table (`lib/zh-hans.js`, `lib/zh-hans-table.js`, Apache License 2.0, made by `scripts/zh-hans-table.mjs`).
+- Only what is shown changes. The name a place goes by stays as the geocoder wrote it, because the page sends it back to find the place again and GeoNames files many places under the traditional name only (维也纳 finds Vienna, West Virginia). The forecast answer carries a new `cityShown` where the shown name differs; the search box shows it after a load and still asks by the original. Summit rows: simplified on the way out, and a new load takes `name:zh-Hans` first.
+- Traditional-Chinese browsers (zh-TW, zh-HK, zh-MO, zh-Hant) read English, as before: the site has simplified Chinese only.
+- The converter loads in the browser only for Chinese readers.
+
 ### Added: the layout check measures the forecast's fold-out panels open, in German and English
 - `scripts/check-phone-layout.mjs` (also run in CI) opens the Details and Sources panels of the forecast before it measures, and checks the forecast in English as well as in German. 81 page checks instead of 77.
 - New measurement: content of an open panel that sticks out of its card is a finding. The forecast page clips anything wider than the screen, so such content was cut off without the page getting wider, and the page-width test could not see it. With a 600 px wide element put into the Sources panel, the check as it was passed and the extended one fails.

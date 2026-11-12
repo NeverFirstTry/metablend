@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import { bumpCityView } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { cityName, countryName } from '@/lib/city-names'
+import { useHans } from '@/lib/useHans'
 import { startCity, isAppView, deepLinkCity, firstLoad } from '@/lib/app-client'
 import { SESSION, rememberForecast, resumeForecast, startLoad, isLatestLoad, currentLoad } from '@/lib/forecast-session'
 import { publishPrefs, knownLang, knownUnit } from '@/lib/ui-prefs'
@@ -247,6 +248,10 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [showSuggestions, setShowSuggestions] = useState(false)
   // the shared value first: a language or unit just changed on another tab beats this tab's memory
   const [lang, setLang] = useState(() => knownLang() ?? SESSION.lang ?? pageLang ?? 'en')
+  const hans = useHans(lang) // names the browser got from the geocoder, in simplified Chinese (lib/useHans.js)
+  // The search box shows a loaded place as the reader reads it (the forecast's cityShown: simplified Chinese);
+  // a search for that text asks by the name the place goes by (city), the one that finds it again
+  const askedAs = useRef({})
   const [langPick, setLangPick] = useState(LANG_SYSTEM) // what the picker shows: a language, or follow the phone
   const [unit, setUnit] = useState(() => knownUnit() ?? SESSION.unit ?? 'C')
   // restore or load — decided once, together with the state restored above, so
@@ -474,7 +479,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   // sent along, and remembered for every later load of that name (nearOf), so
   // a town of the same name elsewhere can't take its place.
   async function loadForecast(targetCity, { silent = false, remember = !silent, lang: asLang = lang, near: nearAt } = {}) {
-    const q = targetCity ?? city
+    const typed = targetCity ?? city
+    const q = askedAs.current[typed] ?? typed
     if (!q.trim()) return
     const near = nearAt ?? nearOf(q)
     // a place just picked or located keeps its name: it comes in the current language
@@ -501,6 +507,10 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       if (json.error) throw new Error(json.error)
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
+      if (!silent && json.cityShown && json.cityShown !== q) {
+        askedAs.current[json.cityShown] = q
+        setCity(c => (c === q || c === typed ? json.cityShown : c))
+      }
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
       rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
       if (near) rememberNear(json.city ?? q, near)
@@ -627,9 +637,10 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   async function shareForecast() {
     if (!data) return
     const url = cityShareUrl({ city: data.city, lang, unit })
-    const title = fill(t(lang, 'shareTitle'), { city: data.city })
+    const shown = hans(data.cityShown ?? data.city)
+    const title = fill(t(lang, 'shareTitle'), { city: shown })
     const text = shareText(lang, {
-      city: data.city,
+      city: shown,
       temp: fmt.fmtTemp(data.consensus.temp),
       condition: translateCondition(lang, heroCondition(data) ?? ''),
       sources: countSources(data.sources),
@@ -690,8 +701,8 @@ ${url}`)
           className="press-row w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 transition-colors flex justify-between items-center"
           onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
         >
-          <span>{s.name}</span>
-          <span className="text-zinc-500 text-xs">{s.admin1 ? `${s.admin1}, ` : ''}{countryName(s.country_code, lang, s.country)}</span>
+          <span>{hans(s.name)}</span>
+          <span className="text-zinc-500 text-xs">{s.admin1 ? `${hans(s.admin1)}, ` : ''}{countryName(s.country_code, lang, hans(s.country))}</span>
         </button>
       ))}
     </div>
@@ -818,7 +829,7 @@ ${url}`)
                 onClick={() => { setCity(c); loadForecast(c) }}
                 className="press bg-amber-900/20 border border-amber-500/30 rounded-full px-3 py-1 text-xs text-amber-200 hover:border-amber-400 inline-flex items-center gap-1"
               >
-                <Star size={11} fill="currentColor" aria-hidden /> {c}
+                <Star size={11} fill="currentColor" aria-hidden /> {hans(c)}
               </button>
             ))}
           </div>
@@ -831,13 +842,13 @@ ${url}`)
             {recent.map((c, i) => (
               <span key={c} className="recent-chip inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
                 <button onClick={() => { setCity(c); loadForecast(c) }} className="press pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
-                  {c}
+                  {hans(c)}
                 </button>
                 <button
                   type="button"
                   data-recent-remove
                   onClick={() => forgetRecent(c, i)}
-                  aria-label={fill(t(lang, 'recentRemove'), { city: c })}
+                  aria-label={fill(t(lang, 'recentRemove'), { city: hans(c) })}
                   title={fill(t(lang, 'recentRemove'), { city: c })}
                   className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
                 >
@@ -946,7 +957,7 @@ ${url}`)
                 <div className="flex items-center gap-2">
                   <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
                     {/* the example comes in English from the server: its name in the reader's language */}
-                    <PlaceName city={isExample ? cityName('vienna', lang, data.city) : data.city} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
+                    <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
                   </h2>
                   <button
                     onClick={manualRefresh}

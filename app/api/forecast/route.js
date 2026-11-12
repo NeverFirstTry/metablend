@@ -6,7 +6,7 @@ import { withErrorLog, logError } from '@/lib/log'
 import { clientIp, isInternal, selfBase } from '@/lib/auth'
 import { pickLang } from '@/lib/share'
 import { parseNear } from '@/lib/geo'
-import { geocodeCity, placeNames } from '@/lib/geocode'
+import { geocodeCity, placeNames, shownIn } from '@/lib/geocode'
 import {
   getRegion,
   fetchOpenMeteo, fetchOWM, fetchWeatherAPI, fetchMETNorway, fetchVisualCrossing,
@@ -237,8 +237,11 @@ export const GET = withErrorLog('forecast', async (request) => {
     after(() => fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {}))
   }
 
+  const shown = shownIn(lang, (await namesP).shown, learnCity)
   const payload = {
-    city:     (await namesP).shown,
+    city:     (await namesP).shown, // the place's name as the geocoder gave it: the page asks by it again
+    // what the reader sees where it differs (Chinese in simplified characters, lib/geocode.js shownIn)
+    ...(shown !== (await namesP).shown ? { cityShown: shown } : {}),
     learnCity, // the key feedback reports are matched by (see above)
     country:  geo.country, // English; the page names it from cc in the reader's language
     cc:       geo.cc ?? null,
