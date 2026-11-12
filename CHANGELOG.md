@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Added: the layout check measures the forecast's fold-out panels open, in German and English
+- `scripts/check-phone-layout.mjs` (also run in CI) opens the Details and Sources panels of the forecast before it measures, and checks the forecast in English as well as in German. 81 page checks instead of 77.
+- New measurement: content of an open panel that sticks out of its card is a finding. The forecast page clips anything wider than the screen, so such content was cut off without the page getting wider, and the page-width test could not see it. With a 600 px wide element put into the Sources panel, the check as it was passed and the extended one fails.
+
 ### Changed: no safety word in any text of the app
 - Summit note (hiking and the summit pages), all 13 languages: "Das ist eine Prognose, keine Garantie." / "This is a forecast, not a guarantee." Before: "keine Sicherheitsgarantie" / "not a safety guarantee".
 - Storm warning in English, Chinese and Korean: it ends "Take care." instead of "Stay safe."
