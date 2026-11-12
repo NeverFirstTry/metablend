@@ -63,12 +63,12 @@ export default function Widget() {
   if (!now) return <div className="h-screen flex items-center justify-center p-4 text-center text-sm text-zinc-400">{fill(t(lang, 'widgetError'), { city })}</div>
 
   return (
-    <a href={href} target="_blank" rel="noopener" aria-label={fill(t(lang, 'shareTitle'), { city: now.city })}
+    <a href={href} target="_blank" rel="noopener" aria-label={fill(t(lang, 'shareTitle'), { city: now.cityShown ?? now.city })}
       className="mb-rise h-screen w-full p-4 flex flex-col justify-between min-[440px]:flex-row min-[440px]:items-center min-[440px]:gap-6 min-[440px]:px-6 overflow-hidden">
       <div className="min-w-0 min-[440px]:flex-1">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <div className="text-base font-semibold tracking-tight truncate">{now.city}</div>
+            <div className="text-base font-semibold tracking-tight truncate">{now.cityShown ?? now.city}</div>
             {now.country && <div className="text-xs text-zinc-400 truncate">{now.country}</div>}
           </div>
           {icon && <div className="text-2xl leading-none min-[440px]:hidden" aria-hidden><Glyph emoji={icon} size={24} /></div>}

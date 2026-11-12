@@ -49,6 +49,9 @@ const PAGES = [
   ['city page', '/weather/vienna'], ['privacy', '/privacy'], ['terms', '/terms'], ['impressum', '/impressum'], ['support', '/support'],
   ['terms notice', '/?terms=show', 'notice'],
 ]
+// [name, path, how, , , , language]: pages checked in English as well, where the texts run to other lengths:
+// the forecast, whose fold-out panels (Details, Sources) are measured open like in German
+const ENGLISH = [['forecast (English)', '/', 'search', undefined, undefined, undefined, 'en']]
 // [name, path, how, link, part, only this view]: a link to a part of a page has to land on that part
 // (2026-11-10: the footer's link to the terms' copyright section ended at the top of the terms). Without
 // a link the address itself is opened: the link to the WeatherAPI notice only shows while WeatherAPI
@@ -210,12 +213,33 @@ const WIDE = `(() => {
   return doc.scrollWidth + ' px wide; cause: ' + (cause ? path.join(' > ') : 'not found')
 })()`
 
+// Content of an opened fold-out panel that sticks out of its card. The forecast's <main> clips sideways
+// (overflow-x-hidden), so such content is cut off without the page getting wider, and WIDE cannot see it.
+// A scroller inside a panel may run wider by design; absolutely placed helpers (screen-reader text) are skipped.
+const FOLD_OUT = `(() => {
+  const out = []
+  for (const button of document.querySelectorAll('.home-more button[aria-expanded="true"]')) {
+    const box = button.parentElement, r = box.getBoundingClientRect()
+    for (const el of box.querySelectorAll('*')) {
+      const e = el.getBoundingClientRect()
+      if (!e.width || !e.height || (e.right <= r.right + 1 && e.left >= r.left - 1)) continue
+      if (getComputedStyle(el).position === 'absolute') continue
+      let scroller = false
+      for (let a = el.parentElement; a && a !== box; a = a.parentElement) if (/auto|scroll/.test(getComputedStyle(a).overflowX)) { scroller = true; break }
+      if (scroller) continue
+      out.push(el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.trim().split(/\\s+/).slice(0, 3).join('.') : '') + ' reaches ' + Math.round(e.right) + ' px, its panel ends at ' + Math.round(r.right) + ' px')
+      break
+    }
+  }
+  return out
+})()`
+
 // one page in one view and motion setting; findings go into the list
-async function checkPage(view, motion, name, path, how, link, part) {
+async function checkPage(view, motion, name, path, how, link, part, lang = 'de') {
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
   await send('Network.clearBrowserCookies')
   await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
-  await send('Network.setCookie', { name: 'metablend_lang', value: 'de', url: BASE + '/' })
+  await send('Network.setCookie', { name: 'metablend_lang', value: lang, url: BASE + '/' })
   await send('Page.navigate', { url: 'about:blank' }); await sleep(200)
   // the app's forecast is its first tab; it opens from another page, like the app itself
   const start = view === 'app' && how && how !== 'notice' ? '/more' : path
@@ -237,13 +261,19 @@ async function checkPage(view, motion, name, path, how, link, part) {
   }
   await sleep(3500)
   await ev(`(document.querySelectorAll('details:not([open])').forEach(d => d.open = true), true)`); await sleep(500)
+  // the forecast's fold-out panels (Details, Sources: Fold in app/components/ui.jsx) are closed by default and
+  // hold the longest texts of the page; they are measured open
+  if (await ev(`(() => { const closed = [...document.querySelectorAll('.home-more button[aria-expanded="false"]')]; closed.forEach(b => b.click()); return closed.length })()`)) await sleep(1200)
+  if (how && how !== 'notice' && !(await ev(`document.querySelectorAll('.home-more button[aria-expanded="true"]').length >= 2`))) findings.push(`${view} ${name}: the forecast's fold-out panels did not open`)
   const label = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
   const app = await ev('document.documentElement.dataset.app === "1"')
   if (app !== (view === 'app')) { findings.push(`${label}: opened as the ${app ? 'app' : 'website'}`); return }
   const wide = await ev(WIDE)
   if (wide) findings.push(`${label}: ${wide}`)
+  const stuck = await ev(FOLD_OUT)
+  for (const f of stuck) findings.push(`${label}: content sticks out of an open panel: ${f}`)
   for (const s of motion === 'reduce' ? await ev(SMALL) : []) findings.push(`${label}: text below 13 px: ${s}`)
-  console.log(`${wide ? '✗' : '✓'} ${label}`)
+  console.log(`${wide || stuck.length ? '✗' : '✓'} ${label}`)
   if (!part) return
   // the link is clicked like a visitor's tap (a client-side navigation), then the part has to stand in the
   // upper half of the screen, or anywhere on it when the page cannot scroll further
@@ -261,12 +291,12 @@ try {
   views: for (const view of ['app', 'website']) {
     const close = await openView()
     try {
-      for (const motion of ['reduce', 'no-preference']) for (const [name, path, how, link, part, only] of [...PAGES, ...(motion === 'reduce' ? [] : PART_LINKS)]) {
+      for (const motion of ['reduce', 'no-preference']) for (const [name, path, how, link, part, only, lang] of [...PAGES, ...ENGLISH, ...(motion === 'reduce' ? [] : PART_LINKS)]) {
         if (only && only !== view) continue
         current = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
         let timer
         const outcome = await Promise.race([
-          checkPage(view, motion, name, path, how, link, part).then(() => 'done', e => `failed: ${e.message}`),
+          checkPage(view, motion, name, path, how, link, part, lang).then(() => 'done', e => `failed: ${e.message}`),
           new Promise(r => { timer = setTimeout(() => r('timeout'), PAGE_LIMIT) }),
         ])
         clearTimeout(timer)

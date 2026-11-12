@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { countryName } from '@/lib/city-names'
+import { useHans } from '@/lib/useHans'
 import { SectionTitle } from '../ui'
 import { pushApi, permission, enablePush, disablePush, promptState, forgetWhenOff } from '@/lib/push-client'
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
@@ -16,6 +17,7 @@ const HOURS = [5, 6, 7, 8, 9, 10, 11]
 // More → Notifications (app only). Loads the phone's settings from the
 // server; every switch saves on its own.
 export default function NotificationSettings({ lang, unit }) {
+  const hans = useHans(lang) // names in simplified Chinese; the home city is saved as the geocoder named it
   const [state, setState] = useState({ loading: true, perm: 'prompt', settings: null, plans: [] })
   const [msg, setMsg] = useState(null)
   const [editHome, setEditHome] = useState(false)
@@ -125,7 +127,7 @@ export default function NotificationSettings({ lang, unit }) {
           </div>
           <div className={box}>
             <div className="flex items-center justify-between gap-3">
-              <div><div className={caption}>{t(lang, 'notifHome')}</div><div className="text-sm mt-0.5">{s.home_name ?? '–'}</div></div>
+              <div><div className={caption}>{t(lang, 'notifHome')}</div><div className="text-sm mt-0.5">{s.home_name ? hans(s.home_name) : '–'}</div></div>
               <button onClick={() => setEditHome(v => !v)} className="press text-sm text-emerald-400">{t(lang, 'notifChange')}</button>
             </div>
             {!s.home_name && !editHome && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'notifPickHome')}</p>}
@@ -136,7 +138,7 @@ export default function NotificationSettings({ lang, unit }) {
                 {hits.map(h => (
                   <button key={h.id} onClick={() => { save({ home_name: h.name }); setEditHome(false); setQuery(''); setHits([]) }}
                     className="press-row block w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-zinc-800">
-                    {h.name}<span className="text-zinc-500"> · {[h.admin1, countryName(h.country_code, lang, h.country)].filter(Boolean).join(', ')}</span>
+                    {hans(h.name)}<span className="text-zinc-500"> · {[hans(h.admin1), countryName(h.country_code, lang, hans(h.country))].filter(Boolean).join(', ')}</span>
                   </button>
                 ))}
               </div>
