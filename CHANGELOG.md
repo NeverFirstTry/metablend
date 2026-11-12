@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: the footer line and the note under the forecast say what is at stake
+- Footer line, all 13 languages (the German is the original): "Vorhersagen können falsch sein. Nicht für Entscheidungen, von denen Leben, Gesundheit oder Sachwerte abhängen: Dafür gelten die amtlichen Warnungen." In English: "Forecasts can be wrong. Not for decisions that life, health or property depend on. For those, follow the official warnings." Before: "Not for safety-critical decisions."
+- Note under the forecast, all 13 languages: "Vorhersagen können danebenliegen. Verlass dich nicht allein darauf, wenn Leben, Gesundheit oder Sachwerte davon abhängen." In English: "Forecasts can be wrong. Don’t rely on them alone for decisions that life, health or property depend on." Before it named safety-critical decisions.
+- The wording guard now covers both texts in every language. The storm warning, the hiking note and the notice WeatherAPI.com requires keep their words.
+
 ### Changed: regional weather models are asked only where they have data
 - The forecast, the 7-day outlook and the live summit forecast ask Open-Meteo's regional models (KNMI, DMI, MET Nordic, MeteoSwiss, ItaliaMeteo, NOAA NBM) only inside the area each one covers. The global models are asked everywhere, as before. Nothing changes in what is shown: a model asked outside its area had no values (the recorded Lienz forecast gives the same answer without NBM in the request).
 - Why: Open-Meteo charges variables × models, also for a model with nothing to say. Per request: the forecast's model part costs 4.5 calls in the Alps, 3 in New York and 2.5 in Perth instead of 5; the outlook 11.7 in Vienna and 9.1 in Perth instead of 13 (still 13 in Oslo, where all ten models cover); the summit forecast 15.3 on the Großglockner instead of 17.
