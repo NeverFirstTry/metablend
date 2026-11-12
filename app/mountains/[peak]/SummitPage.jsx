@@ -1,5 +1,6 @@
 'use client'
 
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
@@ -8,14 +9,41 @@ import { formatCalendarDate } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
+import { hikeApiPath } from '@/lib/hike/params'
+import { summitProps, madeAtText, LIVE_HEADER } from '@/lib/hike/summit-props'
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
 
 // One summit in the visitor's language and unit. The server renders it in English for
 // search engines; the URL stays the same in every language.
-export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, ava, nearby }) {
+export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...stored }) {
+  // The page shows the forecast it was built with (three models, kept up to six hours) and says when
+  // that was made. Nothing is fetched on its own: crawlers run scripts too, and every live forecast is a
+  // full request. The button fetches the live forecast and the avalanche danger.
+  const [live, setLive] = useState(null)
+  const [state, setState] = useState('stored') // stored | loading | live | failed
+  const box = useRef(null)
+  async function goLive() {
+    // what stands on the page keeps its height, so nothing jumps when the live forecast replaces it
+    for (const el of box.current?.querySelectorAll('[data-keep]') ?? []) el.style.minHeight = `${el.offsetHeight}px`
+    setState('loading')
+    const json = (url, init) => fetch(url, init).then(r => (r.ok ? r.json() : null)).catch(() => null)
+    const [d, a] = await Promise.all([
+      json(hikeApiPath(peak), { headers: { [LIVE_HEADER]: '1' } }),
+      json(`/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`),
+    ])
+    if (!d?.days?.length || d.unavailable) return setState('failed')
+    setLive({ ...summitProps(d), ava: a ? { today: a.today, tomorrow: a.tomorrow } : null })
+    setState('live')
+  }
+  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, madeAt } = live ?? stored
+  const ava = live?.ava ?? storedAva
   const lang = useLang()
+  const asOf = when => (when ? fill(t(lang, 'mtnAsOf'), { when: madeAtText(when, lang) }) : '')
+  // the line next to the button: every text it can show lies in the same place, so the tallest sets its height
+  const status = { stored: asOf(madeAt), loading: t(lang, 'mtnLiveLoading'), live: fill(t(lang, 'mtnLiveAsOf'), { when: madeAtText(madeAt, lang) }), failed: `${t(lang, 'mtnLiveFailed')} ${asOf(madeAt)}` }
+  const blend = list => fill(t(lang, 'mtnBlend'), { elev: peak.elev, n: list.length, list: list.join(', ') })
   const fmt = tempFormatter(useUnit())
   const today = windows?.today !== undefined ? windowText(lang, windows.today, { date: todayLocal, todayLocal, stormUnknown }) : null
   const tomorrow = windows?.tomorrow !== undefined && tomorrowLocal ? windowText(lang, windows.tomorrow, { date: tomorrowLocal, todayLocal, stormUnknown }) : null
@@ -26,7 +54,7 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
-      <div className="max-w-3xl mx-auto">
+      <div ref={box} className="max-w-3xl mx-auto">
         <nav className="text-zinc-500 text-xs mb-6 flex flex-wrap gap-2">
           <Link href="/" className="hover:text-emerald-400">MetaBlend</Link>
           <span>/</span>
@@ -40,7 +68,15 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
           {fill(t(lang, 'mtnAtElev'), { elev: peak.elev })} · {region}{peak.country ? ` · ${peak.country}` : ''}{peak.grade ? ` · SAC ${peak.grade}` : ''}
         </p>
 
-        <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+        <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
+          <button type="button" onClick={goLive} disabled={state === 'loading'} className="press rounded-lg bg-zinc-800 px-3 py-1.5 text-sm font-bold hover:text-emerald-400 disabled:opacity-60">{t(lang, 'mtnLiveButton')}</button>
+          <p className="grid min-w-0 flex-1 basis-56 text-sm text-zinc-300">
+            {Object.entries(status).map(([k, text]) => <span key={k} aria-hidden={k !== state} className={`col-start-1 row-start-1 ${k === state ? '' : 'invisible'}`}>{text}</span>)}
+          </p>
+          <span role="status" className="sr-only">{state === 'stored' ? '' : status[state]}</span>
+        </div>
+
+        <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtnWindow')}</h2>
           {today && <p className="text-xl font-bold">{today.title}</p>}
           {today?.sub && <p className="text-sm text-zinc-400 mt-1">{today.sub}</p>}
@@ -49,7 +85,7 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
         </section>
 
         {avaDays.length > 0 && (
-          <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+          <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'avaTitle')}</h2>
             <ul className="space-y-2 text-sm">
               {avaDays.map(([label, level]) => (
@@ -60,12 +96,12 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
                 </li>
               ))}
             </ul>
-            <p className="text-xs text-zinc-500 mt-3">{t(lang, 'avaNote')} · <a href="https://avalanches.org/" className="underline hover:text-emerald-400">{t(lang, 'avaSource')}</a></p>
+            <p className="text-xs text-zinc-500 mt-3">{[asOf(live?.ava ? madeAt : stored.madeAt), t(lang, 'avaNote')].filter(Boolean).join(' · ')} · <a href="https://avalanches.org/" className="underline hover:text-emerald-400">{t(lang, 'avaSource')}</a></p>
           </section>
         )}
 
         {days?.length > 0 && (
-          <section aria-label={t(lang, 'mtn7Day')} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+          <section data-keep aria-label={t(lang, 'mtn7Day')} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtn7Day')}</h2>
             {/* a phone stacks each day in three columns, with a label above each value (.stack-table) */}
             <table role="table" className="stack-table w-full text-sm text-left">
@@ -89,7 +125,11 @@ export default function SummitPage({ peak, days, windows, todayLocal, tomorrowLo
               </tbody>
             </table>
             {sources?.length > 0 && (
-              <p className="text-zinc-500 text-xs mt-3">{fill(t(lang, 'mtnBlend'), { elev: peak.elev, n: sources.length, list: sources.join(', ') })}</p>
+              <p className="grid text-zinc-500 text-xs mt-3">
+                <span className="col-start-1 row-start-1">{blend(sources)}</span>
+                {/* the room the full list takes (drawn by CSS, not in the page's text), so the live forecast's longer list moves nothing */}
+                <span aria-hidden data-full={blend(fullList?.length ? fullList : sources)} className="invisible col-start-1 row-start-1 before:content-[attr(data-full)]" />
+              </p>
             )}
           </section>
         )}

@@ -4,6 +4,7 @@ import { MountainSnow } from 'lucide-react'
 import featured from '@/lib/hike/featured.json'
 import { isAppRequest } from '@/lib/app-client'
 import { hikeApiPath } from '@/lib/hike/params'
+import { storedPath, STORED_SECONDS } from '@/lib/hike/summit-props'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { t, detectLang, LANGUAGES } from '@/lib/i18n'
 import { addDays } from '@/lib/localtime'
@@ -37,7 +38,7 @@ const peakOfDay = (now = Date.now()) => PEAKS[Math.floor(now / 864e5) % PEAKS.le
 
 async function liveWindow(p) {
   try {
-    const res = await fetch(`${BASE}${hikeApiPath(p)}`, { next: { revalidate: 1800 } })
+    const res = await fetch(`${BASE}${storedPath(hikeApiPath(p))}`, { next: { revalidate: STORED_SECONDS } })
     return res.ok ? await res.json() : null
   } catch {
     return null // the teaser renders without the live box

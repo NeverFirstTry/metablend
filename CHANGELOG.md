@@ -5,6 +5,18 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: no safety word in any text of the app
+- Summit note (hiking and the summit pages), all 13 languages: "Das ist eine Prognose, keine Garantie." / "This is a forecast, not a guarantee." Before: "keine Sicherheitsgarantie" / "not a safety guarantee".
+- Storm warning in English, Chinese and Korean: it ends "Take care." instead of "Stay safe."
+- The wording guard now checks every text of all 13 language packs, for the adjective and for the noun with its compounds ("sicher", "Sicherheit…", "safe", "safety" and the equivalents in the other languages). Nothing is excepted. The legal pages (terms, privacy) keep their wording, and the notice WeatherAPI.com requires is quoted there word for word.
+- Short WeatherAPI note in the Sources panel, all 13 languages: "… keine alleinige Grundlage für Entscheidungen, von denen Leben, Gesundheit oder Sachwerte abhängen (siehe Hinweis)." / "… not the sole basis for decisions that life, health or property depend on (see the notice)."
+
+### Changed: summit pages show a stored forecast with its time, and a button for the live one
+- The 195 summit pages (`/mountains/…`) and the summit teaser on `/hike` are built from a forecast of three weather models, and a built page is kept six hours. Before, each build asked every model and was kept 30 minutes. The page says when its forecast was fetched from the weather models, to the minute and in the summit's own time ("Stand: 12. Nov., 14:07"), and the same at the avalanche danger.
+- A button, "Live mit allen Modellen" / "Live with all models", fetches the live forecast of all models and the current avalanche danger. Nothing is fetched without the click. If the live forecast cannot be reached, the stored one stays and the page says so. The page keeps room for the live result, so nothing moves when it arrives. All texts in 13 languages.
+- Why: the pages are asked mostly by crawlers, round the clock, and every build cost a full summit forecast (750 requests and 12,215 Open-Meteo calls counted as `summit` on 2026-11-11). A build now costs 5.1 calls and happens at most four times a day per page: at most about 4,000 calls a day on a day without a deploy (195 × 4 × 5.1). A click on the button costs 15.3 calls for a peak in the Alps, unless that peak was asked within the hour.
+- Counted apart: page builds as `summit-page`, the button as `summit-live`; the peak view in the app stays `summit`. The button asks the same address as the app, so both share the hourly copy.
+
 ### Changed: the footer line and the note under the forecast say what is at stake
 - Footer line, all 13 languages (the German is the original): "Vorhersagen können falsch sein. Nicht für Entscheidungen, von denen Leben, Gesundheit oder Sachwerte abhängen: Dafür gelten die amtlichen Warnungen." In English: "Forecasts can be wrong. Not for decisions that life, health or property depend on. For those, follow the official warnings." Before: "Not for safety-critical decisions."
 - Note under the forecast, all 13 languages: "Vorhersagen können danebenliegen. Verlass dich nicht allein darauf, wenn Leben, Gesundheit oder Sachwerte davon abhängen." In English: "Forecasts can be wrong. Don’t rely on them alone for decisions that life, health or property depend on." Before it named safety-critical decisions.
