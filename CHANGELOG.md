@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: the privacy notice names the shorter periods
+- The privacy notice said the server's error log and the blend history ("consensus snapshots") are kept 30 days. Since today's cleanup change they are kept 14 and 7 days. The notice now says so, in both places and in all 13 languages: a failed request's address stays in the error log for 14 days; consensus snapshots are deleted after 7 days, server error logs after 14.
+- German first, the 12 translations follow it. Nothing else in the notice changes.
+
 ### Changed: logs are kept a shorter time
 - The nightly cleanup now deletes the blend history (`consensus_history`) after 7 days, the error log after 14 days and the station comparison log (`station_errors`) after 14 days. Each was 30 days.
 - Notes in the error log that are not failures (`geocode.upstream`, `open-meteo.quota`, `warnings.database`) go after 7 days.
