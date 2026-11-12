@@ -187,10 +187,11 @@ await send('Emulation.setGeolocationOverride', LIENZ)
 // a viewport tag, or mobile emulation lays the page out 980 px wide and shrinks it
 const HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
 
-// Japanese and Chinese captions break only at their "|" marks (between words), Korean only at its spaces:
-// a browser otherwise splits a word anywhere (山 / 峰, 가 / 장). Without a language: the plain caption.
+// Japanese, Chinese and Korean captions break only at their "|" marks: a browser otherwise splits a word
+// anywhere (山 / 峰, 가 / 장) or, in Korean, between a number and its noun (195개 / 산). Korean keeps the space
+// between its parts. Without a language: the plain caption.
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-const captionHtml = (caption, lang) => ['ja', 'zh'].includes(lang) ? caption.split('|').map(p => `<span style="white-space:nowrap">${esc(p)}</span>`).join('<wbr>') : esc(caption.replaceAll('|', ''))
+const captionHtml = (caption, lang) => ['ja', 'zh', 'ko'].includes(lang) ? caption.split('|').map(p => `<span style="white-space:nowrap">${esc(p)}</span>`).join(lang === 'ko' ? ' ' : '<wbr>') : esc(caption.replaceAll('|', ''))
 // Hanken Grotesk has no Japanese, Chinese or Korean letters: those captions add Noto Sans (loaded, so a Mac and a
 // PC draw the same letters, not Hiragino or Yu Gothic), with Hanken Grotesk kept for digits and Latin letters
 const cjkFont = lang => NOTO[lang] ?? null
