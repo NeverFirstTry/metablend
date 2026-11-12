@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Prepared, not switched on: a smaller summits table for an emergency
+- Nothing changes for anyone. `supabase/summits-lean.sql` is a prepared script for the case that the database passes 420 MB; it has not been run on dev or production and no job runs it.
+- What it would do: keep every hut, every peak with a mark (Wikipedia, Wikidata or a summit cross) and every peak in AT, DE, CH, IT, SI, FR and LI; remove the unmarked peaks elsewhere. Counted on 2026-11-12: 316,865 of 568,262 rows would go; the table would shrink from 206 MB to about 87 MB (measured on a copy in the dev database).
+- The price: an unmarked hill outside the seven countries would no longer be found by the search or by "Near you".
+- The half-yearly places refresh has the same rule (`keepLean` in `lib/places/rows.js`), switched off (`LEAN = false`). It is switched on in the same hour the script runs on production, or the refresh would load the rows back.
+- Test: the script's DELETE runs in a real Postgres and must remove exactly the rows the refresh rule would not keep; the search and "Near you" must still answer afterwards.
+
 ### Changed: logs are kept a shorter time
 - The nightly cleanup now deletes the blend history (`consensus_history`) after 7 days, the error log after 14 days and the station comparison log (`station_errors`) after 14 days. Each was 30 days.
 - Notes in the error log that are not failures (`geocode.upstream`, `open-meteo.quota`, `warnings.database`) go after 7 days.
