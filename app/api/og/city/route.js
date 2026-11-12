@@ -1,4 +1,5 @@
-import { selfBase } from '@/lib/auth'
+import { selfBase, clientIp } from '@/lib/auth'
+import { createRateLimiter } from '@/lib/ratelimit'
 import { ImageResponse } from 'next/og'
 import { t, translateCondition } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
@@ -17,6 +18,10 @@ const TTL = 1800
 // through the public domain, not the deployment URL (deployment protection
 // 401s server-to-server fetches) — same rule as /weather/[city]
 const baseFor = selfBase
+// A card for a new name costs a forecast and an outlook. Cards are fetched by link previews (chats, feeds),
+// not by a visitor's browser, so ten new ones a minute from one address is far above real use. Over that
+// the plain card comes back (the name without weather, not kept): a preview still shows something.
+const limiter = createRateLimiter({ max: 10, windowMs: 60 * 1000 })
 
 const svg = body => `data:image/svg+xml;utf8,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 160">${body}</svg>`)}`
 const CLOUD = '<g fill="#e2eaf7" fill-opacity="0.78"><circle cx="70" cy="92" r="30"/><circle cx="106" cy="76" r="40"/><circle cx="142" cy="98" r="24"/><rect x="40" y="92" width="126" height="34" rx="17"/></g>'
@@ -30,8 +35,11 @@ const ICONS = {
 const ICON_FOR = { storm: 'rain', rain: 'rain', snow: 'snow', cloudy: 'cloud', night: 'moon' }
 
 async function getJson(url) {
+  // the card's own reads carry the site's key: the forecast's and outlook's limits count visitors, and
+  // every card would otherwise share the one address of this server (the limit above guards them)
+  const key = process.env.CALIBRATE_SECRET
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000) })
+    const r = await fetch(url, { signal: AbortSignal.timeout(8000), headers: key ? { 'x-calibrate-key': key } : {} })
     if (!r.ok) return null
     const j = await r.json()
     return j?.error ? null : j
@@ -44,7 +52,8 @@ export async function GET(req) {
   const lang = pickLang(u.searchParams.get('lang'))
   const fmtTemp = tempFormatter(pickUnit(u.searchParams.get('unit')))
   const key = encodeURIComponent(name.toLowerCase())
-  const [now, built] = name
+  // only cache misses reach this point: the CDN answers a card it has
+  const [now, built] = name && !limiter.limited(clientIp(req))
     ? await Promise.all([getJson(`${baseFor(req)}/api/forecast?city=${key}&lang=${lang}`), getJson(`${baseFor(req)}/api/outlook?city=${key}&lang=${lang}`)])
     : [null, null]
   const out = atNow(built) // the outlook's copy can be 2.5 h old: today and this hour, not the build's
