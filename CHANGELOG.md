@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Changed: the rain forecast asks RRFS instead of HRRR in the United States
+- NOAA ends its HRRR model on 30 November 2026; Open-Meteo's page says to move to the successor RRFS. The rain forecast for the next two hours named HRRR in its request and now names RRFS (`ncep_rrfs_conus`), which has 15-minute rain for the same area.
+- Without the change nothing would have failed loudly: Open-Meteo answers a discontinued model without values, so places in the United States would have lost their fine model from 30 November.
+- Nothing else needs a change for that date: `icon_seamless`, `icon_d2` and `gfs_seamless` keep their names, and Open-Meteo moves them to DWD's new grids and to RRFS itself.
+
 ### Added: the last good forecast is kept for an outage
 - When the weather models give nothing (our own Open-Meteo server down and the public service switched off), the 7-day outlook and a summit's forecast now show the place's last good answer, up to 24 hours old, and the rain forecast one up to 1 hour old. The page says when it was made ("Stand: 12. Nov., 13:31", in all 13 languages, the words the summit pages already use). Until now the outlook fell back to one source or an error, the summit view to its retry card, and the rain card disappeared.
 - Order when the models give nothing: the kept answer with its time; else, for the outlook, MET Norway as before; else the error.
