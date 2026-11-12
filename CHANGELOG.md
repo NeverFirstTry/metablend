@@ -18,6 +18,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Traditional-Chinese browsers (zh-TW, zh-HK, zh-MO, zh-Hant) read English, as before: the site has simplified Chinese only.
 - The converter loads in the browser only for Chinese readers.
 
+### Changed: the 7-day outlook's sources are scored again on most of their predictions
+- The nightly check compares saved predictions with airport weather reports. It asked 40 airports in one request, and the service cuts an answer at 400 reports, so most predictions found no measurement: on 2026-11-12, 11,689 of 14,843 were overdue and two thirds of the decided ones had run out unscored. It now asks two airports per request (72 hours fit), paced, and stops after two and a half minutes; what is left waits for the next night.
+- A place with no airport within 60 km is no longer saved for scoring: it could never be checked.
+- At most 20 places per region and 6-hour slot are saved. In Europe a slot held 26 on average. This also keeps the table from growing with every new place.
+- The night's counts (due, scored, run out, waiting, airports, requests) are now kept in the job log.
+
 ### Added: a health address for an outside monitor
 - `/api/health` answers 200 when all is well and 503 with a list of problems when not. An outside monitor asks it every five minutes and sends the mail; the site itself sends none, and nothing is added to the pages.
 - A problem is: more than 10 errors of our own routes in 15 minutes (a normal week has none; the forecast outage of 2026-11-09 had 22), more than 45 failed requests to outside services in 15 minutes (the week's highest was 30), a scheduled job that has not run in time or ended with an error (warnings and push: 60 minutes, station comparison: 150 minutes, the two daily jobs: 26 hours), or no answer from the database.

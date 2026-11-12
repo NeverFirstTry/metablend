@@ -204,5 +204,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
     return Response.json({ error: failed.error.message, validation, outlook }, { status: 500 })
   }
 
-  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook })
+  // the night's outlook counts as plain numbers: the job log keeps numbers, not nested objects
+  const counts = outlook && !outlook.error
+    ? { outlookDue: outlook.snapshots, outlookScored: outlook.scored, outlookExpired: outlook.expired, outlookWaiting: outlook.waiting, outlookStations: outlook.stations, outlookRequests: outlook.requests, outlookTruncated: outlook.truncated, outlookStationsLeft: outlook.stationsLeft }
+    : {}
+  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook, ...counts })
 }))
