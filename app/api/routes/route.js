@@ -6,8 +6,8 @@ import { supabase } from '@/lib/supabase'
 import { parsePeakQuery } from '@/lib/hike/params'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { fetchElevations } from '@/lib/hike/sources'
-import { findRoutes, healRoutes, withoutGuesses, replacesCache } from '@/lib/route/find'
-import { routeHeights, dailyBudget } from '@/lib/route/height-store'
+import { findRoutes, healRoutes, withoutGuesses, replacesCache, listedRoutes } from '@/lib/route/find'
+import { routeHeights, dailyBudget, LIVE_MAX_KM } from '@/lib/route/height-store'
 import { noStore } from '@/lib/no-store'
 
 // The marked routes up a peak (OpenStreetMap). One OSM lookup per peak a
@@ -24,7 +24,7 @@ const routeElevations = points => fetchElevations(points, { kind: 'route-heights
 // what the route cache already holds for a place costs nothing: "lat,lon" → height
 const knownHeights = routes => new Map((routes ?? []).filter(r => r.heights === 'terrain').flatMap(r => r.points.filter(p => typeof p[2] === 'number').map(p => [`${p[0].toFixed(5)},${p[1].toFixed(5)}`, p[2]])))
 const heightsWith = known => (id, points) => routeHeights(id, points, { db: supabase, getElevations: routeElevations, budget, known })
-const ok = (routes, fresh = 86400) => Response.json({ routes }, { headers: { 'Cache-Control': `public, s-maxage=${fresh}, stale-while-revalidate=${fresh === 86400 ? 604800 : fresh}` } })
+const ok = (routes, fresh = 86400) => Response.json({ routes: listedRoutes(routes, LIVE_MAX_KM) }, { headers: { 'Cache-Control': `public, s-maxage=${fresh}, stale-while-revalidate=${fresh === 86400 ? 604800 : fresh}` } })
 
 export const GET = withErrorLog('routes', async (request) => {
   const peak = parsePeakQuery(new URL(request.url).searchParams)
