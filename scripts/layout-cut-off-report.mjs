@@ -16,7 +16,8 @@ export const PAGE_FILE = {
   'summit page': 'app/mountains/[peak]/SummitPage.jsx', 'summit list': 'app/mountains/MountainList.jsx',
   'city page': 'app/weather/[city]/CityPage.jsx', 'city list': 'app/weather/CityList.jsx',
   privacy: 'app/privacy/content.jsx', terms: 'app/terms/content.jsx', impressum: 'app/impressum/page.js', support: 'app/support/page.js',
-  testers: 'app/testers/TestersContent.jsx', widget: 'app/widget/[city]/Widget.jsx', 'shared city link': 'app/city/[name]/GoToCity.jsx',
+  testers: 'app/testers/TestersContent.jsx', widget: 'app/widget/[city]/Widget.jsx',
+  'shared city link': 'app/HomePage.jsx', // app/city/[name]/GoToCity.jsx sends the visitor on to the forecast
 }
 
 // What a line is, as far as the measurement can tell. Only 'content' needs a look at the page; the others are

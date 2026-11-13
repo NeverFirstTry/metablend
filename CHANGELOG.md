@@ -3,6 +3,15 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Added: a measurement of everything that is cut off sideways (report only)
+- Nothing changes for visitors and nothing is fixed here. The phone layout check sees a page that is wider than the screen; it cannot see content that is cut off inside a page, because most pages clip sideways on their own outer element. With `MEASURE=<file.json>` the same script now lists every element that is cut off sideways, on every page of the site (25 pages, app and website), in each of the 13 languages, at 320, 360 and 390 px, with how far it sticks out. `scripts/layout-cut-off-report.mjs` makes the table per page file. Without `MEASURE` the check does and reports what it did.
+- First run, 2026-11-13, 648 page loads: two things are cut off, both only at 320 px. The weight column of the forecast's source list (heading and all values, up to 14 px beyond the screen) in English, Spanish, French and Portuguese; and the third tab of the rankings ("Semaine", 40 px) in French on the website. Nothing at 360 or 390 px.
+- Listed as well, cut off on purpose: map tiles inside their map frame (heatmap, route map) and text kept for screen readers (the summit page's table heading, the testers form's spam trap).
+- Not measured: states the check does not open (menus, dialogs, the search suggestions, the Tomorrow tab, an error page), widths under 320 px, and other places than Vienna and Großglockner.
+- The measuring function was first run on a page of known cases (cut off, shortened, scrolling, screen-reader text, fixed and absolutely placed elements); that found two faults in it before the first real run.
+
 ## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
