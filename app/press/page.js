@@ -5,7 +5,7 @@ import PressContent from './PressContent'
 
 export const metadata = {
   title: 'Press',
-  description: 'MetaBlend for the press: what it is, key facts, the press contact, and the press kit with logo, app icon and screenshots.',
+  description: 'MetaBlend for the press: what it is, key facts, the press contact, and the press kit with logo, app icon, screenshots and two short films.',
   alternates: { canonical: '/press' },
 }
 

@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-13
 
+### Added: the 28-second film in "What is consensus forecasting?"
+- On the website, the fold "What is consensus forecasting?" (Was ist eine Konsens-Vorhersage?) opens with the film: 17 weather sources give their temperature for Lienz and come together in one forecast. German visitors see the German film, everyone else the English one. The square film at every width: the card's full width on a phone, 24rem (384 px) and centred in the card from 640 px. Nothing loads until the film is in view (about 1.2 MB).
+- Muted and looped, it plays only while in view. A button in its corner pauses it (and plays it again). With reduced motion it waits on its poster for that button. A label in each of the 13 languages describes it for screen readers. The app shows no film.
+- /press: a Video section with the two 16:9 films as they go to the stores (English, German), one sentence each and a download, and both films in the press kit ZIP (now 10.5 MB, with the iPhone screenshots from the Mac run).
+
 ### Changed: the store descriptions before launch (owner 2026-11-13)
 - App Store and Google Play, all 13 languages: the heading "Always up to date" is now "Alerts and widgets" (Hinweise und Widgets), "Summit forecasts for any peak" is now "Summit forecasts worldwide" (Gipfelprognosen weltweit; in Japanese, Chinese, Korean and Slovenian the wind item no longer repeats the summit word), and "The best time to be outside" is now the app's own name for it, "Best time out" (Beste Zeit draußen), in each language's words from the app.
 - Spanish: the freezing level is "isoterma de 0 °C" (it said "cota de nieve", the snow line). French: "les sources qui voient juste régulièrement" keeps the track record, and the three link labels have a space before the colon like the rest. Chinese: "经常准" (often right) for "一直准" (always right).

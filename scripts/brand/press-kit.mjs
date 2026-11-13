@@ -62,6 +62,9 @@ for (let n = 1; n <= 5; n++) {
 }
 add('feature-graphic/metablend-feature-graphic.png', fs.readFileSync(P('fastlane/metadata/android/en-US/images/featureGraphic.png')))
 
+// ---- the two 16:9 films as they go to the stores, offered on /press as well (owner 2026-11-13)
+for (const [file] of PRESS.en.videos) add(`video/${path.basename(file)}`, fs.readFileSync(P('public', file)))
+
 // ---- three app screenshots without captions, from the live app view
 // [name, address, ready, view]: Schafberg and its Purtschellersteig, the peak the store shots show
 const SHOTS = [
@@ -134,7 +137,7 @@ if (leak) throw new Error(leak)
 const readme = ['en', 'de'].map(lang => {
   const p = PRESS[lang]
   return [lang === 'en' ? 'MetaBlend press kit' : 'MetaBlend Pressemappe', '', p.intro, '', p.factsTitle, ...p.facts.map(([k, v]) => `${k}: ${v}`), '',
-    `${p.contactTitle}: info@metablend.app`, 'https://metablend.app/press', '', ...p.kitItems.map(i => `* ${i}`), '', p.kitText.replace(' ({size})', '')].join('\n')
+    `${p.contactTitle}: info@metablend.app`, 'https://metablend.app/press', '', ...p.kitItems.map(i => `* ${i}`), '', p.videoTitle, ...p.videos.map(([file, , text]) => `${path.basename(file)}: ${text}`), '', p.kitText.replace(' ({size})', '')].join('\n')
 }).join('\n\n\n')
 add('README.txt', readme + '\n')
 
