@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-13
 
 ### Added: the 28-second film in "What is consensus forecasting?"
-- On the website, the fold "What is consensus forecasting?" (Was ist eine Konsens-Vorhersage?) opens with the film: 17 weather sources give their temperature for Lienz and come together in one forecast. German visitors see the German film, everyone else the English one. Square on a phone, 16:9 from 640 px; nothing loads until the film is in view, and then only the file that fits, so a phone never fetches the wide film (about 1.2 MB each).
+- On the website, the fold "What is consensus forecasting?" (Was ist eine Konsens-Vorhersage?) opens with the film: 17 weather sources give their temperature for Lienz and come together in one forecast. German visitors see the German film, everyone else the English one. The square film at every width: the card's full width on a phone, 24rem (384 px) from 640 px. Nothing loads until the film is in view (about 1.2 MB).
 - Muted and looped, it plays only while in view. A button in its corner pauses it (and plays it again). With reduced motion it waits on its poster for that button. A label in each of the 13 languages describes it for screen readers. The app shows no film.
 - /press: a Video section with the two 16:9 films as they go to the stores (English, German), one sentence each and a download, and both films in the press kit ZIP (now 10.5 MB, with the iPhone screenshots from the Mac run).
 

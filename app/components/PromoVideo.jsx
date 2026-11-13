@@ -5,14 +5,11 @@ import { Pause, Play } from 'lucide-react'
 import { t } from '@/lib/i18n'
 
 // The 28-second film in the consensus explainer (owner 2026-11-13): German for German readers, English for
-// everyone else; square on a phone, 16:9 from 640 px. No file loads until the film is in view, and then only the
-// one that fits, so a phone never fetches the wide film. Muted and looped; with reduced motion it waits on its
-// poster for the play button. The pause button is there for everyone: a moving picture that runs longer than five
-// seconds needs one (WCAG 2.2.2).
-const WIDE = '(min-width: 640px)'
-
+// everyone else; the square film at every width (full width on a phone, 24rem from 640 px). No file loads until
+// the film is in view. Muted and looped; with reduced motion it waits on its poster for the play button. The pause
+// button is there for everyone: a moving picture that runs longer than five seconds needs one (WCAG 2.2.2).
 export default function PromoVideo({ lang }) {
-  const film = shape => `/promo/metablend-${shape}-${lang === 'de' ? 'de' : 'en'}` // + .webm, .mp4, -poster.webp
+  const film = `/promo/metablend-1x1-${lang === 'de' ? 'de' : 'en'}` // + .webm, .mp4, -poster.webp
   const ref = useRef(null)
   const inView = useRef(false)
   const choice = useRef(null) // the visitor's play or pause; null: play while in view, unless motion is reduced
@@ -24,9 +21,7 @@ export default function PromoVideo({ lang }) {
     if (!video) return
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
     if (!(inView.current && (choice.current ?? !calm))) return video.pause()
-    // shortcut: the shape is picked once, at the first play; a phone turned afterwards keeps it, cropped to fit
-    const shape = video.dataset.shape || (video.dataset.shape = matchMedia(WIDE).matches ? '16x9' : '1x1')
-    const src = film(shape) + (video.canPlayType('video/webm; codecs="vp9"') ? '.webm' : '.mp4')
+    const src = film + (video.canPlayType('video/webm; codecs="vp9"') ? '.webm' : '.mp4')
     if (!video.src.endsWith(src)) video.src = src // the language comes from the cookie after the first render
     video.play().catch(() => {}) // a browser that refuses to play muted keeps the poster and the play button
   }
@@ -41,11 +36,9 @@ export default function PromoVideo({ lang }) {
   const toggle = () => { choice.current = !playing; sync() }
 
   return (
-    <div className="web-only relative mb-4 aspect-square sm:aspect-video overflow-hidden rounded-xl bg-[#0f151b]">
-      <picture>
-        <source media={WIDE} srcSet={`${film('16x9')}-poster.webp`} />
-        <img src={`${film('1x1')}-poster.webp`} alt="" className="absolute inset-0 w-full h-full object-cover" />
-      </picture>
+    <div className="web-only relative mb-4 aspect-square w-full sm:max-w-sm overflow-hidden rounded-xl bg-[#0f151b]">
+      {/* eslint-disable-next-line @next/next/no-img-element -- the film's own poster, a static file */}
+      <img src={`${film}-poster.webp`} alt="" className="absolute inset-0 w-full h-full object-cover" />
       <video
         ref={ref}
         muted
