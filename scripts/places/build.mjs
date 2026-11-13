@@ -1,5 +1,7 @@
-// Step 2 of the summits dataset: GeoNames towns (places with 5 000+ people everywhere, and with 500+ in
-// the five countries the place search knows closely; CC BY 4.0) and the rows for our tables from every region's OpenStreetMap
+// Step 2 of the summits dataset: GeoNames towns (places with 5 000+ people everywhere, with 500+ in
+// the five countries the place search knows closely, and every populated place of Austria; CC BY 4.0),
+// the regions' names in our languages (lib/places/region-names.json, a file of the repo: commit it when
+// it changes), and the rows for our tables from every region's OpenStreetMap
 // lines (step 1, osm.mjs) — data/places/towns.ndjson and summits.ndjson, plus
 // what was kept and dropped. Only with every region there (a broken extract
 // run must not become a world without Europe), and the old files stay until
@@ -11,7 +13,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, nearestTown, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES } from '../../lib/places/rows.js'
+import { osmRow, townRow, townIndex, nearestTown, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
 import { missingRegions } from '../../lib/places/plan.js'
 
 const DIR = join('data', 'places')
@@ -38,6 +40,8 @@ if (!existsSync(DIR)) mkdirSync(DIR, { recursive: true })
 get('https://download.geonames.org/export/dump/cities5000.zip', join(DIR, 'cities5000.zip'))
 // places from 500 people: only those of the five countries are taken (lib/places/rows.js)
 get('https://download.geonames.org/export/dump/cities500.zip', join(DIR, 'cities500.zip'))
+// every populated place of a few countries: the country's own file
+for (const cc of EVERY_PLACE_COUNTRIES) get(`https://download.geonames.org/export/dump/${cc}.zip`, join(DIR, `${cc}.zip`))
 get('https://download.geonames.org/export/dump/admin1CodesASCII.txt', join(DIR, 'admin1CodesASCII.txt'))
 // every name with its language (205 MB), and each country's languages
 get('https://download.geonames.org/export/dump/alternateNamesV2.zip', join(DIR, 'alternateNamesV2.zip'))
@@ -51,19 +55,25 @@ const unzip = (zip, want) => {
 unzip('cities5000.zip', 'cities5000.txt')
 unzip('cities500.zip', 'cities500.txt')
 unzip('alternateNamesV2.zip', 'alternateNamesV2.txt')
-const admin1 = Object.fromEntries(readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([k, name]) => [k, name]))
-const rowsOf = file => readFileSync(join(DIR, file), 'utf8').split('\n').filter(Boolean).map(l => townRow(l, admin1)).filter(Boolean)
+for (const cc of EVERY_PLACE_COUNTRIES) unzip(`${cc}.zip`, `${cc}.txt`)
+// a region: its code (AT.07), its English name as the towns carry it, and its GeoNames id for its other names
+const regions = readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([code, name, , id]) => ({ code, name, id }))
+const admin1 = Object.fromEntries(regions.map(r => [r.code, r.name]))
+const rowsOf = (file, keep = () => true) => readFileSync(join(DIR, file), 'utf8').split('\n').filter(l => l && keep(l)).map(l => townRow(l, admin1)).filter(Boolean)
 const big = rowsOf('cities5000.txt'), have = new Set(big.map(t => t.id))
-const small = rowsOf('cities500.txt').filter(t => SMALL_TOWN_COUNTRIES.includes(t.country) && !have.has(t.id))
-const towns = [...big, ...small]
+const add = rows => rows.filter(t => !have.has(t.id) && have.add(t.id)) // each place once, from the first file that has it
+const small = add(rowsOf('cities500.txt').filter(t => SMALL_TOWN_COUNTRIES.includes(t.country)))
+const every = add(EVERY_PLACE_COUNTRIES.flatMap(cc => rowsOf(`${cc}.txt`, isPlace)))
+const towns = [...big, ...small, ...every]
 // their other names from the list with languages, not cities5000's unlabelled
 // one (Vienna has hundreds there, and "Wien" wasn't among the first 30)
 const langs = countryLanguages(readFileSync(join(DIR, 'countryInfo.txt'), 'utf8'))
 const named = new Map(towns.map(t => [String(t.id), []]))
+const regionNamed = new Map(regions.map(r => [r.id, []]))
 for await (const line of createInterface({ input: createReadStream(join(DIR, 'alternateNamesV2.txt')) })) {
   const c = line.split('\t')
-  const list = named.get(c[1])
-  if (list && c[3]) list.push({ lang: c[2] ?? '', name: c[3], preferred: c[4] === '1', colloquial: c[6] === '1', historic: c[7] === '1' })
+  const list = named.get(c[1]) ?? regionNamed.get(c[1])
+  if (list && c[3]) list.push({ lang: c[2] ?? '', name: c[3], preferred: c[4] === '1', short: c[5] === '1', colloquial: c[6] === '1', historic: c[7] === '1' })
 }
 for (const t of towns) {
   t.names = townNames(named.get(String(t.id)), t.name)
@@ -74,7 +84,12 @@ for (const t of towns) {
 const tw = output('towns.ndjson')
 for (const t of towns) tw.write(JSON.stringify(t) + '\n')
 await tw.done()
-console.log(`towns: ${towns.length} (${small.length} of them places under 5 000 people in ${SMALL_TOWN_COUNTRIES.join(', ')}; with other names: ${towns.filter(t => t.alt).length}; with a name in another of our languages: ${towns.filter(t => t.names).length})`)
+// The regions' names in our languages, where they differ from the English one the towns carry ("AT|Tyrol":
+// de Tirol, it Tirolo): what a suggestion shows a reader (lib/places/regions.js). One region a line, sorted.
+const regionNames = regions.map(r => [`${r.code.split('.')[0]}|${r.name}`, townNames(regionNamed.get(r.id) ?? [], r.name, { shortFirst: true })]).filter(([, names]) => names).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+writeFileSync(join('lib', 'places', 'region-names.json'), `{\n${regionNames.map(([key, names]) => `${JSON.stringify(key)}: ${JSON.stringify(names)}`).join(',\n')}\n}\n`)
+console.log(`regions: ${regions.length}, ${regionNames.length} with a name in another of our languages`)
+console.log(`towns: ${towns.length} (${small.length} of them places under 5 000 people in ${SMALL_TOWN_COUNTRIES.join(', ')}, ${every.length} more the remaining places of ${EVERY_PLACE_COUNTRIES.join(', ')}; with other names: ${towns.filter(t => t.alt).length}; with a name in another of our languages: ${towns.filter(t => t.names).length})`)
 if (TOWNS_ONLY) process.exit(0)
 
 // 2. summits and huts, each OSM object once (regions overlap at their edges)
