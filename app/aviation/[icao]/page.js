@@ -59,7 +59,7 @@ export default async function AirportPage({ params }) {
     const flags = [...sigWeather(f.wxString)]
     const ws = tafWindshear(f)
     if (ws) flags.push(ws)
-    return flags.map(fl => ({ ...fl, when: `forecast ${utc(f.timeFrom)} - ${utc(f.timeTo)} (TAF)` }))
+    return flags.map(fl => ({ ...fl, when: `forecast ${utc(f.timeFrom)} to ${utc(f.timeTo)} (TAF)` }))
   })
   const alerts = [
     ...metarSig.map(fl => ({ ...fl, when: 'reported now (METAR)' })),
@@ -382,7 +382,7 @@ export default async function AirportPage({ params }) {
                     const ws = tafWindshear(f)
                     return (
                       <div key={i} className="flex flex-wrap gap-x-4 gap-y-1 border-t border-zinc-800 pt-2 first:border-0 first:pt-0">
-                        <span className="text-zinc-500 tabular-nums">{utc(f.timeFrom)} - {utc(f.timeTo)}</span>
+                        <span className="text-zinc-500 tabular-nums">{utc(f.timeFrom)} to {utc(f.timeTo)}</span>
                         {f.fcstChange && <span className="text-zinc-400">{f.fcstChange}</span>}
                         {typeof f.wdir === 'number' && <span className="tabular-nums">{String(f.wdir).padStart(3, '0')}°/{f.wspd} kt{f.wgst ? ` G${f.wgst}` : ''}</span>}
                         {f.visib != null && <span className="tabular-nums">{f.visib} SM</span>}

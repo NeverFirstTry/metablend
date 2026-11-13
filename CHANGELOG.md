@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Changed: a time or temperature range never shows a hyphen with spaces around it
+- An official warning that runs into another day read "heute 22:00 - morgen 08:00". A hyphen with spaces around it reads as a dash. It now says "heute 22:00 bis morgen 08:00" ("today 22:00 to tomorrow 08:00"), with each language's own word, on the warning strip, the warnings card and in the notification. A warning within one day keeps its plain hyphen ("heute 15:00-21:00").
+- Polish, Czech and Slovenian put the end time before its day ("dziś 22:00 do 08:00 (jutro)"): their word for "to" would need the day in another case, and the day words come as they are.
+- The same in three more places the new check found. A range of two temperatures below zero: "−3 to −1°" where it said "−3 - −1°" (above zero "7-8°" as before). The sun line on a city page: "07:02-16:21" where it said "07:02 - 16:21". The aviation page (English only): "to" between a forecast period's two times.
+- `lib/wording.test.js` now fails on a hyphen with spaces in any text of the 13 language packs, and on code that puts one between two values or uses one as a separator. Tests pin the new wording in all 13 languages.
+
 ## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
