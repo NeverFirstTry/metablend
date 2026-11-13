@@ -6,7 +6,7 @@ A previsão
 • Melhor hora para sair, radar de chuva, UV, qualidade do ar e pólen
 
 Montanha e trilhas
-• Previsões de cume para montanhas do mundo todo: vento no topo, nível de congelamento, risco de tempestade
+• Previsões de cume no mundo todo: vento no topo, nível de congelamento, risco de tempestade
 • A janela favorável para estar no cume
 • 195 picos em destaque no mundo com grau SAC, os mais próximos primeiro
 • Rotas sinalizadas e importação de GPX com horário de saída sugerido

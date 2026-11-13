@@ -6,7 +6,7 @@ Die Vorhersage
 • Beste Zeit draußen, Regenradar, UV, Luftqualität und Pollen
 
 Berge und Wandern
-• Gipfelprognosen für Gipfel weltweit: Wind oben, Nullgradgrenze, Gewitterrisiko
+• Gipfelprognosen weltweit: Wind oben, Nullgradgrenze, Gewitterrisiko
 • Das günstige Zeitfenster am Gipfel
 • 195 ausgewählte Gipfel weltweit mit SAC-Skala, die nächsten zuerst
 • Markierte Routen und GPX-Import mit vorgeschlagener Startzeit

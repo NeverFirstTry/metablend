@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-13
 
 ### Changed: the store descriptions before launch (owner 2026-11-13)
-- App Store and Google Play, all 13 languages: the heading "Always up to date" is now "Alerts and widgets" (Hinweise und Widgets), "summit forecasts for any peak" is now "for peaks worldwide" (für Gipfel weltweit), and "The best time to be outside" is now the app's own name for it, "Best time out" (Beste Zeit draußen), in each language's words from the app.
+- App Store and Google Play, all 13 languages: the heading "Always up to date" is now "Alerts and widgets" (Hinweise und Widgets), "Summit forecasts for any peak" is now "Summit forecasts worldwide" (Gipfelprognosen weltweit; in Japanese, Chinese, Korean and Slovenian the wind item no longer repeats the summit word), and "The best time to be outside" is now the app's own name for it, "Best time out" (Beste Zeit draußen), in each language's words from the app.
 - Spanish: the freezing level is "isoterma de 0 °C" (it said "cota de nieve", the snow line). French: "les sources qui voient juste régulièrement" keeps the track record, and the three link labels have a space before the colon like the rest. Chinese: "经常准" (often right) for "一直准" (always right).
 - Google Play's What's New for the launch build (`changelogs/3.txt`, the next versionCode) says "First release." in every language, like the App Store.
 

@@ -6,7 +6,7 @@ La prévision
 • Meilleur moment pour sortir, radar de pluie, UV, qualité de l’air et pollen
 
 Montagne et randonnée
-• Prévisions au sommet pour des montagnes du monde entier : vent, isotherme 0 °C, risque d’orage
+• Prévisions au sommet dans le monde entier : vent, isotherme 0 °C, risque d’orage
 • Le créneau favorable pour être au sommet
 • 195 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
 • Itinéraires balisés et import GPX avec une heure de départ conseillée

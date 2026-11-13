@@ -6,7 +6,7 @@ Napoved
 • Najboljši čas za ven, radar padavin, UV, kakovost zraka in cvetni prah
 
 Gore in pohodništvo
-• Napovedi za vrhove gora po vsem svetu: veter na vrhu, ničta izoterma, nevarnost neviht
+• Napovedi za vrhove po vsem svetu: veter, ničta izoterma, nevarnost neviht
 • Ugodno okno za vrh
 • 195 izbranih vrhov po svetu s težavnostjo SAC, najbližji najprej
 • Označene poti in uvoz GPX s predlaganim časom odhoda
