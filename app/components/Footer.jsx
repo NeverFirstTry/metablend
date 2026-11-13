@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import Credits from './Credits'
 import SocialLinks from './SocialLinks'
+import OfficialBadges, { badgeCredits } from './OfficialBadges'
+import { STORES } from '@/lib/hike/stores'
 
 const REPO = 'https://github.com/NeverFirstTry/metablend'
 
@@ -16,9 +18,15 @@ function GithubIcon({ size = 14 }) {
 
 // Shared site footer: source link, legal pages, copyright + data attribution.
 // Defaults to English; pages with a known language pass it in.
-export default function Footer({ lang = 'en', className = '' }) {
+// From launch day (lib/hike/stores.js) the store badges too; a page that shows them itself passes badges={false}
+// and gets the stores as plain links here, since Apple allows one App Store badge per page.
+export default function Footer({ lang = 'en', className = '', badges = true }) {
+  const stores = [['App Store', STORES.ios], ['Google Play', STORES.android]].filter(([, url]) => url)
   return (
     <footer className={`web-only mt-16 pt-6 border-t border-zinc-800/70 text-xs text-zinc-500 ${className}`}>
+      {stores.length > 0 && (badges
+        ? <OfficialBadges lang={lang} className="mb-6" />
+        : <p className="mb-4 flex flex-wrap gap-x-4 gap-y-1">{stores.map(([name, url]) => <a key={name} href={url} className="hover:text-emerald-400 transition-colors">{name}</a>)}</p>)}
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <div className="flex items-center gap-4 flex-wrap">
           <a
@@ -41,6 +49,7 @@ export default function Footer({ lang = 'en', className = '' }) {
         <Link href="/terms#copyright" className="hover:text-emerald-400 transition-colors">© 2026 Rene Kostmann</Link>
       </div>
       <p className="mt-3 text-zinc-500 leading-relaxed"><Credits lang={lang} full /></p>
+      {badgeCredits().map(line => <p key={line} className="mt-2 text-zinc-500 leading-relaxed">{line}</p>)}
       <p className="mt-2 text-zinc-500">
         {t(lang, 'footerContact')}:{' '}
         <a href="mailto:info@metablend.app" className="text-emerald-400/80 hover:text-emerald-400 transition-colors">info@metablend.app</a>

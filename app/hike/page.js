@@ -97,7 +97,7 @@ export default async function HikePage({ searchParams }) {
       </section>
 
       <div className="mt-8"><HikeNotes lang={lang} /></div>
-      <Footer lang={lang} />
+      <Footer lang={lang} badges={false} />
     </div>
     </>,
   )

@@ -150,7 +150,7 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
             </ul>
           </section>
         )}
-        <Footer lang={lang} />
+        <Footer lang={lang} badges={false} />
       </div>
     </main>
   )

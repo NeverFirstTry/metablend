@@ -44,6 +44,7 @@ import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
 import NowDetails from './components/outlook/NowDetails'
 import HowItWorks from './components/HowItWorks'
+import OfficialBadges from './components/OfficialBadges'
 import { DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
@@ -1066,8 +1067,10 @@ ${url}`)
             </div>
           </Fold>
         </div>
+        {/* the store badges from launch day, once on this page, outside the fold so they show (lib/hike/stores.js) */}
+        <OfficialBadges lang={lang} className="mt-6" />
 
-        <Footer lang={lang} />
+        <Footer lang={lang} badges={false} />
       </div>
 
       {/* Toast */}

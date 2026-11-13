@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Added: App Store and Google Play badges for launch day, switched off
+- Nothing changes for visitors until the switch is on. Launch day, 15 December 2026, in Vercel and without a merge: `NEXT_PUBLIC_STORE_BADGES=on` and `NEXT_PUBLIC_APP_STORE_URL` set to the App Store listing, then a redeploy. Without the App Store URL only Google Play shows. The Google Play address comes from the app's id (`app.metablend`), in `lib/hike/stores.js`.
+- The stores' own badges, unaltered, in the reader's language (all 13): Apple's from its marketing tools, Google's from play.google.com with the empty margin trimmed. App Store first and in black, both 40 px high, as both stores' rules ask.
+- One pair per page, as Apple allows one App Store badge per page: on the home page under "What is consensus forecasting?", on the hiking and summit pages where the beta note stands today, and in the footer of every other page. Where a page shows the pair, its footer lists the stores as plain links. The footer adds Apple's and Google's trademark lines while the switch is on. Website only: the app shows no badges.
+- The hiking and summit pages' own store buttons (with an Apple symbol) are replaced by the official badges.
+
 ## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
