@@ -3,15 +3,15 @@ Nessun modello meteo ci azzecca ogni giorno. MetaBlend confronta fino a 20 fonti
 La previsione
 • Oggi, domani e la settimana, ora per ora
 • Quanto le fonti sono d’accordo
-• Il momento migliore per uscire, radar pioggia, UV, qualità dell’aria e pollini
+• Momento migliore per uscire, radar pioggia, UV, qualità dell’aria e pollini
 
 Montagna ed escursioni
-• Previsioni in vetta per qualsiasi montagna: vento in cima, zero termico, rischio temporali
+• Previsioni in vetta per montagne di tutto il mondo: vento in cima, zero termico, rischio temporali
 • La finestra favorevole per stare in vetta
 • 195 vette in evidenza nel mondo con grado CAS, prima le più vicine
 • Percorsi segnalati e importazione GPX con un orario di partenza consigliato
 
-Sempre aggiornato
+Avvisi e widget
 • Avvisi di pioggia, temporali, maltempo e caldo, riepilogo mattutino e avvisi escursione
 • Widget per la tua città e la tua prossima escursione
 

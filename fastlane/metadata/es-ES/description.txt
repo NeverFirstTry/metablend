@@ -3,15 +3,15 @@ Ningún modelo meteorológico acierta todos los días. MetaBlend compara hasta 2
 La previsión
 • Hoy, mañana y la semana, hora a hora
 • Cuánto coinciden las fuentes
-• El mejor momento para salir, radar de lluvia, UV, calidad del aire y polen
+• Mejor momento para salir, radar de lluvia, UV, calidad del aire y polen
 
 Montaña y senderismo
-• Previsiones en la cumbre de cualquier montaña: viento arriba, cota de nieve, riesgo de tormenta
+• Previsiones en la cumbre de montañas de todo el mundo: viento arriba, isoterma de 0 °C, riesgo de tormenta
 • La ventana favorable para estar en la cima
 • 195 cumbres destacadas en todo el mundo con grado SAC, las más cercanas primero
 • Rutas señalizadas e importación de GPX con una hora de salida sugerida
 
-Siempre al día
+Avisos y widgets
 • Avisos de lluvia, tormentas, tiempo severo y calor, resumen matinal y avisos de excursión
 • Widgets para tu ciudad y tu próxima excursión
 

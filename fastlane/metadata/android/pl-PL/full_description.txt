@@ -6,12 +6,12 @@ Prognoza
 • Najlepsza pora na dwór, radar opadów, UV, jakość powietrza i pyłki
 
 Góry i wędrówki
-• Prognozy na szczytach dowolnej góry: wiatr na górze, granica zamarzania, ryzyko burzy
+• Prognozy na szczytach gór na całym świecie: wiatr na górze, granica zamarzania, ryzyko burzy
 • Korzystne okno na pobyt na szczycie
 • 195 wybranych szczytów na świecie ze skalą SAC, najbliższe najpierw
 • Oznakowane trasy i import GPX z proponowaną godziną wyjścia
 
-Zawsze na bieżąco
+Ostrzeżenia i widżety
 • Ostrzeżenia o deszczu, burzach, groźnej pogodzie i upale, poranny przegląd i powiadomienia o wędrówkach
 • Widżety dla twojego miasta i następnej wędrówki
 
