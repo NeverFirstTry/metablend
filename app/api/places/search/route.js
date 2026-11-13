@@ -16,12 +16,14 @@ import { placeKey } from '@/lib/weather'
 // biggest first), then look-alikes (towns_search). A town matches by any of its names, in any language,
 // so the five shown are picked for the reader: first the towns whose name as this reader sees it is, or
 // begins with, what was typed ("vie" in English: Vienna before a Paris district once filed as "VIe"), and
-// with them a city typed under its name in another language when it is the biggest by that name.
+// with them a town typed under its name in another of our languages; among those the biggest first, an
+// exact name counting for more.
 // Towns do not move: the CDN keeps an answer a day per text and language.
 // GET /api/places/search?q=&lang=
 
 const limiter = createRateLimiter({ max: 120, windowMs: 60 * 1000 }) // a box asks at most four times a second while typing
 const SHOWN = 5
+const EXACT = 1.5 // on the logarithm of the population: a factor of about thirty
 
 export const GET = withErrorLog('place-search', async (request) => {
   const sp = new URL(request.url).searchParams
@@ -32,18 +34,19 @@ export const GET = withErrorLog('place-search', async (request) => {
   const { data, error } = await supabase.rpc('towns_search', { q, lim: 20 })
   if (error) return noStore({ error: 'The place search is unavailable right now.' }, 502)
   const typed = placeKey(q)
-  const people = t => t.population ?? 0
-  const found = (data ?? []).map((t, i) => { const name = nameIn(t, lang), k = placeKey(name); return { t, i, name, is: k === typed, begins: k.startsWith(typed) } })
-  // the biggest town this reader sees under the text
-  const biggest = Math.max(0, ...found.filter(f => f.begins).map(f => people(f.t)))
-  // 0: the town is called so, as the reader sees it, or by another of its names when it is bigger than every
-  //    town the reader sees under the text ("Wien" in English is Vienna, not Wiener Neustadt; "Munich" in
-  //    German is München, not a hamlet called Münichsthal). 1: its name as the reader sees it begins so.
-  // 2: the rest, in the database's order.
-  const rank = f => (f.is || (f.t.exact && people(f.t) > biggest) ? 0 : f.begins ? 1 : 2)
+  const found = (data ?? []).map((t, i) => {
+    const name = nameIn(t, lang)
+    // called exactly so: as this reader sees it, by its main name, or by its name in another of our languages
+    // ("Wien" in English is Vienna, "Munich" in German is München). A name from the list's loose spellings
+    // does not count: a Paris district is filed under "VIe" there.
+    const called = [name, t.name, ...Object.values(t.names ?? {})].some(n => placeKey(n) === typed)
+    const named = called || placeKey(name).startsWith(typed)
+    // by size, and a town called exactly so counts like one about thirty times its size: "Wil" (24,000)
+    // before Wilmington, but three hamlets called "Inn" (89, 22 and 20 people) not before Innsbruck
+    return { t, i, name, named, weight: Math.log10((t.population ?? 0) + 10) + (called ? EXACT : 0) }
+  })
   const results = found
-    .map(f => ({ ...f, rank: rank(f) }))
-    .sort((a, b) => a.rank - b.rank || (a.rank < 2 ? people(b.t) - people(a.t) : 0) || a.i - b.i) // the biggest first within the first two groups
+    .sort((a, b) => b.named - a.named || (a.named ? b.weight - a.weight : 0) || a.i - b.i) // the rest keep the database's order
     .slice(0, SHOWN)
     .map(({ t, name }) => {
       const r = townResult(t)
