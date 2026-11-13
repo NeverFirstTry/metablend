@@ -1,17 +1,21 @@
 import { t } from '@/lib/i18n'
 import { tempFormatter } from '@/lib/outlook/text'
 import { sourceDeviation } from '@/lib/spread'
+import { blendShares } from '@/lib/consensus'
 
 // Every source as one row on the website: its reading, how far it sits from
 // the blend, and how much it counts. Text stays neutral; gold is for the weight
 // bars, and the status colour marks only a source that is clearly off or down.
-// The bars are drawn against the largest weight. (The app keeps its cards.)
+// The weight shown is the share the blend really gives a source: its saved weight among the sources
+// that answered (lib/consensus.js blendShares, the same sum the blend uses). MetaBlend Local is made
+// from the blend and has no share of it. The bars are drawn against the largest share.
 export default function SourceList({ data, unit, lang }) {
   const deg = c => tempFormatter(unit)(c).replace('-', '−')
-  const weightOf = src => data.weights[src.apiId] ?? 0.25
+  const shares = blendShares(data.sources, data.weights)
+  const weightOf = src => shares[src.apiId] ?? 0
   // house model first: the API appends it last
   const rows = [...data.sources].sort((a, b) => (b.apiId === 'metablend') - (a.apiId === 'metablend'))
-  const most = Math.max(...rows.filter(s => !s.down).map(weightOf))
+  const most = Math.max(...rows.filter(s => !s.down).map(weightOf)) || 1
   return (
     <div className="source-list">
       <table className="w-full text-sm">

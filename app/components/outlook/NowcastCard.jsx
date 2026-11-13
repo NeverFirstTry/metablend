@@ -5,6 +5,7 @@ import { CloudRain } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { summarize, upcoming, intensity } from '@/lib/nowcast'
 import { nowcastSentence } from '@/lib/nowcast-text'
+import { keptAsOf } from '@/lib/kept-text'
 import { SectionTitle } from '../ui'
 
 const OPACITY = { light: 0.45, moderate: 0.75, heavy: 1 }
@@ -28,12 +29,14 @@ export default function NowcastCard({ lat, lon, lang }) {
   if (!s) return null
   const steps = upcoming(state.nc, state.now)
   const max = Math.max(1, ...steps.map(x => x.mm ?? 0))
+  // the place's last good answer from before an outage says when it was made (lib/last-answer.js)
+  const asOf = state.nc.kept ? keptAsOf(state.nc.kept, state.nc.utcOffsetSec, lang) : null
   // dry: a slim line, not a card — the headline above usually says "dry" too
   if (s.kind === 'dry') {
     return (
       <p className="flex items-center gap-2 px-1 text-sm text-zinc-400" aria-label={t(lang, 'ncTitle')}>
         <CloudRain size={15} className="shrink-0 text-zinc-500" aria-hidden />
-        <span>{nowcastSentence(lang, s)}{state.nc.precision === 'rough' ? ` · ${t(lang, 'ncRough')}` : ''}</span>
+        <span>{nowcastSentence(lang, s)}{state.nc.precision === 'rough' ? ` · ${t(lang, 'ncRough')}` : ''}{asOf ? ` · ${asOf}` : ''}</span>
       </p>
     )
   }
@@ -56,6 +59,7 @@ export default function NowcastCard({ lat, lon, lang }) {
       {state.nc.precision === 'rough'
         ? <p className="text-xs text-zinc-500">{t(lang, 'ncRough')}</p>
         : steps.some(x => x.wet && x.agree < 0.66) && <p className="text-xs text-zinc-500">{t(lang, 'ncAgreeHint')}</p>}
+      {asOf && <p className="text-xs text-zinc-500">{asOf}</p>}
     </section>
   )
 }

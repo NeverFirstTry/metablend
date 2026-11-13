@@ -13,7 +13,7 @@ on:
 
 jobs:
   backup:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04 # a fixed image on purpose: ubuntu-latest changes its version by itself (24.04 to 26.04 in October 2026)
     timeout-minutes: 8
     steps:
       - name: Export learned state

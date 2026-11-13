@@ -43,7 +43,7 @@ concurrency:
 jobs:
   extract:
     if: inputs.data_from_run == ''
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04 # a fixed image on purpose: ubuntu-latest changes its version by itself (24.04 to 26.04 in October 2026)
     timeout-minutes: 345 # GitHub's limit for a job is 6 h; Europe took 73 min
     strategy:
       fail-fast: false
@@ -73,7 +73,7 @@ jobs:
   refresh:
     needs: extract
     if: always() # report also when a region failed (the build then says which)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04 # a fixed image on purpose: ubuntu-latest changes its version by itself (24.04 to 26.04 in October 2026)
     timeout-minutes: 60
     env:
       HAVE_DEV: ${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY != '' && secrets.DEV_SUPABASE_URL != '' }}

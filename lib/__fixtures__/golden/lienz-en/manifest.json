@@ -33,7 +33,7 @@
       "file": "03-api-v1-current-json.json"
     },
     {
-      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code&models=ukmo_seamless,gem_seamless,jma_seamless,cma_grapes_global,ecmwf_aifs025_single,meteoswiss_icon_ch1,italia_meteo_arpae_icon_2i,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe&forecast_hours=1&timezone=GMT",
+      "key": "GET https://api.open-meteo.com/v1/forecast?latitude=46.8289&longitude=12.76903&hourly=temperature_2m,apparent_temperature,precipitation_probability,wind_speed_10m,weather_code&models=chmi_aladin_central_europe_2km,gem_seamless,jma_seamless,cma_grapes_global,ecmwf_aifs025_single,meteoswiss_icon_ch1,italia_meteo_arpae_icon_2i,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe&forecast_hours=1&timezone=GMT",
       "status": 200,
       "contentType": "application/json",
       "file": "11-api-v1-forecast.json"

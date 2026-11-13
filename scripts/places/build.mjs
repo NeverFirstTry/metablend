@@ -10,7 +10,7 @@ import { createReadStream, createWriteStream, existsSync, readdirSync, readFileS
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, nearestTown, keepSummit, townAltNames, countryLanguages } from '../../lib/places/rows.js'
+import { osmRow, townRow, townIndex, nearestTown, keepSummit, keepLean, LEAN, townAltNames, countryLanguages } from '../../lib/places/rows.js'
 import { missingRegions } from '../../lib/places/plan.js'
 
 const DIR = join('data', 'places')
@@ -68,7 +68,7 @@ console.log(`towns: ${towns.length} (with other names: ${towns.filter(t => t.alt
 // 2. summits and huts, each OSM object once (regions overlap at their edges)
 const grid = townIndex(towns)
 const seen = new Set()
-const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, withNames: 0, bytes: 0 }
+const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, droppedLean: 0, withNames: 0, bytes: 0 }
 const out = output('summits.ndjson')
 for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort()) {
   for await (const line of createInterface({ input: createReadStream(join(DIR, 'osm', file)) })) {
@@ -79,6 +79,8 @@ for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson
     seen.add(row.id)
     if (!keepSummit(row)) { stats.dropped++; continue }
     const town = nearestTown(grid, row.lat, row.lon)
+    // the emergency rule (off unless LEAN, lib/places/rows.js) needs the country, so it comes after the town
+    if (LEAN && !keepLean({ ...row, country: town?.country ?? null })) { stats.droppedLean++; continue }
     const json = JSON.stringify({ ...row, country: town?.country ?? null, region: town?.region ?? null })
     stats.bytes += json.length + 1
     if (row.kind === 'hut') stats.huts++
@@ -88,6 +90,6 @@ for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson
   }
 }
 await out.done()
-console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
+console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata${LEAN ? ` and ${stats.droppedLean} unmarked peaks outside the seven countries (the lean rule)` : ''}; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
 // for the refresh issue (scripts/places/report.mjs)
 writeFileSync(join(DIR, 'build-summary.json'), JSON.stringify({ towns: towns.length, townsWithOtherNames: towns.filter(t => t.alt).length, ...stats }, null, 1))

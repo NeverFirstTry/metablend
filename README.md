@@ -51,8 +51,9 @@ The short version is on the start page, under ["What is consensus forecasting?"]
 
 Weather and map data come from these providers, under their own licences. The same list, in every language, is on [metablend.app/terms](https://metablend.app/terms), which applies.
 
-* [Open-Meteo](https://open-meteo.com) (CC BY 4.0): "Weather data by Open-Meteo.com", including model feeds from ECMWF (IFS and the AI model AIFS), NOAA (GFS, NBM), DWD ICON, Météo-France, UK Met Office, MeteoSwiss, ItaliaMeteo, KNMI, DMI, JMA, CMA and Environment Canada (GEM)
+* [Open-Meteo](https://open-meteo.com) (CC BY 4.0): "Weather data by Open-Meteo.com", including model feeds from ECMWF (IFS and the AI model AIFS), NOAA (GFS, NBM), DWD ICON, Météo-France, CHMI, MeteoSwiss, ItaliaMeteo, KNMI, DMI, JMA, CMA and Environment Canada (GEM)
 * This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source: [www.ecmwf.int](https://www.ecmwf.int). Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). MetaBlend blends these data with other sources, so what it shows is changed from the original.
+* ALADIN model forecasts. Source: Czech Hydrometeorological Institute (ČHMÚ), [www.chmi.cz](https://www.chmi.cz). Licence: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). MetaBlend blends these data with other sources, so what it shows is changed from the original.
 * [EAWS](https://avalanches.org): avalanche danger levels from the official bulletins of Europe's avalanche warning services (via avalanche.report); avalanche region outlines CC0
 * [MeteoAlarm](https://meteoalarm.org) (EUMETNET, CC BY 4.0): official weather warnings of Europe's national weather services
 * [MET Norway](https://www.met.no) (NLOD / CC BY 4.0): "Data from MET Norway"

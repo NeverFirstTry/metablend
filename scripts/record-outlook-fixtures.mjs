@@ -19,7 +19,7 @@ function save(name, data) {
   console.log(name.padEnd(26), `${(s.length / 1024).toFixed(0)} kB`)
 }
 
-const MODELS = 'ecmwf_ifs025,gfs_seamless,icon_seamless,ukmo_global_deterministic_10km,gem_seamless,jma_seamless,meteofrance_seamless,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe,metno_nordic'
+const MODELS = 'ecmwf_ifs025,gfs_seamless,icon_seamless,chmi_aladin_central_europe_2km,gem_seamless,jma_seamless,meteofrance_seamless,knmi_harmonie_arome_europe,dmi_harmonie_arome_europe,metno_nordic'
 const HOURLY = 'temperature_2m,precipitation_probability,precipitation,wind_speed_10m,weather_code'
 const DAILY = 'temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max,wind_speed_10m_max,weather_code,sunrise,sunset'
 save('om-multi-vienna.json', await get(`https://api.open-meteo.com/v1/forecast?latitude=48.21&longitude=16.37&hourly=${HOURLY}&daily=${DAILY}&models=${MODELS}&forecast_days=3&timezone=auto`))

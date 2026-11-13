@@ -10,6 +10,7 @@ import { windowText, windowTone, defaultSummitTab, noDaylightPointer } from '@/l
 import { worstStorm } from '@/lib/hike/blend'
 import { OM_MODELS } from '@/lib/outlook/models'
 import { sourceName } from '@/lib/sources'
+import { keptAsOf } from '@/lib/kept-text'
 import { skyFor } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import RangeTabs from '../outlook/RangeTabs'
@@ -89,6 +90,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
           {peak.grade ? ` · ${t(lang, 'gradeScale')} ${peak.grade}` : ''}
           {peak.country ? ` · ${peak.country}` : ''}
           {d ? ` · ${tn(lang, 'hikeModels', d.sources.length)}` : ''}
+          {d?.kept ? ` · ${keptAsOf(d.kept, d.utcOffsetSec, lang)}` : ''}
         </p>
         {peak.grade && <p className="text-zinc-500 text-xs mt-1">{t(lang, 'gradeNote')}</p>}
       </div>

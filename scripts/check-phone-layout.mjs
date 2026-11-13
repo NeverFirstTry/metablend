@@ -31,7 +31,7 @@ import featured from '../lib/hike/featured.json' with { type: 'json' }
 import { hikeApiPath } from '../lib/hike/params.js'
 import { ANALYTICS, IS_ANALYTICS, analyticsLeak } from './lib/analytics-block.mjs'
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
-import { shapeDiff } from './lib/shape.mjs'
+import { shapeDiff, FORECAST_SHAPE, SUMMIT_SHAPE } from './lib/shape.mjs'
 import { launchBrowser } from './lib/browser.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
@@ -76,9 +76,8 @@ const recorded = RECORD ? { recorded: new Date().toISOString(), from: BASE, answ
 // Each is recorded too, and a live answer whose shape (keys and types) differs from its recording means the
 // recording no longer matches what the pages get: re-record.
 const SMOKE = [
-  ['city forecast', '/api/forecast?city=vienna&lang=en', j => j.sources?.length > 0 && typeof j.consensus?.temp === 'number',
-    { maps: ['.weights', '.recentScores'], optional: ['.cached'] }], // app/weather/[city]/page.js; weights and scores per source; cached: from the route's own cache
-  ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0, {}], // app/mountains/[peak]/page.js
+  ['city forecast', '/api/forecast?city=vienna&lang=en', j => j.sources?.length > 0 && typeof j.consensus?.temp === 'number', FORECAST_SHAPE], // app/weather/[city]/page.js
+  ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0, SUMMIT_SHAPE], // app/mountains/[peak]/page.js
 ]
 const RERECORD = 're-record fixtures (RECORD=1, see the top of this file)'
 for (const [what, path, usable, shape] of SMOKE) {

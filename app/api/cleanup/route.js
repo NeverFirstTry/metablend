@@ -7,6 +7,7 @@ import { withErrorLog, logError } from '@/lib/log'
 import { withJobLog } from '@/lib/job-log'
 import { runOutlookVerification } from '@/lib/outlook/job'
 import { CACHE_DAYS as NOMINATIM_DAYS } from '@/lib/hike/nominatim'
+import { NOTE_SCOPES } from '@/lib/health'
 import { purgeShortLived } from '@/lib/retention'
 
 // Meteostat lookups, weight round-trips per city and the outlook's METAR
@@ -16,11 +17,17 @@ import { purgeShortLived } from '@/lib/retention'
 // Cap cities per run to respect RapidAPI request limits (~500/month on basic plan)
 const MAX_CITIES = 10
 
-// consensus_history gets a row per cache-miss forecast and error_log one per
-// failure; neither was ever pruned. Nothing reads history older than a day
-// (RSS: 24 h, intraday chart: today, webhook: 1 h) — 30 days leaves plenty of
-// room to look back by hand.
-const RETENTION_DAYS = 30
+// How long the logs are kept (owner, 2026-11-12). Nothing reads blend history
+// older than a day (RSS: 24 h, intraday chart: today, webhook: 1 h); the health
+// address reads 15 minutes of the error log, the weekly reports two weeks; the
+// station log is read by reports only. Notes in the error log (a place asked
+// from the geocoder, the quota note, a feed note) are not failures and go sooner.
+const HISTORY_DAYS = 7 // consensus_history
+const ERROR_DAYS = 14 // error_log
+const NOTE_DAYS = 7 // error_log rows with a scope in NOTE_SCOPES
+const STATION_DAYS = 14 // station_errors
+const RETENTION_DAYS = 30 // the feedback lesson counters
+const daysAgo = n => new Date(Date.now() - n * 86_400_000).toISOString()
 
 // ── Meteostat (RapidAPI) ──────────────────────────────────────────────────────
 async function fetchMeteostat(lat, lon, date) {
@@ -144,8 +151,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
     // the heatmap, which is pointless with a 48-hour memory.
     supabase.from('feedback').delete().lt('created_at', cutoff)
       .in('actual_cond', ['__calibrate__', '__meteostat__']),
-    supabase.from('consensus_history').delete().lt('created_at', retentionCutoff),
-    supabase.from('error_log').delete().lt('created_at', retentionCutoff),
+    supabase.from('consensus_history').delete().lt('created_at', daysAgo(HISTORY_DAYS)),
+    supabase.from('error_log').delete().lt('created_at', daysAgo(ERROR_DAYS)),
+    supabase.from('error_log').delete().lt('created_at', daysAgo(NOTE_DAYS)).in('scope', NOTE_SCOPES),
     // push: phones unseen for 90 days, hikes after their day, the 14-day send log
     supabase.from('push_devices').delete().lt('last_seen', new Date(Date.now() - 90 * 86_400_000).toISOString()),
     supabase.from('hike_plans').delete().lt('date', new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10)),
@@ -156,8 +164,11 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   ])
 
   // Kept apart from the list above: the shadow run's table may not exist yet, or may already be dropped.
-  const shadow = await supabase.from('station_errors').delete().lt('created_at', retentionCutoff)
+  const shadow = await supabase.from('station_errors').delete().lt('created_at', daysAgo(STATION_DAYS))
   if (shadow.error && shadow.error.code !== 'PGRST205') await logError('cleanup.station-errors', shadow.error)
+  // the last good answers kept for an outage (lib/last-answer.js): none is served older than 24 hours; the table may not exist yet
+  const lastAnswers = await supabase.from('last_answers').delete().lt('made_at', daysAgo(1))
+  if (lastAnswers.error && lastAnswers.error.code !== 'PGRST205') await logError('cleanup.last-answers', lastAnswers.error)
   // the feedback lesson counters (one row per region and day): a month is plenty; the table may not exist yet either
   const lessonDays = await supabase.from('feedback_lesson_days').delete().lt('day', retentionCutoff.slice(0, 10))
   if (lessonDays.error && lessonDays.error.code !== 'PGRST205') await logError('cleanup.lesson-days', lessonDays.error)
@@ -196,5 +207,9 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
     return Response.json({ error: failed.error.message, validation, outlook }, { status: 500 })
   }
 
-  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook })
+  // the night's outlook counts as plain numbers: the job log keeps numbers, not nested objects
+  const counts = outlook && !outlook.error
+    ? { outlookDue: outlook.snapshots, outlookScored: outlook.scored, outlookExpired: outlook.expired, outlookWaiting: outlook.waiting, outlookStations: outlook.stations, outlookRequests: outlook.requests, outlookTruncated: outlook.truncated, outlookStationsLeft: outlook.stationsLeft }
+    : {}
+  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook, ...counts })
 }))

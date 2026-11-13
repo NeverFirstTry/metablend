@@ -13,6 +13,7 @@ import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { saveSnapshots } from '@/lib/outlook/snapshots'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
+import { keepAnswer, lastAnswer, keptResponse, placeKey } from '@/lib/last-answer'
 
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
@@ -49,6 +50,14 @@ export const GET = withErrorLog('outlook', async (request) => {
   ])
   // Open-Meteo hangs now and then on the full request: note how often
   if (!multi || multi.fallback) await logError('outlook.upstream', new Error(multi ? 'fell back to the core models' : 'model request failed'), { upstream: lastUpstreamFailure() })
+  // The model request gave nothing: the place's last good answer comes first (up to 24 hours old,
+  // marked with its time), then the one-source fallback below, then the error (lib/last-answer.js).
+  // The place's name and country are this request's own: a kept answer carries none.
+  const place = placeKey(geo.lat, geo.lon)
+  if (!multi) {
+    const kept = await lastAnswer('outlook', place)
+    if (kept) return keptResponse({ ...kept.body, city: geo.name, country: geo.country ?? null, cc: geo.cc ?? null, lat: geo.lat, lon: geo.lon }, kept.madeAt)
+  }
   // MET Norway only as the fallback when the model request failed
   const met = multi ? null : await fetchMetNorwayRaw(geo.lat, geo.lon)
 
@@ -65,6 +74,9 @@ export const GET = withErrorLog('outlook', async (request) => {
   } catch (e) {
     await logError('outlook.snapshot', e, { city: learnName })
   }
+
+  // kept for an outage: the models' answer only (never the one-source fallback), without the place's name
+  if (multi) await keepAnswer('outlook', place, { ...payload, city: null, country: null, cc: null })
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },

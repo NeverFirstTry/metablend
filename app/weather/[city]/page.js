@@ -2,6 +2,7 @@ import { jsonForScript } from '@/lib/html'
 import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
 import { heroCondition } from '@/lib/conditions'
+import { blendShares } from '@/lib/consensus'
 import { readForecast } from '@/lib/weather-page'
 import { atNow } from '@/lib/outlook/at-now'
 import CityPage from './CityPage'
@@ -69,9 +70,9 @@ export default async function CityWeather({ params }) {
   if (data === 'unknown') notFound()
   const name = data.city ?? displayName(city)
   const upSources = (data.sources ?? []).filter(s => !s.down)
-  // only sources that answered — stored weights also hold retired ones
-  const topWeights = Object.entries(data.weights ?? {})
-    .filter(([id]) => upSources.some(s => s.apiId === id))
+  // the three largest shares of this blend, as the blend counts them (lib/consensus.js): only sources that
+  // answered, and not MetaBlend Local, which is made from the blend
+  const topWeights = Object.entries(blendShares(data.sources, data.weights ?? {}))
     .sort((a, b) => b[1] - a[1])
     .slice(0, 3)
     .map(([id, w]) => `${upSources.find(s => s.apiId === id)?.displayName ?? id} (${(w * 100).toFixed(1)}%)`)

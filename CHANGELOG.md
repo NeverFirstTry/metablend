@@ -10,11 +10,91 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-12
 
+### Fixed: the phone layout check no longer turns red on a rainy day
+- Nothing changes for visitors. The check that runs after every deploy asks two live forecasts (Vienna, Großglockner) and compares their shape with a recording. On 2026-11-12 heavy rain in Vienna switched the forecast's warning on. An active warning carries its kind (`warning.type`), the recording was made on a dry day, and the check read that as a changed API ("its shape differs from the recording (.warning.type is new)") and marked main red for 35b6cc5. All 81 page checks of that run had passed; no page was affected.
+- `warning.type` now counts as a key that comes and goes with the weather, like the `cached` flag of an answer from the cache. The same for `kept` on the summit forecast (the last good answer served during an outage, added on 2026-11-12), which would have raised the same false alarm on the first outage.
+- Test (`scripts/lib/shape.test.mjs`): the recorded Vienna answer with a warning switched on gives no difference, the same without the new option gives exactly what CI reported, and a renamed key still counts.
+- Found on the way: the test of the cleanup's keeping times (`lib/retention-rules.test.js`, written on 2026-11-12) failed every evening from 22:48 UTC to midnight, because it rounded "90 days and the hours since midnight" to 91. The test now accepts 90 to 91 days; the cleanup itself was right and is unchanged.
+
+### Changed: the automatic checks run on a named Ubuntu version and on current action versions
+- Nothing changes for visitors. GitHub warned on the layout check's runs that `actions/checkout@v4` and `actions/setup-node@v4` run on Node 20, which it is retiring. The check now uses version 7 of both, which run on Node 24 (as do versions 5 and 6; version 7 is what the places refresh already used).
+- All five workflows (layout check, backup, IndexNow, station calibration, places refresh) name their runner image, `ubuntu-26.04`, where they said `ubuntu-latest`. That label changes its version by itself. It already pointed to 26.04 in the last runs (the layout check's last three, the backup, IndexNow, the last places refresh), so the image stays the one in use and changes only when we change the line.
+
+### Fixed: the weight shown for a source is its real share of the blend
+- The Sources panel showed each source's saved weight as a percentage (5 % and 3 % in central Europe). The blend counts a source by that weight among the sources that answered, so the real shares were higher (6.0 % and 3.6 % with nineteen sources) and the numbers shown did not add up to 100.
+- A source without a saved weight was shown as 25 %, while the blend counted it like an average source (about 5 %). The new CHMI ALADIN source would have appeared with 25 %.
+- MetaBlend Local was shown with a weight although it has no share of the blend it is made from. It now shows 0 %.
+- The panel and the city pages' "most trusted" line now take the share from the same function the blend itself uses (`lib/consensus.js`), so they cannot differ again. The rankings page keeps showing the saved weights, which is what it ranks.
+
+### Changed: the rain forecast asks RRFS instead of HRRR in the United States
+- NOAA ends its HRRR model on 30 November 2026; Open-Meteo's page says to move to the successor RRFS. The rain forecast for the next two hours named HRRR in its request and now names RRFS (`ncep_rrfs_conus`), which has 15-minute rain for the same area.
+- Without the change nothing would have failed loudly: Open-Meteo answers a discontinued model without values, so places in the United States would have lost their fine model from 30 November.
+- Nothing else needs a change for that date: `icon_seamless`, `icon_d2` and `gfs_seamless` keep their names, and Open-Meteo moves them to DWD's new grids and to RRFS itself.
+
+### Changed: the Czech ALADIN model takes the place of UK Met Office
+- UK Met Office is no longer one of the sources. Its model data comes under a share-alike licence (CC BY-SA 4.0), which does not fit a blend shown under our own terms. Its place is taken by the Czech Hydrometeorological Institute's ALADIN model (CHMI, 2.3 km grid, CC BY 4.0), shown as "CHMI ALADIN".
+- Where: the forecast's source list, the 7-day outlook and the summit forecast. CHMI ALADIN covers central Europe (measured: from about 40° N to 56° N, from the Channel to the Black Sea) for the next three and a half days, at a finer grid than UK Met Office's 10 km. Inside that area the number of sources stays what it was.
+- Outside that area there is one source fewer, because UK Met Office was global: the forecast's sources that answer everywhere are now Canada GEM, JMA, CMA GRAPES and ECMWF AIFS besides the main ones.
+- The rain forecast for the next two hours no longer asks UK Met Office's 2 km model, which only covered the British Isles.
+- Credits: /terms and the README name CHMI with its licence in place of UK Met Office; the footer's credit list gains "ČHMÚ (CHMI)".
+- Old rows of UK Met Office in the rankings keep their name; its weight is no longer used. CHMI ALADIN starts as an average source and earns its weight like every other.
+- Open-Meteo requests cost the same in central Europe and less elsewhere (an outlook outside Europe asks six models, 7.8 weighted calls, where it asked seven, 9.1).
+- Tests: the recorded Lienz answer gives the same blend (5.5°, 80 %) with the entry renamed; no model id of UK Met Office is asked anywhere.
+
+### Added: the last good forecast is kept for an outage
+- When the weather models give nothing (our own Open-Meteo server down and the public service switched off), the 7-day outlook and a summit's forecast now show the place's last good answer, up to 24 hours old, and the rain forecast one up to 1 hour old. The page says when it was made ("Stand: 12. Nov., 13:31", in all 13 languages, the words the summit pages already use). Until now the outlook fell back to one source or an error, the summit view to its retry card, and the rain card disappeared.
+- Order when the models give nothing: the kept answer with its time; else, for the outlook, MET Norway as before; else the error.
+- A new table `last_answers` holds one row per place and kind, compressed (an outlook 4.6 KB, a summit forecast 6.5 KB, rain 0.2 KB). At most 3,000 rows, about 20 MB at the very most; a normal day has under 1,000. Rows older than 24 hours go at the nightly cleanup.
+- A kept answer holds nothing a visitor typed: a place's name is taken from the asking request, and a peak's name is removed before keeping. The key is the town's or the peak's rounded position.
+- The CDN keeps a served kept answer for 5 minutes only, so a recovered server shows quickly.
+- Why a table and not the CDN alone: measured on a preview (2026-11-12), Vercel's CDN serves a failed route's last good copy only when that copy is past its "serve while rebuilding" window; inside it the copy is lost after one answer. Vercel's own key-value cache has no free amount on the Pro plan.
+- Needs `supabase/last-answers.sql` on dev and production before the merge. Without the table the routes behave as before.
+
+### Added, not switched on: a comparison run for our own Open-Meteo server (shadow mode)
+- Nothing changes until a setting is set. `OPEN_METEO_SHADOW` is a share (0.2 is one request in five). With it and `OPEN_METEO_SELF` set, the public service answers every request as before, and that share is asked from our own server as well, after the public answer is in hand. Nothing a visitor sees comes from our server in this mode, and no visitor waits for it.
+- Each pair of answers is compared value by value and counted: the same, differing (further apart than rounding explains), missing (a value the public service gave and ours did not, for example a model our server does not have) or failed (no usable answer). How long our server took is counted too: within 1, 2 or 4 seconds, or slower.
+- The first twenty pairs of a day that are not the same go to the error log as notes, with what differed and where most. The place is kept to one decimal (about 10 km), as everywhere in that log; the notes go after 7 days and do not count as failures for the health address.
+- At most two comparisons run at a time, outside the queue the visitors' requests use; more are skipped.
+- Ignored while the public service is switched off: there is nothing to compare with.
+
+### Added, not switched on: a switch to our own Open-Meteo server
+- Nothing changes until a setting is set. Every server request to Open-Meteo already passes one place (`openMeteoFetch`, `lib/open-meteo.js`); the switch lives there.
+- `OPEN_METEO_SELF` (an https address): forecasts, heights and air quality are asked from our own server first, same path and question. A failure (no answer in 4 seconds, an error, a refused token) sends the same request to the public service. After three failures in a row our server is left out for a minute.
+- `OPEN_METEO_PUBLIC=off`: the public service is never asked, whatever happens. This is the setting for launch (the free public service is for non-commercial use). A request our server cannot answer then fails like any failed source; the place search and the archive, which our server does not have, are refused without a request.
+- `OPEN_METEO_SELF_ID` and `OPEN_METEO_SELF_SECRET`: the access token of the tunnel in front of our server. It is sent to that address only, never to the public service, and a redirect is refused so it cannot follow one elsewhere. An address without https is not used.
+- Requests to our own server are counted as `self:forecast`, `self:outlook` and so on, with their number only: weighted calls are the public service's bill and stay what they were.
+- Fixed on the way: the check for an Open-Meteo address accepted any host ending in those letters ("evil-open-meteo.com"); now only open-meteo.com and its subdomains.
+- Not in this step: serving the last good answer when our server is down, the comparison run (shadow mode), the place search from our own table. Each follows on its own branch.
+
+### Prepared, not switched on: a smaller summits table for an emergency
+- Nothing changes for anyone. `supabase/summits-lean.sql` is a prepared script for the case that the database passes 420 MB; it has not been run on dev or production and no job runs it.
+- What it would do: keep every hut, every peak with a mark (Wikipedia, Wikidata or a summit cross) and every peak in AT, DE, CH, IT, SI, FR and LI; remove the unmarked peaks elsewhere. Counted on 2026-11-12: 316,865 of 568,262 rows would go; the table would shrink from 206 MB to about 87 MB (measured on a copy in the dev database).
+- The price: an unmarked hill outside the seven countries would no longer be found by the search or by "Near you".
+- The half-yearly places refresh has the same rule (`keepLean` in `lib/places/rows.js`), switched off (`LEAN = false`). It is switched on in the same hour the script runs on production, or the refresh would load the rows back.
+- Test: the script's DELETE runs in a real Postgres and must remove exactly the rows the refresh rule would not keep; the search and "Near you" must still answer afterwards.
+
+### Changed: the privacy notice names the shorter periods
+- The privacy notice said the server's error log and the blend history ("consensus snapshots") are kept 30 days. Since today's cleanup change they are kept 14 and 7 days. The notice now says so, in both places and in all 13 languages: a failed request's address stays in the error log for 14 days; consensus snapshots are deleted after 7 days, server error logs after 14.
+- German first, the 12 translations follow it. Nothing else in the notice changes.
+
+### Changed: logs are kept a shorter time
+- The nightly cleanup now deletes the blend history (`consensus_history`) after 7 days, the error log after 14 days and the station comparison log (`station_errors`) after 14 days. Each was 30 days.
+- Notes in the error log that are not failures (`geocode.upstream`, `open-meteo.quota`, `warnings.database`) go after 7 days.
+- Unchanged: stored forecasts and bookkeeping rows (up to 72 hours), the job log (14 days), the feedback lesson counters (30 days), the request counter (90 days).
+- Why: nothing on the site reads blend history older than a day, the health address reads 15 minutes of the error log and the reports two weeks. It frees about 3 MB now and keeps the three tables from growing.
+- The privacy notice still names 30 days for the blend history and the error log. Both now go sooner than it says; its wording is changed separately.
+
 ### Fixed: Chinese place names in simplified characters
 - Chinese readers now see place names in simplified characters everywhere: the forecast's heading, the search suggestions, recent places and favourites, the notification home city and notification texts, the phone and embed widgets, and summit names on the hiking screens. Vienna is "维也纳", no longer "維也納". The geocoder (GeoNames) and OpenStreetMap often give Chinese names in traditional script; a listed city takes its own Chinese name from `lib/city-names.js`, anything else is converted character by character with OpenCC's table (`lib/zh-hans.js`, `lib/zh-hans-table.js`, Apache License 2.0, made by `scripts/zh-hans-table.mjs`).
 - Only what is shown changes. The name a place goes by stays as the geocoder wrote it, because the page sends it back to find the place again and GeoNames files many places under the traditional name only (维也纳 finds Vienna, West Virginia). The forecast answer carries a new `cityShown` where the shown name differs; the search box shows it after a load and still asks by the original. Summit rows: simplified on the way out, and a new load takes `name:zh-Hans` first.
 - Traditional-Chinese browsers (zh-TW, zh-HK, zh-MO, zh-Hant) read English, as before: the site has simplified Chinese only.
 - The converter loads in the browser only for Chinese readers.
+
+### Changed: the 7-day outlook's sources are scored again on most of their predictions
+- The nightly check compares saved predictions with airport weather reports. It asked 40 airports in one request, and the service cuts an answer at 400 reports, so most predictions found no measurement: on 2026-11-12, 11,689 of 14,843 were overdue and two thirds of the decided ones had run out unscored. It now asks two airports per request (72 hours fit), paced, and stops after two and a half minutes; what is left waits for the next night.
+- A place with no airport within 60 km is no longer saved for scoring: it could never be checked.
+- At most 20 places per region and 6-hour slot are saved. In Europe a slot held 26 on average. This also keeps the table from growing with every new place.
+- The night's counts (due, scored, run out, waiting, airports, requests) are now kept in the job log.
 
 ### Added: a health address for an outside monitor
 - `/api/health` answers 200 when all is well and 503 with a list of problems when not. An outside monitor asks it every five minutes and sends the mail; the site itself sends none, and nothing is added to the pages.
