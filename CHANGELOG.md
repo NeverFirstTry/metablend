@@ -3,6 +3,18 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Fixed: a forecast no longer shrinks to a few sources when Open-Meteo is overloaded for a moment
+- On 2026-11-13 at 12:37 UTC Open-Meteo answered all four requests of one Vienna forecast with 503 "The service is overloaded". The blend went out with 5 sources instead of 19 and stayed for 2 minutes; the next build was whole. Since 2026-11-09 a forecast lost every Open-Meteo source about once a day, three times for 3 places within a minute and once for 8.
+- A request that Open-Meteo answers with 503 is now asked once more after 600 ms (or after the time Open-Meteo names, at most 2 seconds). One more ask, never a second; other failures are not asked again, as before.
+- If every Open-Meteo source still gives nothing, the place's last full blend goes out instead of the thin one, as long as it is at most 2 hours old. It is kept only 2 minutes, so a recovered service shows at once, and nothing of the thin build is stored. Without a full blend from the last 2 hours the thin one goes out as before. A blend that lost only part of Open-Meteo is also unchanged.
+- The line under the forecast ("updated 12 min ago") now counts from the blend, the numbers the page opens with. It counted from the 7-day outlook, which is kept up to two and a half hours, so "updated 104 min ago" stood over a blend built a minute before. A kept blend shows its real age there and does not flash "Updated just now" after a refresh. When the outlook itself is a kept one from an outage, the line says "As of" with its time, as before.
+- `/api/health` reports a problem when more than 3 forecasts lost every Open-Meteo source within 15 minutes (`error_log`, scope `forecast.lost`, written whether a kept blend went out or a thin one). With that limit the one burst of 8 would have sent a mail in those five days; an outage that lasts passes it within six minutes for one place alone.
+- Each full blend is kept per place in `last_answers` under a new kind `forecast` (measured: 4.2 KB as JSON, 1.6 KB kept; about 60 to 110 places a day, next to 283 rows today, limit 3,000), without the place's name or anything else from the request. `supabase/last-answers.sql` has to run again on dev and production before the merge: the table's rule on `kind` gains `forecast`.
+- The phone layout check accepts `kept` on the city forecast as a key that comes and goes (`scripts/lib/shape.mjs`), like the summit forecast's.
+- Tests: `lib/forecast-kept.test.js` takes one place through an afternoon (kept, served when all is refused twice, not served after 2 hours, rescued by the second ask, unchanged when only part fails); the retry in `lib/weather.test.js`; the limit in `lib/health.test.js`; the SQL file on a table with the old rule in `supabase/last-answers.test.js`.
+
 ## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
