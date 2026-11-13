@@ -11,7 +11,7 @@ import { pg_trgm } from '@electric-sql/pglite/contrib/pg_trgm'
 import { unaccent } from '@electric-sql/pglite/contrib/unaccent'
 
 const read = name => fs.readFileSync(new URL(`./${name}`, import.meta.url), 'utf8').replace(/\r\n/g, '\n')
-const change = read('place-search.sql'), places = read('places.sql'), cache = read('geocode-cache.sql')
+const change = read('place-search.sql'), places = read('places.sql'), cache = read('geocode-cache.sql'), near = read('town-near.sql')
 
 async function database() {
   const db = new PGlite({ extensions: { postgis, pg_trgm, unaccent } })
@@ -78,5 +78,6 @@ test('the change is the same text as the full definitions in places.sql and geoc
   const drop = name => part(`do $$ begin\n  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.${name}(text, integer)')`, 'end $$;\n')
   for (const text of [fn('towns_upsert'), drop('towns_search'), fn('towns_search')]) assert.ok(places.includes(text), `places.sql holds: ${text.slice(0, 60)}`)
   for (const text of [drop('town_lookup'), fn('town_lookup')]) assert.ok(cache.includes(text), `geocode-cache.sql holds: ${text.slice(0, 60)}`)
+  assert.ok(near.includes(fn('town_near')), 'town-near.sql holds the same town_near')
   assert.ok(places.includes('alter table public.towns add column if not exists names jsonb;'))
 })

@@ -85,8 +85,10 @@ const tw = output('towns.ndjson')
 for (const t of towns) tw.write(JSON.stringify(t) + '\n')
 await tw.done()
 // The regions' names in our languages, where they differ from the English one the towns carry ("AT|Tyrol":
-// de Tirol, it Tirolo): what a suggestion shows a reader (lib/places/regions.js). One region a line, sorted.
-const regionNames = regions.map(r => [`${r.code.split('.')[0]}|${r.name}`, townNames(regionNamed.get(r.id) ?? [], r.name, { shortFirst: true })]).filter(([, names]) => names).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+// de Tirol): what a suggestion shows a reader (lib/places/regions.js). Only names GeoNames marks as preferred or
+// short (owner, 2026-11-13): an unmarked one can be the name of a part of the region (Trentino-Alto Adige in
+// Dutch was its entry for South Tyrol). One region a line, sorted.
+const regionNames = regions.map(r => [`${r.code.split('.')[0]}|${r.name}`, townNames((regionNamed.get(r.id) ?? []).filter(e => e.preferred || e.short), r.name, { shortFirst: true })]).filter(([, names]) => names).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
 writeFileSync(join('lib', 'places', 'region-names.json'), `{\n${regionNames.map(([key, names]) => `${JSON.stringify(key)}: ${JSON.stringify(names)}`).join(',\n')}\n}\n`)
 console.log(`regions: ${regions.length}, ${regionNames.length} with a name in another of our languages`)
 console.log(`towns: ${towns.length} (${small.length} of them places under 5 000 people in ${SMALL_TOWN_COUNTRIES.join(', ')}, ${every.length} more the remaining places of ${EVERY_PLACE_COUNTRIES.join(', ')}; with other names: ${towns.filter(t => t.alt).length}; with a name in another of our languages: ${towns.filter(t => t.names).length})`)

@@ -254,3 +254,46 @@ test('town_near is not reachable through the API roles (anon / authenticated)', 
     await db.exec('reset role')
   }
 })
+
+// With every populated place of Austria in the list (2026-11-13), a hamlet beside the rounded position
+// scored higher than the village the phone is in: "my location" in the Defereggen valley was "Bruggen".
+test('town_near — a hamlet under 500 people is never "my location": the village farther off is, and hamlets alone give no row (the API then asks OpenStreetMap)', async () => {
+  await db.exec(`
+    insert into public.towns (id, name, alt, country, region, population, geog) values
+      (9000001, 'Bruggen', null, 'AT', 'Tyrol', 120, ${pt(12.401, 46.901)}),
+      (9000002, 'Sankt Jakob in Defereggen', null, 'AT', 'Tyrol', 900, ${pt(12.33, 46.917)}),
+      (9000003, 'Zettersfeld', null, 'AT', 'Tyrol', 7, ${pt(12.601, 46.501)})
+    on conflict (id) do nothing;
+  `)
+  const at = async (lat, lon) => (await rows(`select * from public.town_near($1, $2)`, [lat, lon]))[0] ?? null
+  assert.equal((await at(46.9, 12.4)).name, 'Sankt Jakob in Defereggen')
+  assert.equal(await at(46.5, 12.6), null)
+})
+
+// Suggestions while typing (/api/places/search). The first version took the forty towns most alike of all
+// that match and ranked those; for a short beginning over a thousand towns are equally alike, so "wie" did
+// not offer Wien (found on the dev database, 2026-11-13).
+const BACKSLASH = String.fromCharCode(92)
+test('towns_search — a typed beginning offers the biggest towns whose names begin so, before the look-alikes; a typed percent sign, underscore or backslash is no wildcard', async () => {
+  await db.exec(`
+    insert into public.towns (id, name, alt, country, region, population, geog)
+      select 9100000 + i, 'Wiesendorf ' || i, null, 'DE', 'Bavaria', 600 + i, ${pt('10 + i * 0.01', '49')} from generate_series(1, 80) as i
+    on conflict (id) do nothing;
+    insert into public.towns (id, name, alt, country, region, population, geog) values
+      (2809346, 'Wiesbaden', null, 'DE', 'Hesse', 288850, ${pt(8.24435, 50.08601)}),
+      (9100999, 'Swiecie', 'Wiecie', 'PL', 'Kujawsko-Pomorskie', 25000, ${pt(18.43, 53.41)})
+    on conflict (id) do nothing;
+  `)
+  const names = async (q, lim = 5) => (await rows(`select * from public.towns_search($1, $2)`, [q, lim])).map(t => t.name)
+  assert.deepEqual((await names('wie')).slice(0, 3), ['Vienna', 'Wiesbaden', 'Swiecie'], 'Vienna is "Wien" among its names; the bigger town first, by any of its names')
+  assert.equal((await names('wie', 20)).length, 20)
+  const [first] = await rows(`select * from public.towns_search('wien')`)
+  assert.deepEqual([first.name, first.exact, first.prefix], ['Vienna', true, true], 'a name that is exactly so comes first')
+  assert.deepEqual((await names('wiesendorf 80')).slice(0, 1), ['Wiesendorf 80'])
+  assert.deepEqual((await names('wiesbadn')).slice(0, 1), ['Wiesbaden'], 'a slip of the finger still finds it')
+  // as patterns, % and _ie would match Vienna ("wien"); as text they do not
+  for (const typed of ['%', '%%%', '_ie', 'w_e']) assert.ok(!(await names(typed, 20)).includes('Vienna'), `${typed} is text, not a pattern`)
+  // a backslash at the end would be an unfinished escape in a pattern: no error, and "wie" before it still means Wien
+  assert.equal((await names('wie' + BACKSLASH, 20)).length >= 0, true)
+  assert.equal(Array.isArray(await names('100%')), true)
+})

@@ -3,7 +3,9 @@
 -- neighbours apart, and our towns (GeoNames places of 5,000 and more) list city districts beside the
 -- cities, so neither the nearest (a district: Mühlau for Innsbruck) nor the largest in reach (a Vienna
 -- district for Mödling) is the place meant. So: of the towns within radius_km, the one with the most
--- people for its distance, population / (km + 1)². No row: no town that close, and the API asks
+-- people for its distance, population / (km + 1)². Only places of 500 people and more (2026-11-13: the list
+-- holds every hamlet of Austria now, and a hamlet of 100 people beside the rounded position is not where
+-- the phone is). No row: no town that close, and the API asks
 -- OpenStreetMap's Nominatim with the same rounded position. Only the API (service-role key) calls it.
 -- Safe to run more than once.
 create or replace function public.town_near(lat double precision, lon double precision, radius_km double precision default 10)
@@ -15,7 +17,8 @@ as $$
     from (select t.id, t.name, t.country, t.population,
                  st_distance(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography) / 1000 as km
             from public.towns t
-           where st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
+           where t.population >= 500
+             and st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
    order by c.population / power(c.km + 1, 2) desc, c.id
    limit 1
 $$;

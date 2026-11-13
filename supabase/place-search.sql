@@ -7,6 +7,8 @@
 -- are in places.sql and geocode-cache.sql (supabase/place-search.test.js keeps the two in step).
 -- Run on dev, then on production, as ONE script (safe to run again). It changes no row. Until the
 -- towns are loaded again (scripts/places/load.mjs --towns) names is empty and every answer is as before.
+-- Second version, 2026-11-13 (run it again): the search offers the biggest towns whose names begin with
+-- what was typed, and "my location" names no place under 500 people.
 
 begin;
 
@@ -65,22 +67,53 @@ returns table (id integer, name text, names jsonb, country text, region text, po
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  with hits as (
-    select t.*, public.place_norm(q) as n
-      from public.towns t
-     where public.place_norm(q) <% t.search
-     order by t.search <->> public.place_norm(q)
+  with n as (
+    select v.n, replace(replace(replace(v.n, '\', '\\'), '%', '\%'), '_', '\_') as pattern -- typed text is no wildcard
+      from (select public.place_norm(q) as n) v
+  ),
+  starts as ( -- one of its names begins with what was typed: the biggest towns first
+    select t.id from public.towns t, n
+     where t.search like n.pattern || '%' or t.search like '% | ' || n.pattern || '%'
+     order by t.population desc
      limit 40
+  ),
+  alike as ( -- its names are most like it: a slip of the finger
+    select t.id from public.towns t, n
+     where n.n <% t.search
+     order by t.search <->> n.n
+     limit 40
+  ),
+  hits as (
+    select t.*, n.n,
+           n.n = any(string_to_array(t.search, ' | ')) as exact,
+           exists (select 1 from unnest(string_to_array(t.search, ' | ')) as a(v) where a.v like n.pattern || '%') as prefix
+      from public.towns t, n
+     where t.id in (select s.id from starts s union select a.id from alike a)
   )
-  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
-         h.n = any(string_to_array(h.search, ' | ')) as exact,
-         exists (select 1 from unnest(string_to_array(h.search, ' | ')) as a(v) where a.v like h.n || '%') as prefix
+  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry), h.exact, h.prefix
     from hits h
-   order by exact desc, prefix desc, round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
+   order by h.exact desc, h.prefix desc, (case when h.exact or h.prefix then h.population else 0 end) desc,
+            round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
    limit least(greatest(lim, 1), 20)
 $$;
 
-revoke execute on function public.towns_upsert(jsonb), public.town_lookup(text, integer), public.towns_search(text, integer) from public, anon, authenticated;
-grant execute on function public.towns_upsert(jsonb), public.town_lookup(text, integer), public.towns_search(text, integer) to service_role;
+-- "my location": no hamlets
+create or replace function public.town_near(lat double precision, lon double precision, radius_km double precision default 10)
+returns table (id integer, name text, country text, population integer, km double precision)
+language sql stable parallel safe
+set search_path = public, extensions, pg_temp
+as $$
+  select c.id, c.name, c.country, c.population, c.km
+    from (select t.id, t.name, t.country, t.population,
+                 st_distance(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography) / 1000 as km
+            from public.towns t
+           where t.population >= 500
+             and st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
+   order by c.population / power(c.km + 1, 2) desc, c.id
+   limit 1
+$$;
+
+revoke execute on function public.towns_upsert(jsonb), public.town_lookup(text, integer), public.towns_search(text, integer), public.town_near(double precision, double precision, double precision) from public, anon, authenticated;
+grant execute on function public.towns_upsert(jsonb), public.town_lookup(text, integer), public.towns_search(text, integer), public.town_near(double precision, double precision, double precision) to service_role;
 
 commit;

@@ -137,8 +137,11 @@ begin
 end
 $$;
 
--- Towns by name or another name of theirs (cities with 5 000+ people).
--- exact: the query is one of its names; prefix: one of its names starts so.
+-- Towns by name or another name of theirs. exact: the query is one of its names; prefix: one of its names
+-- starts so. Two ways into the answer (2026-11-13): the towns one of whose names begins with what was typed,
+-- the biggest first ("wie" offers Wien; before, the forty most alike of over a thousand were taken at random),
+-- and the towns whose names are most like it. A name that is so, or begins so, comes before the look-alikes,
+-- the bigger town first; the API then puts the names in the reader's language first (app/api/places/search).
 do $$ begin
   if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.towns_search(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
     drop function public.towns_search(text, integer);
@@ -149,18 +152,33 @@ returns table (id integer, name text, names jsonb, country text, region text, po
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  with hits as (
-    select t.*, public.place_norm(q) as n
-      from public.towns t
-     where public.place_norm(q) <% t.search
-     order by t.search <->> public.place_norm(q)
+  with n as (
+    select v.n, replace(replace(replace(v.n, '\', '\\'), '%', '\%'), '_', '\_') as pattern -- typed text is no wildcard
+      from (select public.place_norm(q) as n) v
+  ),
+  starts as ( -- one of its names begins with what was typed: the biggest towns first
+    select t.id from public.towns t, n
+     where t.search like n.pattern || '%' or t.search like '% | ' || n.pattern || '%'
+     order by t.population desc
      limit 40
+  ),
+  alike as ( -- its names are most like it: a slip of the finger
+    select t.id from public.towns t, n
+     where n.n <% t.search
+     order by t.search <->> n.n
+     limit 40
+  ),
+  hits as (
+    select t.*, n.n,
+           n.n = any(string_to_array(t.search, ' | ')) as exact,
+           exists (select 1 from unnest(string_to_array(t.search, ' | ')) as a(v) where a.v like n.pattern || '%') as prefix
+      from public.towns t, n
+     where t.id in (select s.id from starts s union select a.id from alike a)
   )
-  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
-         h.n = any(string_to_array(h.search, ' | ')) as exact,
-         exists (select 1 from unnest(string_to_array(h.search, ' | ')) as a(v) where a.v like h.n || '%') as prefix
+  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry), h.exact, h.prefix
     from hits h
-   order by exact desc, prefix desc, round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
+   order by h.exact desc, h.prefix desc, (case when h.exact or h.prefix then h.population else 0 end) desc,
+            round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
    limit least(greatest(lim, 1), 20)
 $$;
 
