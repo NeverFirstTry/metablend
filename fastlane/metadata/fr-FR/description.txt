@@ -1,17 +1,17 @@
-Aucun modèle météo n’a raison tous les jours. MetaBlend compare jusqu’à 20 sources météo à la fois, dont ECMWF, GFS, ICON, MET Norway et le NWS, et les fusionne en une seule prévision. Les sources qui voient juste dans votre région pèsent davantage, vérifiées avec des stations météo, des relevés d’aéroports et les retours de personnes sur place.
+Aucun modèle météo n’a raison tous les jours. MetaBlend compare jusqu’à 20 sources météo à la fois, dont ECMWF, GFS, ICON, MET Norway et le NWS, et les fusionne en une seule prévision. Les sources qui voient juste régulièrement dans votre région pèsent davantage, vérifiées avec des stations météo, des relevés d’aéroports et les retours de personnes sur place.
 
 La prévision
 • Aujourd’hui, demain et la semaine, heure par heure
 • À quel point les sources sont d’accord
-• Le meilleur moment pour sortir, radar de pluie, UV, qualité de l’air et pollen
+• Meilleur moment pour sortir, radar de pluie, UV, qualité de l’air et pollen
 
 Montagne et randonnée
-• Prévisions au sommet pour n’importe quelle montagne : vent, isotherme 0 °C, risque d’orage
+• Prévisions au sommet dans le monde entier : vent, isotherme 0 °C, risque d’orage
 • Le créneau favorable pour être au sommet
 • 195 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
 • Itinéraires balisés et import GPX avec une heure de départ conseillée
 
-Toujours à jour
+Alertes et widgets
 • Alertes pluie, orages, intempéries et chaleur, bulletin du matin et alertes de randonnée
 • Widgets pour votre ville et votre prochaine randonnée
 
@@ -19,6 +19,6 @@ Sans compte, sans publicité, gratuit. En 13 langues.
 
 La météo en montagne change vite. Les prévisions peuvent se tromper. Pour une course en montagne, consultez toujours le bulletin météo montagne officiel et le bulletin d’avalanches, et faites demi-tour en cas de doute.
 
-Confidentialité: https://metablend.app/privacy
-Conditions: https://metablend.app/terms
-Mentions légales: https://metablend.app/impressum
+Confidentialité : https://metablend.app/privacy
+Conditions : https://metablend.app/terms
+Mentions légales : https://metablend.app/impressum

@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-13
 
+### Changed: the store descriptions before launch (owner 2026-11-13)
+- App Store and Google Play, all 13 languages: the heading "Always up to date" is now "Alerts and widgets" (Hinweise und Widgets), "Summit forecasts for any peak" is now "Summit forecasts worldwide" (Gipfelprognosen weltweit; in Japanese, Chinese, Korean and Slovenian the wind item no longer repeats the summit word), and "The best time to be outside" is now the app's own name for it, "Best time out" (Beste Zeit draußen), in each language's words from the app.
+- Spanish: the freezing level is "isoterma de 0 °C" (it said "cota de nieve", the snow line). French: "les sources qui voient juste régulièrement" keeps the track record, and the three link labels have a space before the colon like the rest. Chinese: "经常准" (often right) for "一直准" (always right).
+- Google Play's What's New for the launch build (`changelogs/3.txt`, the next versionCode) says "First release." in every language, like the App Store.
+
 ### Added: App Store and Google Play badges for launch day, switched off
 - Nothing changes for visitors until the switch is on. Launch day, 15 December 2026, in Vercel and without a merge: `NEXT_PUBLIC_STORE_BADGES=on` and `NEXT_PUBLIC_APP_STORE_URL` set to the App Store listing, then a redeploy. Without the App Store URL only Google Play shows. The Google Play address comes from the app's id (`app.metablend`), in `lib/hike/stores.js`.
 - The stores' own badges, unaltered, in the reader's language (all 13): Apple's from its marketing tools, Google's from play.google.com with the empty margin trimmed. App Store first and in black, both 40 px high, as both stores' rules ask.
