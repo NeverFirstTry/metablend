@@ -5,7 +5,8 @@
 // Exits 1 and names the cause on any finding.
 // Runs each page with and without reduced motion (the peak page's overflow showed only with it),
 // every fold open, in German (long words). Only fixed places: Wien, Großglockner and one of its routes,
-// airport LOWW.
+// airport LOWW. The pages in NARROW also load at 320 px in all 13 languages, and anything a reader sees
+// that is cut off sideways there is a finding (CUT_OFF below).
 // Layout only, no weather: the pages' /api/ answers and the search box's place suggestions come from
 // scripts/layout-fixtures.json, so a run asks no weather source. A request recorded with other values
 // (a date, a time) gets its route's recorded answer; one with no recorded answer at all is a finding.
@@ -33,6 +34,7 @@ import { ANALYTICS, IS_ANALYTICS, analyticsLeak } from './lib/analytics-block.mj
 import { TERMS_CAPTURE_SCRIPT } from '../lib/terms.js'
 import { shapeDiff, FORECAST_SHAPE, SUMMIT_SHAPE } from './lib/shape.mjs'
 import { launchBrowser } from './lib/browser.mjs'
+import { sortOf } from './layout-cut-off-report.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:3123'
 const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'layout-fixtures.json')
@@ -69,6 +71,11 @@ const PAGES = [
 // [name, path, how, , , , language]: pages checked in English as well, where the texts run to other lengths:
 // the forecast, whose fold-out panels (Details, Sources) are measured open like in German
 const ENGLISH = [['forecast (English)', '/', 'search', undefined, undefined, undefined, 'en']]
+// [name, path, how]: pages also checked at NARROW_WIDTH in every language of LANGS, failing on content that is
+// cut off sideways (sortOf in scripts/layout-cut-off-report.mjs: maps in their frame and screen-reader text pass).
+// The source list's weight column (en, es, fr, pt) and the rankings' third tab (fr) were cut off there (2026-11-13).
+const NARROW = [['forecast', '/', 'search'], ['rankings', '/leaderboard']]
+const NARROW_WIDTH = 320
 // [name, path, how, link, part, only this view]: a link to a part of a page has to land on that part
 // (2026-11-10: the footer's link to the terms' copyright section ended at the top of the terms). Without
 // a link the address itself is opened: the link to the WeatherAPI notice only shows while WeatherAPI
@@ -297,7 +304,8 @@ const FOLD_OUT = `(() => {
 })()`
 
 // one page in one view and motion setting; findings go into the list
-async function checkPage(view, motion, name, path, how, link, part, lang = 'de') {
+async function checkPage(view, motion, name, path, how, link, part, lang = 'de', width = WIDTH) {
+  await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true })
   await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }, { name: 'prefers-reduced-motion', value: motion }] })
   await send('Network.clearBrowserCookies')
   await send('Storage.clearDataForOrigin', { origin: BASE, storageTypes: 'all' })
@@ -340,6 +348,13 @@ async function checkPage(view, motion, name, path, how, link, part, lang = 'de')
     console.log(`· ${view} ${name} (${lang})`)
     return
   }
+  if (width !== WIDTH) {
+    const cut = (await ev(CUT_OFF)).filter(f => sortOf(f) === 'content')
+    // one line per page: a table row repeats the same cut 20 times
+    if (cut.length) findings.push(`${label}: ${cut.length} things cut off, up to ${Math.max(...cut.map(f => f.by))} px beyond ${cut[0].clip}: ${[...new Set(cut.map(f => `${f.el} "${(f.text ?? '').slice(0, 30)}"`))].slice(0, 3).join(', ')}`)
+    console.log(`${cut.length ? '✗' : '✓'} ${label}`)
+    return
+  }
   const wide = await ev(WIDE)
   if (wide) findings.push(`${label}: ${wide}`)
   const stuck = await ev(FOLD_OUT)
@@ -368,12 +383,13 @@ try {
           .filter(([name, path]) => (!ONLY || ONLY.includes(name)) && !(path === '/{lang}' && lang === 'en'))
           .map(([name, path, how]) => ['no-preference', name, path.replace('{lang}', lang), how, undefined, undefined, undefined, lang]))
         : ['reduce', 'no-preference'].flatMap(motion => [...PAGES, ...ENGLISH, ...(motion === 'reduce' ? [] : PART_LINKS)].map(page => [motion, ...page]))
-      for (const [motion, name, path, how, link, part, only, lang] of rounds) {
+          .concat(LANGS.flatMap(lang => NARROW.map(([name, path, how]) => ['no-preference', `${name} at ${NARROW_WIDTH} px (${lang})`, path, how, undefined, undefined, undefined, lang, NARROW_WIDTH])))
+      for (const [motion, name, path, how, link, part, only, lang, width] of rounds) {
         if (only && only !== view) continue
         current = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
         let timer
         const outcome = await Promise.race([
-          checkPage(view, motion, name, path, how, link, part, lang).then(() => 'done', e => `failed: ${e.message}`),
+          checkPage(view, motion, name, path, how, link, part, lang, width).then(() => 'done', e => `failed: ${e.message}`),
           new Promise(r => { timer = setTimeout(() => r('timeout'), PAGE_LIMIT) }),
         ])
         clearTimeout(timer)
@@ -408,4 +424,4 @@ if (leak) findings.push(leak)
 if (!onSite && tried) findings.push(`analytics: ${tried} requests on ${new URL(BASE).host}; they load only on metablend.app (app/components/SiteAnalytics.jsx)`)
 if (onSite && !tried) findings.push('analytics: none loaded on metablend.app, so the site counts no visits (app/components/SiteAnalytics.jsx)')
 if (findings.length) { console.log(`\n${findings.length} finding(s) in ${checked} page checks (${took}):`); for (const f of findings) console.log('  ' + f); process.exit(1) }
-console.log(`\nAll ${checked} page checks fit ${WIDTH} px, no text below 13 px (${took}).`)
+console.log(`\nAll ${checked} page checks fit ${WIDTH} px (${NARROW.map(([name]) => name).join(' and ')} also ${NARROW_WIDTH} px in ${LANGS.length} languages), no text below 13 px (${took}).`)
