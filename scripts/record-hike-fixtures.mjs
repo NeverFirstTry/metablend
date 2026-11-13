@@ -42,4 +42,3 @@ for (const host of ['https://overpass-api.de', 'https://overpass.private.coffee'
 if (!tags) throw new Error('overpass unavailable')
 save('overpass-schneeberg.json', tags)
 save('elevation-3.json', await get('https://api.open-meteo.com/v1/elevation?latitude=47.7675,47.0745,46.3783&longitude=15.8069,12.6945,13.8367'))
-save('geocoding-zugspitze.json', await get('https://geocoding-api.open-meteo.com/v1/search?name=Zugspitze&count=20&language=en'))

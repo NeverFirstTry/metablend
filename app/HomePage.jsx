@@ -458,12 +458,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     suggestTimer.current = setTimeout(async () => {
       const seq = ++suggestSeq.current
       try {
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=5&language=${lang}`)
+        const res = await fetch(`/api/places/search?q=${encodeURIComponent(value)}&lang=${lang}`) // our own towns: nothing typed goes outside
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
         setShowSuggestions(true)
-      } catch { /* geocoding hiccup while typing — just show nothing */ }
+      } catch { /* a hiccup while typing: just show nothing */ }
     }, 250)
   }
 

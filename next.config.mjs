@@ -16,7 +16,7 @@ const securityHeaders = [
       `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"} https://plausible.io https://va.vercel-scripts.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile.opentopomap.org https://tile.opentopomap.org https://tilecache.rainviewer.com https://*.rainviewer.com",
-      "connect-src 'self' https://geocoding-api.open-meteo.com https://api.rainviewer.com https://plausible.io https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+      "connect-src 'self' https://api.rainviewer.com https://plausible.io https://vitals.vercel-insights.com https://va.vercel-scripts.com",
       "font-src 'self' data:",
       "worker-src 'self' blob:",
       "frame-src 'self'",
