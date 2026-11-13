@@ -458,7 +458,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     suggestTimer.current = setTimeout(async () => {
       const seq = ++suggestSeq.current
       try {
-        const res = await fetch(`/api/places/search?q=${encodeURIComponent(value)}&lang=${lang}`) // our own towns: nothing typed goes outside
+        const res = await fetch(`/api/places/search?q=${encodeURIComponent(value)}&lang=${lang}&summits=1`) // our own towns and summits: nothing typed goes outside
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
@@ -702,7 +702,8 @@ ${url}`)
           onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
         >
           <span>{hans(s.name)}</span>
-          <span className="text-zinc-500 text-xs">{s.admin1 ? `${hans(s.admin1)}, ` : ''}{countryName(s.country_code, lang, hans(s.country))}</span>
+          {/* a summit shows its height first: that is how it differs from a town of a like name */}
+          <span className="text-zinc-500 text-xs tabular-nums">{s.summit ? `${s.elev} m` : `${s.admin1 ? `${hans(s.admin1)}, ` : ''}${countryName(s.country_code, lang, hans(s.country))}`}</span>
         </button>
       ))}
     </div>
