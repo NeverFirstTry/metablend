@@ -3,6 +3,20 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Changed: the place search is our own
+- The search box no longer sends what you type to Open-Meteo, and our server no longer asks Open-Meteo where a place is or what it is called. Every place name is answered by our own list of towns (GeoNames, CC BY 4.0). Open-Meteo's geocoder is not asked anywhere on the site or in the app, and the page's security policy no longer lets a browser reach it.
+- Suggestions while typing come from our own server (`/api/places/search`). A town shows its name in the reader's language from the list itself, in all 13 languages; Chinese is shown in simplified characters and found in either script.
+- Small places are found: from 500 people in Austria, Germany, Switzerland, Italy and Slovenia (93,470 towns, 23,441 of them small places; before, places from 5,000 people came from our list and smaller ones from Open-Meteo).
+- A name that no town in the list carries is "not found". The beginning of a name finds its town; a misspelling does not, where Open-Meteo's search used to guess. Of the place names searched in the week to 2026-11-12, 165 of 195 (98.5 % of the forecasts) are in the list under the same name; 30 names (56 forecasts) are not: hamlets under 500 people, mountains and glaciers, a country name, an airport terminal.
+- "My location" names the place from the same list in the reader's language. In the five countries it finds a village of 500 people or more where it asked OpenStreetMap before.
+- The peak search no longer asks a geocoder for a village too small for the list.
+- Privacy notice, German original and 12 translations: the place search's text goes to our own server and to no geocoding provider; the browser does not contact Open-Meteo, which sees neither the IP address nor the typed text.
+- One or two Open-Meteo requests fewer for every new place name (the counter's kind `geocoding` ends).
+- Order: `supabase/place-search.sql` on dev and production first, then the towns loaded again (`node scripts/places/load.mjs --towns`), then this code. Until the towns are loaded the SQL changes no answer.
+- Tests: the routes answer place names from the towns functions and check that no geocoder is asked; the SQL change runs on a copy of the database as it is today, twice, and is the same text as the full schema files.
+
 ## 2026-11-12
 
 ### Fixed: the phone layout check no longer turns red on a rainy day
