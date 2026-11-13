@@ -5,7 +5,7 @@ import { Pause, Play } from 'lucide-react'
 import { t } from '@/lib/i18n'
 
 // The 28-second film in the consensus explainer (owner 2026-11-13): German for German readers, English for
-// everyone else; the square film at every width (full width on a phone, 24rem from 640 px). No file loads until
+// everyone else; the square film at every width (full width on a phone, 24rem and centred in the card from 640 px). No file loads until
 // the film is in view. Muted and looped; with reduced motion it waits on its poster for the play button. The pause
 // button is there for everyone: a moving picture that runs longer than five seconds needs one (WCAG 2.2.2).
 export default function PromoVideo({ lang }) {
@@ -36,7 +36,7 @@ export default function PromoVideo({ lang }) {
   const toggle = () => { choice.current = !playing; sync() }
 
   return (
-    <div className="web-only relative mb-4 aspect-square w-full sm:max-w-sm overflow-hidden rounded-xl bg-[#0f151b]">
+    <div className="web-only relative mb-4 mx-auto aspect-square w-full sm:max-w-sm overflow-hidden rounded-xl bg-[#0f151b]">
       {/* eslint-disable-next-line @next/next/no-img-element -- the film's own poster, a static file */}
       <img src={`${film}-poster.webp`} alt="" className="absolute inset-0 w-full h-full object-cover" />
       <video
