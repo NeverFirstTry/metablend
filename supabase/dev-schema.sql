@@ -1327,24 +1327,30 @@ grant select, insert, update, delete on public.route_heights to service_role;
 -- last_answers keeps the last good answer per place (lib/last-answer.js), for the hours our own
 -- Open-Meteo server gives nothing and the public service may not be asked: the 7-day outlook and a
 -- summit's forecast are served up to 24 hours old, the rain forecast up to 1 hour, each with its time.
+-- Since 2026-11-13 the forecast's blend ("right now") is kept too, kind forecast: served up to 2 hours
+-- old when every Open-Meteo source of a build failed, instead of a blend of the few other sources.
 -- Written when a route builds a good answer (only requests the CDN could not answer reach a route),
 -- read only when a build fails.
 -- place is the answer's own key and holds no text a visitor typed: the town's or the peak's rounded
 -- coordinates (a summit: with its height and "core" for the summit pages' three-model copy).
 -- body is the answer as JSON, gzip-compressed and base64-encoded (measured 2026-11-12: an outlook is
--- 26 KB as JSON and 4.6 KB kept, a summit forecast 35 KB and 6.5 KB, rain 0.7 KB and 0.2 KB).
+-- 26 KB as JSON and 4.6 KB kept, a summit forecast 35 KB and 6.5 KB, rain 0.7 KB and 0.2 KB; a blend,
+-- measured 2026-11-13, 4.2 KB and 1.6 KB).
 -- At most 3,000 rows (about 20 MB at the very most; a normal day has under 1,000): a new place is not
 -- kept while the table is full, a place already there is always renewed. Rows older than 24 hours go
 -- when the table is full and at the nightly cleanup.
 -- Run on dev, then on production (safe to run again).
 
 create table if not exists public.last_answers (
-  kind text not null check (kind in ('outlook', 'summit', 'rain')),
+  kind text not null check (kind in ('outlook', 'summit', 'rain', 'forecast')),
   place text not null,
   made_at timestamptz not null default now(),
   body text not null,
   primary key (kind, place)
 );
+-- a table made before 2026-11-13 knows three kinds: the rule is replaced by the one above
+alter table public.last_answers drop constraint if exists last_answers_kind_check;
+alter table public.last_answers add constraint last_answers_kind_check check (kind in ('outlook', 'summit', 'rain', 'forecast'));
 alter table public.last_answers enable row level security;
 revoke all on public.last_answers from anon, authenticated;
 grant select, insert, update, delete on public.last_answers to service_role;

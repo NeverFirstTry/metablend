@@ -21,7 +21,8 @@ import { sourceName, isRetired, covers, publicSources } from '@/lib/sources'
 import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
-import { blendTtl, freshCopy, FULL_TTL } from '@/lib/forecast-cache'
+import { blendTtl, freshCopy, FULL_TTL, lostOpenMeteo } from '@/lib/forecast-cache'
+import { keepAnswer, lastAnswer, placeKey } from '@/lib/last-answer'
 import { dailyLimited, failuresSince } from '@/lib/open-meteo'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
@@ -137,6 +138,53 @@ export const GET = withErrorLog('forecast', async (request) => {
   // with what Open-Meteo answered to the requests of this miss that failed (status 0: no answer in time)
   if (failed.length) logError('forecast.partial', new Error(limited ? 'thin blend, Open-Meteo daily limit' : 'thin blend'), { city: geo.name, failed, limited, upstream: failuresSince(asked, `latitude=${geo.lat}&longitude=${geo.lon}`) })
 
+  // Response-time + uptime stats (EMA on the response time, running up/down
+  // counts), atomic via the bump_api_stats DB function. Before the kept blend
+  // below: an answer from the kept copy counts its failed sources too.
+  const attempts = statRows(timed)
+  if (attempts.length) {
+    const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
+      rows: attempts,
+    })
+    if (rpcErr) logError('forecast.stats', rpcErr)
+  }
+
+  // the request's own fields of the answer. A kept blend gets them from the request that reads it,
+  // never from the one that built it: one request must not set what another one reads
+  const named = async () => {
+    const names = await namesP, learnCity = await learnCityP
+    const shown = shownIn(lang, names.shown, learnCity)
+    return {
+      city:     names.shown, // the place's name as the geocoder gave it: the page asks by it again
+      // what the reader sees where it differs (Chinese in simplified characters, lib/geocode.js shownIn)
+      ...(shown !== names.shown ? { cityShown: shown } : {}),
+      learnCity, // the key feedback reports are matched by (see above)
+      country:  geo.country, // English; the page names it from cc in the reader's language
+      cc:       geo.cc ?? null,
+      lat:      geo.lat,
+      lon:      geo.lon,
+      region,
+    }
+  }
+  const send = payload => {
+    // expired copies go once the map grows (a warm instance lives for hours)
+    if (CACHE.size > 500) for (const [k, v] of CACHE) if (!freshCopy(v)) CACHE.delete(k)
+    CACHE.set(key, { ts: Date.now(), payload, ttl })
+    return Response.json(payload, { headers: cdnHeaders(ttl / 1000) })
+  }
+
+  // Every Open-Meteo source gave nothing, each request asked twice (lib/weather.js tfetch): the place's
+  // last full blend, at most 2 hours old, goes out instead of a thin one, with the time it was made
+  // (generatedAt, and kept). Vienna, 2026-11-13: one 503 on all four requests, 5 sources for 2 minutes.
+  // Nothing of this build is stored then: the thin blend is not what the visitor got. Counted either
+  // way (error_log, scope forecast.lost): /api/health reports more than a few in 15 minutes.
+  const place = placeKey(geo.lat, geo.lon)
+  if (lostOpenMeteo(failed)) {
+    const kept = await lastAnswer('forecast', place)
+    await logError('forecast.lost', new Error(kept ? 'every Open-Meteo source lost: the last full blend served' : 'every Open-Meteo source lost: thin blend, no full one kept'), { city: geo.name, kept: kept?.madeAt ?? null, limited })
+    if (kept) return send({ ...kept.body, ...(await named()), kept: kept.madeAt }) // the request's fields last: they win
+  }
+
   // 3. Region-specific weights, falling back to global
   const { data: regionWeights, error: rwErr } = await supabase
     .from('api_weights')
@@ -217,16 +265,6 @@ export const GET = withErrorLog('forecast', async (request) => {
     if (error) logError('forecast.history', error, { city: learnCity })
   }
 
-  // Response-time + uptime stats (EMA on the response time, running up/down
-  // counts), atomic via the bump_api_stats DB function.
-  const attempts = statRows(timed)
-  if (attempts.length) {
-    const { error: rpcErr } = await supabase.rpc('bump_api_stats', {
-      rows: attempts,
-    })
-    if (rpcErr) logError('forecast.stats', rpcErr)
-  }
-
   // Low-confidence consensus → the webhook check, after the response (and
   // only when there's a webhook to call). Cleanup is a daily cron, not here.
   if (consensus.confidencePct < 40 && process.env.WEBHOOK_URL) {
@@ -237,17 +275,8 @@ export const GET = withErrorLog('forecast', async (request) => {
     after(() => fetch(`${origin}/api/webhook`, { headers: jobHeaders }).catch(() => {}))
   }
 
-  const shown = shownIn(lang, (await namesP).shown, learnCity)
-  const payload = {
-    city:     (await namesP).shown, // the place's name as the geocoder gave it: the page asks by it again
-    // what the reader sees where it differs (Chinese in simplified characters, lib/geocode.js shownIn)
-    ...(shown !== (await namesP).shown ? { cityShown: shown } : {}),
-    learnCity, // the key feedback reports are matched by (see above)
-    country:  geo.country, // English; the page names it from cc in the reader's language
-    cc:       geo.cc ?? null,
-    lat:      geo.lat,
-    lon:      geo.lon,
-    region,
+  // the blend itself: the same for every request of the place, no text from the request in it
+  const blend = {
     consensus,
     sources:  publicSources([...results, ...downSources]), // blended above with every value; public without the ones a licence keeps private
     weights:  weightMap,
@@ -261,9 +290,7 @@ export const GET = withErrorLog('forecast', async (request) => {
     partial: failed.length > 0, // a source that was asked gave nothing: fewer sources than usual
     generatedAt: new Date().toISOString(),
   }
-
-  // expired copies go once the map grows (a warm instance lives for hours)
-  if (CACHE.size > 500) for (const [k, v] of CACHE) if (!freshCopy(v)) CACHE.delete(k)
-  CACHE.set(key, { ts: Date.now(), payload, ttl })
-  return Response.json(payload, { headers: cdnHeaders(ttl / 1000) })
+  // a full blend is kept for the place, without the request's fields (lib/last-answer.js)
+  if (!failed.length) await keepAnswer('forecast', place, blend)
+  return send({ ...(await named()), ...blend })
 })

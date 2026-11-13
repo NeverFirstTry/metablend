@@ -531,7 +531,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       // Reset the auto-refresh clock on every successful load (manual, search,
       // or auto), so the countdown always restarts from a full 15 minutes.
       setNextRefreshAt(Date.now() + AUTO_REFRESH_MS)
-      if (silent) {
+      if (silent && !json.kept) { // a kept blend (every Open-Meteo source failed) is not "updated just now": its age stays
         setJustUpdated(true)
         setTimeout(() => setJustUpdated(false), 2500)
       }
@@ -689,8 +689,10 @@ ${url}`)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // how old the data on screen is (components/RefreshClock.jsx)
-  const generatedAt = outlook?.generatedAt ?? data?.generatedAt
+  // how old the data on screen is (components/RefreshClock.jsx): the blend's own time, the number the
+  // page opens with. Until 2026-11-13 the outlook's stood here, which the CDN keeps up to 2.5 hours:
+  // "updated 104 min ago" over a blend built a minute before.
+  const generatedAt = data?.generatedAt ?? outlook?.generatedAt
   // nothing asked for yet: on the website the landing page takes the search's place (CSS decides, see globals.css)
   const suggestionList = showSuggestions && suggestions.length > 0 && (
     <div className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
