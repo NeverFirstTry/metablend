@@ -670,8 +670,8 @@ html:not([data-app]):not(.\#):not(.\#) main {
   & .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
   & .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
   & .home-toolbar button { background: none; }
-  /* tabs as words, the active one underlined in gold */
-  & [role="tablist"] { background: transparent; border-color: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; gap: 1.5rem; margin-top: 2rem; }
+  /* tabs as words, the active one underlined in gold; a row too long for a narrow phone (the rankings in French at 320 px) wraps */
+  & [role="tablist"] { background: transparent; border-color: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; gap: 0.25rem 1.5rem; flex-wrap: wrap; margin-top: 2rem; }
   & [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
   & [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
   /* quiet motion: the loader without its glow */
@@ -750,7 +750,14 @@ html:not([data-app]) .home-warning { animation: none; }
 .hour-tile { background: var(--surface-2); }
 .hour-tile[aria-current] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
-@media (max-width: 379px) { .source-bar { min-width: 0.75rem; } }
+@media (max-width: 379px) {
+  .source-bar { min-width: 0.75rem; }
+  /* a narrow phone: the share stands over its bar, so the weight column needs only the width of "100%" (320 px, 13 languages) */
+  .source-weight { flex-direction: column-reverse; align-items: flex-end; gap: 0.25rem; }
+  .source-weight > .source-bar { flex: none; align-self: stretch; }
+  /* a sentence across columns ("Value not shown (licence)") wraps in the room the columns have and takes none from the names */
+  .source-note { width: 0; min-width: 100%; }
+}
 .home-bar { background: var(--muted); opacity: 0.6; }
 .home-bar-lead { background: var(--accent); }
 
