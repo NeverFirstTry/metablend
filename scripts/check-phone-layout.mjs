@@ -39,6 +39,23 @@ const FIXTURES = join(dirname(fileURLToPath(import.meta.url)), 'layout-fixtures.
 const RECORD = !!process.env.RECORD
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const WIDTH = 390
+// Report only (owner, 2026-11-12): MEASURE=<file.json> lists every element that is cut off sideways, on every
+// page below in each language of LANGS at each width of WIDTHS, and writes the list to <file.json>
+// (scripts/layout-cut-off-report.mjs makes the table). It sees what the check cannot: most pages clip
+// sideways on their own outer element, so content cut off inside it does not make the page wider.
+// Nothing is judged and nothing fails: the run ends with exit 0. The pages get the recording's answers
+// (German and English data under every language's own texts).
+//   MEASURE=cut-off-de.json LANGS=de node scripts/check-phone-layout.mjs [base]
+//   ONLY=rankings,forecast   measures those pages alone (after a fix, say)
+const MEASURE = process.env.MEASURE
+const LANGS = (process.env.LANGS ?? 'en,de,fr,es,it,nl,pl,cs,sl,pt,ja,zh,ko').split(',')
+const WIDTHS = (process.env.WIDTHS ?? '320,360,390').split(',').map(Number)
+const ONLY = process.env.ONLY?.split(',')
+// Pages only the measurement opens, so that every page of the site is in the list: the two lists whose page
+// files clip sideways too, the home page as it opens, the landing page of each language (/de, /fr, …; English
+// has none), the testers page, the embeddable widget and the page a shared city link opens.
+const MEASURE_ONLY = [['summit list', '/mountains'], ['city list', '/weather'], ['home', '/'], ['language landing', '/{lang}'], ['testers', '/testers'], ['widget', '/widget/vienna'], ['shared city link', '/city/Wien']]
+const measured = []
 // [name, path, how]: 'search' opens the forecast by searching Wien; 'week' then opens the Week tab;
 // 'notice' is the terms notice (lib/terms.js): the app's first-start screen, the website's one-time bar
 const PAGES = [
@@ -80,7 +97,7 @@ const SMOKE = [
   ['summit forecast', hikeApiPath(featured.find(p => p.id === 'grossglockner')), j => j.hourly?.length > 0 && j.days?.length > 0, SUMMIT_SHAPE], // app/mountains/[peak]/page.js
 ]
 const RERECORD = 're-record fixtures (RECORD=1, see the top of this file)'
-for (const [what, path, usable, shape] of SMOKE) {
+for (const [what, path, usable, shape] of MEASURE ? [] : SMOKE) {
   const r = await fetch(BASE + path, { signal: AbortSignal.timeout(60_000) }).catch(e => ({ ok: false, status: `nothing (${e.cause?.code ?? e.name})` }))
   const j = r.ok ? await r.json().catch(() => null) : null
   const ok = j && usable(j)
@@ -112,7 +129,7 @@ console.log(`browser on debugging port ${new URL(active).port}`)
 // Time limits, so a stuck browser fails fast and names the page instead of running on: every browser
 // call 45 s, a page 2 minutes (which stops the run), the whole run 20 minutes: a full run takes 6 to 6.5 minutes
 // on CI (346 to 380 s, 27 runs to 2026-11-10) and about 5 on a PC (315 s, also with a second run at once).
-const CALL_LIMIT = 45_000, PAGE_LIMIT = 120_000, RUN_LIMIT = 20 * 60_000
+const CALL_LIMIT = 45_000, PAGE_LIMIT = 120_000, RUN_LIMIT = (MEASURE ? 20 * LANGS.length : 20) * 60_000 // a measurement: about 5 minutes a language
 let current = 'starting the browser'
 const runTimer = setTimeout(async () => { console.error(`\nThe run took longer than ${RUN_LIMIT / 60_000} minutes, at ${current}.`); await closeBrowser(); process.exit(1) }, RUN_LIMIT)
 
@@ -215,6 +232,52 @@ const WIDE = `(() => {
 // Content of an opened fold-out panel that sticks out of its card. The forecast's <main> clips sideways
 // (overflow-x-hidden), so such content is cut off without the page getting wider, and WIDE cannot see it.
 // A scroller inside a panel may run wider by design; absolutely placed helpers (screen-reader text) are skipped.
+// MEASURE: every thing a reader sees that is cut off sideways, as { kind, el, text, by, side, clip, clipWidth, decor, faint }.
+//   'sticks out'        it reaches past the nearest box that clips it sideways, or past the screen
+//   'outside'           it lies wholly beyond that edge
+//   'shortened (…)'     its own text is wider than its box and ends in an ellipsis
+//   'own text clipped'  the same without an ellipsis
+// Listed are elements with text of their own, pictures, links and controls, and boxes with a border or a
+// background; an empty wrapper is not something to see. What sits in a container that scrolls sideways can
+// be reached and is not listed. An absolutely placed element is held by its positioned ancestor, not its
+// parent, and a fixed one only by the screen. decor: hidden from screen readers or not clickable (a glow,
+// an ornament); faint: fully transparent at this moment.
+const CUT_OFF = `(() => {
+  const W = Math.min(innerWidth, screen.width), out = [] // a page wider than the screen can widen innerWidth
+  const cls = el => String(el.className?.baseVal ?? el.className ?? '').trim().split(/\\s+/).filter(Boolean)
+  const name = el => el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + cls(el).slice(0, 5).map(c => '.' + c).join('')
+  const words = el => (el.innerText ?? el.textContent ?? '').trim().replace(/\\s+/g, ' ').slice(0, 70)
+  const ownText = el => [...el.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())
+  const SEEN = new Set(['IMG', 'SVG', 'CANVAS', 'VIDEO', 'INPUT', 'BUTTON', 'SELECT', 'TEXTAREA', 'A'])
+  const clear = c => c === 'transparent' || /^rgba\\([^)]*, 0\\)$/.test(c) // not rgb(255, 215, 0)
+  for (const el of document.body.querySelectorAll('*')) {
+    if (el.closest('.sr-only, script, style, noscript, [hidden], svg *') || !el.getClientRects().length) continue
+    const cs = getComputedStyle(el), r = el.getBoundingClientRect()
+    if (cs.visibility === 'hidden' || r.width < 1 || r.height < 1) continue
+    const text = ownText(el)
+    const boxed = cs.borderLeftWidth !== '0px' || cs.borderRightWidth !== '0px' || !clear(cs.backgroundColor) || cs.backgroundImage !== 'none'
+    if (!text && !SEEN.has(el.tagName.toUpperCase()) && !boxed) continue
+    const base = { el: name(el), text: words(el), decor: !!el.closest('[aria-hidden="true"]') || cs.pointerEvents === 'none', faint: +cs.opacity === 0 }
+    if (text && /hidden|clip/.test(cs.overflowX) && el.scrollWidth > el.clientWidth + 1) out.push({ ...base, kind: cs.textOverflow === 'ellipsis' ? 'shortened (…)' : 'own text clipped', by: el.scrollWidth - el.clientWidth, side: 'right', clip: name(el) })
+    let clip = null, reachable = false
+    for (let at = el; ;) {
+      const pos = getComputedStyle(at).position
+      const up = pos === 'fixed' ? null : pos === 'absolute' ? at.offsetParent ?? at.parentElement : at.parentElement // an SVG has no offsetParent
+      if (!up) break
+      const over = getComputedStyle(up).overflowX
+      if (/auto|scroll/.test(over)) { reachable = true; break }
+      if (/hidden|clip/.test(over)) { clip = up; break }
+      at = up
+    }
+    if (reachable) continue
+    const box = clip ? clip.getBoundingClientRect() : { left: 0, right: W }
+    const right = r.right - box.right, left = box.left - r.left, by = Math.max(right, left)
+    if (by <= 1) continue
+    // clipWidth: a box a pixel or two wide is the usual way to keep text for screen readers only
+    out.push({ ...base, kind: r.left >= box.right - 1 || r.right <= box.left + 1 ? 'outside' : 'sticks out', by: Math.round(by), side: right >= left ? 'right' : 'left', clip: clip ? name(clip) : 'the screen', clipWidth: Math.round(box.right - box.left) })
+  }
+  return out
+})()`
 const FOLD_OUT = `(() => {
   const out = []
   for (const button of document.querySelectorAll('.home-more button[aria-expanded="true"]')) {
@@ -267,6 +330,16 @@ async function checkPage(view, motion, name, path, how, link, part, lang = 'de')
   const label = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
   const app = await ev('document.documentElement.dataset.app === "1"')
   if (app !== (view === 'app')) { findings.push(`${label}: opened as the ${app ? 'app' : 'website'}`); return }
+  if (MEASURE) {
+    // the same loaded page at each width (the page lays itself out again, as when a phone is turned)
+    for (const width of WIDTHS) {
+      await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 1, mobile: true }); await sleep(700)
+      for (const f of await ev(CUT_OFF)) measured.push({ view, page: name, path, lang, width, ...f })
+    }
+    await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: 844, deviceScaleFactor: 1, mobile: true })
+    console.log(`· ${view} ${name} (${lang})`)
+    return
+  }
   const wide = await ev(WIDE)
   if (wide) findings.push(`${label}: ${wide}`)
   const stuck = await ev(FOLD_OUT)
@@ -290,7 +363,12 @@ try {
   views: for (const view of ['app', 'website']) {
     const close = await openView()
     try {
-      for (const motion of ['reduce', 'no-preference']) for (const [name, path, how, link, part, only, lang] of [...PAGES, ...ENGLISH, ...(motion === 'reduce' ? [] : PART_LINKS)]) {
+      const rounds = MEASURE
+        ? LANGS.flatMap(lang => [...PAGES, ...MEASURE_ONLY]
+          .filter(([name, path]) => (!ONLY || ONLY.includes(name)) && !(path === '/{lang}' && lang === 'en'))
+          .map(([name, path, how]) => ['no-preference', name, path.replace('{lang}', lang), how, undefined, undefined, undefined, lang]))
+        : ['reduce', 'no-preference'].flatMap(motion => [...PAGES, ...ENGLISH, ...(motion === 'reduce' ? [] : PART_LINKS)].map(page => [motion, ...page]))
+      for (const [motion, name, path, how, link, part, only, lang] of rounds) {
         if (only && only !== view) continue
         current = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
         let timer
@@ -310,6 +388,12 @@ try {
   }
 } finally { clearTimeout(runTimer); await closeBrowser() }
 const took = `${Math.round((Date.now() - started) / 1000)} s`
+if (MEASURE) {
+  writeFileSync(MEASURE, JSON.stringify({ measured: new Date().toISOString(), base: BASE, langs: LANGS, widths: WIDTHS, pages: checked, notMeasured: findings, findings: measured }))
+  console.log(`\n${checked} pages measured in ${LANGS.join(', ')} at ${WIDTHS.join(', ')} px: ${measured.length} cut-off elements written to ${MEASURE} (${took})`)
+  for (const f of findings) console.log('  not measured: ' + f)
+  process.exit(0)
+}
 if (RECORD) {
   // one answer per line, sorted, so a new recording shows in a diff as the answers that changed
   const lines = Object.entries(recorded.answers).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v)}`)
