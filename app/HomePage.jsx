@@ -44,6 +44,7 @@ import { OutlookError } from './components/outlook/Status'
 import SkyLoader from './components/SkyLoader'
 import NowDetails from './components/outlook/NowDetails'
 import HowItWorks from './components/HowItWorks'
+import PromoVideo from './components/PromoVideo'
 import { DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
@@ -1059,6 +1060,8 @@ ${url}`)
         {/* id: linked from the README as metablend.app/#how-it-works */}
         <div id="how-it-works" className="mt-16 max-w-2xl">
           <Fold icon={Info} title={t(lang, 'howTitle')} keep>
+            {/* the 28-second film, website only (app/components/PromoVideo.jsx) */}
+            <PromoVideo lang={lang} />
             <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
               <p>{t(lang, 'howP1')}</p>
               <p>{t(lang, 'howP2')}</p>

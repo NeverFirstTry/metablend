@@ -56,6 +56,21 @@ export default function PressContent({ kitBytes }) {
           : <p className="text-sm text-zinc-300 leading-relaxed">{p.storesSoon}</p>}
       </section>
 
+      {/* the two 16:9 films as they go to the stores; in the kit too (scripts/brand/press-kit.mjs) */}
+      <section className="space-y-4">
+        <h2 className={heading}>{p.videoTitle}</h2>
+        <div className="grid sm:grid-cols-2 gap-4">
+          {p.videos.map(([src, poster, text]) => (
+            <figure key={src} className="space-y-2">
+              <video src={src} poster={poster} controls muted playsInline preload="none" className="w-full aspect-video rounded-xl border border-zinc-800 bg-[#0f151b]" />
+              <figcaption className="text-sm text-zinc-300 leading-relaxed">
+                {text} <a href={src} download className={link}>{p.videoDownload}</a>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
       <section className="space-y-4">
         <h2 className={heading}>{p.kitTitle}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
