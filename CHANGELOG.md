@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-13
+
+### Changed: the Google Play upload guide names no key path
+- Nothing changes for visitors. `store/play-upload.md` named a key file in step 1 and step 4 that does not exist on the upload PC. Both now say where the key goes (outside the repository) and step 4's command takes a placeholder for its path.
+
 ## 2026-11-12
 
 ### Fixed: Chinese place names in simplified characters
