@@ -286,7 +286,7 @@ const CUT_OFF = `(() => {
 })()`
 const FOLD_OUT = `(() => {
   const out = []
-  for (const button of document.querySelectorAll('.home-more button[aria-expanded="true"]')) {
+  for (const button of document.querySelectorAll('.home-more button[aria-expanded="true"], .home-details-fold button[aria-expanded="true"]')) {
     const box = button.parentElement, r = box.getBoundingClientRect()
     for (const el of box.querySelectorAll('*')) {
       const e = el.getBoundingClientRect()
@@ -299,6 +299,22 @@ const FOLD_OUT = `(() => {
       break
     }
   }
+  return out
+})()`
+
+// the forecast page (tester in Buôn Ma Thuột, 2026-11-14): the search button inside the field with a 44 x 44 px
+// target, the typed text kept clear of it and a search key on the phone keyboard; Current details above the tabs
+const FORECAST_ROW = `(() => {
+  const out = [], i = document.querySelector('.home-search input'), b = document.querySelector('.home-search .home-search-go')
+  if (!i || !b) return ['no search button in the search field']
+  const f = i.getBoundingClientRect(), r = b.getBoundingClientRect()
+  if (r.left < f.left - 1 || r.right > f.right + 1 || r.top < f.top - 1 || r.bottom > f.bottom + 1) out.push('the search button is not inside the search field')
+  if (r.width < 44 || r.height < 44) out.push('the search button is ' + Math.round(r.width) + ' x ' + Math.round(r.height) + ' px, under 44 x 44')
+  if (parseFloat(getComputedStyle(i).paddingRight) < r.width) out.push('typed text runs under the search button')
+  if (i.enterKeyHint !== 'search') out.push('the phone keyboard shows no search key (enterkeyhint)')
+  const d = document.querySelector('.home-details-fold'), tabs = document.querySelector('.home-forecast [role=tablist]')
+  if (!d || !tabs || !d.getClientRects().length) out.push('no Current details fold')
+  else if (d.getBoundingClientRect().top > tabs.getBoundingClientRect().top) out.push('Current details sits below the Today, Tomorrow and Week tabs')
   return out
 })()`
 
@@ -332,8 +348,8 @@ async function checkPage(view, motion, name, path, how, link, part, lang = 'de',
   await ev(`(document.querySelectorAll('details:not([open])').forEach(d => d.open = true), true)`); await sleep(500)
   // the forecast's fold-out panels (Details, Sources: Fold in app/components/ui.jsx) are closed by default and
   // hold the longest texts of the page; they are measured open
-  if (await ev(`(() => { const closed = [...document.querySelectorAll('.home-more button[aria-expanded="false"]')]; closed.forEach(b => b.click()); return closed.length })()`)) await sleep(1200)
-  if (how && how !== 'notice' && !(await ev(`document.querySelectorAll('.home-more button[aria-expanded="true"]').length >= 2`))) findings.push(`${view} ${name}: the forecast's fold-out panels did not open`)
+  if (await ev(`(() => { const closed = [...document.querySelectorAll('.home-more button[aria-expanded="false"], .home-details-fold button[aria-expanded="false"]')]; closed.forEach(b => b.click()); return closed.length })()`)) await sleep(1200)
+  if (how && how !== 'notice' && !(await ev(`document.querySelectorAll('.home-more button[aria-expanded="true"], .home-details-fold button[aria-expanded="true"]').length >= 3`))) findings.push(`${view} ${name}: the forecast's fold-out panels did not open`)
   const label = `${view} ${name}${motion === 'reduce' ? ' (reduced motion)' : ''}`
   const app = await ev('document.documentElement.dataset.app === "1"')
   if (app !== (view === 'app')) { findings.push(`${label}: opened as the ${app ? 'app' : 'website'}`); return }
@@ -347,11 +363,13 @@ async function checkPage(view, motion, name, path, how, link, part, lang = 'de',
     console.log(`· ${view} ${name} (${lang})`)
     return
   }
+  const row = how && how !== 'notice' ? await ev(FORECAST_ROW) : []
+  for (const f of row) findings.push(`${label}: ${f}`)
   if (width !== WIDTH) {
     const cut = (await ev(CUT_OFF)).filter(f => sortOf(f) === 'content')
     // one line per page: a table row repeats the same cut 20 times
     if (cut.length) findings.push(`${label}: ${cut.length} things cut off, up to ${Math.max(...cut.map(f => f.by))} px beyond ${cut[0].clip}: ${[...new Set(cut.map(f => `${f.el} "${(f.text ?? '').slice(0, 30)}"`))].slice(0, 3).join(', ')}`)
-    console.log(`${cut.length ? '✗' : '✓'} ${label}`)
+    console.log(`${cut.length || row.length ? '✗' : '✓'} ${label}`)
     return
   }
   const wide = await ev(WIDE)
@@ -359,7 +377,7 @@ async function checkPage(view, motion, name, path, how, link, part, lang = 'de',
   const stuck = await ev(FOLD_OUT)
   for (const f of stuck) findings.push(`${label}: content sticks out of an open panel: ${f}`)
   for (const s of motion === 'reduce' ? await ev(SMALL) : []) findings.push(`${label}: text below 13 px: ${s}`)
-  console.log(`${wide || stuck.length ? '✗' : '✓'} ${label}`)
+  console.log(`${wide || stuck.length || row.length ? '✗' : '✓'} ${label}`)
   if (!part) return
   // the link is clicked like a visitor's tap (a client-side navigation), then the part has to stand in the
   // upper half of the screen, or anywhere on it when the page cannot scroll further

@@ -13,7 +13,7 @@ import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { saveSnapshots } from '@/lib/outlook/snapshots'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
-import { keepAnswer, lastAnswer, keptResponse, placeKey } from '@/lib/last-answer'
+import { keepAnswer, lastAnswer, keptResponse, placeKey, asker } from '@/lib/last-answer'
 
 // The future forecast: today, tomorrow and the week — consensus + headlines.
 // Language-neutral on purpose — every visitor of a city shares one CDN copy
@@ -76,7 +76,7 @@ export const GET = withErrorLog('outlook', async (request) => {
   }
 
   // kept for an outage: the models' answer only (never the one-source fallback), without the place's name
-  if (multi) await keepAnswer('outlook', place, { ...payload, city: null, country: null, cc: null })
+  if (multi) await keepAnswer('outlook', place, { ...payload, city: null, country: null, cc: null }, { by: asker(request) })
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },
