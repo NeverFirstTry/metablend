@@ -40,8 +40,9 @@ const peakKey = s => normalize(s) || placeKey(s) // as the summit search compare
 async function summitsFor(rows, q, lang, belowTowns) {
   const typed = peakKey(q)
   const letter = q.trim().toLowerCase()
-  // a peak we can place and tell apart: one with a height, near a town of our list
-  const fit = rows.filter(s => s.kind === 'peak' && s.ele != null && s.country).map(s => {
+  // a peak we can tell apart: one with a height. Its country is not asked for: a summit in an area the
+  // boundary file marks as disputed has none, and is offered with its name and height (owner, 2026-11-14)
+  const fit = rows.filter(s => s.kind === 'peak' && s.ele != null).map(s => {
     const name = s.names?.[lang] ?? s.name, k = peakKey(name)
     // 0: the name is the text, 1: it begins so, 2: one of its words begins so, 3: it holds the text, from
     // six letters on ("glockner" in Großglockner; "eiger" would bring Hochzeiger)
