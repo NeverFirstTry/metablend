@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Changed: on a desktop the consensus card spans the page and shows the 16:9 film (owner 2026-11-14)
+- Website, 64rem (1024 px) and wider: "What is consensus forecasting?" (Was ist eine Konsens-Vorhersage?) is as wide as the other cards, with the 16:9 film across it and the three paragraphs below at a reading width. German readers get the German film, everyone else the English one.
+- The 16:9 web films are back in public/promo (1920 x 1080, 28 seconds, about 1.1 MB each, the files removed on 2026-11-13); a desktop loads only the 16:9 film and poster, a phone or tablet only the square ones, which stay as they were. Muted, plays only while in view, the pause button, and the poster with a play button under reduced motion, as before. The app shows no film.
+
 ### Changed: a full-width search field on phones, keyboard-picked suggestions, the refresh button beside share and embed, Current details under right now (tester and owner, 2026-11-14)
 - Forecast page, website and app: on a phone the search field has a line of its own, with location, compare and favourite under it as three equal buttons (the layout large text already had; now whenever the row is narrower than 26rem), so a long place name fits ("Buôn Ma Thuột", "Garmisch-Partenkirchen"). The search button is an icon inside the field at its right edge: Enter still searches, the phone keyboard shows a search key, and the icon is a button with its label in all 13 languages and a 44 x 44 px target.
 - The suggestions can be picked with the keyboard: arrow down and up move the highlight (round from the last to the first), Enter takes the highlighted place, Escape closes the list and a second Escape clears the field as before. Screen readers follow the highlight (a combobox with aria-activedescendant). Taps and clicks work as before; the notification settings have no suggestions and are unchanged.
