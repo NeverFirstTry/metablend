@@ -778,26 +778,33 @@ ${url}`)
               : <Navigation size={18} className="text-zinc-300" aria-hidden />}
           </button>
           <div className="relative flex-1 @max-[18rem]:basis-full @max-[18rem]:order-first">
-            <input
-              className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
-              placeholder={t(lang, 'placeholder')}
-              value={city}
-              onChange={e => { setCity(e.target.value); fetchSuggestions(e.target.value) }}
-              onKeyDown={e => { if (e.key === 'Enter') { setShowSuggestions(false); loadForecast() } }}
-              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            />
+            {/* the search button sits inside the field at its right edge, so a phone shows more of a long name
+                (tester in Buôn Ma Thuột, 2026-11-14); its own box keeps it on the field where the website lets
+                the suggestions use the whole row (globals.css) */}
+            <div className="relative">
+              <input
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-4 pr-12 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
+                placeholder={t(lang, 'placeholder')}
+                enterKeyHint="search"
+                value={city}
+                onChange={e => { setCity(e.target.value); fetchSuggestions(e.target.value) }}
+                onKeyDown={e => { if (e.key === 'Enter') { setShowSuggestions(false); loadForecast() } }}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              />
+              <button
+                type="button"
+                onClick={() => { setShowSuggestions(false); loadForecast() }}
+                disabled={loading}
+                aria-label={t(lang, 'a11ySearch')}
+                className="home-search-go press absolute inset-y-0 right-0 w-11 rounded-r-lg flex items-center justify-center text-emerald-400 hover:opacity-75 disabled:opacity-40"
+              >
+                {loading
+                  ? <Loader2 size={18} className="animate-spin-slow" aria-hidden />
+                  : <Search size={18} aria-hidden />}
+              </button>
+            </div>
             {suggestionList}
           </div>
-          <button
-            onClick={() => { setShowSuggestions(false); loadForecast() }}
-            disabled={loading}
-            aria-label={t(lang, 'a11ySearch')}
-            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 shrink-0 flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3"
-          >
-            {loading
-              ? <Loader2 size={18} className="animate-spin-slow" aria-hidden />
-              : <Search size={18} aria-hidden />}
-          </button>
           <button
             onClick={() => { setCompareMode(m => !m); setCompareData(null) }}
             title={t(lang, 'compareBtn')}
@@ -958,26 +965,26 @@ ${url}`)
             {/* Toolbar: city, refresh + data age, share / embed */}
             <div className="home-toolbar flex items-start justify-between gap-3">
               <div className="min-w-0">
-                {/* the refresh button stays beside the name; a long name wraps inside its own box (de, cs, ja on a phone),
-                    between words only (オーストリア stays whole), a single over-long name still anywhere */}
-                <div className="flex items-center gap-2">
-                  <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
-                    {/* the example comes in English from the server: its name in the reader's language */}
-                    <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
-                  </h2>
-                  <button
-                    onClick={manualRefresh}
-                    disabled={refreshing || loading}
-                    title={t(lang, 'refreshNow')}
-                    aria-label={t(lang, 'refreshNow')}
-                    className="press shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
-                  >
-                    <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
-                  </button>
-                </div>
+                {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
+                    whole), a single over-long name still anywhere */}
+                <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
+                  {/* the example comes in English from the server: its name in the reader's language */}
+                  <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
+                </h2>
                 {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} />}
               </div>
-              <div className="flex gap-2 shrink-0">
+              {/* refresh, share and embed: one row of like buttons, centred on the name's first line (h-9 and sm:h-10 are
+                  the heading's line heights), however many lines a long name takes (tester, 2026-11-14) */}
+              <div className="home-actions flex items-center gap-2 shrink-0 h-9 sm:h-10">
+                <button
+                  onClick={manualRefresh}
+                  disabled={refreshing || loading}
+                  title={t(lang, 'refreshNow')}
+                  aria-label={t(lang, 'refreshNow')}
+                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
+                >
+                  <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
+                </button>
                 <button
                   onClick={shareForecast}
                   aria-label={t(lang, 'shareBtn')}
@@ -1007,6 +1014,14 @@ ${url}`)
               <NowDetails data={data} unit={unit} lang={lang} />
             </div>
 
+            {/* phones and the app: Current details right under right now, above the tabs (tester, 2026-11-14);
+                closed until opened. The 64rem website band shows them beside the hero instead (globals.css) */}
+            <div className="home-details-fold">
+              <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
+                <NowDetails data={data} unit={unit} lang={lang} />
+              </Fold>
+            </div>
+
             <div className="home-forecast space-y-4">
               <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
@@ -1024,10 +1039,6 @@ ${url}`)
             </div>
 
             <div className="home-more space-y-4">
-              <Fold icon={Gauge} title={t(lang, 'detailsFold')}>
-                <NowDetails data={data} unit={unit} lang={lang} />
-              </Fold>
-
               {/* folded to one line ("20 sources · 92% agree"); open or closed is remembered */}
               <Fold icon={Layers} title={t(lang, 'sourcesFold')} storeKey="mb_sources_open"
                 summary={fill(t(lang, 'widgetSources'), { n: countSources(data.sources), agree: data.consensus.confidencePct })}>

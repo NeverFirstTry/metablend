@@ -10,7 +10,7 @@ import Glyph from '../Glyph'
 export const yesterdayDelta = data => (data.yesterdayTemp != null ? Math.round((data.consensus.temp - data.yesterdayTemp) * 10) / 10 : null)
 
 // "Right now", reduced to one line — the future tabs below are the main event.
-// The rest of right now is a row further down (NowDetails); this line says how
+// The rest of right now is in the Current details fold right below (NowDetails); this line says how
 // far the sources agree. Website and app render the same: the start page renders
 // it on the server, which can't know it's the app (lib/app-parity.test.js).
 export default function NowLine({ data, unit, lang, showT, dark = null }) {

@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Changed: a wider search field, the refresh button beside share and embed, Current details under right now (tester, 2026-11-14)
+- Forecast page, website and app: the search button is now an icon inside the search field, at its right edge, so a phone shows more of a long place name (at 360 px the field has about 114 px for text instead of 80, and "Buôn Ma Thuột" fits). Enter still searches, the phone keyboard shows a search key, and the icon is a button with its label in all 13 languages and a 44 x 44 px target. Location, compare and favourite stay where they are.
+- The refresh button stands with share and embed: same size, same spacing, all three centred on the first line of the place name, also when a long name takes two or three lines.
+- "Current details" (Aktuelle Details) is right below the current conditions, above the Today, Tomorrow and Week tabs, and still closed until opened. On a desktop the details stay beside the current conditions as before.
+- The phone layout check opens and measures Current details in its new place, and fails if the search button leaves the field, is under 44 x 44 px, has typed text running under it or loses the keyboard search key, or if Current details stands below the tabs.
+
 ### Changed: the place search is our own
 - The search box no longer sends what you type to Open-Meteo, and our server no longer asks Open-Meteo where a place is or what it is called. Every place name is answered by our own list of towns (GeoNames, CC BY 4.0). Open-Meteo's geocoder is not asked anywhere on the site or in the app, and the page's security policy no longer lets a browser reach it.
 - Suggestions while typing come from our own server (`/api/places/search`). A town shows its name in the reader's language from the list itself, in all 13 languages; Chinese is shown in simplified characters and found in either script. Its region is shown in the reader's language where GeoNames marks a name as preferred or short (Tirol, Kärnten, Wien for German readers), else in English; unmarked names are left out, because some belong to a part of the region. "Trentino-Südtirol" is kept by hand.
