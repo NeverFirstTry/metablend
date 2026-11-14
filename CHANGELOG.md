@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: the weighting shadow run keeps its four weeks
+- Nothing changes for visitors. The station comparison log (`station_errors`) is kept 30 days again (owner, 2026-11-14). The cut to 14 days on 2026-11-12 overlooked that the shadow run's final report of 2026-12-05 reads four weeks of it (docs/shadow-run.md): from 2026-11-21 the nightly cleanup would have deleted the run's first days, and the report would have covered two weeks.
+- The 16 more days are about 6,300 rows, about 3 MB (measured 2026-11-14: 3,016 rows in 8 days take 1.5 MB).
+
 ### Fixed: a featured summit on a border names the same country on every page
 - Nine featured summits stand on a border line or metres beside it. Since the summits were filed by position, the search box and the forecast named one country and the summit's own page another: Hochvogel (Austria there, Germany on its page), Mont Blanc (Italy, France), Piz Buin (Switzerland, Austria), Similaun (Italy, Austria), Hoher Göll (Austria, Germany), Sněžka (Poland, Czechia), Vignemale (Spain, France), Kasprowy Wierch (Slovakia, Poland), Korab (Albania, North Macedonia). The summit pages also asked the official warnings of their own country only.
 - For the 200 peaks and huts of the featured list the country set there by hand now wins everywhere (owner, 2026-11-14): the build writes it into the table, with the region of the nearest town of that country. Nine rows change; the other 191 already agreed.
