@@ -212,7 +212,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   // never feeds back into the number it derives from; stored and scored like
   // any other source so the leaderboard shows if it earns its keep.
   const learnCity = await learnCityP
-  const bias = await getCityBias(learnCity, isNightAt(geo.lon))
+  // A summit has neither the line nor rows kept for scoring (below): nothing we have can check it. On
+  // 2026-11-14 the hourly check compared the Wildspitze (3768 m, about -11°) with an airport 55 km away and
+  // 3,000 m lower, scored every source as 13° off and began to learn a +13° "correction" for the summit.
+  const bias = geo.summit ? null : await getCityBias(learnCity, isNightAt(geo.lon))
   if (bias != null) {
     results.push({
       apiId: 'metablend',
@@ -228,9 +231,10 @@ export const GET = withErrorLog('forecast', async (request) => {
   }
 
   // 5. Prognosen speichern — tagged with the city's local date, so daily
-  // calibration compares them against the right day's actuals
+  // calibration compares them against the right day's actuals. Not for a summit: the hourly, daily and
+  // nightly checks would compare it with an airport or a town below it.
   const today = localDateForLon(geo.lon)
-  const { error: fcInsErr } = await supabase.from('forecasts').insert(
+  const { error: fcInsErr } = geo.summit ? {} : await supabase.from('forecasts').insert(
     results.map(r => ({
       city:      learnCity,
       lat:       geo.lat,

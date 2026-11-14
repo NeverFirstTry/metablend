@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: a summit opened from the search box is no longer scored against a valley
+- Since summits can be opened from the forecast's search box (2026-11-13), their forecasts were kept for scoring like a town's. The hourly check then compared the Wildspitze (3768 m, about −11°) with an airport 55 km away and 3,000 m lower: every source counted as 13° off, and the summit began to learn a "correction" of +13°. After three such checks its source list would have shown a "MetaBlend Local" line several degrees too warm.
+- A summit's forecast is now answered as before but not kept for scoring, and it gets no MetaBlend Local line: nothing we have can check a summit. Towns are unchanged.
+- Found on production: one correction row with one sample ("Wildspitze 3768 m, Tyrol"), never shown (a line needs three). The owner removes it by SQL.
+
 ### Fixed: a summit's country is the one it lies in
 - Wildspitze, Großvenediger and Zuckerhütl were filed under Italy, Birkkarspitze and Hochvogel under Germany: a summit took the country and region of the nearest town of our list, and across a ridge the next village is often the neighbour's. With the wrong country the official warnings of the right one were not found.
 - We now follow OpenStreetMap's country boundaries. Every summit and hut is looked up in the outlines of all countries and territories (point in polygon); its region is that of the nearest town of its own country. Of 568,262 summits and huts 26,739 change country (25,274 peaks, 1,465 huts; 2,185 of them well-known peaks), 5,601 get a country for the first time, 10,410 keep their country and get its region. The largest shifts: Bosnia to Croatia 1,945, Canada to the USA 1,510, Norway to Sweden 1,137, Italy to Austria 981, Slovenia to Croatia 860, Germany to Austria 822.
