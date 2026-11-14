@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Changed: places without an airport are checked against their own weather station
+- The hourly check compared each place's forecasts with airport reports within 60 km. East Tyrol has no airport that near, so Lienz, Sillian and their neighbours were never checked: no "MetaBlend Local" line learned from measurements there, and their readings never reached the weights.
+- Where no airport is within 60 km, the town's own official station (GeoSphere Austria, 10-minute readings) is now the truth, when one stands within 3 km of the place (owner, 2026-11-14): Lienz, Sillian, Großkirchheim. Temperature only; a station gives no wind to score. An airport stays the truth wherever there is one.
+- Not used farther away: Ainet's nearest station is Lienz's, 9.9 km down the valley, and Matrei's stands 267 m higher in the next valley.
+- What a reader sees: after three checks the place's source list gains the "MetaBlend Local" line, the blend corrected by its recent miss against the station (0 % of the blend, as everywhere). The headline temperature does not change.
+- From the comparison of 8 to 14 November (201 comparisons in five East Tyrol places): the blend was within 1° of the station in 43 % of them, the blend with this correction in 61 %.
+- One request to GeoSphere per run, as before: the shadow run's request now serves both.
+
 ### Fixed: a summit's country is the one it lies in
 - Wildspitze, Großvenediger and Zuckerhütl were filed under Italy, Birkkarspitze and Hochvogel under Germany: a summit took the country and region of the nearest town of our list, and across a ridge the next village is often the neighbour's. With the wrong country the official warnings of the right one were not found.
 - We now follow OpenStreetMap's country boundaries. Every summit and hut is looked up in the outlines of all countries and territories (point in polygon); its region is that of the nearest town of its own country. Of 568,262 summits and huts 26,739 change country (25,274 peaks, 1,465 huts; 2,185 of them well-known peaks), 5,601 get a country for the first time, 10,410 keep their country and get its region. The largest shifts: Bosnia to Croatia 1,945, Canada to the USA 1,510, Norway to Sweden 1,137, Italy to Austria 981, Slovenia to Croatia 860, Germany to Austria 822.

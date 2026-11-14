@@ -34,7 +34,12 @@ All of these share the exact same scoring math (`lib/scoring.js`):
   recently-searched city, takes the median of the nearest fresh reports as
   ground truth, and scores the last hour of forecasts against it — temperature
   as the primary delta plus a second, stricter-scaled delta for wind accuracy
-  when both sides report wind. Real measurements, every hour. Gated by
+  when both sides report wind. Where no airport is within 60 km (East Tyrol
+  has none), the town's own official station (GeoSphere Austria, 10-minute
+  readings) is the ground truth instead, when one stands within 3 km of the
+  place (Lienz, Sillian, Großkirchheim): temperature only. Farther away it is
+  not used: the next station is often in another valley or at another height.
+  Real measurements, every hour. Gated by
   `CALIBRATE_SECRET` and triggered by a Supabase `pg_cron` job
   (`supabase/cron.sql`) — Vercel sub-daily crons need a Pro plan, and GitHub
   Actions' hourly schedule proved unreliable, so the database fires it itself.

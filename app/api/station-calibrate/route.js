@@ -21,6 +21,7 @@ import { purgeShortLived } from '@/lib/retention'
 // forecast against it — same delta/normalization the feedback route uses.
 // Replaced Weather Underground PWS, which required a key we never had, so the
 // hourly calibration had been silently skipping since launch.
+// Where no airport is near, a town's own official station stands in (STATION_KM).
 
 // METARs are prefetched in parallel and weights persist as one batch upsert,
 // and 15 cities of DB work once outgrew a short limit (a run 504ed when
@@ -31,6 +32,10 @@ const LOOKBACK_MIN = 60        // only score forecasts stored in the last hour
 const MAX_CITIES = 15          // cap per run out of courtesy to the free API
 const MAX_STATIONS = 4         // nearest N fresh reports (median of these)
 const MAX_OBS_AGE_MIN = 90     // METARs are hourly; skip anything staler
+// Where no airport is within RADIUS_KM (East Tyrol has none) the town's own official station is the truth,
+// when one stands this near (owner, 2026-11-14: Lienz, Sillian, Großkirchheim). Not farther: Ainet's nearest
+// is Lienz's, 9.9 km down the valley, and Matrei's stands 267 m higher in the next valley.
+const STATION_KM = 3
 
 // Fresh METAR observations within RADIUS_KM of the point, nearest first.
 // Returns { temps, winds, km } — temps in °C, winds in km/h (METAR wspd is knots),
@@ -62,16 +67,26 @@ async function metarObs(lat, lon) {
   }
 }
 
-// Formula shadow run (supabase/station-errors.sql): every source's raw error, also where
-// no airport is near (a town's official station) and on summits with a station on top.
-// The weights below don't use any of it, and until the table exists (PGRST205) there's nothing to log.
-async function saveShadow(cities, forecasts, observations, since) {
-  const { default: stations } = await import('@/lib/shadow-stations.json')
-  const near = cities.map(c => nearestStation(stations, c.lat, c.lon))
-  const ids = [...new Set([...near.filter(Boolean).map(s => s.id), ...SUMMITS.map(s => s.station)])]
-  const res = await fetch(`https://dataset.api.hub.geosphere.at/v1/station/current/tawes-v1-10min?parameters=TL&station_ids=${ids.join(',')}`, { signal: AbortSignal.timeout(8000) }).catch(() => null)
-  const temps = stationTemps(res?.ok ? await res.json() : null)
+// The official stations (GeoSphere, 10-minute readings) nearest to this run's places, and the five summit
+// stations: one request. → { near: per place { id, km } or null, temps: Map(station id → °C) }. A list or
+// an answer that fails costs the stations, never the airports.
+async function stationReadings(cities) {
+  try {
+    const { default: stations } = await import('@/lib/shadow-stations.json')
+    const near = cities.map(c => nearestStation(stations, c.lat, c.lon))
+    const ids = [...new Set([...near.filter(Boolean).map(s => s.id), ...SUMMITS.map(s => s.station)])]
+    const res = await fetch(`https://dataset.api.hub.geosphere.at/v1/station/current/tawes-v1-10min?parameters=TL&station_ids=${ids.join(',')}`, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+    return { near, temps: stationTemps(res?.ok ? await res.json() : null) }
+  } catch (e) {
+    await logError('station-readings', e)
+    return { near: cities.map(() => null), temps: new Map() }
+  }
+}
 
+// Formula shadow run (supabase/station-errors.sql): every source's raw error, also where
+// no airport is near (a town's official station within 10 km) and on summits with a station on top.
+// The weights don't read it, and until the table exists (PGRST205) there's nothing to log.
+async function saveShadow(cities, forecasts, observations, since, { near, temps }) {
   const rows = []
   for (const [i, { city, region }] of cities.entries()) {
     const reading = chooseTruth({ stationTemp: temps.get(near[i]?.id), stationKm: near[i]?.km, metarTemps: observations[i].temps, metarKm: observations[i].km })
@@ -114,7 +129,7 @@ export const GET = withErrorLog('station-calibrate', withJobLog('station-calibra
     .range(from, to))
   if (!forecasts?.length) {
     // the summits need no forecast rows, so a quiet hour still records them
-    await saveShadow([], [], [], since).catch(e => logError('station-errors', e))
+    await saveShadow([], [], [], since, await stationReadings([])).catch(e => logError('station-errors', e))
     await purgeShortLived(supabase, runStart)
     return Response.json({ skipped: 'no forecasts in the last hour', since })
   }
@@ -136,12 +151,14 @@ export const GET = withErrorLog('station-calibrate', withJobLog('station-calibra
   // The slow network part runs in parallel up front; the DB scoring below
   // stays serial on purpose — cities in the same region touch the same weight
   // rows, and concurrent read-modify-writes would drop deltas.
-  const observations = await Promise.all(cities.map(c => metarObs(c.lat, c.lon)))
+  const [observations, town] = await Promise.all([Promise.all(cities.map(c => metarObs(c.lat, c.lon))), stationReadings(cities)])
 
   for (const [i, { city, lat, lon, region }] of cities.entries()) {
     const { temps, winds } = observations[i]
-    if (!temps.length) { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
-    const actualTemp = median(temps)
+    // no airport near: the town's own station, when it is near enough and has a reading (STATION_KM)
+    const station = !temps.length && town.near[i]?.km <= STATION_KM ? town.temps.get(town.near[i].id) : undefined
+    if (!temps.length && typeof station !== 'number') { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
+    const actualTemp = temps.length ? median(temps) : station
     const actualWind = winds.length ? median(winds) : null
 
     // 4. Latest stored forecast per API for this city (within the lookback window)
@@ -181,6 +198,7 @@ export const GET = withErrorLog('station-calibrate', withJobLog('station-calibra
 
     results.push({
       city,
+      truth: temps.length ? 'metar' : 'station',
       actualTemp: Math.round(actualTemp * 10) / 10,
       actualWind: actualWind != null ? Math.round(actualWind) : null,
       stations: temps.length,
@@ -190,7 +208,7 @@ export const GET = withErrorLog('station-calibrate', withJobLog('station-calibra
   }
 
   // the weights are saved by now: whatever happens in here can't touch them
-  await saveShadow(cities, forecasts, observations, since).catch(e => logError('station-errors', e))
+  await saveShadow(cities, forecasts, observations, since, town).catch(e => logError('station-errors', e))
 
   // WeatherAPI's terms cap caching of current conditions at 60 minutes: its
   // rows were scored above and go now (lib/retention.js)
