@@ -5,11 +5,15 @@ import { Pause, Play } from 'lucide-react'
 import { t } from '@/lib/i18n'
 
 // The 28-second film in the consensus explainer (owner 2026-11-13): German for German readers, English for
-// everyone else; the square film at every width (full width on a phone, 24rem and centred in the card from 640 px). No file loads until
-// the film is in view. Muted and looped; with reduced motion it waits on its poster for the play button. The pause
-// button is there for everyone: a moving picture that runs longer than five seconds needs one (WCAG 2.2.2).
+// everyone else. Phones and tablets get the square film (full width on a phone, 24rem and centred in the card from
+// 640 px); the website's desktop band (64rem and up, owner 2026-11-14) the 16:9 film across the card (globals.css,
+// .promo-film). Each visitor loads only the file for their width: the film is picked when it first comes into view
+// (and again if the window crosses 64rem), the poster by <picture>. Muted and looped; with reduced motion it waits on
+// its poster for the play button. The pause button is there for everyone: a moving picture that runs longer than five
+// seconds needs one (WCAG 2.2.2).
+const WIDE = '(min-width: 64rem)'
 export default function PromoVideo({ lang }) {
-  const film = `/promo/metablend-1x1-${lang === 'de' ? 'de' : 'en'}` // + .webm, .mp4, -poster.webp
+  const film = wide => `/promo/metablend-${wide ? '16x9' : '1x1'}-${lang === 'de' ? 'de' : 'en'}` // + .webm, .mp4, -poster.webp
   const ref = useRef(null)
   const inView = useRef(false)
   const choice = useRef(null) // the visitor's play or pause; null: play while in view, unless motion is reduced
@@ -21,7 +25,7 @@ export default function PromoVideo({ lang }) {
     if (!video) return
     const calm = matchMedia('(prefers-reduced-motion: reduce)').matches
     if (!(inView.current && (choice.current ?? !calm))) return video.pause()
-    const src = film + (video.canPlayType('video/webm; codecs="vp9"') ? '.webm' : '.mp4')
+    const src = film(matchMedia(WIDE).matches) + (video.canPlayType('video/webm; codecs="vp9"') ? '.webm' : '.mp4')
     if (!video.src.endsWith(src)) video.src = src // the language comes from the cookie after the first render
     video.play().catch(() => {}) // a browser that refuses to play muted keeps the poster and the play button
   }
@@ -30,15 +34,19 @@ export default function PromoVideo({ lang }) {
   useEffect(() => {
     const io = new IntersectionObserver(([e]) => { inView.current = e.isIntersecting; sync() }, { threshold: 0.5 })
     io.observe(ref.current)
-    return () => io.disconnect()
+    const wide = matchMedia(WIDE)
+    wide.addEventListener('change', sync) // a window made wider or narrower than 64rem takes the other film
+    return () => { io.disconnect(); wide.removeEventListener('change', sync) }
   }, [lang]) // eslint-disable-line react-hooks/exhaustive-deps -- sync reads refs and lang only
 
   const toggle = () => { choice.current = !playing; sync() }
 
   return (
-    <div className="web-only relative mb-4 mx-auto aspect-square w-full sm:max-w-sm overflow-hidden rounded-xl bg-[#0f151b]">
-      {/* eslint-disable-next-line @next/next/no-img-element -- the film's own poster, a static file */}
-      <img src={`${film}-poster.webp`} alt="" className="absolute inset-0 w-full h-full object-cover" />
+    <div className="promo-film web-only relative mb-4 mx-auto aspect-square w-full sm:max-w-sm overflow-hidden rounded-xl bg-[#0f151b]">
+      <picture>
+        <source media={WIDE} srcSet={`${film(true)}-poster.webp`} />
+        <img src={`${film(false)}-poster.webp`} alt="" className="absolute inset-0 w-full h-full object-cover" />
+      </picture>
       <video
         ref={ref}
         muted
