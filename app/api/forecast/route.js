@@ -22,7 +22,7 @@ import { heroCondition } from '@/lib/conditions'
 import { blendNow } from '@/lib/consensus'
 import { noStore } from '@/lib/no-store'
 import { blendTtl, freshCopy, FULL_TTL, lostOpenMeteo } from '@/lib/forecast-cache'
-import { keepAnswer, lastAnswer, placeKey } from '@/lib/last-answer'
+import { keepAnswer, lastAnswer, placeKey, asker } from '@/lib/last-answer'
 import { dailyLimited, failuresSince } from '@/lib/open-meteo'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
@@ -291,6 +291,6 @@ export const GET = withErrorLog('forecast', async (request) => {
     generatedAt: new Date().toISOString(),
   }
   // a full blend is kept for the place, without the request's fields (lib/last-answer.js)
-  if (!failed.length) await keepAnswer('forecast', place, blend)
+  if (!failed.length) await keepAnswer('forecast', place, blend, { by: asker(request) })
   return send({ ...(await named()), ...blend })
 })

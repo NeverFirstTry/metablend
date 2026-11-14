@@ -4,7 +4,7 @@ import { createRateLimiter } from '@/lib/ratelimit'
 import { getJson, lastUpstreamFailure } from '@/lib/outlook/http'
 import { parseNowcastQuery, nowcastUrl, blendSteps } from '@/lib/nowcast'
 import { noStore } from '@/lib/no-store'
-import { keepAnswer, lastAnswer, keptResponse } from '@/lib/last-answer'
+import { keepAnswer, lastAnswer, keptResponse, asker } from '@/lib/last-answer'
 
 // Rain in the next 2 hours for a place: the blended 15-minute steps
 // (lib/nowcast.js). Consumers summarize against their own clock, so the
@@ -34,6 +34,6 @@ export const GET = withErrorLog('nowcast', async (request) => {
   // expired copies go once the map grows (a warm instance lives for hours)
   if (CACHE.size > 500) for (const [k, v] of CACHE) if (Date.now() - v.ts >= TTL * 1000) CACHE.delete(k)
   CACHE.set(key, { ts: Date.now(), nc })
-  await keepAnswer('rain', key, nc)
+  await keepAnswer('rain', key, nc, { by: asker(request) })
   return Response.json(nc, { headers: cdn(TTL) })
 })

@@ -10,7 +10,7 @@ import { buildHike } from '@/lib/hike/build'
 import featured from '@/lib/hike/featured.json'
 import { lastUpstreamFailure } from '@/lib/outlook/http'
 import { noStore } from '@/lib/no-store'
-import { keepAnswer, lastAnswer, keptResponse, placeKey } from '@/lib/last-answer'
+import { keepAnswer, lastAnswer, keptResponse, placeKey, asker } from '@/lib/last-answer'
 
 // Summit forecast for one peak: the outlook's models downscaled to its
 // height. Language-neutral and CDN-cached per peak for an hour.
@@ -52,7 +52,7 @@ export const GET = withErrorLog('hike', async (request) => {
     return noStore({ ...payload, unavailable: true }, 200)
   }
   // kept for an outage, without the name this request gave the peak: one request must not name it for others
-  await keepAnswer('summit', place, { ...payload, peak: { ...payload.peak, name: null } })
+  await keepAnswer('summit', place, { ...payload, peak: { ...payload.peak, name: null } }, { by: asker(request) })
 
   return Response.json(payload, {
     headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${STALE}` },

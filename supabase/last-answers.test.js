@@ -1,5 +1,6 @@
 // supabase/last-answers.sql in a real Postgres (PGlite): the function that keeps an answer renews a
-// place that is already there and never refuses a new one. A full room gives up an answer too old to be
+// place that is already there, and a full room never refuses a new one (true: a new place got a row;
+// false: renewed, or the caller was given no room). A full room gives up an answer too old to be
 // served, else a place asked for only once, else the place in use whose answer is oldest; each kind has
 // its own room. The last test is the flood the rule exists for: thousands of made-up places through the
 // two addresses that take any coordinates.
@@ -22,8 +23,8 @@ const summits = async () => (await db.query("select place from public.last_answe
 const later = (d, span) => d.exec(`update public.last_answers set made_at = made_at - interval '${span}', first_at = first_at - interval '${span}'`)
 
 test('keep_last_answer: a new place is kept, the same place is renewed, another kind is its own row', async () => {
-  assert.equal(await keep('outlook', '48.209,16.372', 'a', 3), true)
-  assert.equal(await keep('outlook', '48.209,16.372', 'b', 3), true)
+  assert.equal(await keep('outlook', '48.209,16.372', 'a', 3), true, 'a new place')
+  assert.equal(await keep('outlook', '48.209,16.372', 'b', 3), false, 'renewed: not a new place')
   assert.equal(await keep('rain', '48.21,16.37', 'r', 3), true)
   assert.deepEqual(await rows(), [{ kind: 'outlook', place: '48.209,16.372', body: 'b' }, { kind: 'rain', place: '48.21,16.37', body: 'r' }])
   await assert.rejects(keep('nonsense', 'x', 'y', 3), /check/, 'only the four kinds')
@@ -53,7 +54,7 @@ test('a full room: a new place is always kept, and the place asked for only once
   for (const p of ['a', 'b', 'c']) { await keep('summit', p, 's', 3); await later(db, '1 minute') }
   assert.equal(await keep('summit', 'd', 's', 3), true, 'not refused')
   assert.deepEqual(await summits(), ['b', 'c', 'd'], 'a was asked longest ago')
-  assert.equal(await keep('summit', 'b', 's2', 3), true, 'a place already there is renewed in place')
+  assert.equal(await keep('summit', 'b', 's2', 3), false, 'a place already there is renewed in place')
   assert.deepEqual(await rows(), [{ kind: 'outlook', place: '48.209,16.372', body: 'b' }, { kind: 'rain', place: '48.21,16.37', body: 'r' },
     { kind: 'summit', place: 'b', body: 's2' }, { kind: 'summit', place: 'c', body: 's' }, { kind: 'summit', place: 'd', body: 's' }], 'the other kinds have their own rooms')
 })
@@ -76,6 +77,13 @@ test('an answer older than 24 hours goes first, even that of a place in use', as
   await db.exec("update public.last_answers set made_at = now() - interval '25 hours', first_at = now() - interval '3 days' where kind = 'summit' and place = 'f5'")
   await keep('summit', 'h', 'once', 3)
   assert.deepEqual(await summits(), ['f4', 'g', 'h'], 'f5 can no longer be served; g, asked for once, stays')
+})
+
+// the app sends 0 for a visitor address that has added its share of new places this hour (lib/last-answer.js)
+test('a caller given no room: a place already there is still renewed, a new place gets no row and nothing gives way for it', async () => {
+  assert.equal(await keep('summit', 'h', 'renewed', 0), false)
+  assert.equal(await keep('summit', 'never-kept', 'x', 0), false)
+  assert.deepEqual((await rows()).filter(r => r.kind === 'summit'), [{ kind: 'summit', place: 'f4', body: 'again' }, { kind: 'summit', place: 'g', body: 'once' }, { kind: 'summit', place: 'h', body: 'renewed' }])
 })
 
 // The finding of 2026-11-14: /api/nowcast and /api/hike take any coordinates, so anyone could write
