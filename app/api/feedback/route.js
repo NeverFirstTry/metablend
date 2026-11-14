@@ -7,6 +7,7 @@ import { isNightAt, localDateForLon } from '@/lib/localtime'
 import { parseFeedback, feedbackOriginProblem, FEEDBACK_LEARN_WINDOW_MS, FEEDBACK_REGION_DAILY_CAP } from '@/lib/feedback'
 import { withErrorLog, logError } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
+import { forgetExpired } from '@/lib/ratelimit'
 
 // ── Rate limit ────────────────────────────────────────────────────────────────
 // Claimed in the same step as the check, so reports sent at the same moment
@@ -14,6 +15,7 @@ import { clientIp } from '@/lib/auth'
 // nighttime sun, …), which shouldn't burn the user's one-per-hour slot.
 const ipCache = new Map()
 const ONE_HOUR = 60 * 60 * 1000
+forgetExpired(now => { for (const [k, ts] of ipCache) if (now - ts >= ONE_HOUR) ipCache.delete(k) }) // an address leaves memory when its hour is over
 
 function claimRateLimit(ip, city) {
   const key = `${ip}:${city.toLowerCase()}`
