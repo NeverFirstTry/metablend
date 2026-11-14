@@ -13,7 +13,7 @@ Dafür braucht sie einen Dienstkonto-Schlüssel (eine JSON-Datei). Er liegt auß
 5. Das neue Dienstkonto öffnen, Reiter **Schlüssel → Schlüssel hinzufügen → Neuen Schlüssel erstellen → JSON**. Die JSON-Datei wird heruntergeladen.
    - Ist das Erstellen gesperrt („Organisationsrichtlinie iam.disableServiceAccountKeyCreation“), gehört das Projekt zu einer Google-Workspace-Organisation. Dann muss ein Organisations-Admin die Richtlinie für dieses Projekt aufheben. Bei einem privaten Google-Konto kommt das nicht vor.
 6. Die E-Mail-Adresse des Dienstkontos notieren (endet auf `.iam.gserviceaccount.com`).
-7. Die JSON-Datei an einen festen Ort außerhalb des Repositorys verschieben, z. B. `C:\Users\itsre\keys\metablend-play.json`.
+7. Die JSON-Datei an einen festen Ort außerhalb des Repositorys verschieben. Ihren Pfad braucht Schritt 4.
 
 ## 2. Zugriff in der Play Console
 
@@ -42,7 +42,7 @@ git pull
 # für Japanisch und Chinesisch in der Ausgabe
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 
-$env:SUPPLY_JSON_KEY = "C:\Users\itsre\keys\metablend-play.json"
+$env:SUPPLY_JSON_KEY = "<Pfad zur JSON-Datei des Dienstkontos, außerhalb des Repositorys>"
 # nur wenn der geschlossene Test nicht "alpha" heißt:
 # $env:SUPPLY_TRACK = "Name des Tracks"
 

@@ -9,6 +9,10 @@ import { blendShares } from '@/lib/consensus'
 // The weight shown is the share the blend really gives a source: its saved weight among the sources
 // that answered (lib/consensus.js blendShares, the same sum the blend uses). MetaBlend Local is made
 // from the blend and has no share of it. The bars are drawn against the largest share.
+// A name may break where a capital starts a new part (OpenWeather|Map), only when the column runs out of room:
+// one long name set the table's narrowest width and pushed the weight column off a 320 px screen.
+const breakable = name => name.replace(/([a-z])([A-Z])/g, '$1\n$2').split('\n').flatMap((part, i) => (i ? [<wbr key={i} />, part] : [part]))
+
 export default function SourceList({ data, unit, lang }) {
   const deg = c => tempFormatter(unit)(c).replace('-', '−')
   const shares = blendShares(data.sources, data.weights)
@@ -29,19 +33,19 @@ export default function SourceList({ data, unit, lang }) {
         </thead>
         <tbody>
           {rows.map(src => {
-            const name = src.displayName ?? src.apiId
+            const name = breakable(src.displayName ?? src.apiId)
             if (src.down) {
               return (
                 <tr key={src.apiId}>
                   <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3">{name}</th>
-                  <td colSpan={3} className="py-2.5 px-2" style={{ color: 'var(--bad)' }}>{t(lang, 'noResponse')}</td>
+                  <td colSpan={3} className="py-2.5 px-2" style={{ color: 'var(--bad)' }}><div className="source-note">{t(lang, 'noResponse')}</div></td>
                 </tr>
               )
             }
             const weight = weightOf(src)
             const bar = (
               <td className="py-2.5 pl-2 sm:pl-3">
-                <div className="flex items-center gap-2">
+                <div className="source-weight flex items-center gap-2">
                   <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
                     <div className="h-full rounded-full" style={{ width: `${(weight / most) * 100}%`, background: 'var(--accent)' }} />
                   </div>
@@ -53,7 +57,7 @@ export default function SourceList({ data, unit, lang }) {
               return (
                 <tr key={src.apiId}>
                   <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3">{name}</th>
-                  <td colSpan={2} className="py-2.5 px-1.5 sm:px-2 text-right text-zinc-400 text-xs">{t(lang, 'sourceValuesHidden')}</td>
+                  <td colSpan={2} className="py-2.5 px-1.5 sm:px-2 text-right text-zinc-400 text-xs"><div className="source-note">{t(lang, 'sourceValuesHidden')}</div></td>
                   {bar}
                 </tr>
               )
@@ -64,14 +68,7 @@ export default function SourceList({ data, unit, lang }) {
                 <th scope="row" className={`text-left py-2.5 pr-2 sm:pr-3 ${src.apiId === 'metablend' ? 'font-semibold' : 'font-normal'}`}>{name}</th>
                 <td className="py-2.5 px-1.5 sm:px-2 text-right font-semibold tabular-nums whitespace-nowrap">{deg(src.temp)}</td>
                 <td className={`py-2.5 px-1.5 sm:px-2 text-right tabular-nums whitespace-nowrap ${off.outlier ? '' : 'text-zinc-400'}`} style={off.outlier ? { color: 'var(--bad)' } : undefined}>{off.text}</td>
-                <td className="py-2.5 pl-2 sm:pl-3">
-                  <div className="flex items-center gap-2">
-                    <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
-                      <div className="h-full rounded-full" style={{ width: `${(weight / most) * 100}%`, background: 'var(--accent)' }} />
-                    </div>
-                    <span className="text-xs text-zinc-400 tabular-nums w-[2.5em] text-right">{(weight * 100).toFixed(0)}%</span>
-                  </div>
-                </td>
+                {bar}
               </tr>
             )
           })}

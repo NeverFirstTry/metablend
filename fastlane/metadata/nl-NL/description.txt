@@ -3,15 +3,15 @@ Geen enkel weermodel zit elke dag goed. MetaBlend vergelijkt tot 20 weerbronnen 
 De verwachting
 • Vandaag, morgen en de week, uur voor uur
 • Hoe sterk de bronnen het eens zijn
-• De beste tijd om naar buiten te gaan, regenradar, UV, luchtkwaliteit en pollen
+• Beste tijd buiten, regenradar, UV, luchtkwaliteit en pollen
 
 Bergen en wandelen
-• Topverwachtingen voor elke berg: wind op de top, vriesgrens, onweerskans
+• Topverwachtingen wereldwijd: wind op de top, vriesgrens, onweerskans
 • Het gunstige venster om op de top te staan
 • 195 uitgelichte toppen wereldwijd met SAC-moeilijkheid, de dichtstbijzijnde eerst
 • Gemarkeerde routes en GPX-import met een voorgestelde vertrektijd
 
-Altijd bij
+Waarschuwingen en widgets
 • Waarschuwingen voor regen, onweer, zwaar weer en hitte, een ochtendbericht en wandelmeldingen
 • Widgets voor je stad en je volgende tocht
 

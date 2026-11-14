@@ -12,7 +12,10 @@
 // fastlane/metadata/android/<android>/images/phoneScreenshots/ (1080×1920),
 // plus the Play feature graphic and icon in en-US.
 // Screens 4 and 5 show the feature working with real data: run them in the morning (Alps time),
-// when a candidate peak has an open summit window today; the script stops if none has.
+// when a candidate peak has an open summit window today (or, later in the day, tomorrow: screen 4 then shows
+// the Tomorrow tab and screen 5 tomorrow's start); the script stops if none has.
+//   PEAK=Schafberg …     (that candidate only, so a second run, e.g. the iPhone set on a Mac, shows the same peak)
+//   DEVICE=android …     (that device only: ios or android; the iPhone set renders in SF Pro on a Mac only)
 import { execFileSync } from 'node:child_process'
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -49,12 +52,15 @@ const CANDIDATES = [
   ['Großglockner', 'peak=grossglockner', ['osm-14622955', 'osm-14622970']],
   ['Großvenediger', 'peak=grossvenediger', ['osm-1165548', 'osm-193073']],
   ['Zugspitze', 'peak=zugspitze', ['osm-3201006', 'osm-33856']],
-]
+  ['Schafberg', 'peak=schafberg', ['osm-275437']], // Purtschellersteig
+].filter(c => !process.env.PEAK || c[0] === process.env.PEAK)
+if (!CANDIDATES.length) throw new Error(`PEAK=${process.env.PEAK}: not a candidate`)
 let PICK = null
 const DEVICES = [
   { id: 'ios', w: 430, h: 932, scale: 3, out: l => l.ios && join(ROOT, 'fastlane/screenshots', l.ios) },
   { id: 'android', w: 360, h: 640, scale: 3, out: l => join(ROOT, 'fastlane/metadata/android', l.android, 'images/phoneScreenshots') },
-]
+].filter(d => !process.env.DEVICE || d.id === process.env.DEVICE)
+if (!DEVICES.length) throw new Error(`DEVICE=${process.env.DEVICE}: ios or android`)
 const FORECAST_READY = `[...document.querySelectorAll('button')].some(b => b.textContent.trim() === '§tabWeek') && !document.documentElement.dataset.localizing`
 const SOURCES_SEEN = `(+([...document.querySelectorAll('button')].find(b => b.textContent.includes(${JSON.stringify('§sourcesFold')}))?.querySelector('.block')?.textContent.match(/\\d+/)?.[0] ?? 0))`
 const MIN_SOURCES = 18
@@ -62,6 +68,9 @@ const SOURCES_IN = `(${SOURCES_SEEN} >= ${MIN_SOURCES})`
 const PEAK_READY = `!!document.querySelector('[role=region][aria-label]') && document.querySelectorAll('svg').length > 3` // the hour strip, in any language (French says CAS, not SAC)
 const ROUTE_READY = `!!document.querySelector('.leaflet-container') && document.body.innerText.includes(':')`
 // the route screen's row of 7 day buttons: 0 = today, 1 = tomorrow
+// the peak screen's range tabs (Today, Tomorrow, Week), in any language
+const clickTab = n => `[...document.querySelectorAll('[role=tab]')][${n}]?.click()`
+const tabShown = `[...document.querySelectorAll('[role=tab]')].findIndex(t => t.getAttribute('aria-selected') === 'true')`
 const clickDay = n => `[...document.querySelectorAll('[role=group]')].find(g => g.querySelectorAll('button').length === 7)?.querySelectorAll('button')[${n}]?.click()`
 // a "{day}" template's longest literal part in this language: on the page means that state shows
 const stateText = (lang, key) => t(lang, key).split('{day}').map(s => s.trim()).sort((a, b) => b.length - a.length)[0]
@@ -77,7 +86,7 @@ const SCREENS = [
   // city), answered from store/near-lienz.json, the production answer for that cell; this PC's own
   // lookups can be throttled by the public geocoder
   { path: '/hike', clearStorage: true, ready: `document.querySelectorAll('button[aria-expanded]').length > 0 && [...document.querySelectorAll('section')].some(x => x.innerText.includes(${JSON.stringify('§nearYou')}) && x.querySelector('a'))` },
-  { path: () => `/hike?${PICK.query}`, ready: PEAK_READY, notState: 'swNone' },
+  { path: () => `/hike?${PICK.query}`, ready: PEAK_READY, notState: 'swNone', peakDay: true },
   { path: () => `/hike?${PICK.query}&route=${PICK.route}`, ready: ROUTE_READY, notState: 'routeNoStart', day: true },
 ]
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -178,10 +187,11 @@ await send('Emulation.setGeolocationOverride', LIENZ)
 // a viewport tag, or mobile emulation lays the page out 980 px wide and shrinks it
 const HEAD = '<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
 
-// Japanese and Chinese captions break only at their "|" marks (between words), Korean only at its spaces:
-// a browser otherwise splits a word anywhere (山 / 峰, 가 / 장). Without a language: the plain caption.
+// Japanese, Chinese and Korean captions break only at their "|" marks: a browser otherwise splits a word
+// anywhere (山 / 峰, 가 / 장) or, in Korean, between a number and its noun (195개 / 산). Korean keeps the space
+// between its parts. Without a language: the plain caption.
 const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;')
-const captionHtml = (caption, lang) => ['ja', 'zh'].includes(lang) ? caption.split('|').map(p => `<span style="white-space:nowrap">${esc(p)}</span>`).join('<wbr>') : esc(caption.replaceAll('|', ''))
+const captionHtml = (caption, lang) => ['ja', 'zh', 'ko'].includes(lang) ? caption.split('|').map(p => `<span style="white-space:nowrap">${esc(p)}</span>`).join(lang === 'ko' ? ' ' : '<wbr>') : esc(caption.replaceAll('|', ''))
 // Hanken Grotesk has no Japanese, Chinese or Korean letters: those captions add Noto Sans (loaded, so a Mac and a
 // PC draw the same letters, not Hiragino or Yu Gothic), with Hanken Grotesk kept for digits and Latin letters
 const cjkFont = lang => NOTO[lang] ?? null
@@ -323,13 +333,15 @@ if (!only || only.some(n => n >= 4)) {
   for (const [peak, query, routes] of CANDIDATES) {
     if (!(await open(`/hike?${query}`, PEAK_READY))) { console.log(`${peak}: page not ready`); continue }
     await sleep(2000)
-    if (await ev(shows('en', 'swNone'))) { console.log(`${peak}: no favourable summit window today`); continue }
+    if (await ev(shows('en', 'swNone'))) { await ev(clickTab(1)); await sleep(1500) }
+    if (await ev(shows('en', 'swNone'))) { console.log(`${peak}: no favourable summit window today or tomorrow`); continue }
+    const peakDay = await ev(tabShown) === 1 ? 1 : 0
     for (const route of routes) {
       if (!(await open(`/hike?${query}&route=${route}`, ROUTE_READY))) { console.log(`${peak} ${route}: route not ready`); continue }
       await sleep(5000) // the route's weather loads
-      for (const day of [0, 1]) {
+      for (const day of peakDay ? [1] : [0, 1]) {
         if (day) { await ev(clickDay(1)); await sleep(5000) }
-        if (!(await ev(shows('en', 'routeNoStart')))) { PICK = { peak, query, route, day }; break }
+        if (!(await ev(shows('en', 'routeNoStart')))) { PICK = { peak, query, route, day, peakDay }; break }
       }
       if (PICK) break
       console.log(`${peak} ${route}: no favourable start today or tomorrow`)
@@ -341,7 +353,7 @@ if (!only || only.some(n => n >= 4)) {
     // 3, not 1: scripts/store-run.sh tries again later for this, but not for a failure
     ws.close(); await close(); process.exit(3)
   }
-  console.log(`screens 4 and 5: ${PICK.peak}, route ${PICK.route}, start ${PICK.day ? 'tomorrow' : 'today'}`)
+  console.log(`screens 4 and 5: ${PICK.peak}, summit window ${PICK.peakDay ? 'tomorrow' : 'today'}, route ${PICK.route}, start ${PICK.day ? 'tomorrow' : 'today'}`)
 }
 
 for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
@@ -375,6 +387,7 @@ for (const l of LOCALES.filter(x => langs.includes(x.lang))) {
           if (++attempt > 3) throw e
         }
       }
+      if (s.peakDay) { await ev(clickTab(PICK.peakDay)); await sleep(1500) }
       if (s.day) {
         await sleep(5000) // the route's weather loads
         if (PICK.day) { await ev(clickDay(PICK.day)); await sleep(5000) }
