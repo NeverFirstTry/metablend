@@ -93,7 +93,9 @@ export const GET = withErrorLog('place-search', async (request) => {
   // the towns that fit, the summits below them, then towns that only look alike while there is room
   const results = [
     ...fitting.slice(0, SHOWN - offered.length).map(f => row(f.t, f.name)),
-    ...offered.map(p => ({ id: p.s.id, name: p.name, admin1: null, country: '', country_code: null, latitude: p.s.lat, longitude: p.s.lon, elev: p.s.ele, summit: true })),
+    // a summit: its height, and its region and country as the summits table files it since 2026-11-14 (the
+    // country the summit lies in; before, the nearest town's, which was Italy for the Wildspitze)
+    ...offered.map(p => ({ id: p.s.id, name: p.name, admin1: regionIn(p.s.country, p.s.region, lang), country: '', country_code: p.s.country, latitude: p.s.lat, longitude: p.s.lon, elev: p.s.ele, summit: true })),
   ]
   results.push(...alike.slice(0, Math.max(0, SHOWN - results.length)).map(f => row(f.t, f.name)))
   return Response.json({ results }, { headers: { 'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800' } })

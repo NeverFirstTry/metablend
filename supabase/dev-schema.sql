@@ -691,7 +691,7 @@ create table if not exists public.summits (
   ele smallint,                       -- metres; null where OSM has none
   notability smallint not null default 0, -- Wikipedia 2 + Wikidata 1 + summit cross 1
   wikidata text,
-  country text,                       -- ISO code, from the nearest town
+  country text,                       -- ISO code: the country the summit lies in (OpenStreetMap's boundaries); the nearest town's where none holds it
   region text,
   geog extensions.geography(point, 4326) not null,
   search text generated always as (public.place_norm(name || ' | ' || public.place_names_text(names))) stored,

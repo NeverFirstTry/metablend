@@ -9,7 +9,9 @@ name: Places refresh (dev)
 # Each region streams in a job of its own, three at a time: Geofabrik gave
 # anywhere from 5 to 68 MB/s on the first run (3 h 28 min, all regions in one
 # job) — at the slow end one job would pass GitHub's 6 h limit; one region
-# per job never comes near it, and the whole run takes about as long as Europe.
+# per job never comes near it, and the extracts take about as long as Europe.
+# Beside them one more job asks which country each summit lies in (see "countries"
+# below); on a busy day it is the longest and sets the run's length.
 # Production is NOT touched here — its keys are never in GitHub. On the
 # owner's PC, one command loads a run's data:
 #   node scripts/places/load.mjs --production --run=<run id>
@@ -70,8 +72,30 @@ jobs:
           path: data/places/osm/${{ matrix.region }}.*
           retention-days: 7
 
+  # Which country each summit lies in, from OpenStreetMap's own boundaries (scripts/places/countries.mjs):
+  # beside the extracts, because it takes two to three hours when the public Overpass server is busy
+  # (six countries a question, one question at a time; measured 2026-11-14).
+  countries:
+    if: inputs.data_from_run == '' && inputs.regions == ''
+    runs-on: ubuntu-26.04 # a fixed image on purpose, as above
+    timeout-minutes: 345
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: node scripts/places/countries.mjs
+      - uses: actions/upload-artifact@v7
+        if: always() # also a run that missed a country: the build names it and the report says not ready
+        with:
+          name: countries
+          path: |
+            data/places/countries
+            data/places/countries-summary.json
+          retention-days: 7
+
   refresh:
-    needs: extract
+    needs: [extract, countries]
     if: always() # report also when a region failed (the build then says which)
     runs-on: ubuntu-26.04 # a fixed image on purpose: ubuntu-latest changes its version by itself (24.04 to 26.04 in October 2026)
     timeout-minutes: 60
@@ -101,6 +125,13 @@ jobs:
           pattern: osm-*
           merge-multiple: true
           path: data/places/osm
+      - name: Every country's summits
+        if: env.FROM_RUN == ''
+        continue-on-error: true # without them the build stops and says so
+        uses: actions/download-artifact@v8
+        with:
+          name: countries
+          path: data/places
       - name: Build (GeoNames towns + rows)
         if: env.FROM_RUN == ''
         run: |
