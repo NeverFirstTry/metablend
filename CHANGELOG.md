@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: two ways around the limit on new places per address
+- The limit of 10 new places an hour per visitor address (fallback table, below) counted a new place only after the database had answered. Requests sent at the same moment all saw "none yet": forty at once got forty rows. A place is now taken before the database is asked and given back when no new row came of it.
+- Every address of an IPv6 line was counted on its own, and such a line has more addresses than anyone can use up. An IPv6 line (/64) now counts as one address. IPv4 is unchanged.
+- Both were found by the automatic review of the push of 47d1653, after it was live. Neither made anything worse than before that deploy: without the limit the table could be filled by anyone.
+- Still open, as the owner decided on 2026-11-14 (revisit after launch if the table ever fills): renewing a place is not limited, so one patient address can add 10 places an hour and keep them alive by asking again, about 240 a day and kind for each running copy of the server; the count is kept per running copy.
+- Tests: forty requests at once, and IPv6 addresses of one line written four ways (`lib/last-answer.test.js`).
+
 ### Changed: a full-width search field on phones, keyboard-picked suggestions, the refresh button beside share and embed, Current details under right now (tester and owner, 2026-11-14)
 - Forecast page, website and app: on a phone the search field has a line of its own, with location, compare and favourite under it as three equal buttons (the layout large text already had; now whenever the row is narrower than 26rem), so a long place name fits ("Buôn Ma Thuột", "Garmisch-Partenkirchen"). The search button is an icon inside the field at its right edge: Enter still searches, the phone keyboard shows a search key, and the icon is a button with its label in all 13 languages and a 44 x 44 px target.
 - The suggestions can be picked with the keyboard: arrow down and up move the highlight (round from the last to the first), Enter takes the highlighted place, Escape closes the list and a second Escape clears the field as before. Screen readers follow the highlight (a combobox with aria-activedescendant). Taps and clicks work as before; the notification settings have no suggestions and are unchanged.
