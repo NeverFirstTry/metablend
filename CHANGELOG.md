@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: the weighting shadow run keeps its four weeks
+- Nothing changes for visitors. The station comparison log (`station_errors`) is kept 30 days again (owner, 2026-11-14). The cut to 14 days on 2026-11-12 overlooked that the shadow run's final report of 2026-12-05 reads four weeks of it (docs/shadow-run.md): from 2026-11-21 the nightly cleanup would have deleted the run's first days, and the report would have covered two weeks.
+- The 16 more days are about 6,300 rows, about 3 MB (measured 2026-11-14: 3,016 rows in 8 days take 1.5 MB).
+
 ### Fixed: a summit's country is the one it lies in
 - Wildspitze, Großvenediger and Zuckerhütl were filed under Italy, Birkkarspitze and Hochvogel under Germany: a summit took the country and region of the nearest town of our list, and across a ridge the next village is often the neighbour's. With the wrong country the official warnings of the right one were not found.
 - We now follow OpenStreetMap's country boundaries. Every summit and hut is looked up in the outlines of all countries and territories (point in polygon); its region is that of the nearest town of its own country. Of 568,262 summits and huts 26,739 change country (25,274 peaks, 1,465 huts; 2,185 of them well-known peaks), 5,601 get a country for the first time, 10,410 keep their country and get its region. The largest shifts: Bosnia to Croatia 1,945, Canada to the USA 1,510, Norway to Sweden 1,137, Italy to Austria 981, Slovenia to Croatia 860, Germany to Austria 822.
