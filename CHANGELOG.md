@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: suggestions no longer offer towns the reader cannot connect with what was typed
+- Typing "Inns" offered Innsbruck, then Kreith, Augsburg and Vinzons before Innisfil. Only Innsbruck begins so. The other rows were the database's look-alikes: a fuzzy match over every name and spelling a town has, inner words included (Kreith is filed with "Innsbruck" in a second name), which filled the list whenever fewer than five towns fit.
+- A look-alike is now offered only when a name the reader can see explains it: a later word of the name begins with the text ("Wasserburg am Inn" for "Inn"), or, from six letters on, the name holds the text ("Heiligenblut am Großglockner" for "Glockner", the rule the summits already follow), or, from five letters on, the name begins with the text but for one slip of the finger (a letter wrong, missing, too many, or two swapped: "Insbr" now offers Innsbruck).
+- Unchanged: towns that begin with the text, in the reader's language or under their name in another of our languages, come first as before, and a town found by one of its other names or spellings, exactly or by its beginning, is still offered after them ("Bécs" finds Wien). No database change.
+- Tests: the rule (`lib/places/alike.test.js`) and the route with the rows production answered for "Inns" (`lib/place-search-route.test.js`).
+
 ### Changed: a full-width search field on phones, keyboard-picked suggestions, the refresh button beside share and embed, Current details under right now (tester and owner, 2026-11-14)
 - Forecast page, website and app: on a phone the search field has a line of its own, with location, compare and favourite under it as three equal buttons (the layout large text already had; now whenever the row is narrower than 26rem), so a long place name fits ("Buôn Ma Thuột", "Garmisch-Partenkirchen"). The search button is an icon inside the field at its right edge: Enter still searches, the phone keyboard shows a search key, and the icon is a button with its label in all 13 languages and a 44 x 44 px target.
 - The suggestions can be picked with the keyboard: arrow down and up move the highlight (round from the last to the first), Enter takes the highlighted place, Escape closes the list and a second Escape clears the field as before. Screen readers follow the highlight (a combobox with aria-activedescendant). Taps and clicks work as before; the notification settings have no suggestions and are unchanged.
