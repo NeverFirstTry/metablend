@@ -249,6 +249,9 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [tab, setTab] = useState(() => SESSION.tab ?? 'today')
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [activeSuggestion, setActiveSuggestion] = useState(-1) // the suggestion the arrow keys highlight, -1 none
+  const toolbarRef = useRef(null)
+  const [stackActions, setStackActions] = useState(false) // refresh, share and embed in a row under a long place name
   // the shared value first: a language or unit just changed on another tab beats this tab's memory
   const [lang, setLang] = useState(() => knownLang() ?? SESSION.lang ?? pageLang ?? 'en')
   const hans = useHans(lang) // names the browser got from the geocoder, in simplified Chinese (lib/useHans.js)
@@ -465,6 +468,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
+        setActiveSuggestion(-1)
         setShowSuggestions(true)
       } catch { /* a hiccup while typing: just show nothing */ }
     }, 250)
@@ -679,6 +683,29 @@ ${url}`)
     }
   }
 
+  // The toolbar's buttons stay beside the place name while it takes at most two lines there. Measured at the width the
+  // name has beside them (set on the heading and taken back before the browser paints, so either layout measures the
+  // same), whenever the toolbar changes size: the observer's first call, a turned phone, the name, the fonts arriving.
+  useLayoutEffect(() => {
+    const bar = toolbarRef.current
+    const h2 = bar?.querySelector('h2'), actions = bar?.querySelector('.home-actions')
+    if (!h2 || !actions) return
+    const measure = () => {
+      if (!bar.isConnected) return
+      const buttons = [...actions.children], gap = parseFloat(getComputedStyle(actions).columnGap) || 0
+      const room = bar.clientWidth - buttons.reduce((w, b) => w + b.offsetWidth, 0) - gap * (buttons.length - 1) - (parseFloat(getComputedStyle(bar).columnGap) || 0)
+      const width = h2.style.width
+      h2.style.width = `${room}px`
+      const lines = Math.round(h2.offsetHeight / parseFloat(getComputedStyle(h2).lineHeight))
+      h2.style.width = width
+      setStackActions(lines > 2)
+    }
+    const watch = new ResizeObserver(measure)
+    watch.observe(bar)
+    document.fonts?.ready.then(measure)
+    return () => watch.disconnect()
+  }, [data, loading, lang])
+
   // Escape clears the search and closes suggestions
   useEffect(() => {
     function onKey(e) {
@@ -697,19 +724,45 @@ ${url}`)
   // "updated 104 min ago" over a blend built a minute before.
   const generatedAt = data?.generatedAt ?? outlook?.generatedAt
   // nothing asked for yet: on the website the landing page takes the search's place (CSS decides, see globals.css)
-  const suggestionList = showSuggestions && suggestions.length > 0 && (
-    <div className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
-      {suggestions.map(s => (
-        <button
-          type="button"
+  // the suggestions as a list box the keyboard can walk: arrow keys move the highlight (activeSuggestion), Enter picks
+  // it, Escape closes the list (a second Escape clears the field, as before); taps and clicks pick as they always did
+  const suggestOpen = showSuggestions && suggestions.length > 0
+  const activeIdx = suggestOpen && activeSuggestion < suggestions.length ? activeSuggestion : -1
+  function pickSuggestion(s) {
+    setCity(s.name); setShowSuggestions(false); setActiveSuggestion(-1)
+    setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50)
+  }
+  function onSearchKey(e) {
+    const n = suggestions.length
+    if (e.key === 'ArrowDown' && n) {
+      e.preventDefault()
+      if (!suggestOpen) { setShowSuggestions(true); setActiveSuggestion(0) } else setActiveSuggestion(i => (i + 1) % n)
+    } else if (e.key === 'ArrowUp' && suggestOpen) {
+      e.preventDefault()
+      setActiveSuggestion(i => (i <= 0 ? n - 1 : i - 1))
+    } else if (e.key === 'Enter') {
+      if (activeIdx >= 0) pickSuggestion(suggestions[activeIdx])
+      else { setShowSuggestions(false); loadForecast() }
+    } else if (e.key === 'Escape' && suggestOpen) {
+      e.stopPropagation() // the page's own Escape (clear the field) waits for a second press
+      setShowSuggestions(false); setActiveSuggestion(-1)
+    }
+  }
+  const suggestionList = suggestOpen && (
+    <div id="home-suggest" role="listbox" aria-label={t(lang, 'placeholder')} className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
+      {suggestions.map((s, i) => (
+        <div
           key={s.id}
-          className="press-row w-full text-left px-4 py-3 text-sm hover:bg-zinc-800 transition-colors flex justify-between items-center"
-          onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
+          id={`home-suggest-${i}`}
+          role="option"
+          aria-selected={i === activeIdx}
+          className={`press-row w-full text-left px-4 py-3 text-sm cursor-pointer hover:bg-zinc-800 transition-colors flex justify-between items-center ${i === activeIdx ? 'bg-zinc-800' : ''}`}
+          onMouseDown={() => pickSuggestion(s)}
         >
           <span>{hans(s.name)}</span>
           {/* a summit shows its height first: that is how it differs from a town of a like name */}
           <span className="text-zinc-500 text-xs tabular-nums">{s.summit ? `${s.elev} m` : `${s.admin1 ? `${hans(s.admin1)}, ` : ''}${countryName(s.country_code, lang, hans(s.country))}`}</span>
-        </button>
+        </div>
       ))}
     </div>
   )
@@ -764,20 +817,21 @@ ${url}`)
           </div>
         )}
 
-        {/* Search (large text: the field on its own line above the buttons) */}
+        {/* Search: on a phone (a row under 26rem) and with large text the field takes its own line and location, compare
+            and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report) */}
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
             disabled={locating || loading}
             title={t(lang, 'a11yLocate')}
             aria-label={t(lang, 'a11yLocate')}
-            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[18rem]:flex-1 @max-[18rem]:py-3"
+            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:py-3"
           >
             {locating
               ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow" aria-hidden />
               : <Navigation size={18} className="text-zinc-300" aria-hidden />}
           </button>
-          <div className="relative flex-1 @max-[18rem]:basis-full @max-[18rem]:order-first">
+          <div className="relative flex-1 @max-[26rem]:basis-full @max-[26rem]:order-first">
             {/* the search button sits inside the field at its right edge, so a phone shows more of a long name
                 (tester in Buôn Ma Thuột, 2026-11-14); its own box keeps it on the field where the website lets
                 the suggestions use the whole row (globals.css) */}
@@ -786,9 +840,14 @@ ${url}`)
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-lg pl-4 pr-12 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"
                 placeholder={t(lang, 'placeholder')}
                 enterKeyHint="search"
+                role="combobox"
+                aria-autocomplete="list"
+                aria-expanded={suggestOpen}
+                aria-controls={suggestOpen ? 'home-suggest' : undefined}
+                aria-activedescendant={activeIdx >= 0 ? `home-suggest-${activeIdx}` : undefined}
                 value={city}
-                onChange={e => { setCity(e.target.value); fetchSuggestions(e.target.value) }}
-                onKeyDown={e => { if (e.key === 'Enter') { setShowSuggestions(false); loadForecast() } }}
+                onChange={e => { setCity(e.target.value); setActiveSuggestion(-1); fetchSuggestions(e.target.value) }}
+                onKeyDown={onSearchKey}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
               />
               <button
@@ -810,7 +869,7 @@ ${url}`)
             title={t(lang, 'compareBtn')}
             aria-label={t(lang, 'compareBtn')}
             aria-pressed={compareMode}
-            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
+            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
               compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
             }`}
           >
@@ -821,7 +880,7 @@ ${url}`)
               onClick={() => setFavorites(toggleFavorite(data.city))}
               title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
               aria-label={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
-              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[18rem]:flex-1 @max-[18rem]:py-3 ${
+              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
                 isFavorite(favorites, data.city)
                   ? 'bg-amber-400 text-black border-amber-400'
                   : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-amber-400'
@@ -962,20 +1021,18 @@ ${url}`)
             )}
 
             <div className="home-now space-y-4">
-            {/* Toolbar: city, refresh + data age, share / embed */}
-            <div className="home-toolbar flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
-                    whole), a single over-long name still anywhere */}
-                <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
-                  {/* the example comes in English from the server: its name in the reader's language */}
-                  <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
-                </h2>
-                {generatedAt && <DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} />}
-              </div>
-              {/* refresh, share and embed: one row of like buttons, centred on the name's first line (h-9 and sm:h-10 are
-                  the heading's line heights), however many lines a long name takes (tester, 2026-11-14) */}
-              <div className="home-actions flex items-center gap-2 shrink-0 h-9 sm:h-10">
+            {/* Toolbar: the place, then refresh, share and embed as one row of like buttons, then the data age. The buttons
+                stand beside the name, centred on its first line (h-9 and sm:h-10 are the heading's line heights); a name that
+                would take more than two lines beside them gets the whole width and the buttons move into a row under it
+                (tester and owner, 2026-11-14: Garmisch-Partenkirchen took five lines on a 320 px phone) */}
+            <div ref={toolbarRef} className={`home-toolbar grid gap-x-3 ${stackActions ? 'grid-cols-1' : 'grid-cols-[minmax(0,1fr)_auto]'}`}>
+              {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
+                  whole), a single over-long name still anywhere */}
+              <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
+                {/* the example comes in English from the server: its name in the reader's language */}
+                <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
+              </h2>
+              <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-9 sm:h-10'}`}>
                 <button
                   onClick={manualRefresh}
                   disabled={refreshing || loading}
@@ -1000,6 +1057,8 @@ ${url}`)
                   <Code2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'embedBtn')}</span>
                 </button>
               </div>
+              {/* under the name beside the buttons, or under the buttons once they moved under the name */}
+              {generatedAt && <div className={stackActions ? 'mt-1' : 'col-start-1'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} /></div>}
             </div>
 
             {showEmbed && <EmbedPanel city={data.city} lang={lang} unit={unit} />}
