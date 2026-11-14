@@ -1137,7 +1137,7 @@ ${url}`)
           <Fold icon={Info} title={t(lang, 'howTitle')} keep>
             {/* the 28-second film, website only (app/components/PromoVideo.jsx) */}
             <PromoVideo lang={lang} />
-            <div className="space-y-3 text-sm text-zinc-400 leading-relaxed">
+            <div className="how-text space-y-3 text-sm text-zinc-400 leading-relaxed">
               <p>{t(lang, 'howP1')}</p>
               <p>{t(lang, 'howP2')}</p>
               <p>{t(lang, 'howP3')}</p>
