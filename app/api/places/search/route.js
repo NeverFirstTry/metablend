@@ -43,8 +43,9 @@ const peakKey = s => normalize(s) || placeKey(s) // as the summit search compare
 async function summitsFor(rows, q, lang, belowTowns) {
   const typed = peakKey(q)
   const letter = q.trim().toLowerCase()
-  // a peak we can place and tell apart: one with a height, near a town of our list
-  const fit = rows.filter(s => s.kind === 'peak' && s.ele != null && s.country).map(s => {
+  // a peak we can tell apart: one with a height. Its country is not asked for: a summit in an area the
+  // boundary file marks as disputed has none, and is offered with its name and height (owner, 2026-11-14)
+  const fit = rows.filter(s => s.kind === 'peak' && s.ele != null).map(s => {
     const name = s.names?.[lang] ?? s.name, k = peakKey(name)
     // 0: the name is the text, 1: it begins so, 2: one of its words begins so, 3: it holds the text, from
     // six letters on ("glockner" in Großglockner; "eiger" would bring Hochzeiger)
@@ -99,7 +100,9 @@ export const GET = withErrorLog('place-search', async (request) => {
   // the towns that fit, the summits below them, then towns that only look alike while there is room
   const results = [
     ...fitting.slice(0, SHOWN - offered.length).map(f => row(f.t, f.name)),
-    ...offered.map(p => ({ id: p.s.id, name: p.name, admin1: null, country: '', country_code: null, latitude: p.s.lat, longitude: p.s.lon, elev: p.s.ele, summit: true })),
+    // a summit: its height, and its region and country as the summits table files it since 2026-11-14 (the
+    // country the summit lies in; before, the nearest town's, which was Italy for the Wildspitze)
+    ...offered.map(p => ({ id: p.s.id, name: p.name, admin1: regionIn(p.s.country, p.s.region, lang), country: '', country_code: p.s.country, latitude: p.s.lat, longitude: p.s.lon, elev: p.s.ele, summit: true })),
   ]
   results.push(...alike.slice(0, Math.max(0, SHOWN - results.length)).map(f => row(f.t, f.name)))
   return Response.json({ results }, { headers: { 'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800' } })

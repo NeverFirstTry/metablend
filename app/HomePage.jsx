@@ -761,7 +761,7 @@ ${url}`)
         >
           <span>{hans(s.name)}</span>
           {/* a summit shows its height first: that is how it differs from a town of a like name */}
-          <span className="text-zinc-500 text-xs tabular-nums">{s.summit ? `${s.elev} m` : `${s.admin1 ? `${hans(s.admin1)}, ` : ''}${countryName(s.country_code, lang, hans(s.country))}`}</span>
+          <span className="text-zinc-500 text-xs tabular-nums">{[s.summit && `${s.elev} m`, s.admin1 && hans(s.admin1), countryName(s.country_code, lang, hans(s.country))].filter(Boolean).join(', ')}</span>
         </div>
       ))}
     </div>

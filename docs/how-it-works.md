@@ -195,6 +195,20 @@ names with typos and accents). Named summits and volcanoes (with a height, or
 a Wikidata item) and named huts come from OpenStreetMap (ODbL); towns with
 5 000+ people and their other names from GeoNames (CC BY 4.0).
 
+**A summit's country: we follow OpenStreetMap's country boundaries.** The outlines of every country and
+territory come from a published file made of OpenStreetMap's boundary relations (Overture Maps, theme
+divisions, ODbL: "© OpenStreetMap contributors, Overture Maps Foundation"), downloaded by
+`scripts/places/boundaries.py`; no query service is asked. The build looks every summit and hut up in
+them, point in polygon (`lib/places/areas.js`): the smallest outline that holds it wins (a territory before
+the state around it), and a summit within a metre of a border line goes to the smaller of its countries.
+So Crimea is filed under Ukraine, Northern Cyprus under Cyprus, Abkhazia and South Ossetia under Georgia,
+Kashmir along the lines of control, Taiwan and Kosovo as themselves: that is where OpenStreetMap draws the
+lines, and no statement of ours. In an area the file marks as disputed (the Golan, the southern Kurils,
+Senkaku, the pockets on the China/India border, Bir Tawil) a summit gets **no country and no region**, only
+its name and height. Western Sahara is EH, West Bank and Gaza PS, Sint Eustatius and Saba BQ, Jan Mayen SJ.
+The region is that of the nearest town of the summit's country. (Until 2026-11-14 country and region both
+came from the nearest town, which filed 25,671 summits and huts under a neighbour.)
+
 **Refresh, twice a year:** the GitHub Actions workflow *Places refresh (dev)*
 (`.github/workflows/places-refresh.yml`, 2 January and 2 July, or by hand
 from the Actions tab) streams every Geofabrik region through pyosmium —
@@ -217,7 +231,10 @@ The same steps by hand, on this PC:
 ```bash
 pip install osmium                       # pyosmium, once
 node scripts/places/osm.mjs              # every Geofabrik region, streamed (~150 GB through, nothing stored; resumes)
+pip install duckdb                       # once
+python scripts/places/boundaries.py      # the countries' outlines from the newest Overture release (~90 MB)
 node scripts/places/build.mjs            # GeoNames towns + the rows → data/places/*.ndjson
+node scripts/places/build.mjs --refile   # instead: the summits of a run's data filed again (new outlines, no OpenStreetMap download)
 node scripts/places/load.mjs             # into the dev database (.env.local)
 node scripts/places/check.mjs            # the search and Near you checks on it
 node scripts/places/load.mjs --production   # into production — asks for the project ref

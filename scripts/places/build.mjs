@@ -6,21 +6,38 @@
 // what was kept and dropped. Only with every region there (a broken extract
 // run must not become a world without Europe), and the old files stay until
 // the new ones are complete.
+// A summit's country is the one its position lies in: we follow OpenStreetMap's country boundaries (step
+// 1b, boundaries.py, hands over the outlines; lib/places/areas.js looks a position up in them and has the
+// rule for disputed areas). Its region is the one of the nearest town of that country.
 //   node scripts/places/build.mjs            towns and summits
 //   node scripts/places/build.mjs --towns    the towns alone (needs no OpenStreetMap lines)
+//   node scripts/places/build.mjs --refile   the summits of data/places/summits.ndjson (a run's data) filed again:
+//                                            country and region anew, without downloading OpenStreetMap again
 import { spawnSync } from 'node:child_process'
 import { createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, nearestTown, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
-import { missingRegions } from '../../lib/places/plan.js'
+import { osmRow, townRow, townIndex, summitPlace, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
+import { missingRegions, areasProblem, outlinesAgeDays } from '../../lib/places/plan.js'
+import { countryLookup } from '../../lib/places/areas.js'
 
 const DIR = join('data', 'places')
 const TOWNS_ONLY = process.argv.includes('--towns')
-const missing = TOWNS_ONLY ? [] : missingRegions(existsSync(join(DIR, 'osm')) ? readdirSync(join(DIR, 'osm')) : [])
+const REFILE = process.argv.includes('--refile')
+const missing = TOWNS_ONLY || REFILE ? [] : missingRegions(existsSync(join(DIR, 'osm')) ? readdirSync(join(DIR, 'osm')) : [])
 if (missing.length) {
   console.error(`Not built: no OpenStreetMap lines yet for ${missing.join(', ')} — run scripts/places/osm.mjs (it picks up where it stopped).`)
+  process.exit(1)
+}
+const read = name => (existsSync(join(DIR, name)) ? JSON.parse(readFileSync(join(DIR, name), 'utf8')) : null)
+const areas = TOWNS_ONLY ? null : read('boundaries-summary.json')
+if (!TOWNS_ONLY && areasProblem(areas)) {
+  console.error(`Not built: ${areasProblem(areas)}.`)
+  process.exit(1)
+}
+if (REFILE && !existsSync(join(DIR, 'summits.ndjson'))) {
+  console.error('Not built: --refile needs data/places/summits.ndjson, the summits of a refresh run (gh run download <run> -n places-data).')
   process.exit(1)
 }
 // written beside the old file, which it replaces only once complete
@@ -96,22 +113,31 @@ if (TOWNS_ONLY) process.exit(0)
 
 // 2. summits and huts, each OSM object once (regions overlap at their edges)
 const grid = townIndex(towns)
+const outlines = []
+for await (const line of createInterface({ input: createReadStream(join(DIR, 'boundaries.ndjson')) })) if (line) { const a = JSON.parse(line); outlines.push({ ...a, geometry: typeof a.geometry === 'string' ? JSON.parse(a.geometry) : a.geometry }) }
+const where = countryLookup(outlines)
+outlines.length = 0
 const seen = new Set()
-const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, droppedLean: 0, withNames: 0, bytes: 0 }
+const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, droppedLean: 0, withNames: 0, bytes: 0, inArea: 0, noArea: 0, disputed: 0, outlines: areas.release, outlinesAge: outlinesAgeDays(areas.release) }
 const out = output('summits.ndjson')
-for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort()) {
-  for await (const line of createInterface({ input: createReadStream(join(DIR, 'osm', file)) })) {
+// --refile: the rows a run built, read from the file this build replaces once it is complete
+const sources = REFILE ? [join(DIR, 'summits.ndjson')] : readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort().map(f => join(DIR, 'osm', f))
+for (const file of sources) {
+  for await (const line of createInterface({ input: createReadStream(file) })) {
     if (!line) continue
     stats.lines++
-    const row = osmRow(JSON.parse(line))
+    const row = REFILE ? JSON.parse(line) : osmRow(JSON.parse(line))
     if (!row || seen.has(row.id)) continue
     seen.add(row.id)
     if (!keepSummit(row)) { stats.dropped++; continue }
-    const town = nearestTown(grid, row.lat, row.lon)
-    // the emergency rule (off unless LEAN, lib/places/rows.js) needs the country, so it comes after the town
-    if (LEAN && !keepLean({ ...row, country: town?.country ?? null })) { stats.droppedLean++; continue }
-    const json = JSON.stringify({ ...row, country: town?.country ?? null, region: town?.region ?? null })
+    const { country, region, inArea, disputed } = summitPlace(grid, row, where)
+    // the emergency rule (off unless LEAN, lib/places/rows.js) needs the country, so it comes after it
+    if (LEAN && !keepLean({ ...row, country })) { stats.droppedLean++; continue }
+    const json = JSON.stringify({ ...row, country, region })
     stats.bytes += json.length + 1
+    if (disputed) stats.disputed++
+    else if (inArea) stats.inArea++
+    else stats.noArea++
     if (row.kind === 'hut') stats.huts++
     else { stats.peaks++; if (row.ele == null) stats.peaksNoEle++ }
     if (row.names) stats.withNames++
@@ -119,6 +145,7 @@ for (const file of readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson
   }
 }
 await out.done()
-console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata${LEAN ? ` and ${stats.droppedLean} unmarked peaks outside the seven countries (the lean rule)` : ''}; from ${stats.lines} OSM lines; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
+console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata${LEAN ? ` and ${stats.droppedLean} unmarked peaks outside the seven countries (the lean rule)` : ''}; from ${stats.lines} ${REFILE ? 'rows filed again' : 'OSM lines'}; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
+console.log(`country: ${stats.inArea} from the outline the summit lies in (OpenStreetMap's boundaries, release ${stats.outlines}), ${stats.disputed} in a disputed area (no country, no region), ${stats.noArea} from the nearest town (in no outline)`)
 // for the refresh issue (scripts/places/report.mjs)
 writeFileSync(join(DIR, 'build-summary.json'), JSON.stringify({ towns: towns.length, townsWithOtherNames: towns.filter(t => t.alt).length, ...stats }, null, 1))
