@@ -8,13 +8,16 @@ import { townResult, nameIn } from '@/lib/geocode'
 import { regionIn } from '@/lib/places/regions'
 import { placeKey } from '@/lib/weather'
 import { normalize } from '@/lib/hike/search'
+import { looksLike } from '@/lib/places/alike'
 
 // Place suggestions for the search boxes (the forecast's and the notification settings'), from our own
 // towns: nothing a visitor types goes to an outside service. The answer has the shape the boxes already
 // read ({ results: [{ id, name, admin1, country, country_code, latitude, longitude }] }); the name is the
 // town's in the reader's language, and so is its region where GeoNames marks one (lib/places/regions.js).
 // The database offers up to twenty towns: those of that name, those one of whose names begins so (the
-// biggest first), then look-alikes (towns_search). A town matches by any of its names, in any language,
+// biggest first), then look-alikes (towns_search). A look-alike is offered only when a name the reader
+// can see explains it (lib/places/alike.js: "Inns" brought Kreith, Augsburg and Vinzons, found by spellings
+// nobody sees). A town matches by any of its names, in any language,
 // so the five shown are picked for the reader: first the towns whose name as this reader sees it is, or
 // begins with, what was typed ("vie" in English: Vienna before a Paris district once filed as "VIe"), and
 // with them a town typed under its name in another of our languages; among those the biggest first, an
@@ -84,7 +87,10 @@ export const GET = withErrorLog('place-search', async (request) => {
     return { t, i, name, named, weight: Math.log10((t.population ?? 0) + 10) + (called ? EXACT : 0) }
   })
   found.sort((a, b) => b.named - a.named || (a.named ? b.weight - a.weight : 0) || a.i - b.i) // the rest keep the database's order
-  const fitting = found.filter(f => f.named), alike = found.filter(f => !f.named)
+  // a town found by one of its other names or spellings (exact, or begins so) stays; one that merely looks
+  // alike to the database must look alike to the reader too
+  const fitting = found.filter(f => f.named)
+  const alike = found.filter(f => !f.named && (f.t.exact || f.t.prefix || [f.name, f.t.name, ...Object.values(f.t.names ?? {})].some(n => n && looksLike(typed, placeKey(n)))))
   const summits = peaks.length ? await summitsFor(peaks, q, lang, fitting.length > 0) : []
   const offered = summits.slice(0, fitting.length ? SUMMITS_BELOW : SUMMITS_ALONE)
   const row = (place, name) => {

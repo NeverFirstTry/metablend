@@ -701,7 +701,7 @@ html:not([data-app]) .home-search button:not(.bg-emerald-400, .bg-amber-400) { b
 html:not([data-app]) .home-search > .relative { position: static; }
 /* -- The forecast page on a desktop (64rem and up, website only): right now in one band (the
    hero beside its details, which are always open here), the forecast full width, then sources
-   and feedback side by side. The Current details fold below is hidden here; phones keep it. */
+   and feedback side by side. The Current details fold under right now is hidden here; phones keep it. */
 @media (min-width: 64rem) {
   html:not([data-app]) .home-data { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "now nowd" "forecast forecast" "more more"; column-gap: 2rem; row-gap: 1.5rem; align-items: start; }
   html:not([data-app]) .home-data:has(> .home-warning) { grid-template-areas: "warn warn" "now nowd" "forecast forecast" "more more"; }
@@ -712,7 +712,12 @@ html:not([data-app]) .home-search > .relative { position: static; }
   html:not([data-app]) .home-forecast { grid-area: forecast; }
   html:not([data-app]) .home-more { grid-area: more; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem 2rem; align-items: start; }
   html:not([data-app]) .home-more > * { margin: 0; }
-  html:not([data-app]) .home-more > :first-child { display: none; }
+  html:not([data-app]) .home-details-fold { display: none; }
+  /* "What is consensus forecasting?" across the page like the other cards, the 16:9 film across the card (PromoVideo
+     loads the 16:9 file at this width only) and the three paragraphs under it at a reading width (owner 2026-11-14) */
+  html:not([data-app]) #how-it-works { max-width: none; }
+  html:not([data-app]) .promo-film { aspect-ratio: 16 / 9; max-width: none; margin-bottom: 1.5rem; }
+  html:not([data-app]) #how-it-works .how-text { max-width: var(--reading-width); }
 }
 /* a table too wide for a phone: each row stacks in three columns, with a label above each value */
 @media (max-width: 39.99rem) {
