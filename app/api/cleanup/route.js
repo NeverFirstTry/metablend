@@ -25,7 +25,9 @@ const MAX_CITIES = 10
 const HISTORY_DAYS = 7 // consensus_history
 const ERROR_DAYS = 14 // error_log
 const NOTE_DAYS = 7 // error_log rows with a scope in NOTE_SCOPES
-const STATION_DAYS = 14 // station_errors
+// 30, not 14: the shadow run's final report of 2026-12-05 reads four weeks of it (docs/shadow-run.md).
+// The cut to 14 days on 2026-11-12 would have left it two; drop the table once the formula is decided.
+const STATION_DAYS = 30 // station_errors
 const RETENTION_DAYS = 30 // the feedback lesson counters
 const daysAgo = n => new Date(Date.now() - n * 86_400_000).toISOString()
 

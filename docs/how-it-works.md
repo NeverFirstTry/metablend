@@ -206,6 +206,9 @@ Kashmir along the lines of control, Taiwan and Kosovo as themselves: that is whe
 lines, and no statement of ours. In an area the file marks as disputed (the Golan, the southern Kurils,
 Senkaku, the pockets on the China/India border, Bir Tawil) a summit gets **no country and no region**, only
 its name and height. Western Sahara is EH, West Bank and Gaza PS, Sint Eustatius and Saba BQ, Jan Mayen SJ.
+For the 200 peaks and huts of the featured list (`lib/hike/featured.json`) the country set there by hand
+wins over the position: nine of them stand on a border line or metres beside it (Hochvogel, Mont Blanc,
+Sněžka …), and the search box, the forecast and the summit's own page have to name the same country.
 The region is that of the nearest town of the summit's country. (Until 2026-11-14 country and region both
 came from the nearest town, which filed 25,671 summits and huts under a neighbour.)
 

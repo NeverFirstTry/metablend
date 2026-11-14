@@ -18,7 +18,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, summitPlace, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
+import { osmRow, townRow, townIndex, summitPlace, featuredCountries, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
 import { missingRegions, areasProblem, outlinesAgeDays } from '../../lib/places/plan.js'
 import { countryLookup } from '../../lib/places/areas.js'
 
@@ -116,9 +116,11 @@ const grid = townIndex(towns)
 const outlines = []
 for await (const line of createInterface({ input: createReadStream(join(DIR, 'boundaries.ndjson')) })) if (line) { const a = JSON.parse(line); outlines.push({ ...a, geometry: typeof a.geometry === 'string' ? JSON.parse(a.geometry) : a.geometry }) }
 const where = countryLookup(outlines)
+// the featured list's own peaks and huts keep the country set there by hand (lib/places/rows.js)
+const handSet = featuredCountries(JSON.parse(readFileSync(join('lib', 'hike', 'featured.json'), 'utf8')))
 outlines.length = 0
 const seen = new Set()
-const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, droppedLean: 0, withNames: 0, bytes: 0, inArea: 0, noArea: 0, disputed: 0, outlines: areas.release, outlinesAge: outlinesAgeDays(areas.release) }
+const stats = { lines: 0, peaks: 0, huts: 0, peaksNoEle: 0, dropped: 0, droppedLean: 0, withNames: 0, bytes: 0, inArea: 0, noArea: 0, disputed: 0, handSet: 0, outlines: areas.release, outlinesAge: outlinesAgeDays(areas.release) }
 const out = output('summits.ndjson')
 // --refile: the rows a run built, read from the file this build replaces once it is complete
 const sources = REFILE ? [join(DIR, 'summits.ndjson')] : readdirSync(join(DIR, 'osm')).filter(f => f.endsWith('.ndjson')).sort().map(f => join(DIR, 'osm', f))
@@ -130,11 +132,12 @@ for (const file of sources) {
     if (!row || seen.has(row.id)) continue
     seen.add(row.id)
     if (!keepSummit(row)) { stats.dropped++; continue }
-    const { country, region, inArea, disputed } = summitPlace(grid, row, where)
+    const { country, region, inArea, disputed, handSet: listed } = summitPlace(grid, row, where, handSet)
     // the emergency rule (off unless LEAN, lib/places/rows.js) needs the country, so it comes after it
     if (LEAN && !keepLean({ ...row, country })) { stats.droppedLean++; continue }
     const json = JSON.stringify({ ...row, country, region })
     stats.bytes += json.length + 1
+    if (listed) stats.handSet++
     if (disputed) stats.disputed++
     else if (inArea) stats.inArea++
     else stats.noArea++
@@ -146,6 +149,6 @@ for (const file of sources) {
 }
 await out.done()
 console.log(`summits: ${stats.peaks} peaks (${stats.peaksNoEle} without a height, kept for their Wikidata item), ${stats.huts} huts, ${stats.withNames} with names in our languages; dropped ${stats.dropped} named peaks with neither a height nor Wikidata${LEAN ? ` and ${stats.droppedLean} unmarked peaks outside the seven countries (the lean rule)` : ''}; from ${stats.lines} ${REFILE ? 'rows filed again' : 'OSM lines'}; ${(stats.bytes / 1048576).toFixed(0)} MB of rows`)
-console.log(`country: ${stats.inArea} from the outline the summit lies in (OpenStreetMap's boundaries, release ${stats.outlines}), ${stats.disputed} in a disputed area (no country, no region), ${stats.noArea} from the nearest town (in no outline)`)
+console.log(`country: ${stats.inArea} from the outline the summit lies in (OpenStreetMap's boundaries, release ${stats.outlines}), ${stats.disputed} in a disputed area (no country, no region), ${stats.noArea} from the nearest town (in no outline); ${stats.handSet} of them are the featured list's own, with the country set there by hand`)
 // for the refresh issue (scripts/places/report.mjs)
 writeFileSync(join(DIR, 'build-summary.json'), JSON.stringify({ towns: towns.length, townsWithOtherNames: towns.filter(t => t.alt).length, ...stats }, null, 1))

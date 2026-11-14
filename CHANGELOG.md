@@ -5,6 +5,21 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: "Mont Blanc" offers the Mont Blanc in every language
+- A German or English reader who typed "Mont Blanc" into the search box was offered hills of that exact name in Quebec and Texas, and not the Mont Blanc. Our table holds it as "Mont Blanc / Monte Bianco" with a French name only, and a summit whose name is letter for letter the text comes first. In French it was already offered.
+- A summit whose name carries two is now called by each of them: "Mont Blanc" and "Monte Bianco" both offer it first, ahead of the hills, by how well known it is.
+- The parts of a summit's main name count too where the reader sees another name: "Sněžka" typed by a German reader offered only Malá Sněžka; it now offers the Schneekoppe (the table's "Śnieżka / Sněžka") first.
+- Only the search box's suggestions change (`/api/places/search`); no database change. The tests read what the dev database answers for "Mont Blanc", "Monte Bianco", "Sněžka" and "Schneekoppe".
+
+### Fixed: the weighting shadow run keeps its four weeks
+- Nothing changes for visitors. The station comparison log (`station_errors`) is kept 30 days again (owner, 2026-11-14). The cut to 14 days on 2026-11-12 overlooked that the shadow run's final report of 2026-12-05 reads four weeks of it (docs/shadow-run.md): from 2026-11-21 the nightly cleanup would have deleted the run's first days, and the report would have covered two weeks.
+- The 16 more days are about 6,300 rows, about 3 MB (measured 2026-11-14: 3,016 rows in 8 days take 1.5 MB).
+
+### Fixed: a featured summit on a border names the same country on every page
+- Nine featured summits stand on a border line or metres beside it. Since the summits were filed by position, the search box and the forecast named one country and the summit's own page another: Hochvogel (Austria there, Germany on its page), Mont Blanc (Italy, France), Piz Buin (Switzerland, Austria), Similaun (Italy, Austria), Hoher Göll (Austria, Germany), Sněžka (Poland, Czechia), Vignemale (Spain, France), Kasprowy Wierch (Slovakia, Poland), Korab (Albania, North Macedonia). The summit pages also asked the official warnings of their own country only.
+- For the 200 peaks and huts of the featured list the country set there by hand now wins everywhere (owner, 2026-11-14): the build writes it into the table, with the region of the nearest town of that country. Nine rows change; the other 191 already agreed.
+- Data only: `node scripts/places/build.mjs --refile`, then the load. The refresh checks Mont Blanc (France) beside the others.
+
 ### Fixed: a summit's country is the one it lies in
 - Wildspitze, Großvenediger and Zuckerhütl were filed under Italy, Birkkarspitze and Hochvogel under Germany: a summit took the country and region of the nearest town of our list, and across a ridge the next village is often the neighbour's. With the wrong country the official warnings of the right one were not found.
 - We now follow OpenStreetMap's country boundaries. Every summit and hut is looked up in the outlines of all countries and territories (point in polygon); its region is that of the nearest town of its own country. Of 568,262 summits and huts 26,739 change country (25,274 peaks, 1,465 huts; 2,185 of them well-known peaks), 5,601 get a country for the first time, 10,410 keep their country and get its region. The largest shifts: Bosnia to Croatia 1,945, Canada to the USA 1,510, Norway to Sweden 1,137, Italy to Austria 981, Slovenia to Croatia 860, Germany to Austria 822.
