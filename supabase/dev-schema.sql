@@ -709,6 +709,9 @@ create table if not exists public.towns (
   search text generated always as (public.place_norm(name || ' | ' || coalesce(alt, ''))) stored,
   loaded_at timestamptz not null default now()
 );
+-- since 2026-11-12 (our own place search, supabase/place-search.sql): what a reader of each language sees,
+-- and in English what everything learned about a place is filed under
+alter table public.towns add column if not exists names jsonb; -- its name in our 13 languages, where it differs from the main name
 
 create index if not exists summits_geog_idx on public.summits using gist (geog);
 -- names: GIN for substrings and typos, a sorted one for how a name starts.
@@ -790,25 +793,48 @@ begin
 end
 $$;
 
--- Towns by name or another name of theirs (cities with 5 000+ people).
--- exact: the query is one of its names; prefix: one of its names starts so.
+-- Towns by name or another name of theirs. exact: the query is one of its names; prefix: one of its names
+-- starts so. Two ways into the answer (2026-11-13): the towns one of whose names begins with what was typed,
+-- the biggest first ("wie" offers Wien; before, the forty most alike of over a thousand were taken at random),
+-- and the towns whose names are most like it. A name that is so, or begins so, comes before the look-alikes,
+-- the bigger town first; the API then puts the names in the reader's language first (app/api/places/search).
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.towns_search(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.towns_search(text, integer);
+  end if;
+end $$;
 create or replace function public.towns_search(q text, lim integer default 5)
-returns table (id integer, name text, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
+returns table (id integer, name text, names jsonb, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  with hits as (
-    select t.*, public.place_norm(q) as n
-      from public.towns t
-     where public.place_norm(q) <% t.search
-     order by t.search <->> public.place_norm(q)
+  with n as (
+    select v.n, replace(replace(replace(v.n, '\', '\\'), '%', '\%'), '_', '\_') as pattern -- typed text is no wildcard
+      from (select public.place_norm(q) as n) v
+  ),
+  starts as ( -- one of its names begins with what was typed: the biggest towns first
+    select t.id from public.towns t, n
+     where t.search like n.pattern || '%' or t.search like '% | ' || n.pattern || '%'
+     order by t.population desc
      limit 40
+  ),
+  alike as ( -- its names are most like it: a slip of the finger
+    select t.id from public.towns t, n
+     where n.n <% t.search
+     order by t.search <->> n.n
+     limit 40
+  ),
+  hits as (
+    select t.*, n.n,
+           n.n = any(string_to_array(t.search, ' | ')) as exact,
+           exists (select 1 from unnest(string_to_array(t.search, ' | ')) as a(v) where a.v like n.pattern || '%') as prefix
+      from public.towns t, n
+     where t.id in (select s.id from starts s union select a.id from alike a)
   )
-  select h.id, h.name, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
-         h.n = any(string_to_array(h.search, ' | ')) as exact,
-         exists (select 1 from unnest(string_to_array(h.search, ' | ')) as a(v) where a.v like h.n || '%') as prefix
+  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry), h.exact, h.prefix
     from hits h
-   order by exact desc, prefix desc, round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
+   order by h.exact desc, h.prefix desc, (case when h.exact or h.prefix then h.population else 0 end) desc,
+            round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
    limit least(greatest(lim, 1), 20)
 $$;
 
@@ -881,18 +907,18 @@ language sql volatile
 set search_path = public, extensions, pg_temp
 as $$
   with r as (
-    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, country text, region text, population integer,
+    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, names jsonb, country text, region text, population integer,
                                                  lat double precision, lon double precision)
   ), w as (
-    insert into public.towns as t (id, name, alt, country, region, population, geog, loaded_at)
-    select r.id, r.name, r.alt, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
+    insert into public.towns as t (id, name, alt, names, country, region, population, geog, loaded_at)
+    select r.id, r.name, r.alt, r.names, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
       from r
     on conflict (id) do update
-       set name = excluded.name, alt = excluded.alt, country = excluded.country, region = excluded.region,
+       set name = excluded.name, alt = excluded.alt, names = excluded.names, country = excluded.country, region = excluded.region,
            population = excluded.population, geog = excluded.geog, loaded_at = excluded.loaded_at
-     where (t.name, t.alt, t.country, t.region, t.population, st_asbinary(t.geog))
+     where (t.name, t.alt, t.names, t.country, t.region, t.population, st_asbinary(t.geog))
            is distinct from
-           (excluded.name, excluded.alt, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
+           (excluded.name, excluded.alt, excluded.names, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
     returning 1
   )
   select count(*)::integer from w
@@ -1239,12 +1265,17 @@ notify pgrst, 'reload schema';
 -- table. Safe to run more than once.
 create index if not exists towns_names_idx on public.towns using gin (string_to_array(search, ' | '));
 
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.town_lookup(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.town_lookup(text, integer);
+  end if;
+end $$;
 create or replace function public.town_lookup(q text, lim integer default 20)
-returns table (id integer, name text, alt text, country text, region text, population integer, lat double precision, lon double precision)
+returns table (id integer, name text, alt text, names jsonb, country text, region text, population integer, lat double precision, lon double precision)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  select t.id, t.name, t.alt, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
+  select t.id, t.name, t.alt, t.names, t.country, t.region, t.population, st_y(t.geog::geometry), st_x(t.geog::geometry)
     from public.towns t
    where string_to_array(t.search, ' | ') @> array[public.place_norm(btrim(q))]
    order by t.population desc
@@ -1268,7 +1299,9 @@ grant select, insert, update, delete on public.geocode_cache to service_role;
 -- neighbours apart, and our towns (GeoNames places of 5,000 and more) list city districts beside the
 -- cities, so neither the nearest (a district: Mühlau for Innsbruck) nor the largest in reach (a Vienna
 -- district for Mödling) is the place meant. So: of the towns within radius_km, the one with the most
--- people for its distance, population / (km + 1)². No row: no town that close, and the API asks
+-- people for its distance, population / (km + 1)². Only places of 500 people and more (2026-11-13: the list
+-- holds every hamlet of Austria now, and a hamlet of 100 people beside the rounded position is not where
+-- the phone is). No row: no town that close, and the API asks
 -- OpenStreetMap's Nominatim with the same rounded position. Only the API (service-role key) calls it.
 -- Safe to run more than once.
 create or replace function public.town_near(lat double precision, lon double precision, radius_km double precision default 10)
@@ -1280,7 +1313,8 @@ as $$
     from (select t.id, t.name, t.country, t.population,
                  st_distance(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography) / 1000 as km
             from public.towns t
-           where st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
+           where t.population >= 500
+             and st_dwithin(t.geog, st_makepoint(town_near.lon, town_near.lat)::geography, least(greatest(radius_km, 1), 50) * 1000)) c
    order by c.population / power(c.km + 1, 2) desc, c.id
    limit 1
 $$;
@@ -1327,24 +1361,30 @@ grant select, insert, update, delete on public.route_heights to service_role;
 -- last_answers keeps the last good answer per place (lib/last-answer.js), for the hours our own
 -- Open-Meteo server gives nothing and the public service may not be asked: the 7-day outlook and a
 -- summit's forecast are served up to 24 hours old, the rain forecast up to 1 hour, each with its time.
+-- Since 2026-11-13 the forecast's blend ("right now") is kept too, kind forecast: served up to 2 hours
+-- old when every Open-Meteo source of a build failed, instead of a blend of the few other sources.
 -- Written when a route builds a good answer (only requests the CDN could not answer reach a route),
 -- read only when a build fails.
 -- place is the answer's own key and holds no text a visitor typed: the town's or the peak's rounded
 -- coordinates (a summit: with its height and "core" for the summit pages' three-model copy).
 -- body is the answer as JSON, gzip-compressed and base64-encoded (measured 2026-11-12: an outlook is
--- 26 KB as JSON and 4.6 KB kept, a summit forecast 35 KB and 6.5 KB, rain 0.7 KB and 0.2 KB).
+-- 26 KB as JSON and 4.6 KB kept, a summit forecast 35 KB and 6.5 KB, rain 0.7 KB and 0.2 KB; a blend,
+-- measured 2026-11-13, 4.2 KB and 1.6 KB).
 -- At most 3,000 rows (about 20 MB at the very most; a normal day has under 1,000): a new place is not
 -- kept while the table is full, a place already there is always renewed. Rows older than 24 hours go
 -- when the table is full and at the nightly cleanup.
 -- Run on dev, then on production (safe to run again).
 
 create table if not exists public.last_answers (
-  kind text not null check (kind in ('outlook', 'summit', 'rain')),
+  kind text not null check (kind in ('outlook', 'summit', 'rain', 'forecast')),
   place text not null,
   made_at timestamptz not null default now(),
   body text not null,
   primary key (kind, place)
 );
+-- a table made before 2026-11-13 knows three kinds: the rule is replaced by the one above
+alter table public.last_answers drop constraint if exists last_answers_kind_check;
+alter table public.last_answers add constraint last_answers_kind_check check (kind in ('outlook', 'summit', 'rain', 'forecast'));
 alter table public.last_answers enable row level security;
 revoke all on public.last_answers from anon, authenticated;
 grant select, insert, update, delete on public.last_answers to service_role;

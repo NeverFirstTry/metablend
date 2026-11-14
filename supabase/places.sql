@@ -53,6 +53,9 @@ create table if not exists public.towns (
   search text generated always as (public.place_norm(name || ' | ' || coalesce(alt, ''))) stored,
   loaded_at timestamptz not null default now()
 );
+-- since 2026-11-12 (our own place search, supabase/place-search.sql): what a reader of each language sees,
+-- and in English what everything learned about a place is filed under
+alter table public.towns add column if not exists names jsonb; -- its name in our 13 languages, where it differs from the main name
 
 create index if not exists summits_geog_idx on public.summits using gist (geog);
 -- names: GIN for substrings and typos, a sorted one for how a name starts.
@@ -134,25 +137,48 @@ begin
 end
 $$;
 
--- Towns by name or another name of theirs (cities with 5 000+ people).
--- exact: the query is one of its names; prefix: one of its names starts so.
+-- Towns by name or another name of theirs. exact: the query is one of its names; prefix: one of its names
+-- starts so. Two ways into the answer (2026-11-13): the towns one of whose names begins with what was typed,
+-- the biggest first ("wie" offers Wien; before, the forty most alike of over a thousand were taken at random),
+-- and the towns whose names are most like it. A name that is so, or begins so, comes before the look-alikes,
+-- the bigger town first; the API then puts the names in the reader's language first (app/api/places/search).
+do $$ begin
+  if exists (select 1 from pg_proc p where p.oid = to_regprocedure('public.towns_search(text, integer)') and pg_get_function_result(p.oid) not like '%names jsonb%') then
+    drop function public.towns_search(text, integer);
+  end if;
+end $$;
 create or replace function public.towns_search(q text, lim integer default 5)
-returns table (id integer, name text, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
+returns table (id integer, name text, names jsonb, country text, region text, population integer, lat double precision, lon double precision, exact boolean, prefix boolean)
 language sql stable parallel safe
 set search_path = public, extensions, pg_temp
 as $$
-  with hits as (
-    select t.*, public.place_norm(q) as n
-      from public.towns t
-     where public.place_norm(q) <% t.search
-     order by t.search <->> public.place_norm(q)
+  with n as (
+    select v.n, replace(replace(replace(v.n, '\', '\\'), '%', '\%'), '_', '\_') as pattern -- typed text is no wildcard
+      from (select public.place_norm(q) as n) v
+  ),
+  starts as ( -- one of its names begins with what was typed: the biggest towns first
+    select t.id from public.towns t, n
+     where t.search like n.pattern || '%' or t.search like '% | ' || n.pattern || '%'
+     order by t.population desc
      limit 40
+  ),
+  alike as ( -- its names are most like it: a slip of the finger
+    select t.id from public.towns t, n
+     where n.n <% t.search
+     order by t.search <->> n.n
+     limit 40
+  ),
+  hits as (
+    select t.*, n.n,
+           n.n = any(string_to_array(t.search, ' | ')) as exact,
+           exists (select 1 from unnest(string_to_array(t.search, ' | ')) as a(v) where a.v like n.pattern || '%') as prefix
+      from public.towns t, n
+     where t.id in (select s.id from starts s union select a.id from alike a)
   )
-  select h.id, h.name, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry),
-         h.n = any(string_to_array(h.search, ' | ')) as exact,
-         exists (select 1 from unnest(string_to_array(h.search, ' | ')) as a(v) where a.v like h.n || '%') as prefix
+  select h.id, h.name, h.names, h.country, h.region, h.population, st_y(h.geog::geometry), st_x(h.geog::geometry), h.exact, h.prefix
     from hits h
-   order by exact desc, prefix desc, round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
+   order by h.exact desc, h.prefix desc, (case when h.exact or h.prefix then h.population else 0 end) desc,
+            round(word_similarity(h.n, h.search)::numeric, 1) desc, h.population desc
    limit least(greatest(lim, 1), 20)
 $$;
 
@@ -225,18 +251,18 @@ language sql volatile
 set search_path = public, extensions, pg_temp
 as $$
   with r as (
-    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, country text, region text, population integer,
+    select * from jsonb_to_recordset(batch) as x(id integer, name text, alt text, names jsonb, country text, region text, population integer,
                                                  lat double precision, lon double precision)
   ), w as (
-    insert into public.towns as t (id, name, alt, country, region, population, geog, loaded_at)
-    select r.id, r.name, r.alt, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
+    insert into public.towns as t (id, name, alt, names, country, region, population, geog, loaded_at)
+    select r.id, r.name, r.alt, r.names, r.country, r.region, coalesce(r.population, 0), st_makepoint(r.lon, r.lat)::geography, now()
       from r
     on conflict (id) do update
-       set name = excluded.name, alt = excluded.alt, country = excluded.country, region = excluded.region,
+       set name = excluded.name, alt = excluded.alt, names = excluded.names, country = excluded.country, region = excluded.region,
            population = excluded.population, geog = excluded.geog, loaded_at = excluded.loaded_at
-     where (t.name, t.alt, t.country, t.region, t.population, st_asbinary(t.geog))
+     where (t.name, t.alt, t.names, t.country, t.region, t.population, st_asbinary(t.geog))
            is distinct from
-           (excluded.name, excluded.alt, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
+           (excluded.name, excluded.alt, excluded.names, excluded.country, excluded.region, excluded.population, st_asbinary(excluded.geog))
     returning 1
   )
   select count(*)::integer from w

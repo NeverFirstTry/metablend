@@ -17,6 +17,9 @@ test('weather is no change of shape: a warning that is on, an answer from the ca
     // what CI reported, without the option
     assert.deepEqual(shapeDiff(city, live, { ...FORECAST_SHAPE, optional: ['.cached'] }), ['.warning.type is new'])
   }
+  // the place's last full blend, served when every Open-Meteo source failed (2026-11-13), carries kept as well
+  assert.deepEqual(shapeDiff(city, { ...city, kept: '2026-11-13T12:22:00.000Z' }, FORECAST_SHAPE), [])
+  assert.deepEqual(shapeDiff(city, { ...city, kept: '2026-11-13T12:22:00.000Z' }, { ...FORECAST_SHAPE, optional: ['.cached', '.warning.type'] }), ['.kept is new'])
   const summit = recorded('GET /api/hike?')
   assert.deepEqual(shapeDiff(summit, { ...summit, kept: '2026-11-12T20:00:00.000Z' }, SUMMIT_SHAPE), [])
   // a changed API still counts, next to the weather

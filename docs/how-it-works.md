@@ -5,7 +5,8 @@ For the short version, see the [README](../README.md).
 
 ## How it works
 
-1. **Geocode** the city you typed into coordinates.
+1. **Find** the city you typed in our own list of towns (GeoNames places, with their
+   names in our 13 languages) and take its coordinates. No outside geocoder is asked.
 2. **Fan out** to every configured weather API in parallel and grab the current
    conditions (temperature, rain probability, wind, feels-like).
 3. **Blend** them into a weighted average. Each source carries a weight between
@@ -149,7 +150,7 @@ plan's 500 calls a day missed one forecast in six).
 
 | Source | Key needed | Notes |
 | --- | --- | --- |
-| [Open-Meteo](https://open-meteo.com) | no | Also powers geocoding, 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
+| [Open-Meteo](https://open-meteo.com) | no | Also powers 7-day, hourly, UV, air quality & pollen; MET Norway is the 7-day fallback |
 | ECMWF IFS · NOAA GFS · DWD ICON · Météo-France | no | Individual model feeds served via Open-Meteo — genuine model diversity, weighted separately |
 | Canada GEM · JMA · CMA GRAPES · ECMWF AIFS (AI) | no | More global models via Open-Meteo, all in one shared request |
 | CHMI ALADIN · MeteoSwiss ICON-CH · ItaliaMeteo ICON-2I · KNMI / DMI HARMONIE · NOAA NBM | no | Regional models via the same request — they only appear inside their own area |
@@ -182,7 +183,7 @@ most one request a second for the whole app — every server instance takes a
 slot from one row in the database (`supabase/nominatim.sql`,
 `lib/hike/nominatim.js`) — answers cached 30 days, a User-Agent with a contact
 address, OpenStreetMap credited under the results, and no search-as-you-type:
-typing shows featured peaks and the geocoder's mountains; Nominatim is asked
+typing shows featured peaks and our own summits; Nominatim is asked
 only when a search is sent (Enter, or "Search peaks, huts and places").
 `NOMINATIM_URL` points the server at another Nominatim without an app update.
 
@@ -231,8 +232,8 @@ without Europe). A load writes only new or changed rows (a reload doesn't
 double the tables on the 500 MB free tier), deletes by id what the new data
 no longer has — but stops if that's more than a tenth of a table
 (`--allow-shrink` when it's right) — and only then marks the load finished:
-until a first load has finished, the API keeps using Nominatim / Photon / the
-geocoder as before. A failed run is finished by running it again.
+until a first load has finished, the API keeps using Nominatim / Photon as
+before. A failed run is finished by running it again.
 
 `places_bench()` times each query inside the database,
 `places_search_stages('mont')` each step of one name search, `places_size()`

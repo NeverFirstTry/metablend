@@ -461,12 +461,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     suggestTimer.current = setTimeout(async () => {
       const seq = ++suggestSeq.current
       try {
-        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(value)}&count=5&language=${lang}`)
+        const res = await fetch(`/api/places/search?q=${encodeURIComponent(value)}&lang=${lang}&summits=1`) // our own towns and summits: nothing typed goes outside
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
         setShowSuggestions(true)
-      } catch { /* geocoding hiccup while typing — just show nothing */ }
+      } catch { /* a hiccup while typing: just show nothing */ }
     }, 250)
   }
 
@@ -534,7 +534,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       // Reset the auto-refresh clock on every successful load (manual, search,
       // or auto), so the countdown always restarts from a full 15 minutes.
       setNextRefreshAt(Date.now() + AUTO_REFRESH_MS)
-      if (silent) {
+      if (silent && !json.kept) { // a kept blend (every Open-Meteo source failed) is not "updated just now": its age stays
         setJustUpdated(true)
         setTimeout(() => setJustUpdated(false), 2500)
       }
@@ -692,8 +692,10 @@ ${url}`)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // how old the data on screen is (components/RefreshClock.jsx)
-  const generatedAt = outlook?.generatedAt ?? data?.generatedAt
+  // how old the data on screen is (components/RefreshClock.jsx): the blend's own time, the number the
+  // page opens with. Until 2026-11-13 the outlook's stood here, which the CDN keeps up to 2.5 hours:
+  // "updated 104 min ago" over a blend built a minute before.
+  const generatedAt = data?.generatedAt ?? outlook?.generatedAt
   // nothing asked for yet: on the website the landing page takes the search's place (CSS decides, see globals.css)
   const suggestionList = showSuggestions && suggestions.length > 0 && (
     <div className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
@@ -705,7 +707,8 @@ ${url}`)
           onMouseDown={() => { setCity(s.name); setShowSuggestions(false); setTimeout(() => loadForecast(s.name, { near: nearParam(s.latitude, s.longitude) }), 50) }}
         >
           <span>{hans(s.name)}</span>
-          <span className="text-zinc-500 text-xs">{s.admin1 ? `${hans(s.admin1)}, ` : ''}{countryName(s.country_code, lang, hans(s.country))}</span>
+          {/* a summit shows its height first: that is how it differs from a town of a like name */}
+          <span className="text-zinc-500 text-xs tabular-nums">{s.summit ? `${s.elev} m` : `${s.admin1 ? `${hans(s.admin1)}, ` : ''}${countryName(s.country_code, lang, hans(s.country))}`}</span>
         </button>
       ))}
     </div>

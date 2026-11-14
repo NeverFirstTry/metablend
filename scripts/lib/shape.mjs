@@ -8,9 +8,10 @@ const typeOf = v => v === null ? 'null' : Array.isArray(v) ? 'array' : typeof v
 // The two answers the phone layout check asks live (scripts/check-phone-layout.mjs), and what in them comes
 // and goes with the weather, not with the code. City forecast: weights and scores are per source; cached is
 // set on an answer from the route's own cache; warning.type is there only while a warning is on (lib/consensus.js:
-// { active: false } without one, so a rainy day in Vienna must not read as a changed API). Summit forecast:
+// { active: false } without one, so a rainy day in Vienna must not read as a changed API); kept is set on the
+// place's last full blend, served when every Open-Meteo source failed. Summit forecast:
 // kept is set on the last good answer served during an outage (lib/last-answer.js).
-export const FORECAST_SHAPE = { maps: ['.weights', '.recentScores'], optional: ['.cached', '.warning.type'] }
+export const FORECAST_SHAPE = { maps: ['.weights', '.recentScores'], optional: ['.cached', '.warning.type', '.kept'] }
 export const SUMMIT_SHAPE = { optional: ['.kept'] }
 
 function paths(v, maps, p = '', out = new Map()) {

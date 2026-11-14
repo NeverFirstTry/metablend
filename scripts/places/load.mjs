@@ -12,6 +12,7 @@
 //   node scripts/places/load.mjs                               the dev database
 //   node scripts/places/load.mjs --production                  production (asks first)
 //   node scripts/places/load.mjs --production --run=<id>       …with the data a refresh run built (gh run download)
+//   node scripts/places/load.mjs --towns [--production]        the towns alone (scripts/places/build.mjs --towns); summits are not touched
 import { spawnSync } from 'node:child_process'
 import { createReadStream, existsSync, writeFileSync } from 'node:fs'
 import { createInterface } from 'node:readline'
@@ -35,7 +36,7 @@ if (run) {
   }
 }
 
-const TABLES = ['towns', 'summits']
+const TABLES = process.argv.includes('--towns') ? ['towns'] : ['towns', 'summits']
 const file = table => join(DATA, `${table}.ndjson`)
 const lines = async function* (table) {
   for await (const line of createInterface({ input: createReadStream(file(table)) })) if (line) yield JSON.parse(line)
@@ -47,7 +48,7 @@ for (const table of TABLES) {
   try { for await (const _ of lines(table)) sizes[table]++ } catch { fail(`No ${file(table)} — run scripts/places/build.mjs first.`) }
   if (!sizes[table]) fail(`${file(table)} is empty — run scripts/places/build.mjs again.`)
 }
-const what = `load ${sizes.summits} summits and huts and ${sizes.towns} towns from ${DATA} (only new or changed rows are written; rows they lack are deleted)`
+const what = `load ${TABLES.includes('summits') ? `${sizes.summits} summits and huts and ` : ''}${sizes.towns} towns from ${DATA} (only new or changed rows are written; rows they lack are deleted${TABLES.includes('summits') ? '' : '; summits and huts are not touched'})`
 if (production) {
   await confirmProduction(what)
 } else {
@@ -68,7 +69,7 @@ async function rpc(fn, args) {
 
 const SHAPE = {
   summits: r => ({ id: r.id, kind: r.kind, name: r.name, names: r.names, ele: r.ele, notability: r.notability, wikidata: r.wikidata, country: r.country, region: r.region, lat: r.lat, lon: r.lon }),
-  towns: r => ({ id: r.id, name: r.name, alt: r.alt, country: r.country, region: r.region, population: r.population, lat: r.lat, lon: r.lon }),
+  towns: r => ({ id: r.id, name: r.name, alt: r.alt, names: r.names ?? null, country: r.country, region: r.region, population: r.population, lat: r.lat, lon: r.lon }),
 }
 const t0 = Date.now()
 const kept = { summits: new Set(), towns: new Set() }
@@ -87,7 +88,7 @@ for (const table of TABLES) {
 }
 
 // the rows the new data no longer has — unless that's too many
-const gone = {}
+const gone = { summits: [], towns: [] }
 for (const table of TABLES) {
   const current = []
   for (let after = null; ;) {
