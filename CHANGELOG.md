@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Changed: the German caption of store screen 2 (owner 2026-11-14)
+- App Store and Google Play, German screen 2: "Die Woche voraus und wo sich die Quellen einig sind", without the comma before "und" (store/captions.json); the screen is retaken with screens 1 and 2.
+
 ### Changed: on a desktop the consensus card spans the page and shows the 16:9 film (owner 2026-11-14)
 - Website, 64rem (1024 px) and wider: "What is consensus forecasting?" (Was ist eine Konsens-Vorhersage?) is as wide as the other cards, with the 16:9 film across it and the three paragraphs below at a reading width. German readers get the German film, everyone else the English one.
 - The 16:9 web films are back in public/promo (1920 x 1080, 28 seconds, about 1.1 MB each, the files removed on 2026-11-13); a desktop loads only the 16:9 film and poster, a phone or tablet only the square ones, which stay as they were. Muted, plays only while in view, the pause button, and the poster with a play button under reduced motion, as before. The app shows no film.
