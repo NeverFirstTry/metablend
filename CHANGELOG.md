@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: "Mont Blanc" offers the Mont Blanc in every language
+- A German or English reader who typed "Mont Blanc" into the search box was offered hills of that exact name in Quebec and Texas, and not the Mont Blanc. Our table holds it as "Mont Blanc / Monte Bianco" with a French name only, and a summit whose name is letter for letter the text comes first. In French it was already offered.
+- A summit whose name carries two is now called by each of them: "Mont Blanc" and "Monte Bianco" both offer it first, ahead of the hills, by how well known it is.
+- The parts of a summit's main name count too where the reader sees another name: "Sněžka" typed by a German reader offered only Malá Sněžka; it now offers the Schneekoppe (the table's "Śnieżka / Sněžka") first.
+- Only the search box's suggestions change (`/api/places/search`); no database change. The tests read what the dev database answers for "Mont Blanc", "Monte Bianco", "Sněžka" and "Schneekoppe".
+
 ### Fixed: the weighting shadow run keeps its four weeks
 - Nothing changes for visitors. The station comparison log (`station_errors`) is kept 30 days again (owner, 2026-11-14). The cut to 14 days on 2026-11-12 overlooked that the shadow run's final report of 2026-12-05 reads four weeks of it (docs/shadow-run.md): from 2026-11-21 the nightly cleanup would have deleted the run's first days, and the report would have covered two weeks.
 - The 16 more days are about 6,300 rows, about 3 MB (measured 2026-11-14: 3,016 rows in 8 days take 1.5 MB).

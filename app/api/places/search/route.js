@@ -29,7 +29,9 @@ import { looksLike } from '@/lib/places/alike'
 // three at most; else below the towns that fit, two at most, and only for a whole name or five letters and
 // more ("Inn" is on its way to Innsbruck). Never a summit whose name a town carries: for that name the
 // forecast opens the town (lib/geocode.js), and a suggestion must open what it says. A summit shows its
-// height and no region or country: the table's are wrong for some well-known peaks (lib/geocode.js).
+// height, then its region and country as the table files them. A summit whose name carries two ("Mont Blanc /
+// Monte Bianco") is called by each of them (owner, 2026-11-14: in German and English "Mont Blanc" offered
+// hills of that exact name in Quebec and Texas, not the Mont Blanc).
 // Towns do not move: the CDN keeps an answer a day per text and language.
 // GET /api/places/search?q=&lang=[&summits=1]
 
@@ -45,14 +47,19 @@ async function summitsFor(rows, q, lang, belowTowns) {
   const letter = q.trim().toLowerCase()
   // a peak we can tell apart: one with a height. Its country is not asked for: a summit in an area the
   // boundary file marks as disputed has none, and is offered with its name and height (owner, 2026-11-14)
+  // 0: the name is the text, 1: it begins so, 2: one of its words begins so, 3: it holds the text, from
+  // six letters on ("glockner" in Großglockner; "eiger" would bring Hochzeiger), 4: it does not fit
+  const fits = k => (k === typed ? 0 : k.startsWith(typed) ? 1 : (' ' + k).includes(' ' + typed) ? 2 : typed.length >= 6 && k.includes(typed) ? 3 : 4)
   const fit = rows.filter(s => s.kind === 'peak' && s.ele != null).map(s => {
-    const name = s.names?.[lang] ?? s.name, k = peakKey(name)
-    // 0: the name is the text, 1: it begins so, 2: one of its words begins so, 3: it holds the text, from
-    // six letters on ("glockner" in Großglockner; "eiger" would bring Hochzeiger)
-    const how = k === typed ? 0 : k.startsWith(typed) ? 1 : (' ' + k).includes(' ' + typed) ? 2 : typed.length >= 6 && k.includes(typed) ? 3 : 4
+    const name = s.names?.[lang] ?? s.name
+    // what the summit is called: the name this reader sees, each part of a name that carries two ("Mont Blanc /
+    // Monte Bianco" has no German or English name of its own, and hills called just "Mont Blanc" came before
+    // it), and the parts of the table's main name where the reader sees another ("Śnieżka / Sněžka" is
+    // Schneekoppe in German and may still be typed as Sněžka)
+    const called = [...new Set([name, ...name.split(' / '), ...s.name.split(' / ')].map(n => n.trim()))].filter(Boolean)
     // letter for letter the text ("Eiger"): first. "Glöckner" is not that for "Glockner", so there the
     // best known decides, and that is the Großglockner
-    return { s, name, how, same: name.trim().toLowerCase() === letter }
+    return { s, name, how: Math.min(...called.map(n => fits(peakKey(n)))), same: called.some(n => n.toLowerCase() === letter) }
   }).filter(p => p.how < 4 && (!belowTowns || p.how === 0 || typed.length >= 5))
     .sort((a, b) => b.same - a.same || (b.s.notability ?? 0) - (a.s.notability ?? 0) || a.how - b.how || (b.s.ele ?? 0) - (a.s.ele ?? 0))
     .slice(0, 4)
