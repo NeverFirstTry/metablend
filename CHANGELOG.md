@@ -3,7 +3,15 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-15
+
+### Changed: Google Play screens 1 and 2 retaken in all 13 languages
+- They show the forecast page as it is live since 2026-11-14: the search button inside the search field, refresh beside share and embed, Current details above the tabs; German screen 2 carries its caption without the comma. Vienna's forecast from production, taken 15 November in the afternoon (Vienna time). The iPhone set follows from the Mac run.
+
 ## 2026-11-14
+
+### Changed: the German caption of store screen 2 (owner 2026-11-14)
+- App Store and Google Play, German screen 2: "Die Woche voraus und wo sich die Quellen einig sind", without the comma before "und" (store/captions.json); the screen is retaken with screens 1 and 2.
 
 ### Changed: places without an airport are checked against their own weather station
 - The hourly check compared each place's forecasts with airport reports within 60 km. East Tyrol has no airport that near, so Lienz, Sillian and their neighbours were never checked: no "MetaBlend Local" line learned from measurements there, and their readings never reached the weights.
