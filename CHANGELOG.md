@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Changed: places without an airport are checked against their own weather station
+- The hourly check compared each place's forecasts with airport reports within 60 km. East Tyrol has no airport that near, so Lienz, Sillian and their neighbours were never checked: no "MetaBlend Local" line learned from measurements there, and their readings never reached the weights.
+- Where no airport is within 60 km, the town's own official station (GeoSphere Austria, 10-minute readings) is now the truth, when one stands within 3 km of the place (owner, 2026-11-14) and the forecast point lies within 100 m of the station's height (owner, 2026-11-15). Temperature only; a station gives no wind to score. An airport stays the truth wherever there is one.
+- Of the places the comparison log knows, seven qualify: Lienz, Debant, Nußdorf, Heinfels, Großkirchheim, Virgen and Spittal an der Drau. Not Sillianberg (a hamlet 312 m above Sillian's station) and not Dölsach (its point 202 m above Lienz's station). Not Sillian either, for now: its stored point lies on the slope, 180 m above the village and the station in it.
+- Not used farther away: Ainet's nearest station is Lienz's, 9.9 km down the valley, and Matrei's stands 267 m higher in the next valley.
+- The height of a forecast point comes from Open-Meteo's height model, the one its forecasts for the point use: one request per hourly run, only for places that have a station near enough (one weighted call per such place). The station list carries each station's published height.
+- The three texts that say what forecasts are checked against ("How it works", the support answer, the city page) now add "or, in Austria where none is near, the town's official weather station", in all 13 languages (owner, 2026-11-15: so far only Austria has stations in our list).
+- What a reader sees: after three checks the place's source list gains the "MetaBlend Local" line, the blend corrected by its recent miss against the station (0 % of the blend, as everywhere). The headline temperature does not change.
+- From the comparison of 8 to 14 November (201 comparisons in five East Tyrol places): the blend was within 1° of the station in 43 % of them, the blend with this correction in 61 %.
+- One request to GeoSphere per run, as before: the shadow run's request now serves both.
+
 ### Fixed: a summit opened from the search box is no longer scored against a valley
 - Since summits can be opened from the forecast's search box (2026-11-13), their forecasts were kept for scoring like a town's. The hourly check then compared the Wildspitze (3768 m, about −11°) with an airport 55 km away and 3,000 m lower: every source counted as 13° off, and the summit began to learn a "correction" of +13°. After three such checks its source list would have shown a "MetaBlend Local" line several degrees too warm.
 - A summit's forecast is now answered as before but not kept for scoring, and it gets no MetaBlend Local line: nothing we have can check a summit. Towns are unchanged.
