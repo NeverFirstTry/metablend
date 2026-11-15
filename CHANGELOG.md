@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
+### Changed: the source list goes by weight
+- "Sources & who's right now" (website and app, 13 languages): MetaBlend Local stays at the top and its weight cell reads "Local correction" instead of a 0 % bar; it is the correction made from the blend, not a source in it (owner 2026-11-15).
+- The other sources follow by the weight shown, highest first; equal weights in alphabetical order, so the list keeps its order between visits. Visual Crossing, whose values are not shown (licence), sorts by its weight like the rest; a source that did not answer comes last.
+- The order compares the whole percent the reader sees (`sortSources` in lib/sources.js, with a test). No store screenshot shows the list.
+
 ### Changed: places without an airport are checked against their own weather station
 - The hourly check compared each place's forecasts with airport reports within 60 km. East Tyrol has no airport that near, so Lienz, Sillian and their neighbours were never checked: no "MetaBlend Local" line learned from measurements there, and their readings never reached the weights.
 - Where no airport is within 60 km, the town's own official station (GeoSphere Austria, 10-minute readings) is now the truth, when one stands within 3 km of the place (owner, 2026-11-14) and the forecast point lies within 100 m of the station's height (owner, 2026-11-15). Temperature only; a station gives no wind to score. An airport stays the truth wherever there is one.
