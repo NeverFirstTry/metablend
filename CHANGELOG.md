@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
+### Fixed: a planned hike's date in Hike alerts is in the app's language
+- More → Notifications → Hike alerts showed a planned hike's date as "2026-11-16" in every language. It now reads like the app's other dates: "Mo., 16. Nov." in German, "Mon, Nov 16" in English (owner, 2026-11-15). The widgets and the hike alerts themselves already say "Tomorrow" or the weekday.
+
 ### Changed: the outlook's nightly check asks all of the night's airports again
 - Nothing changes for visitors. The nightly check of the 7-day outlook's predictions asked the airports' reports one request at a time with a pause and ran out of its 150 seconds with about half of them unasked: 124 of 254 on 2026-11-15 (48 of 262 and 116 of 252 the nights before). A prediction whose airport was not asked waits a night and runs out unscored after 70 hours: 1,739 ran out that night beside 6,511 scored.
 - It now sends two requests at a time, a new pair no sooner than 2.4 seconds after the last one started, within a budget of 180 seconds (owner, 2026-11-15). That is at most 50 requests a minute, half the service's limit of 100, and room for about 300 airports a night. The whole job stays near 200 of its 300 seconds.

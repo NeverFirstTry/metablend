@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { countryName } from '@/lib/city-names'
+import { formatCalendarDate } from '@/lib/localtime'
 import { useHans } from '@/lib/useHans'
 import { SectionTitle } from '../ui'
 import { pushApi, permission, enablePush, disablePush, promptState, forgetWhenOff } from '@/lib/push-client'
@@ -166,7 +167,7 @@ export default function NotificationSettings({ lang, unit }) {
             <div className={caption}>{t(lang, 'notifHikes')}</div>
             {state.plans.length ? state.plans.map(p => (
               <div key={p.id} className="flex items-center justify-between text-sm">
-                <span>⛰ {p.name} · <span className="tabular-nums">{p.date}</span></span>
+                <span>⛰ {p.name} · {formatCalendarDate(p.date, lang, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                 <button onClick={() => removePlan(p.id)} aria-label={t(lang, 'planRemove')} className="press text-zinc-500 hover:text-red-400"><Trash2 size={15} aria-hidden /></button>
               </div>
             )) : <p className="text-xs text-zinc-400">{t(lang, 'notifNoHikes')}</p>}
