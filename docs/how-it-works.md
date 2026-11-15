@@ -37,8 +37,12 @@ All of these share the exact same scoring math (`lib/scoring.js`):
   when both sides report wind. Where no airport is within 60 km (East Tyrol
   has none), the town's own official station (GeoSphere Austria, 10-minute
   readings) is the ground truth instead, when one stands within 3 km of the
-  place (Lienz, Sillian, Großkirchheim): temperature only. Farther away it is
-  not used: the next station is often in another valley or at another height.
+  place and the forecast point lies within 100 m of the station's height
+  (Lienz, Großkirchheim): temperature only. Farther away, or at another
+  height, it is not used: the next station is often in another valley, and a
+  hamlet on the slope is not its valley station (a degree is about 150 m).
+  The point's height comes from Open-Meteo's height model, one request per
+  run for the places that need it.
   Real measurements, every hour. Gated by
   `CALIBRATE_SECRET` and triggered by a Supabase `pg_cron` job
   (`supabase/cron.sql`) — Vercel sub-daily crons need a Pro plan, and GitHub

@@ -1,4 +1,4 @@
-import { openMeteoFetch } from '@/lib/open-meteo'
+import { openMeteoFetch, countRequest } from '@/lib/open-meteo'
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
@@ -36,6 +36,10 @@ const MAX_OBS_AGE_MIN = 90     // METARs are hourly; skip anything staler
 // when one stands this near (owner, 2026-11-14: Lienz, Sillian, Großkirchheim). Not farther: Ainet's nearest
 // is Lienz's, 9.9 km down the valley, and Matrei's stands 267 m higher in the next valley.
 const STATION_KM = 3
+// And only when the forecast point lies this near the station's height (owner, 2026-11-15): Sillianberg is
+// a hamlet 312 m above Sillian's station, 1.3 km away. A degree is about 150 m of height. Sillian itself
+// falls out as well while its stored point lies on the slope, 180 m above the village and its station.
+const HEIGHT_M = 100
 
 // Fresh METAR observations within RADIUS_KM of the point, nearest first.
 // Returns { temps, winds, km } — temps in °C, winds in km/h (METAR wspd is knots),
@@ -81,6 +85,18 @@ async function stationReadings(cities) {
     await logError('station-readings', e)
     return { near: cities.map(() => null), temps: new Map() }
   }
+}
+
+// The height of each place's forecast point in Open-Meteo's height model (the one its forecasts for the
+// point use): one request for all of them, counted with the shadow run's. [] when it does not answer:
+// without a height a place is not checked against its station.
+async function pointHeights(places) {
+  if (!places.length) return []
+  const url = `https://api.open-meteo.com/v1/elevation?latitude=${places.map(p => p.lat).join(',')}&longitude=${places.map(p => p.lon).join(',')}`
+  void countRequest(url, { kind: 'shadow' })
+  const res = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+  const body = res?.ok ? await res.json().catch(() => null) : null
+  return Array.isArray(body?.elevation) ? body.elevation : []
 }
 
 // Formula shadow run (supabase/station-errors.sql): every source's raw error, also where
@@ -153,10 +169,15 @@ export const GET = withErrorLog('station-calibrate', withJobLog('station-calibra
   // rows, and concurrent read-modify-writes would drop deltas.
   const [observations, town] = await Promise.all([Promise.all(cities.map(c => metarObs(c.lat, c.lon))), stationReadings(cities)])
 
+  // The places whose own station may stand in: no airport near, the station within STATION_KM and with a
+  // reading. Then the height of each one's forecast point against its station's (HEIGHT_M).
+  const own = cities.flatMap((c, i) => (!observations[i].temps.length && town.near[i]?.km <= STATION_KM && typeof town.temps.get(town.near[i].id) === 'number' ? [i] : []))
+  const heights = await pointHeights(own.map(i => cities[i]))
+  const stationOf = new Map(own.flatMap((i, n) => (Math.abs(heights[n] - town.near[i].alt) <= HEIGHT_M ? [[i, town.temps.get(town.near[i].id)]] : [])))
+
   for (const [i, { city, lat, lon, region }] of cities.entries()) {
     const { temps, winds } = observations[i]
-    // no airport near: the town's own station, when it is near enough and has a reading (STATION_KM)
-    const station = !temps.length && town.near[i]?.km <= STATION_KM ? town.temps.get(town.near[i].id) : undefined
+    const station = stationOf.get(i)
     if (!temps.length && typeof station !== 'number') { results.push({ city, skipped: `no fresh METAR within ${RADIUS_KM}km` }); continue }
     const actualTemp = temps.length ? median(temps) : station
     const actualWind = winds.length ? median(winds) : null
