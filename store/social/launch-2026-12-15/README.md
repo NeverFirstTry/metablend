@@ -2,9 +2,11 @@
 
 Instagram carousel (5 slides, 1080 × 1350, German and English) and captions for the launch. Rene posts it on launch day. Nothing here goes to the website.
 
+The main post is the English carousel, maybe with a German post as well, so both carousels are kept ready (owner, 2026-11-15).
+
 ## Rene: the slide 4 screenshots
 
-Slide 4 ("Alerts and widgets") needs two screenshots from your phone per language. Alerts and widgets exist only in the app, so the website can't show them.
+Slide 4 ("Alerts and widgets") needs two screenshots from your phone per language. **Please push all four before 28 November**, when the slides are rendered (both carousels stay ready). Alerts and widgets exist only in the app, so the website can't show them.
 
 Put them in this folder, under exactly these names:
 
@@ -17,7 +19,6 @@ Put them in this folder, under exactly these names:
 
 - Use an iPhone or an Android phone in dark mode, with the screenshot taken in full and not cropped. Both phones save screenshots as PNG, so keep the file as it is and only rename it.
 - Use Lienz or another place in Osttirol in the widgets.
-- If only one language is posted, that language's two files are enough.
 - Commit and push them to this branch:
 
 ```
@@ -38,13 +39,13 @@ node scripts/brand/launch-screens.mjs
 node scripts/brand/launch-slides.mjs
 ```
 
-- Slide 1 is the forecast for Lienz. Slide 3 is Hochstein, or Spitzkofel if Hochstein has no favourable window that day (owner, 2026-11-15). Both are real production screens.
-- The slides go to `slides/<lang>-<n>.png`. Slide 4 uses Rene's files once they are in `rene/` and shows dashed placeholders until then.
+- Slide 1 is the forecast for Lienz. Slide 3 is Hochstein, or Spitzkofel if Hochstein has no favourable window that day (owner, 2026-11-15). Both are real production screens. They stay for the English post too.
+- The slides go to `slides/<lang>-<n>.png`, both languages. Slide 4 uses Rene's four files from `rene/` (due before 28 November) and shows dashed placeholders for any that is missing.
 - The words are the store listing's own (`fastlane/metadata`). Gold appears only in the wordmark, and the stores' badges are unaltered.
 
 ## Captions
 
-English:
+Main post, English first and then one short German line (owner, 2026-11-15):
 
 ```
 MetaBlend is out today.
@@ -54,9 +55,11 @@ One forecast from up to 20 weather sources, and how much they agree. Sources tha
 Summit forecasts worldwide, alerts and widgets. No account, no ads, free. In 13 languages.
 
 On the App Store and Google Play, and at metablend.app
+
+MetaBlend ist ab heute da, auch auf Deutsch.
 ```
 
-Deutsch:
+German post, if one goes up as well:
 
 ```
 MetaBlend ist ab heute da.
