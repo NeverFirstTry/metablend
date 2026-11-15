@@ -9,7 +9,9 @@ name: Places refresh (dev)
 # Each region streams in a job of its own, three at a time: Geofabrik gave
 # anywhere from 5 to 68 MB/s on the first run (3 h 28 min, all regions in one
 # job) — at the slow end one job would pass GitHub's 6 h limit; one region
-# per job never comes near it, and the whole run takes about as long as Europe.
+# per job never comes near it, and the extracts take about as long as Europe.
+# A summit's country comes from OpenStreetMap's country boundaries: the build job downloads their
+# outlines from a published file (scripts/places/boundaries.py, about 90 MB, no query service).
 # Production is NOT touched here — its keys are never in GitHub. On the
 # owner's PC, one command loads a run's data:
 #   node scripts/places/load.mjs --production --run=<run id>
@@ -101,6 +103,15 @@ jobs:
           pattern: osm-*
           merge-multiple: true
           path: data/places/osm
+      - uses: actions/setup-python@v7
+        if: env.FROM_RUN == ''
+        with:
+          python-version: '3.12'
+      - name: The countries' outlines (OpenStreetMap's boundaries, from the newest Overture release)
+        if: env.FROM_RUN == ''
+        run: |
+          pip install duckdb==2.0.0
+          python scripts/places/boundaries.py
       - name: Build (GeoNames towns + rows)
         if: env.FROM_RUN == ''
         run: |

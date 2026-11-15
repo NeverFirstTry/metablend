@@ -69,6 +69,7 @@ Weather and map data come from these providers, under their own licences. The sa
 * [OurAirports](https://ourairports.com) (public domain): airport and runway data on the Aviation pages
 * © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL): maps, routes, and the summits and huts in the hiking search (how our copy of them is made: [scripts/places](scripts/places))
 * Map data: © OpenStreetMap contributors, SRTM | Map style: © [OpenTopoMap](https://opentopomap.org) (CC-BY-SA): route maps in the app
+* © OpenStreetMap contributors, [Overture Maps Foundation](https://docs.overturemaps.org/attribution/) (ODbL): the country boundaries by which each summit and hut is given its country
 * [GeoNames](https://www.geonames.org/) (CC BY 4.0): towns for the hiking search (summits and huts around a town)
 
 Weather data remains the property of its respective providers and is used under their licences.
