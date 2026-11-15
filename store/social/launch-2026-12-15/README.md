@@ -56,7 +56,7 @@ Summit forecasts worldwide, alerts and widgets. No account, no ads, free. In 13 
 
 On the App Store and Google Play, and at metablend.app
 
-MetaBlend ist ab heute da, auch auf Deutsch.
+Made in Lienz, Osttirol. Ab heute da, auch auf Deutsch.
 ```
 
 German post, if one goes up as well:
