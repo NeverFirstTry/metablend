@@ -5,14 +5,6 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
-### Changed: Google Play screens 1 and 2 retaken in all 13 languages
-- They show the forecast page as it is live since 2026-11-14: the search button inside the search field, refresh beside share and embed, Current details above the tabs; German screen 2 carries its caption without the comma. Vienna's forecast from production, taken 15 November in the afternoon (Vienna time). The iPhone set follows from the Mac run.
-
-## 2026-11-14
-
-### Changed: the German caption of store screen 2 (owner 2026-11-14)
-- App Store and Google Play, German screen 2: "Die Woche voraus und wo sich die Quellen einig sind", without the comma before "und" (store/captions.json); the screen is retaken with screens 1 and 2.
-
 ### Changed: places without an airport are checked against their own weather station
 - The hourly check compared each place's forecasts with airport reports within 60 km. East Tyrol has no airport that near, so Lienz, Sillian and their neighbours were never checked: no "MetaBlend Local" line learned from measurements there, and their readings never reached the weights.
 - Where no airport is within 60 km, the town's own official station (GeoSphere Austria, 10-minute readings) is now the truth, when one stands within 3 km of the place (owner, 2026-11-14) and the forecast point lies within 100 m of the station's height (owner, 2026-11-15). Temperature only; a station gives no wind to score. An airport stays the truth wherever there is one.
@@ -28,6 +20,14 @@ All notable changes to MetaBlend. Format loosely follows
 - Since summits can be opened from the forecast's search box (2026-11-13), their forecasts were kept for scoring like a town's. The hourly check then compared the Wildspitze (3768 m, about −11°) with an airport 55 km away and 3,000 m lower: every source counted as 13° off, and the summit began to learn a "correction" of +13°. After three such checks its source list would have shown a "MetaBlend Local" line several degrees too warm.
 - A summit's forecast is now answered as before but not kept for scoring, and it gets no MetaBlend Local line: nothing we have can check a summit. Towns are unchanged.
 - Found on production: one correction row with one sample ("Wildspitze 3768 m, Tyrol"), never shown (a line needs three). The owner removes it by SQL.
+
+### Changed: Google Play screens 1 and 2 retaken in all 13 languages
+- They show the forecast page as it is live since 2026-11-14: the search button inside the search field, refresh beside share and embed, Current details above the tabs; German screen 2 carries its caption without the comma. Vienna's forecast from production, taken 15 November in the afternoon (Vienna time). The iPhone set follows from the Mac run.
+
+## 2026-11-14
+
+### Changed: the German caption of store screen 2 (owner 2026-11-14)
+- App Store and Google Play, German screen 2: "Die Woche voraus und wo sich die Quellen einig sind", without the comma before "und" (store/captions.json); the screen is retaken with screens 1 and 2.
 
 ### Fixed: "Mont Blanc" offers the Mont Blanc in every language
 - A German or English reader who typed "Mont Blanc" into the search box was offered hills of that exact name in Quebec and Texas, and not the Mont Blanc. Our table holds it as "Mont Blanc / Monte Bianco" with a French name only, and a summit whose name is letter for letter the text comes first. In French it was already offered.
