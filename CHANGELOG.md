@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-14
 
+### Fixed: a summit opened from the search box is no longer scored against a valley
+- Since summits can be opened from the forecast's search box (2026-11-13), their forecasts were kept for scoring like a town's. The hourly check then compared the Wildspitze (3768 m, about −11°) with an airport 55 km away and 3,000 m lower: every source counted as 13° off, and the summit began to learn a "correction" of +13°. After three such checks its source list would have shown a "MetaBlend Local" line several degrees too warm.
+- A summit's forecast is now answered as before but not kept for scoring, and it gets no MetaBlend Local line: nothing we have can check a summit. Towns are unchanged.
+- Found on production: one correction row with one sample ("Wildspitze 3768 m, Tyrol"), never shown (a line needs three). The owner removes it by SQL.
+
 ### Fixed: "Mont Blanc" offers the Mont Blanc in every language
 - A German or English reader who typed "Mont Blanc" into the search box was offered hills of that exact name in Quebec and Texas, and not the Mont Blanc. Our table holds it as "Mont Blanc / Monte Bianco" with a French name only, and a summit whose name is letter for letter the text comes first. In French it was already offered.
 - A summit whose name carries two is now called by each of them: "Mont Blanc" and "Monte Bianco" both offer it first, ahead of the hills, by how well known it is.
