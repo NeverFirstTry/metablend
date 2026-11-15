@@ -178,6 +178,12 @@ plan's 500 calls a day missed one forecast in six).
 | [Meteostat](https://meteostat.net) (via RapidAPI) | yes | Nightly historical validation only |
 | [Aviation METARs](https://aviationweather.gov) (NOAA AWC) | no | Ground truth for hourly station calibration; also powers the `/aviation` METAR/TAF pages |
 
+Town positions are checked against OpenStreetMap's place nodes with heights from the
+[Copernicus DEM](https://registry.opendata.aws/copernicus-dem/) (GLO-90 tiles, read from disk; no heights
+are published). The source's notice: produced using Copernicus WorldDEM-90 © DLR e.V. 2010-2014 and
+© Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all
+rights reserved.
+
 Airport and runway data for the Aviation pages comes from
 [OurAirports](https://ourairports.com) (public domain), trimmed to
 ICAO-coded fields at build time (`lib/airports.json`).
