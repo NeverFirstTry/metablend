@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-15
+
+### Changed: the source list goes by weight
+- "Sources & who's right now" (website and app, 13 languages): MetaBlend Local stays at the top and its weight cell reads "Local correction" instead of a 0 % bar; it is the correction made from the blend, not a source in it (owner 2026-11-15).
+- The other sources follow by the weight shown, highest first; equal weights in alphabetical order, so the list keeps its order between visits. Visual Crossing, whose values are not shown (licence), sorts by its weight like the rest; a source that did not answer comes last.
+- The order compares the whole percent the reader sees (`sortSources` in lib/sources.js, with a test). No store screenshot shows the list.
+
 ## 2026-11-14
 
 ### Fixed: "Mont Blanc" offers the Mont Blanc in every language
