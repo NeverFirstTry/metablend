@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
+### Added: the launch post for 15 December (not on the website)
+- Instagram carousel, 5 slides of 1080 × 1350 in German and English, and the two captions, in `store/social/launch-2026-12-15/` (owner 2026-11-15; Rene posts it on launch day). The words are the store listing's own, the screens are real production screens, and gold appears only in the wordmark.
+- `scripts/brand/launch-screens.mjs` takes the screens from production (Lienz, and Hochstein or else Spitzkofel with a favourable summit window). `scripts/brand/launch-slides.mjs` renders the slides. Slide 4 takes Rene's alert and widget screenshots from `rene/` (names in the folder's README). The retake is on 28 November with the final store run.
+
 ### Changed: the source list goes by weight
 - "Sources & who's right now" (website and app, 13 languages): MetaBlend Local stays at the top and its weight cell reads "Local correction" instead of a 0 % bar; it is the correction made from the blend, not a source in it (owner 2026-11-15).
 - The other sources follow by the weight shown, highest first; equal weights in alphabetical order, so the list keeps its order between visits. Visual Crossing, whose values are not shown (licence), sorts by its weight like the rest; a source that did not answer comes last.
