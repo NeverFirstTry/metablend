@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
+### Changed: the outlook's nightly check asks all of the night's airports again
+- Nothing changes for visitors. The nightly check of the 7-day outlook's predictions asked the airports' reports one request at a time with a pause and ran out of its 150 seconds with about half of them unasked: 124 of 254 on 2026-11-15 (48 of 262 and 116 of 252 the nights before). A prediction whose airport was not asked waits a night and runs out unscored after 70 hours: 1,739 ran out that night beside 6,511 scored.
+- It now sends two requests at a time, a new pair no sooner than 2.4 seconds after the last one started, within a budget of 180 seconds (owner, 2026-11-15). That is at most 50 requests a minute, half the service's limit of 100, and room for about 300 airports a night. The whole job stays near 200 of its 300 seconds.
+
 ### Changed: the source list goes by weight
 - "Sources & who's right now" (website and app, 13 languages): MetaBlend Local stays at the top and its weight cell reads "Local correction" instead of a 0 % bar; it is the correction made from the blend, not a source in it (owner 2026-11-15).
 - The other sources follow by the weight shown, highest first; equal weights in alphabetical order, so the list keeps its order between visits. Visual Crossing, whose values are not shown (licence), sorts by its weight like the rest; a source that did not answer comes last.
