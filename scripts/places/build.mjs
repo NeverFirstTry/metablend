@@ -18,7 +18,7 @@ import { createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync
 import { finished } from 'node:stream/promises'
 import { createInterface } from 'node:readline'
 import { join } from 'node:path'
-import { osmRow, townRow, townIndex, summitPlace, featuredCountries, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
+import { correctedPoint, osmRow, townRow, townIndex, summitPlace, featuredCountries, keepSummit, keepLean, LEAN, townAltNames, townNames, countryLanguages, SMALL_TOWN_COUNTRIES, EVERY_PLACE_COUNTRIES, isPlace } from '../../lib/places/rows.js'
 import { missingRegions, areasProblem, outlinesAgeDays } from '../../lib/places/plan.js'
 import { countryLookup } from '../../lib/places/areas.js'
 
@@ -76,7 +76,9 @@ for (const cc of EVERY_PLACE_COUNTRIES) unzip(`${cc}.zip`, `${cc}.txt`)
 // a region: its code (AT.07), its English name as the towns carry it, and its GeoNames id for its other names
 const regions = readFileSync(join(DIR, 'admin1CodesASCII.txt'), 'utf8').split('\n').filter(Boolean).map(l => l.split('\t')).map(([code, name, , id]) => ({ code, name, id }))
 const admin1 = Object.fromEntries(regions.map(r => [r.code, r.name]))
-const rowsOf = (file, keep = () => true) => readFileSync(join(DIR, file), 'utf8').split('\n').filter(l => l && keep(l)).map(l => townRow(l, admin1)).filter(Boolean)
+// towns whose GeoNames point lies off the place: the listed point instead (lib/places/rows.js correctedPoint)
+const POINTS = new Map(JSON.parse(readFileSync(join('lib', 'places', 'town-points.json'), 'utf8')).map(p => [p.id, p]))
+const rowsOf = (file, keep = () => true) => readFileSync(join(DIR, file), 'utf8').split('\n').filter(l => l && keep(l)).map(l => townRow(l, admin1)).filter(Boolean).map(r => correctedPoint(r, POINTS))
 const big = rowsOf('cities5000.txt'), have = new Set(big.map(t => t.id))
 const add = rows => rows.filter(t => !have.has(t.id) && have.add(t.id)) // each place once, from the first file that has it
 const small = add(rowsOf('cities500.txt').filter(t => SMALL_TOWN_COUNTRIES.includes(t.country)))

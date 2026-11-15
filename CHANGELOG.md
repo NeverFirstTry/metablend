@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-15
 
+### Fixed: a planned hike's date in Hike alerts is in the app's language
+- More → Notifications → Hike alerts showed a planned hike's date as "2026-11-16" in every language. It now reads like the app's other dates: "Mo., 16. Nov." in German, "Mon, Nov 16" in English (owner, 2026-11-15). The widgets and the hike alerts themselves already say "Tomorrow" or the weekday.
+
+### Fixed: towns whose stored point lies off the place (East Tyrol first)
+- Sillian's point in our towns list lay on the slope, 654 m from the village and 178 m above it. Every source that works from the height of the point it is asked for then forecasts about a degree too cold, for every visitor. The point comes from GeoNames, which rounds many coordinates of small places.
+- Each East Tyrol town was held against OpenStreetMap's place node of the same name (Austria extract of 2026-11-15) and against the height at both points, read from Copernicus height tiles on disk (GLO-90; no service is asked). 90 of the district's 367 places have their stored point more than 100 m above or below their place node, the two at most 3 km apart: Sillian +132 m, Dölsach +149 m, most of them hamlets on the slopes (up to +758 m). They are on a list of corrected points (`lib/places/town-points.json`) and take the node's position. Six more whose node of that name lies over 3 km away are left out, and two whose node is nearer to another entry of ours.
+- All of Austria, for the record: of 20,906 places 17,596 have a place node of the same name within 10 km; 1,290 have their stored point more than 100 m above or below it (517 more than 200 m), 16 of them with 1,000 people or more. Whether the build should take the node's position for every town is decided after launch (owner).
+- The places build applies the list (owner, 2026-11-15), so the half-yearly refresh keeps the corrected points. The database rows are changed by the owner's SQL.
+
 ### Changed: the outlook's nightly check asks all of the night's airports again
 - Nothing changes for visitors. The nightly check of the 7-day outlook's predictions asked the airports' reports one request at a time with a pause and ran out of its 150 seconds with about half of them unasked: 124 of 254 on 2026-11-15 (48 of 262 and 116 of 252 the nights before). A prediction whose airport was not asked waits a night and runs out unscored after 70 hours: 1,739 ran out that night beside 6,511 scored.
 - It now sends two requests at a time, a new pair no sooner than 2.4 seconds after the last one started, within a budget of 180 seconds (owner, 2026-11-15). That is at most 50 requests a minute, half the service's limit of 100, and room for about 300 airports a night. The whole job stays near 200 of its 300 seconds.
