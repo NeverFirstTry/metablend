@@ -6,7 +6,8 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-15
 
 ### Added: the launch post for 15 December (not on the website)
-- Instagram carousel, 5 slides of 1080 × 1350 in German and English, and the captions, in `store/social/launch-2026-12-15/` (owner 2026-11-15; Rene posts it on launch day). The main post is English, its caption ends with one German line; the German carousel and caption stay ready for a second post. The words are the store listing's own, the screens are real production screens, and gold appears only in the wordmark.
+- Instagram carousel, 5 slides of 1080 × 1350 in German and English, and the captions, in `store/social/launch-2026-12-15/` (owner 2026-11-15; Rene posts it on launch day). The main post is English, its caption ends with one German line; the German carousel and caption stay ready for a second post.
+- Slide 4 shows Rene's alert and widget screens from the app, the alert screen from its "Notifications" heading down. The words are the store listing's own, the screens are real production screens, and gold appears only in the wordmark.
 - `scripts/brand/launch-screens.mjs` takes the screens from production (Lienz, and Hochstein or else Spitzkofel with a favourable summit window). `scripts/brand/launch-slides.mjs` renders the slides. Slide 4 takes Rene's alert and widget screenshots from `rene/` (names in the folder's README). The retake is on 28 November with the final store run.
 
 ### Changed: the source list goes by weight

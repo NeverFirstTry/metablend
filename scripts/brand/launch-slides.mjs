@@ -2,7 +2,8 @@
 // 5 slides of 1080 x 1350 per language (de, en) into store/social/launch-2026-12-15/slides/<lang>-<n>.png.
 //   1 what MetaBlend does (screens/forecast-<lang>.png), 2 the consensus idea (the promo film's last frame, its own heading
 //   cut off), 3 summit forecasts (screens/summit-<lang>.png), 4 alerts and widgets (rene/alerts-<lang>.png and
-//   rene/widgets-<lang>.png from Rene's phone; dashed placeholders until they are there), 5 the stores' own badges, unaltered.
+//   rene/widgets-<lang>.png from Rene's phone, the alerts cut to start at the "Notifications" heading; dashed placeholders
+//   until they are there), 5 the stores' own badges, unaltered. ONLY=4 renders just that slide (ONLY=1,4 several).
 //   The screens come from scripts/brand/launch-screens.mjs. The words are the store listing's own (fastlane/metadata).
 //   The store frames' look: solid Slate with the day glow, Hanken Grotesk 800, gold only in the wordmark.
 import path from 'node:path'
@@ -19,6 +20,17 @@ const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Applicat
 fs.mkdirSync(OUT, { recursive: true })
 const b64 = (f, type) => `data:${type};base64,${fs.readFileSync(f).toString('base64')}`
 const png = f => b64(f, 'image/png')
+// Rene's alerts shots (1320 x 2868) start at the "Notifications" heading: the rows above are the theme thumbnails behind the
+// status bar (owner 2026-11-15). shortcut: a fixed row for this layout; a retake with another phone or layout trips the check.
+const ALERTS_TOP = 312
+const alertsCrop = async f => {
+  const img = sharp(f), { width, height } = await img.metadata()
+  const { data } = await sharp(f).extract({ left: 0, top: ALERTS_TOP + 20, width, height: 100 }).removeAlpha().raw().toBuffer({ resolveWithObject: true })
+  let gold = 0
+  for (let i = 0; i < data.length; i += 3) if (data[i] > 190 && data[i + 1] > 150 && data[i + 2] < 140 && data[i] - data[i + 2] > 70) gold++
+  if (gold < 200) throw new Error(`${path.basename(f)}: no gold heading just below row ${ALERTS_TOP}; check ALERTS_TOP`)
+  return `data:image/png;base64,${(await img.extract({ left: 0, top: ALERTS_TOP, width, height: height - ALERTS_TOP }).png().toBuffer()).toString('base64')}`
+}
 // the film's last frame without its own heading (the slide's heading takes its place)
 const poster = async lang => `data:image/png;base64,${(await sharp(path.join(ROOT, `public/promo/metablend-1x1-${lang}-poster.webp`)).extract({ left: 0, top: 230, width: 1080, height: 850 }).png().toBuffer()).toString('base64')}`
 
@@ -66,12 +78,12 @@ const html = async (lang, n) => {
   if (n === 1) return page(head, sub, `<img style="position:absolute;left:0;bottom:0;width:1080px;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 220px);mask-image:linear-gradient(to bottom,transparent 0,#000 220px)" src="${await poster(lang)}">`)
   if (n === 2) return page(head, sub, `<img class="phone" style="top:600px" src="${scr('summit')}">`)
   if (n === 3) {
-    const cells = ['alerts', 'widgets'].map((k, i) => {
+    const cells = await Promise.all(['alerts', 'widgets'].map(async (k, i) => {
       const f = path.join(DIR, 'rene', `${k}-${lang}.png`)
-      if (fs.existsSync(f)) return `<img src="${png(f)}" alt="">`
+      if (fs.existsSync(f)) return `<img src="${k === 'alerts' ? await alertsCrop(f) : png(f)}" alt="">`
       missing.push(path.relative(ROOT, f).replace(/\\/g, '/'))
       return `<div class="hold">${HOLD[lang][i]}</div>`
-    })
+    }))
     return page(head, sub, `<div class="pair">${cells.join('')}</div>`)
   }
   const badge = (f, type) => b64(path.join(ROOT, 'public/badges', f), type)
@@ -90,7 +102,8 @@ const ev = async x => (await send('Runtime.evaluate', { expression: x, awaitProm
 try {
   await send('Page.enable'); await send('Runtime.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1080, height: 1350, deviceScaleFactor: 1, mobile: false })
-  for (const lang of ['en', 'de']) for (let n = 0; n < 5; n++) {
+  const only = (process.env.ONLY ?? '1,2,3,4,5').split(',').map(x => Number(x) - 1)
+  for (const lang of ['en', 'de']) for (const n of only) {
     await send('Page.navigate', { url: 'about:blank' }); await sleep(150)
     const { result } = await send('Page.getFrameTree')
     await send('Page.setDocumentContent', { frameId: result.frameTree.frame.id, html: await html(lang, n) })
