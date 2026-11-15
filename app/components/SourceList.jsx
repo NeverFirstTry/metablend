@@ -2,6 +2,7 @@ import { t } from '@/lib/i18n'
 import { tempFormatter } from '@/lib/outlook/text'
 import { sourceDeviation } from '@/lib/spread'
 import { blendShares } from '@/lib/consensus'
+import { sortSources } from '@/lib/sources'
 
 // Every source as one row on the website: its reading, how far it sits from
 // the blend, and how much it counts. Text stays neutral; gold is for the weight
@@ -11,14 +12,13 @@ import { blendShares } from '@/lib/consensus'
 // from the blend and has no share of it. The bars are drawn against the largest share.
 // A name may break where a capital starts a new part (OpenWeather|Map), only when the column runs out of room:
 // one long name set the table's narrowest width and pushed the weight column off a 320 px screen.
-const breakable = name => name.replace(/([a-z])([A-Z])/g, '$1\n$2').split('\n').flatMap((part, i) => (i ? [<wbr key={i} />, part] : [part]))
+const breakable = name =>name.replace(/([a-z])([A-Z])/g, '$1\n$2').split('\n').flatMap((part, i) => (i ? [<wbr key={i} />, part] : [part]))
 
 export default function SourceList({ data, unit, lang }) {
   const deg = c => tempFormatter(unit)(c).replace('-', '−')
   const shares = blendShares(data.sources, data.weights)
   const weightOf = src => shares[src.apiId] ?? 0
-  // house model first: the API appends it last
-  const rows = [...data.sources].sort((a, b) => (b.apiId === 'metablend') - (a.apiId === 'metablend'))
+  const rows = sortSources(data.sources, weightOf)
   const most = Math.max(...rows.filter(s => !s.down).map(weightOf)) || 1
   return (
     <div className="source-list">
@@ -43,7 +43,10 @@ export default function SourceList({ data, unit, lang }) {
               )
             }
             const weight = weightOf(src)
-            const bar = (
+            // MetaBlend Local is the correction made from the blend, not a source in it: no bar, no share
+            const bar = src.apiId === 'metablend' ? (
+              <td className="py-2.5 pl-2 sm:pl-3 text-xs text-zinc-400">{t(lang, 'localCorrection')}</td>
+            ) : (
               <td className="py-2.5 pl-2 sm:pl-3">
                 <div className="source-weight flex items-center gap-2">
                   <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
