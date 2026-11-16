@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added: the spec for the widgets' new look (nothing changes in the app yet)
 - The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
+- The spec also lists every widget text in all 13 languages (the widgets' messages and Android's widget settings speak 5 today) and drops the dash from the offline message.
 
 ## 2026-11-15
 

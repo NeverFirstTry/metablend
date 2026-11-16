@@ -12,7 +12,8 @@ Spec for the native build (iOS WidgetKit and Android RemoteViews). The owner app
 2. **Three themes on top:** Mono, Winter and Sky. A widget takes one of them when that icon is the app icon chosen under More. The other 8 icons keep the default.
 3. **The hike widget's layout is fixed:** everything is aligned to the top (Trello card "Neuer nativer Build", comment of 15 November).
 4. **Icons:** the emoji become the website's drawn icons in the theme's colours.
-5. **No style setting before launch:** the current "Style" option (Living sky / System) is removed on both platforms. A per-widget "Theme" choice comes after launch (section 10). It is not part of this build.
+5. **No style setting before launch:** the current "Style" option (Living sky / System) is removed on both platforms. A per-widget "Theme" choice comes after launch (section 11). It is not part of this build.
+6. **All 13 languages:** every widget text the app shows, including the settings screen on Android and the messages, ships in the app's 13 languages (section 10). Two tables cover only 5 today.
 
 **Order:** first the server and web part (section 9) goes out with a website deploy. Then the native build ships. Older app builds ignore the new fields.
 
@@ -240,12 +241,13 @@ Not drawn. It keeps today's structure: the header, the next 6 hours, then the ne
   - City medium: in place of the rain and wind row.
   - Hike medium: at the end of the left column.
   - More than 3 hours old: the content at 55 % opacity, as now.
-- **Message** (no settings yet, no city, no hike planned, offline): the text centred, 13 muted, on the theme's background with its scenery. The messages are as now, with one fix: the offline message has a dash in all five languages ("No connection — tap to open MetaBlend", "Keine Verbindung – tippen, um MetaBlend zu öffnen"). UI text has no dashes, so it becomes two sentences: "No connection. Tap to open MetaBlend." / "Keine Verbindung. Tippen, um MetaBlend zu öffnen." Make the same change in fr, es and it, in `Texts` (iOS) and `WidgetText.java` (Android). Remove the Android keys `style`, `sky` and `system` along with the Style option.
+- **Message** (no settings yet, no city, no hike planned, offline): the text centred, 13 muted, on the theme's background with its scenery. The texts are in section 10, in all 13 languages. The offline message loses its dash: "No connection. Tap to open MetaBlend."
 
 ## 7. iOS notes
 
-- **Remove before launch:** `WidgetStyle`, the `style` parameters in `WeatherConfig` and `HikeConfig`, `SkyBackground`, and `palette(sky:mode:)`. Add a `WidgetTheme` resolver from the settings' `theme` and the colour scheme (sections 1 and 2).
-- **Read the theme:** `WidgetSettings` gets `let theme: String?`. Absent or unknown means Default.
+- **Remove before launch:** `WidgetStyle`, the `style` parameters in `WeatherConfig` and `HikeConfig`, `SkyBackground`, `palette(sky:mode:)`, and the catalog entries "Style", "Living sky" and "System" in `Localizable.xcstrings`.
+- **Texts:** `Texts` in `MetaBlendWidgets.swift` gets all 13 languages from section 10.
+- **Read the theme:** `WidgetSettings` gets `let theme: String?`. Absent or unknown means Default. Add a `WidgetTheme` resolver from that `theme` and the colour scheme (sections 1 and 2).
 - **Accented rendering mode** (tinted and clear home screens):
   - The system removes the background. Draw no sheen, specks, snow band, peak or clouds there.
   - Mark the big temperature and the summit window `.widgetAccentable()`.
@@ -255,6 +257,7 @@ Not drawn. It keeps today's structure: the header, the next 6 hours, then the ne
 
 ## 8. Android notes
 
+- **Texts:** `WidgetText.java` gets all 13 languages from section 10, without the keys `style`, `sky` and `system`.
 - **Remove before launch:**
   - the "Style" radio group in `WidgetConfigActivity` and the `style` key in `WidgetStore`;
   - the `sky` `ImageView` and `gradient()` in `WidgetRenderer`;
@@ -282,19 +285,97 @@ These are web changes in this repository. They go out with a website deploy befo
 4. **`lib/app-widget-client.js`, `syncWidgets`:** read the icon with `currentIcon()` (`lib/app-icon.js`) and pass `icon?.name`.
 5. **`app/components/AppIconPicker.jsx`:** after a successful `setIcon`, call `syncWidgets()`. The bridges already reload every widget on sync: iOS `WidgetCenter.shared.reloadAllTimelines()`, Android `WidgetBridgePlugin.sync`.
 
-## 10. After launch: a theme per widget (not in this build)
+## 10. Widget texts in all 13 languages
+
+The app speaks 13 languages; two tables in the widget code cover only 5 today (en, de, fr, es, it). This build ships all 13:
+- **iOS:** `Texts` in `MetaBlendWidgets.swift` holds "Home city" and the four messages.
+- **Android:** `WidgetText.java` holds the settings screen and the same four messages.
+
+Both pick the row by the `lang` the app syncs, which uses the app's codes `en de fr es it nl pl cs sl pt ja zh ko`; Edit Widget on iPhone uses the phone's language. The wording reuses the app's own words where the app has them:
+- "Home city": `notifHome`;
+- the theme names: `appIconMono`, `appIconWinter`, `appIconSky`;
+- City, Show, Next hours and Next days: the iOS widget catalog.
+
+Each language keeps its pack's form of address: formal in Czech and Portuguese, polite in Japanese and Korean, informal in German, Dutch, Polish and Slovenian. None of the texts has a dash.
+
+**Already in all 13 languages, no change:**
+- the widget names and descriptions in the gallery (iOS `Localizable.xcstrings`, Android `widget_*_name` and `widget_*_desc` in `res/values*/strings.xml`);
+- the iOS Edit Widget labels City, Show, Next hours and Next days.
+
+### Settings screen and "Home city"
+
+| | Widget settings | City | Home city | Show | Next hours | Next days | Save |
+|---|---|---|---|---|---|---|---|
+| en | Widget settings | City | Home city | Show | Next hours | Next days | Save |
+| de | Widget-Einstellungen | Ort | Heimatstadt | Anzeigen | Nächste Stunden | Nächste Tage | Speichern |
+| fr | Réglages du widget | Ville | Ville principale | Afficher | Prochaines heures | Prochains jours | Enregistrer |
+| es | Ajustes del widget | Ciudad | Ciudad principal | Mostrar | Próximas horas | Próximos días | Guardar |
+| it | Impostazioni widget | Città | Città principale | Mostra | Prossime ore | Prossimi giorni | Salva |
+| nl | Widgetinstellingen | Stad | Thuisstad | Weergeven | Komende uren | Komende dagen | Opslaan |
+| pl | Ustawienia widżetu | Miasto | Miasto domowe | Pokaż | Najbliższe godziny | Najbliższe dni | Zapisz |
+| cs | Nastavení widgetu | Město | Domovské město | Zobrazit | Příští hodiny | Příští dny | Uložit |
+| sl | Nastavitve pripomočka | Kraj | Domači kraj | Prikaži | Naslednje ure | Naslednji dnevi | Shrani |
+| pt | Ajustes do widget | Cidade | Cidade de casa | Mostrar | Próximas horas | Próximos dias | Salvar |
+| ja | ウィジェットの設定 | 都市 | ホームの都市 | 表示 | この先の数時間 | この先の数日間 | 保存 |
+| zh | 小组件设置 | 城市 | 常住城市 | 显示 | 未来几小时 | 未来几天 | 保存 |
+| ko | 위젯 설정 | 도시 | 내 도시 | 표시 | 앞으로 몇 시간 | 앞으로 며칠 | 저장 |
+
+### Messages
+
+| | `openOnce` | `pickCity` | `planHike` | `offline` |
+|---|---|---|---|---|
+| en | Open MetaBlend once to pick a city | Pick a city in MetaBlend | Plan a hike in the app | No connection. Tap to open MetaBlend. |
+| de | Öffne MetaBlend einmal, um einen Ort zu wählen | Wähle einen Ort in MetaBlend | Plane eine Tour in der App | Keine Verbindung. Tippen, um MetaBlend zu öffnen. |
+| fr | Ouvrez MetaBlend une fois pour choisir une ville | Choisissez une ville dans MetaBlend | Planifiez une randonnée dans l’app | Pas de connexion. Touchez pour ouvrir MetaBlend. |
+| es | Abre MetaBlend una vez para elegir una ciudad | Elige una ciudad en MetaBlend | Planifica una excursión en la app | Sin conexión. Toca para abrir MetaBlend. |
+| it | Apri MetaBlend una volta per scegliere una città | Scegli una città in MetaBlend | Pianifica un’escursione nell’app | Nessuna connessione. Tocca per aprire MetaBlend. |
+| nl | Open MetaBlend één keer om een stad te kiezen | Kies een stad in MetaBlend | Plan een tocht in de app | Geen verbinding. Tik om MetaBlend te openen. |
+| pl | Otwórz MetaBlend raz, aby wybrać miasto | Wybierz miasto w MetaBlend | Zaplanuj wędrówkę w aplikacji | Brak połączenia. Dotknij, aby otworzyć MetaBlend. |
+| cs | Otevřete jednou MetaBlend a vyberte město | Vyberte město v MetaBlend | Naplánujte si túru v aplikaci | Bez připojení. Klepnutím otevřete MetaBlend. |
+| sl | Enkrat odpri MetaBlend in izberi kraj | Izberi kraj v MetaBlendu | Načrtuj turo v aplikaciji | Ni povezave. Tapni, da odpreš MetaBlend. |
+| pt | Abra o MetaBlend uma vez para escolher uma cidade | Escolha uma cidade no MetaBlend | Planeje uma trilha no app | Sem conexão. Toque para abrir o MetaBlend. |
+| ja | 都市を選ぶには、MetaBlendを一度開いてください | MetaBlendで都市を選んでください | アプリで登山を計画してください | 接続できません。タップしてMetaBlendを開いてください。 |
+| zh | 打开一次 MetaBlend 以选择城市 | 在 MetaBlend 中选择城市 | 在应用中计划徒步 | 无网络连接。轻点打开 MetaBlend。 |
+| ko | 도시를 고르려면 MetaBlend를 한 번 열어 주세요 | MetaBlend에서 도시를 선택하세요 | 앱에서 등산을 계획해 보세요 | 연결이 없어요. 탭하면 MetaBlend가 열려요. |
+
+The en, de, fr, es and it rows keep today's wording except for the offline message, which used a dash before ("No connection — tap to open MetaBlend").
+
+### After launch: the theme choice (section 11)
+
+Not in this build. Listed here so the translations exist when it comes. On iOS they go into `Localizable.xcstrings`, on Android into `WidgetText.java`.
+
+| | Theme | As in the app | Default | Mono | Winter | Sky |
+|---|---|---|---|---|---|---|
+| en | Theme | As in the app | Default | Mono | Winter | Sky |
+| de | Aussehen | Wie in der App | Standard | Mono | Winter | Himmel |
+| fr | Thème | Comme dans l’app | Par défaut | Mono | Hiver | Ciel |
+| es | Tema | Como en la app | Predeterminado | Mono | Invierno | Cielo |
+| it | Tema | Come nell’app | Predefinito | Mono | Inverno | Cielo |
+| nl | Thema | Zoals in de app | Standaard | Mono | Winter | Lucht |
+| pl | Motyw | Jak w aplikacji | Domyślny | Mono | Zima | Niebo |
+| cs | Motiv | Jako v aplikaci | Výchozí | Mono | Zima | Obloha |
+| sl | Tema | Kot v aplikaciji | Privzeta | Mono | Zima | Nebo |
+| pt | Tema | Como no app | Padrão | Mono | Inverno | Céu |
+| ja | テーマ | アプリと同じ | 標準 | モノクロ | 冬 | 空 |
+| zh | 主题 | 与应用相同 | 默认 | 单色 | 冬季 | 天空 |
+| ko | 테마 | 앱과 같게 | 기본 | 모노 | 겨울 | 하늘 |
+
+The theme names are the app's own names for the three icons, so the widget and the icon picker under More say the same word.
+
+## 11. After launch: a theme per widget (not in this build)
 
 - **The choice:** "Theme" / "Aussehen" with As in the app (the default), Default, Mono, Winter, Sky (German: Wie in der App, Standard, Mono, Winter, Himmel). "As in the app" follows section 1.
 - **Where:**
   - iPhone: a `WidgetTheme` parameter in `WeatherConfig` and `HikeConfig`, shown in Edit Widget.
   - Android: a row of five swatches in `WidgetConfigActivity`, the selection outlined in gold, stored per widget in `WidgetStore` as `theme`.
 - **Mockup:** the last section of `widgets.html`.
-- The labels then need the app's 13 languages: the widget extension's texts cover 5 today (`Texts` in `MetaBlendWidgets.swift`, `WidgetText.java`).
+- The labels in all 13 languages are in section 10.
 
-## 11. Checks before the build goes out
+## 12. Checks before the build goes out
 
 - **Every theme and appearance:** each widget in Default, Mono, Winter and Sky, dark and light, on an iPhone simulator and an Android emulator, compared with `widgets.html`. Include German, where "Gewitterrisiko: gering" takes two lines in the hike widget's right column.
 - **Theme switch:** switching the app icon under More to Mono, Winter, Sky, then Slate changes the widgets within seconds, with no new setting anywhere.
 - **Tinted, clear and StandBy (iOS):** no scenery, everything legible.
 - **Window states:** a hike with a favourable window, with none, beyond tomorrow, and with storm data missing (window in ink).
+- **Languages:** switch the app to each of the 13 languages and check the widget texts and the Android settings screen. Japanese, Korean and Chinese must not show English rows.
 - **Old builds:** a build without these changes still shows its widgets after the server deploy, because the new fields are only additions.
