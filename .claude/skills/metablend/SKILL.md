@@ -7,13 +7,15 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 
 ## Ground rules
 
-- **Databases:** `.env.local` is the dev project; test against it. Production keys live in `.env.production-admin`. Production is written only by the deployed site, or by an admin script after its ref is confirmed (`./scripts/lib/production.mjs`). The owner runs those scripts. Give the command and stop. Schema changes (new tables, columns) go to the owner as exact SQL for dev, then production; don't run them on either.
-- **Production checks:** short and read-only. No load or burst tests.
+- **Databases:** `.env.local` is the dev project; test against it. Production keys live in `.env.production-admin`. Production is written only by the deployed site, or by an admin script after its ref is confirmed (`./scripts/lib/production.mjs`). The owner runs those scripts. Give the command and stop. Schema changes (new tables, columns) go to the owner as exact SQL for dev, then production; don't run them on either. Code that needs new SQL goes to main only after the owner confirms the SQL ran on dev and on production; code that tolerates the missing object does not lift this. Before that merge, list the `supabase/*.sql` files the branch adds or changes and check production's catalog for their objects, read-only.
+- **Production checks:** short and read-only. No load or burst tests. Look at a picture of every page a check opens before calling it passed: a script only finds what it was told to look for. Anything on the live site that a visitor can see and that should not be there goes to the owner at once, in one line with the picture's path, before any diagnosis.
+- **Deploys:** a production deploy empties the caches, and the first visits after it ask the weather sources again. Several approved branches go out as one deploy, and never during a store capture.
 - **Before every push:** `npm test`, `npx eslint .`, `npx next build`. Then a dated entry in `CHANGELOG.md`, user-facing first, one line per change.
 - **13 languages:** en de fr es it nl pl cs sl pt ja zh ko. All user-facing text goes in `lib/i18n/<lang>.js`; `lib/i18n/parity.test.js` checks every pack has every key.
 - **German legal texts are the original.** Change German first, then translate; never soften or broaden.
 - **Never promise safety.** A window, start time or day is "favourable" (`günstig`), not "safe". Warnings and "not a safety guarantee" keep their words. `lib/wording.test.js` enforces this.
 - **Active CPU:** prefer static pages, ISR and CDN caching. A new request per visitor needs a reason.
+- **Open-Meteo calls:** cost a request with `callWeight` in `lib/open-meteo.js` (variables times models), never by the number of HTTP requests. Give requests and weighted calls side by side, in the commit and to the owner. A projected saving quotes the counter by kind (`open_meteo_calls`); a figure from request logs is an estimate until a full counted day is in. Count per render, including the renders that crawlers and deploys cause, and count every Open-Meteo host.
 - **Design:** no sparkle or magic icons, emoji in UI, glows (the sun glow below is the one exception), gradient text, icon-in-a-rounded-square feature grids, vague taglines, cards inside cards, glass on everything, stacks of badges or centred everything. Do use left-aligned layouts, about 5 type sizes, one card style, an 8px grid, generous whitespace and few borders. Show the product first and use real data. Dark mode: solid Slate (#0f151b) with a subtle sun-position gold glow, no purple, no full gradient (the weather no longer tints it). Keep the one fixed near-white sky in light, the gold accent, the system font / Inter, the source dots in the Sources panel and reduced motion. 13 px is the smallest text, on the website and in the app (the app renders the same pages).
 
 ## Redesign rules
@@ -26,8 +28,13 @@ These stand for every design task; the owner should not have to repeat them. Re-
 - **Wording:** no "safe" or "sicher". No em or en dashes in UI copy: full stops and commas, a plain hyphen for ranges (`lib/wording.test.js`). All user-facing text as i18n keys in all 13 languages.
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
 - **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go. For any change to an API route (`app/api/**`): check the branch's Vercel preview deployment before main, every time (`MSYS_NO_PATHCONV=1 npx vercel curl "/api/..." --deployment <preview url> --scope never-s-projects1 -- -s -D -`, cold and warm); the 2026-11-09 forecast outage passed tests, lint and build.
-  - Run `./scripts/check-phone-layout.mjs` (also enforced in CI).
+  - Run `./scripts/check-phone-layout.mjs` (also enforced in CI). Send its output to a file, never through a filter: a pipe holds the output until the run ends, and a long run then looks dead.
 - **Captures:** a new folder per run, language pinned by cookie. Stop only processes this session started, by the process ID it got when starting them, never whatever holds a port: another session's server or browser may hold it. A busy port means pick another one. First grep the served CSS for the change (stale: delete `.next/dev`) and re-pin fixtures that expire or that the diff computes. Ready means visible and complete (all sources), not just present.
+
+## Tests
+
+- **Faking `fetch`:** start from `lib/test-route-fakes.js` (`answerWith` for the outside service, `seen` for assertions), never from a bare `globalThis.fetch` closure. The database client and the Open-Meteo request counter use the same `fetch`, so a hand-made fake sees their calls too.
+- **Golden test** (`lib/forecast-golden.test.js`): before `node ./scripts/record-golden.mjs --rebaseline`, list every difference between the recording and the replay by kind (values, order, missing or new sources, stored rows), and name what the test does not compare (the stats call, logs). The owner accepts that list, not "red by design". Look first for a change that leaves the test green.
 
 ## Android release
 
