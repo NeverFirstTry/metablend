@@ -121,6 +121,28 @@ a route and the alert tap need the app).
 - [ ] Plan this hike on a route (pace Slow) → the route appears under My routes; More → Notifications lists the plan by the route's name.
 - [ ] The evening before at 18:00 the alert reads "Start by … — summit ~…"; tapping it opens the route.
 
+## After a change to the Content Security Policy
+
+The policy (`next.config.mjs`) lists the hosts a page may load from. The browser
+refuses everything else, and nobody hears of it. The phone layout check fails on
+anything refused on the pages it opens, but it cannot press what only the app has.
+So after a deploy that changes the policy, walk this list in the real app
+(simulator or phone), right after the deployment is Ready.
+
+**Anything that stays empty, grey or dead where it worked before: say so at once. The deploy is rolled back.**
+
+- [ ] The app opens on the forecast with its numbers; Today, Tomorrow and Week switch.
+- [ ] Today → Rain radar: the map shows streets and place names, and the rain layer loads. (Refused: a grey box, or a map without rain.)
+- [ ] Search box → type "Großglockner" → pick the summit: its forecast opens. A town from the suggestions opens too.
+- [ ] Hiking → Großglockner → Routes → open a route: the topographic map shows with the route's line, and the profile below it. (Refused: grey map tiles.)
+- [ ] Hiking → Import GPX → pick a file: it opens with map and profile and is listed under My routes.
+- [ ] Großglockner → Plan a hike → Tomorrow: it shows under More → Notifications → Hike alerts.
+- [ ] More → Notifications → Turn on (turn it off first if it is on) → the system asks → Allow → "Send a test notification" arrives within seconds; tapping it opens the app.
+- [ ] Forecast → "How is the weather right now?" → send one report: it is accepted. More → Send feedback opens the mail app with the fields filled in.
+- [ ] More → Heatmap: the world map shows with its dots. Rankings, Travel planner and Aviation open (LOWW shows its report).
+- [ ] Home screen: a weather widget still shows its city; change the city in the widget's settings and it shows the new city's weather. "Next hike" shows the planned hike.
+- [ ] More: dark and light, °C and °F, another language: each applies at once.
+
 ## Store release (testers first)
 
 Everything you paste or upload is in the repo: listings in
