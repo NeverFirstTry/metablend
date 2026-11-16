@@ -100,12 +100,13 @@ Check on a device / emulator / simulator:
 - [ ] Resize / add medium: the next 6 hours; settings → Show: Next days → 5 days.
 - [ ] Settings → City: the home city and the recent cities are listed; pick another → it shows that city.
 - [ ] Two weather widgets with two different cities side by side.
-- [ ] Style: System → plain background in light and dark mode; Living sky → the app's sky.
+- [ ] Look (docs/widgets-spec.md): Slate in dark mode, white in light mode, following the phone; More → App icon → Mono, Winter or Sky changes the widgets within seconds, every other icon gives the default (needs the server side from 2026-11-16 live).
 - [ ] "Next hike" with a hike planned for tomorrow → summit window (green) or "No favourable window"; without a plan → "Plan a hike in the app".
 - [ ] Tap a weather widget → the app opens on that city; tap the hike widget → that peak.
 - [ ] Airplane mode, wait for a refresh → the last data stays with its time.
 - [ ] App language German + °F → widgets follow after leaving the app.
-- [ ] iOS: tinted / clear home screen (long-press home screen → Edit → Customize) → readable, no sky.
+- [ ] iOS: tinted / clear home screen (long-press home screen → Edit → Customize) → readable, no scenery.
+- [ ] Screen reader (TalkBack on the A52 by touch; on iPhone VoiceOver, in the Simulator Xcode → Open Developer Tool → Accessibility Inspector): the hike widget reads "Summit, <peak>, …, Wind 25 km/h, Rain 72%, Storm risk: low", each value once; the city widget says its condition once ("Lienz, 7°, Partly cloudy, ↑ 11° ↓ 1°"); with a rain nowcast in that line the drawing keeps its own label.
 - [ ] Android: `adb shell am start -a android.intent.action.VIEW -d "metablend://open?path=%2Fmore"` → the app opens on More.
 
 ## Routes (hiking v2)

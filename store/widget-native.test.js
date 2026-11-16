@@ -60,6 +60,25 @@ test('widget icons: both apps read each weather drawing as the same condition', 
   for (const e of site) assert.ok(java[e] in A11Y, `${e}: ${java[e]}`)
 })
 
+test('widget icons: a city widget\'s drawing stays silent only when the line under it says the same words', () => {
+  // owner, 2026-11-16: "Lienz, 7°, Leicht bewölkt, Leicht bewölkt" reads the condition twice; a rain nowcast or a
+  // later hour's rain in that line keeps the drawing's label, and nothing else ever goes silent
+  const renderer = read('mobile/android/app/src/main/java/app/metablend/widget/WidgetRenderer.java')
+  assert.match(renderer, /static boolean sameWords\(Look look, String emoji, String line\) \{[^}]*return !key\.isEmpty\(\) && look\.tx\.get\(key\)\.equals\(line\);/)
+  const silenced = [...renderer.matchAll(/setContentDescription\((R\.id\.\w+|\w+), ""\)/g)].map(m => m[1])
+  assert.deepEqual(silenced, ['R.id.glyph'])
+  assert.match(renderer, /if \(sameWords\(look, now\.optString\("icon"\), now\.optString\("text"\)\)\) v\.setContentDescription\(R\.id\.glyph, ""\);/)
+  const hikeViews = renderer.slice(renderer.indexOf('private static RemoteViews hikeViews'), renderer.indexOf('private static void finish'))
+  assert.doesNotMatch(hikeViews, /sameWords/)
+
+  const swift = read('mobile/ios/App/MetaBlendWidgets/MetaBlendWidgets.swift')
+  assert.match(swift, /if line == look\.word\(key\) \{\s*drawing\(e\)\.accessibilityHidden\(true\)\s*\} else \{\s*drawing\(e\)\s*\.accessibilityElement\(children: \.ignore\)\s*\.accessibilityLabel\(look\.word\(key\)\)/)
+  assert.match(swift, /let line: String\? = h == nil \? p\.now\.text : nil/)
+  const glyphs = [...swift.matchAll(/Glyph\(emoji: ([^)]*)\)/g)].map(m => m[1])
+  assert.equal(glyphs.filter(g => /line: line$/.test(g)).length, 3) // small, medium, large city widget
+  for (const g of glyphs.filter(g => !/h\?\.icon \?\? p\.now\.icon/.test(g))) assert.doesNotMatch(g, /line:/, g) // hours, days, hike
+})
+
 test('widget icons: every drawn icon has a spoken label on both platforms', () => {
   // Android: each icon id in the layouts gets a content description in the renderer (glyph2 is the silent half of
   // partly cloudy; the scenery is not an icon)

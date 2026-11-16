@@ -204,11 +204,14 @@ struct Background: View {
 }
 
 // The website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is two drawings.
-// VoiceOver reads the drawing as its condition, in the app's words ("Partly cloudy").
+// VoiceOver reads the drawing as its condition, in the app's words ("Partly cloudy"), except where the line under it
+// says the same words (`line`, the city widget's condition): then it stays silent, else it is read twice (owner,
+// 2026-11-16). A rain nowcast or a later hour's rain in that line keeps the drawing's label.
 struct Glyph: View {
     let emoji: String
     let size: CGFloat
     let look: Look
+    var line: String? = nil
 
     static func condition(_ e: String) -> Texts.Key? {
         switch e {
@@ -227,9 +230,13 @@ struct Glyph: View {
     var body: some View {
         let e = emoji.replacingOccurrences(of: "\u{FE0F}", with: "")
         if let key = Glyph.condition(e) {
-            drawing(e)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(look.word(key))
+            if line == look.word(key) {
+                drawing(e).accessibilityHidden(true)
+            } else {
+                drawing(e)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(look.word(key))
+            }
         }
     }
 
@@ -491,6 +498,7 @@ struct WeatherWidgetView: View {
         let range = Text(hilo(p.today.hi, p.today.lo)).font(.footnote).monospacedDigit().foregroundStyle(muted)
         let time = Text(fetched, style: .time).font(.footnote).foregroundStyle(muted)
         let rainWind = h == nil ? p.now.rain.flatMap { r in p.now.wind.map { (r, $0) } } : nil
+        let line: String? = h == nil ? p.now.text : nil // the words under the drawing (see Glyph)
 
         switch family {
         case .systemLarge:
@@ -499,7 +507,7 @@ struct WeatherWidgetView: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
                         name
-                        HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look) }
+                        HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look, line: line) }
                     }
                     Spacer(minLength: 8)
                     VStack(alignment: .trailing, spacing: 4) {
@@ -518,7 +526,7 @@ struct WeatherWidgetView: View {
             HStack(alignment: .top, spacing: 12) {
                 VStack(alignment: .leading, spacing: 0) {
                     name
-                    HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 28, look: look) }
+                    HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 28, look: look, line: line) }
                     Spacer(minLength: 0)
                     condition
                     range
@@ -530,7 +538,7 @@ struct WeatherWidgetView: View {
         default:
             VStack(alignment: .leading, spacing: 0) {
                 name
-                HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look) }
+                HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look, line: line) }
                 Spacer(minLength: 0)
                 condition
                 range

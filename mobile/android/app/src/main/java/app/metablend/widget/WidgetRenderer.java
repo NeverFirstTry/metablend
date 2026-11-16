@@ -97,6 +97,9 @@ public final class WidgetRenderer {
         v.setTextViewText(R.id.temp, now.optString("temp"));
         glyph(c, v, look, now.optString("icon"), R.id.glyph, R.id.glyph2);
         v.setTextViewText(R.id.text, now.optString("text"));
+        // the drawing stays silent when the line under it says the same words, else it is read twice (owner, 2026-11-16);
+        // a rain nowcast in that line keeps the drawing's label
+        if (sameWords(look, now.optString("icon"), now.optString("text"))) v.setContentDescription(R.id.glyph, "");
         v.setTextViewText(R.id.hilo, hilo(today));
         color(c, v, t, WidgetText.INK, R.id.city, R.id.temp);
         color(c, v, t, WidgetText.MUTED, R.id.text, R.id.hilo, R.id.updated);
@@ -248,6 +251,11 @@ public final class WidgetRenderer {
     }
 
     // the spoken condition of each drawing (the app's own words, WidgetText)
+    static boolean sameWords(Look look, String emoji, String line) {
+        String key = conditionKey(emoji == null ? "" : emoji.replace("️", ""));
+        return !key.isEmpty() && look.tx.get(key).equals(line);
+    }
+
     static String conditionKey(String e) {
         switch (e) {
             case "☀": case "🌙": return "clear";
