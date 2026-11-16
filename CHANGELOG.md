@@ -11,6 +11,9 @@ All notable changes to MetaBlend. Format loosely follows
 - The airports are asked in the order of need: the place whose oldest check that can still be scored is nearest to running out comes first (`stationOrder` in lib/outlook/job.js, with a test). A day's check has two nights before it runs out, so what the budget leaves must get its turn the next night. The first night with two requests at a time (16 November) asked 164 of 260 airports in its 180 seconds; the backlog fell from 4,600 to 2,983, and 1,587 predictions ran out.
 - A correction to the first reading of that night (commit aae9cfa says the asking order cost the last places half of their checks): most of what ran out belongs to places that cannot be scored at all, 35 stored before 12 November with no airport within 60 km and 14 whose airports send nothing usable. The order alone would have put those places first every night; it goes live only together with the two fixes above.
 
+### Fixed: the morning briefing's temperature range says "to"
+- The morning briefing showed today's low and high as "-1-9°", which reads as minus one minus nine. It now puts the language's word between them: "-1 bis 9°" in German, "-1 to 9°" in English, "od -1 do 9°" in Polish, "-1から9°" in Japanese, in all 13 languages (owner, 2026-11-16). A day with the same low and high shows one number. No other notification or widget text shows a range: the widgets show the high and the low with arrows.
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language
