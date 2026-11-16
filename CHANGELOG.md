@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-16
 
+### Fixed: the outlook's nightly check scores the predictions it left waiting
+- Nothing changes for visitors. Where the nearest airport reports only by day, a day's check never had its 18 reports and ran out unscored, though the next airport in range reports all night: Rome (Urbe with 9 to 12 reports a day, beside Ciampino with 48), Tokyo, Johannesburg, Cloppenburg. Each check now goes to the nearest airport that has what it needs (`scoreCheck` in lib/outlook/verify.js, with a test).
+- A request the airport service does not answer is asked once more at the end of the run, at the same pace and inside the same 180 seconds. On 16 November 5 of 22 test requests came back as 502 or 504 and were answered on the second try minutes later; until now such a request cost both its airports the night. The night's record now counts the second tries and the airports left without an answer (`outlookRetries`, `outlookStationsFailed`).
+- The airports are asked in the order of need: the place whose oldest check that can still be scored is nearest to running out comes first (`stationOrder` in lib/outlook/job.js, with a test). A day's check has two nights before it runs out, so what the budget leaves must get its turn the next night. The first night with two requests at a time (16 November) asked 164 of 260 airports in its 180 seconds; the backlog fell from 4,600 to 2,983, and 1,587 predictions ran out.
+- A correction to the first reading of that night (commit aae9cfa says the asking order cost the last places half of their checks): most of what ran out belongs to places that cannot be scored at all, 35 stored before 12 November with no airport within 60 km and 14 whose airports send nothing usable. The order alone would have put those places first every night; it goes live only together with the two fixes above.
+
+### Fixed: the morning briefing's temperature range says "to"
+- The morning briefing showed today's low and high as "-1-9°", which reads as minus one minus nine. It now puts the language's word between them: "-1 bis 9°" in German, "-1 to 9°" in English, "od -1 do 9°" in Polish, "-1から9°" in Japanese, in all 13 languages (owner, 2026-11-16). A day with the same low and high shows one number. No other notification or widget text shows a range: the widgets show the high and the low with arrows.
+
 ### Added: the spec for the widgets' new look (nothing changes in the app yet)
 - The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
 - The spec also lists every widget text in all 13 languages (the widgets' messages and Android's widget settings speak 5 today) and drops the dash from the offline message.
