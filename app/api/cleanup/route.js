@@ -211,7 +211,7 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
 
   // the night's outlook counts as plain numbers: the job log keeps numbers, not nested objects
   const counts = outlook && !outlook.error
-    ? { outlookDue: outlook.snapshots, outlookScored: outlook.scored, outlookExpired: outlook.expired, outlookWaiting: outlook.waiting, outlookStations: outlook.stations, outlookRequests: outlook.requests, outlookTruncated: outlook.truncated, outlookStationsLeft: outlook.stationsLeft }
+    ? { outlookDue: outlook.snapshots, outlookScored: outlook.scored, outlookExpired: outlook.expired, outlookWaiting: outlook.waiting, outlookStations: outlook.stations, outlookRequests: outlook.requests, outlookRetries: outlook.retries, outlookTruncated: outlook.truncated, outlookStationsLeft: outlook.stationsLeft, outlookStationsFailed: outlook.stationsFailed }
     : {}
   return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook, ...counts })
 }))
