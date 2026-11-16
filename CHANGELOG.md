@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-16
+
+### Added: the spec for the widgets' new look (nothing changes in the app yet)
+- The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language

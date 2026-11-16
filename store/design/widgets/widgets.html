@@ -1,0 +1,269 @@
+<title>Widget Looks</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&family=Inter:wght@300;400;500;600&family=Roboto:wght@300;400;500&display=swap">
+<style>
+/* The page: MetaBlend tokens, one column of sections. The widgets: real sizes in points / dp, scaled down on a phone. */
+:root { --bg: #f6f8fc; --ink: #141c2b; --muted: #4c5566; --line: #d9dee8; --gold: #966400; --gold-soft: rgba(150,100,0,0.10); --panel: #ffffff;
+  --body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #0f151b; --ink: #f6f8fc; --muted: #b4bbc7; --line: #263241; --gold: #ffd98a; --gold-soft: rgba(255,217,138,0.12); --panel: #16202a; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #0f151b; --ink: #f6f8fc; --muted: #b4bbc7; --line: #263241; --gold: #ffd98a; --gold-soft: rgba(255,217,138,0.12); --panel: #16202a; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--body); margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 64px; display: grid; gap: 32px; }
+.col { max-width: 80ch; display: grid; gap: 12px; }
+h1 { font: 800 clamp(28px, 5vw, 36px)/1.15 var(--body); letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+h2 { font: 700 21px/1.3 var(--body); margin: 0; }
+h3 { font: 600 16px/1.3 var(--body); margin: 0; }
+p { margin: 0; } ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.muted { color: var(--muted); }
+.chip { font: 600 13px/1 var(--body); padding: 7px 11px; border-radius: 999px; border: 1px solid var(--gold); color: var(--gold); background: var(--gold-soft); justify-self: start; }
+section { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; padding-top: 16px; border-top: 1px solid var(--line); min-width: 0; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; justify-self: start; }
+.seg button { font: 600 14px/1 var(--body); padding: 10px 16px; border: 0; background: transparent; color: var(--muted); cursor: pointer; min-height: 40px; }
+.seg button[aria-pressed="true"] { background: var(--gold-soft); color: var(--gold); }
+.seg button:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.now { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 20px; align-items: start; }
+.now img { width: 100%; max-width: 384px; height: auto; border-radius: 12px; display: block; }
+
+/* home screens */
+.home { border-radius: 20px; padding: 24px 20px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; min-width: 0; }
+.home.dark { background: linear-gradient(160deg, #26313f 0%, #10161d 60%, #0a0d11 100%); }
+.home.light { background: linear-gradient(160deg, #c3d1e0 0%, #dfe7f0 55%, #eef2f7 100%); }
+.home h3 { color: #f6f8fc; } .home.light h3 { color: #141c2b; }
+.home .lbl { font: 600 13px/1.3 var(--body); color: rgba(246,248,252,.8); } .home.light .lbl { color: #3d4757; }
+.grid { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; min-width: 0; }
+.cell { flex: none; }
+.cell { display: grid; gap: 8px; justify-items: start; }
+
+/* the widgets: --u is one point (iOS) or one dp (Android), shrunk below 400 px of page width */
+.w { --u: min(1px, calc((100vw - 80px) / 364)); position: relative; overflow: hidden; color: var(--wi); background: var(--wb); box-sizing: border-box; padding: calc(16 * var(--u)); display: grid; }
+.w.ios { font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif; border-radius: calc(24 * var(--u)); }
+.w.and { font-family: Roboto, "Google Sans", system-ui, sans-serif; border-radius: calc(24 * var(--u)); }
+.w.ios.s { width: calc(170 * var(--u)); height: calc(170 * var(--u)); }
+.w.ios.m { width: calc(364 * var(--u)); height: calc(170 * var(--u)); }
+.w.and.s { width: calc(172 * var(--u)); height: calc(172 * var(--u)); }
+.w.and.m { width: calc(356 * var(--u)); height: calc(172 * var(--u)); }
+.w.dark { --wb: #0f151b; --wi: #f6f8fc; --wm: #b4bbc7; --ok: #8eecc4; --info: #a9d1ff; --sun: #ffd98a; --moon: #a99fd4; --cloud: #a3aab5; }
+.w.light { --wb: #ffffff; --wi: #141c2b; --wm: #4a5566; --ok: #117948; --info: #1c68c0; --sun: #966400; --moon: #6b5d9d; --cloud: #4a5566; }
+.w .glow, .w .deco { position: absolute; pointer-events: none; }
+.w .glow { inset: 0; }
+.w > .in, .w > .split { position: relative; z-index: 1; }
+/* themes on top (the app icons Mono, Winter, Sky) */
+.w.mono.dark { --wb: #000000; --wi: #ffffff; --wm: #a6a6a6; --ok: #ffffff; --info: #d4d4d4; --sun: #ffffff; --moon: #d4d4d4; --cloud: #a6a6a6; }
+.w.mono.light { --wb: #ffffff; --wi: #000000; --wm: #595959; --ok: #000000; --info: #404040; --sun: #000000; --moon: #404040; --cloud: #595959; }
+.w.winter.light { --wb: linear-gradient(180deg, #e3ecf7 0%, #f4f8fc 100%); --wi: #141c2b; --wm: #44546a; --info: #1c68c0; }
+.w.sky.dark { --wb: linear-gradient(180deg, #1b2452 0%, #352f62 55%, #4f4072 100%); --wi: #ffffff; --wm: #e2e2f0; --ok: #a7f3d0; --info: #dbe9ff; --sun: #ffd98a; --moon: #ddd5ff; --cloud: #d3d6e6; }
+.w.sky.light { --wb: linear-gradient(180deg, #eaf3fd 0%, #c6dcf5 100%); --wi: #0f1b33; --wm: #34445e; --ok: #0f6b40; --info: #1a5fb0; --sun: #8a5c00; --moon: #5e5191; --cloud: #3f4c63; }
+.edits { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 24px; align-items: start; }
+.sheet { border-radius: 28px; padding: 18px 16px 20px; display: grid; gap: 14px; max-width: 380px; }
+.sheet.ios { background: #1c1c1e; color: #fff; font-family: -apple-system, "SF Pro Text", Inter, system-ui, sans-serif; }
+.sheet.and { background: #10161d; color: #f6f8fc; font-family: Roboto, system-ui, sans-serif; border-radius: 24px; }
+.sheet .ttl { font-size: 17px; font-weight: 600; text-align: center; }
+.sheet.and .ttl { text-align: left; font-weight: 500; font-size: 20px; }
+.list { background: #2c2c2e; border-radius: 12px; overflow: hidden; }
+.list .r { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 11px 14px; font-size: 16px; border-top: 0.5px solid rgba(255,255,255,.12); }
+.list .r:first-child { border-top: 0; }
+.list .r .v { color: rgba(235,235,245,.6); text-align: right; }
+.menu { background: #3a3a3c; border-radius: 12px; margin-left: auto; width: 220px; max-width: 100%; overflow: hidden; }
+.menu .r { border-top: 0.5px solid rgba(255,255,255,.14); padding: 10px 14px; font-size: 15px; display: flex; gap: 10px; align-items: center; }
+.menu .r:first-child { border-top: 0; }
+.menu .ck { width: 14px; color: #fff; font-weight: 700; }
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chipw { display: grid; justify-items: center; gap: 6px; font-size: 13px; color: #b4bbc7; }
+.chipw .sw { width: 52px; height: 52px; border-radius: 14px; border: 2px solid rgba(255,255,255,.12); box-sizing: border-box; display: grid; place-items: center; }
+.chipw.on .sw { border-color: #ffd98a; }
+.chipw.on { color: #f6f8fc; }
+.btn { justify-self: end; background: #ffd98a; color: #3a2a00; font-weight: 500; border-radius: 999px; padding: 10px 20px; font-size: 14px; }
+.w .in { position: relative; display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.w .in > * { flex-shrink: 0; }
+.w svg { flex: none; display: block; }
+.t15 { font-size: calc(15 * var(--u)); line-height: calc(20 * var(--u)); font-weight: 600; }
+.t13 { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); color: var(--wm); }
+.and .t15 { font-weight: 500; }
+.big { font-size: calc(44 * var(--u)); line-height: calc(50 * var(--u)); font-weight: 300; letter-spacing: -0.02em; }
+.and .big { font-weight: 300; letter-spacing: 0; }
+.win { white-space: nowrap; font-size: calc(24 * var(--u)); line-height: calc(30 * var(--u)); font-weight: 600; color: var(--ok); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.and .win { font-weight: 500; }
+.s .win { font-size: calc(22 * var(--u)); line-height: calc(28 * var(--u)); }
+.tab { font-variant-numeric: tabular-nums; }
+.row { display: flex; align-items: center; gap: calc(6 * var(--u)); min-width: 0; }
+.one { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.fill { flex: 1; }
+.split { display: grid; height: 100%; }
+.hrs { display: grid; grid-template-columns: repeat(5, 1fr); height: 100%; }
+.hr { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; }
+.hr .tm { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); color: var(--wm); font-variant-numeric: tabular-nums; }
+.hr .tp { font-size: calc(15 * var(--u)); line-height: calc(20 * var(--u)); font-weight: 500; font-variant-numeric: tabular-nums; }
+.hr .rn { font-size: calc(13 * var(--u)); line-height: calc(18 * var(--u)); color: var(--info); font-variant-numeric: tabular-nums; }
+.facts { display: grid; gap: calc(10 * var(--u)); align-content: start; }
+.facts .row { align-items: flex-start; }
+.facts .row svg { margin-top: calc(2 * var(--u)); }
+.facts .t13 { color: var(--wi); }
+</style>
+
+<div class="wrap">
+  <header class="col">
+    <span class="chip">Approved 16 November 2026. Spec: docs/widgets-spec.md</span>
+    <h1>Widgets: Slate and white, and three themes</h1>
+    <p>The city widget and the hike widget, iPhone small and medium and Android small and medium, at their real sizes. The default follows the phone's appearance: Slate in dark mode, white in light mode, like the website's light theme. Mono, Winter and Sky come on top, further down. The data is real: Lienz and the Hochstein hike for tomorrow, from production on 16 November.</p>
+    <div class="seg" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="de" aria-pressed="false">Deutsch</button></div>
+  </header>
+
+  <section aria-labelledby="h-dark"><h2 id="h-dark">Dark appearance: Slate</h2><div class="home dark" id="dark"></div></section>
+  <section aria-labelledby="h-light"><h2 id="h-light">Light appearance: white</h2><div class="home light" id="light"></div></section>
+
+  <section aria-labelledby="h-themes">
+    <h2 id="h-themes">Themes on top: Mono, Winter, Sky</h2>
+    <p class="muted">Before launch the widgets take the look of the app icon chosen under More: the Mono, Winter or Sky icon gives the widgets that theme, every other icon the default above. Each theme has a dark and a light version that follow the phone's appearance like the default.</p>
+    <div class="seg" role="group" aria-label="Theme" id="tseg"><button type="button" data-theme="mono" aria-pressed="true">Mono</button><button type="button" data-theme="winter" aria-pressed="false">Winter</button><button type="button" data-theme="sky" aria-pressed="false">Sky</button></div>
+    <ul id="tnote"></ul>
+    <h3>Dark</h3><div class="home dark" id="tdark"></div>
+    <h3>Light</h3><div class="home light" id="tlight"></div>
+  </section>
+
+  <section aria-labelledby="h-edit">
+    <h2 id="h-edit">After launch: a theme per widget (design only)</h2>
+    <p class="muted">A "Theme" choice in the widget's own settings: on iPhone in Edit Widget (press and hold the widget), on Android in the screen that opens when the widget is placed or reconfigured. "As in the app" stays the default, so nothing changes for anyone who never opens it.</p>
+    <div class="edits" id="edit"></div>
+  </section>
+
+  <section aria-labelledby="h-now">
+    <h2 id="h-now">Today on the phone, for comparison</h2>
+    <div class="now">
+      <img id="now" src="i/now-en.webp" width="576" height="620" alt="The current widgets on an iPhone: the hike widget with a large empty area top left and its right column floating in the middle, and the city widget, both on the old blue sky">
+      <ul>
+        <li><b>Colour:</b> both widgets sit on the old blue "living sky". The new default is plain Slate or white, the same as the app.</li>
+        <li><b>Hike layout:</b> today the name sits top left, the temperatures and window are stuck at the bottom, and wind, rain and storm float in the middle on the right. New: everything starts at the top. Name and day, then the summit window with its label, then the temperatures. The right column starts level with the name.</li>
+        <li><b>Icons:</b> the emoji (⛰ 💨 💧 ⚡ and the weather) become the website's drawn icons: the sun in gold, the moon lavender, clouds grey, rain blue. Gold stays the one accent.</li>
+        <li><b>Meaning without colour:</b> the green window always carries its words ("Summit window"), and without a window the widget says "No favourable window" in plain text.</li>
+        <li><b>Glow:</b> in dark mode a faint gold sheen at the top edge where the sun is (as on the website): top left at dawn, overhead by day, top right at dusk, none at night. Light mode has none.</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+const DATA = {"en":{"city":{"kind":"weather","city":"Lienz","path":"/?city=Lienz","now":{"temp":"7°","icon":"⛅","text":"Partly cloudy","sky":"dusk","detail":"💧 9% · 💨 3 km/h"},"today":{"hi":"11°","lo":"1°"},"hours":[{"t":"17:00","ts":1794844800,"icon":"☁️","temp":"6°","rain":"7%","sky":"dusk"},{"t":"18:00","ts":1794848400,"icon":"🌙","temp":"5°","rain":"4%","sky":"night"},{"t":"19:00","ts":1794852000,"icon":"🌙","temp":"5°","rain":"2%","sky":"night"},{"t":"20:00","ts":1794855600,"icon":"🌙","temp":"4°","rain":"2%","sky":"night"},{"t":"21:00","ts":1794859200,"icon":"☁️","temp":"4°","rain":"1%","sky":"night"},{"t":"22:00","ts":1794862800,"icon":"☁️","temp":"4°","rain":"1%","sky":"night"}],"days":[{"day":"Tue","icon":"🌦","hi":"10°","lo":"3°"},{"day":"Wed","icon":"🌦","hi":"13°","lo":"4°"},{"day":"Thu","icon":"🌦","hi":"9°","lo":"2°"},{"day":"Fri","icon":"⛅","hi":"11°","lo":"2°"},{"day":"Sat","icon":"🌦","hi":"8°","lo":"1°"}],"skies":{"dusk":["#141c3d","#462f57","#542f25"],"night":["#060a1c","#101d45","#27366b"]}},"hike":{"kind":"hike","peak":"Hochstein","day":"Tomorrow","path":"/hike?lat=46.824&lon=12.693&elev=2057&name=Hochstein","line":"08:00-13:33","good":true,"icon":"⛅","hi":"2°","lo":"-3°","wind":"25 km/h","rain":"72%","storm":"Storm risk: low","sky":"day","skies":{"day":["#0e3a6e","#173b61","#283a49"]}},"label":"Summit window"},"de":{"city":{"kind":"weather","city":"Lienz","path":"/?city=Lienz","now":{"temp":"7°","icon":"⛅","text":"Leicht bewölkt","sky":"dusk","detail":"💧 9% · 💨 3 km/h"},"today":{"hi":"11°","lo":"1°"},"hours":[{"t":"17:00","ts":1794844800,"icon":"☁️","temp":"6°","rain":"7%","sky":"dusk"},{"t":"18:00","ts":1794848400,"icon":"🌙","temp":"5°","rain":"4%","sky":"night"},{"t":"19:00","ts":1794852000,"icon":"🌙","temp":"5°","rain":"2%","sky":"night"},{"t":"20:00","ts":1794855600,"icon":"🌙","temp":"4°","rain":"2%","sky":"night"},{"t":"21:00","ts":1794859200,"icon":"☁️","temp":"4°","rain":"1%","sky":"night"},{"t":"22:00","ts":1794862800,"icon":"☁️","temp":"4°","rain":"1%","sky":"night"}],"days":[{"day":"Di","icon":"🌦","hi":"10°","lo":"3°"},{"day":"Mi","icon":"🌦","hi":"13°","lo":"4°"},{"day":"Do","icon":"🌦","hi":"9°","lo":"2°"},{"day":"Fr","icon":"⛅","hi":"11°","lo":"2°"},{"day":"Sa","icon":"🌦","hi":"8°","lo":"1°"}],"skies":{"dusk":["#141c3d","#462f57","#542f25"],"night":["#060a1c","#101d45","#27366b"]}},"hike":{"kind":"hike","peak":"Hochstein","day":"Morgen","path":"/hike?lat=46.824&lon=12.693&elev=2057&name=Hochstein","line":"08:00-13:33","good":true,"icon":"⛅","hi":"2°","lo":"-3°","wind":"25 km/h","rain":"72%","storm":"Gewitterrisiko: gering","sky":"day","skies":{"day":["#0e3a6e","#173b61","#283a49"]}},"label":"Gipfelfenster"}}
+const ICONS = {"sun":["<circle cx=\"12\" cy=\"12\" r=\"4\"/>","<path d=\"M12 2v2\"/>","<path d=\"M12 20v2\"/>","<path d=\"m4.93 4.93 1.41 1.41\"/>","<path d=\"m17.66 17.66 1.41 1.41\"/>","<path d=\"M2 12h2\"/>","<path d=\"M20 12h2\"/>","<path d=\"m6.34 17.66-1.41 1.41\"/>","<path d=\"m19.07 4.93-1.41 1.41\"/>"],"moon":["<path d=\"M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401\"/>"],"cloud":["<path d=\"M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z\"/>"],"cloud-sun":["<path d=\"M12 2v2\"/>","<path d=\"m4.93 4.93 1.41 1.41\"/>","<path d=\"M20 12h2\"/>","<path d=\"m19.07 4.93-1.41 1.41\"/>","<path d=\"M15.947 12.65a4 4 0 0 0-5.925-4.128\"/>","<path d=\"M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z\"/>"],"cloud-drizzle":["<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/>","<path d=\"M8 19v1\"/>","<path d=\"M8 14v1\"/>","<path d=\"M16 19v1\"/>","<path d=\"M16 14v1\"/>","<path d=\"M12 21v1\"/>","<path d=\"M12 16v1\"/>"],"cloud-rain":["<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/>","<path d=\"M16 14v6\"/>","<path d=\"M8 14v6\"/>","<path d=\"M12 16v6\"/>"],"cloud-snow":["<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/>","<path d=\"M8 15h.01\"/>","<path d=\"M8 19h.01\"/>","<path d=\"M12 17h.01\"/>","<path d=\"M12 21h.01\"/>","<path d=\"M16 15h.01\"/>","<path d=\"M16 19h.01\"/>"],"cloud-lightning":["<path d=\"M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973\"/>","<path d=\"m13 12-3 5h4l-3 5\"/>"],"cloud-fog":["<path d=\"M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242\"/>","<path d=\"M16 17H7\"/>","<path d=\"M17 21H9\"/>"],"wind":["<path d=\"M12.8 19.6A2 2 0 1 0 14 16H2\"/>","<path d=\"M17.5 8a2.5 2.5 0 1 1 2 4H2\"/>","<path d=\"M9.8 4.4A2 2 0 1 1 11 8H2\"/>"],"droplet":["<path d=\"M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z\"/>"],"zap":["<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\"/>"],"mountain":["<path d=\"m8 3 4 8 5-5 5 15H2L8 3z\"/>"]}
+const COLOR = { sun: 'var(--sun)', moon: 'var(--moon)', cloud: 'var(--cloud)', rain: 'var(--info)', mut: 'var(--wm)', ink: 'var(--wi)' }
+const GLYPH = { '☀': ['sun', 'sun'], '🌙': ['moon', 'moon'], '☁': ['cloud', 'cloud'], '⛅': ['cloud-sun'], '🌤': ['cloud-sun'], '🌥': ['cloud-sun'],
+  '🌦': ['cloud-drizzle', 'rain'], '🌧': ['cloud-rain', 'rain'], '🌨': ['cloud-snow', 'rain'], '❄': ['cloud-snow', 'rain'], '⛈': ['cloud-lightning', 'rain'], '🌩': ['cloud-lightning', 'rain'], '🌫': ['cloud-fog', 'cloud'] }
+const svg = (name, size, color, parts) => '<svg viewBox="0 0 24 24" style="width:calc(' + size + ' * var(--u));height:calc(' + size + ' * var(--u));color:' + color + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (parts ?? ICONS[name].join('')) + '</svg>'
+// partly cloudy in two colours, as on the website: the sun's rays gold, the cloud grey
+const glyph = (emoji, size) => {
+  const g = GLYPH[(emoji || '').replace('\uFE0F', '')]
+  if (!g) return ''
+  if (g[0] === 'cloud-sun') { const p = ICONS['cloud-sun']; return svg('', size, COLOR.cloud, '<g style="color:var(--sun)">' + p.slice(0, 5).join('') + '</g>' + p[5]) }
+  return svg(g[0], size, COLOR[g[1]])
+}
+const GLOW = { dawn: 'radial-gradient(90% 70% at 0% 0%, rgba(255,217,138,.09), transparent 70%)', day: 'radial-gradient(110% 55% at 50% 0%, rgba(255,217,138,.08), transparent 80%)', dusk: 'radial-gradient(90% 70% at 100% 0%, rgba(255,196,112,.1), transparent 70%)' }
+const glow = (mode, sky) => mode === 'dark' && GLOW[sky] ? '<div class="glow" style="background:' + GLOW[sky] + '"></div>' : ''
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+const hilo = (hi, lo) => '↑ ' + esc(hi) + '&nbsp;&nbsp;↓ ' + esc(lo)
+// the city line's rain and wind without their emoji ("💧 9% · 💨 3 km/h")
+const detail = d => { const [r, w] = String(d || '').split(' · ').map(x => x.replace(/^\S+\s/, '')); return { r, w } }
+
+function city(p, plat, size, mode) {
+  const c = p.city, d = detail(c.now.detail)
+  const left = '<div class="row"><span class="t15 one">' + esc(c.city) + '</span></div>'
+    + '<div class="row" style="gap:calc(8 * var(--u))"><span class="big tab">' + esc(c.now.temp) + '</span>' + glyph(c.now.icon, size === 's' ? 30 : 28) + '</div>'
+    + '<div class="fill"></div>'
+    + '<div class="t13 one">' + esc(c.now.text) + '</div>'
+    + '<div class="t13 tab one">' + hilo(c.today.hi, c.today.lo) + '</div>'
+    + (size === 'm' ? '<div class="row t13 tab one">' + svg('droplet', 13, 'var(--wm)') + esc(d.r) + '&nbsp;&nbsp;' + svg('wind', 13, 'var(--wm)') + esc(d.w) + '</div>' : '')
+  if (size === 's') return wrap(plat, size, mode, c.now.sky, '<div class="in" style="height:100%">' + left + '</div>')
+  const hrs = c.hours.slice(0, 5).map(h => '<div class="hr"><span class="tm">' + esc(h.t) + '</span>' + glyph(h.icon, 20) + '<span class="tp">' + esc(h.temp) + '</span><span class="rn">' + esc(h.rain) + '</span></div>').join('')
+  return wrap(plat, size, mode, c.now.sky, '<div class="split" style="grid-template-columns:calc(' + 116 + ' * var(--u)) 1fr;gap:calc(12 * var(--u))"><div class="in" style="height:100%">' + left + '</div><div class="hrs">' + hrs + '</div></div>')
+}
+
+function hike(p, plat, size, mode) {
+  const h = p.hike, ok = h.line && h.good
+  const left = '<div class="row">' + svg('mountain', 15, 'var(--wi)') + '<span class="t15 one">' + esc(h.peak) + '</span></div>'
+    + '<div class="t13 one">' + esc(h.day) + '</div>'
+    + '<div style="height:calc(10 * var(--u))"></div>'
+    + (h.line ? '<div class="t13 one">' + esc(p.label) + '</div><div class="win" style="color:' + (ok ? 'var(--ok)' : 'var(--wi)') + '">' + esc(h.line) + '</div>' : '')
+    + '<div class="row t13 tab" style="color:var(--wi);margin-top:calc(6 * var(--u))">' + glyph(h.icon, 20) + '<span>' + hilo(h.hi, h.lo) + '</span></div>'
+  if (size === 's') return wrap(plat, size, mode, h.sky, '<div class="in">' + left + '</div>')
+  const facts = '<div class="facts"><div class="row">' + svg('wind', 15, 'var(--wm)') + '<span class="t13 tab">' + esc(h.wind) + '</span></div>'
+    + '<div class="row">' + svg('droplet', 15, 'var(--info)') + '<span class="t13 tab">' + esc(h.rain) + '</span></div>'
+    + (h.storm ? '<div class="row">' + svg('zap', 15, 'var(--wm)') + '<span class="t13">' + esc(h.storm) + '</span></div>' : '') + '</div>'
+  return wrap(plat, size, mode, h.sky, '<div class="split" style="grid-template-columns:1fr calc(' + (plat === 'and' ? 140 : 144) + ' * var(--u));gap:calc(16 * var(--u));align-items:start"><div class="in">' + left + '</div>' + facts + '</div>')
+}
+
+// a theme's own scenery, kept out of the text: snow specks top right and a snow line at the bottom (Winter), soft clouds top right (Sky)
+const FLECKS = [[8, 10, 1.6], [26, 4, 1.1], [44, 14, 1.3], [64, 6, 1], [84, 12, 1.5], [96, 30, 1.1], [74, 34, 1.2], [56, 26, 0.9], [92, 52, 1.2], [80, 62, 1]]
+function deco(theme, mode) {
+  if (theme === 'winter') {
+    const fl = mode === 'dark' ? 'rgba(246,248,252,.30)' : '#ffffff', line = mode === 'dark' ? 'rgba(233,238,245,.22)' : '#ffffff'
+    return '<svg class="deco" viewBox="0 0 100 70" style="right:calc(6 * var(--u));top:calc(6 * var(--u));width:calc(110 * var(--u));height:calc(77 * var(--u))" aria-hidden="true">' + FLECKS.map(([x, y, r]) => '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="' + fl + '"/>').join('') + '</svg>'
+      + '<svg class="deco" viewBox="0 0 100 10" preserveAspectRatio="none" style="left:0;right:0;bottom:0;height:calc(16 * var(--u));width:100%" aria-hidden="true"><path d="M0 10V6q25-5 50 0t50-1v5z" fill="' + line + '"/></svg>'
+  }
+  if (theme === 'sky') {
+    const c = mode === 'dark' ? [0.09, 0.14] : [0.6, 0.85]
+    const puff = (x, y, k, f) => '<g fill="#ffffff" opacity="' + f + '" transform="translate(' + x + ' ' + y + ') scale(' + k + ')"><circle cx="30" cy="58" r="17"/><circle cx="52" cy="46" r="23"/><circle cx="74" cy="58" r="17"/><rect x="13" y="56" width="74" height="27" rx="13.5"/></g>'
+    return (mode === 'dark' ? '<div class="glow" style="background:radial-gradient(90% 60% at 100% 115%, rgba(232,149,122,.30), transparent 70%)"></div>' : '')
+      + '<svg class="deco" viewBox="0 0 120 70" style="right:calc(-10 * var(--u));top:calc(-8 * var(--u));width:calc(120 * var(--u));height:calc(70 * var(--u))" aria-hidden="true">' + puff(40, -18, 0.75, c[0]) + puff(70, -8, 0.5, c[1]) + '</svg>'
+  }
+  return ''
+}
+let THEME = null
+const wrap = (plat, size, mode, sky, inner) => '<div class="w ' + plat + ' ' + size + ' ' + mode + (THEME ? ' ' + THEME : '') + '">' + (THEME ? deco(THEME, mode) : glow(mode, sky)) + inner + '</div>'
+const NAMES = { ios: 'iPhone', and: 'Android' }, SIZES = { ios: { s: 'small', m: 'medium' }, and: { s: '2 × 2', m: '4 × 2' } }
+
+const homes = (p, mode) => ['ios', 'and'].map(plat => '<h3>' + NAMES[plat] + '</h3><div class="grid">'
+  + ['s', 'm'].map(size => '<div class="cell">' + hike(p, plat, size, mode) + '<span class="lbl">Hike, ' + SIZES[plat][size] + '</span></div>').join('')
+  + ['s', 'm'].map(size => '<div class="cell">' + city(p, plat, size, mode) + '<span class="lbl">City, ' + SIZES[plat][size] + '</span></div>').join('')
+  + '</div>').join('')
+const NOTES = {
+  mono: ['Black and white only, like the Mono icon: true black in dark, white in light, every icon and number in ink or grey.', 'No green for the summit window: the label "Summit window" says it, and "No favourable window" says the opposite in words.'],
+  winter: ['Slate in dark, an icy white-blue in light, with the icon’s snow: a few specks in the top right corner and a soft snow line along the bottom edge, both clear of the text.', 'Colours and icons as in the default; gold stays on the sun.'],
+  sky: ['The old icon’s sky: dusk blue to violet with a faint peach edge at the bottom in dark, the pale day blue with white clouds in light. Soft clouds sit in the top right corner, clear of the text.', 'Text keeps at least 4.5:1 on every part of the sky.'],
+}
+let LANG = 'en', TH = 'mono'
+function renderThemes() {
+  const p = DATA[LANG]
+  THEME = TH
+  for (const mode of ['dark', 'light']) document.getElementById('t' + mode).innerHTML = homes(p, mode)
+  THEME = null
+  document.getElementById('tnote').innerHTML = NOTES[TH].map(n => '<li>' + n + '</li>').join('')
+  document.querySelectorAll('#tseg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.theme === TH)))
+}
+const EDIT = {
+  en: { edit: 'Edit Widget', city: 'City', home: 'Home city (Lienz)', show: 'Show', hours: 'Next hours', theme: 'Theme', app: 'As in the app', def: 'Default', mono: 'Mono', winter: 'Winter', sky: 'Sky', place: 'Weather widget', add: 'Add widget', iosl: 'iPhone: Edit Widget, the Theme menu open', andl: 'Android: the widget’s settings screen' },
+  de: { edit: 'Widget bearbeiten', city: 'Ort', home: 'Heimatstadt (Lienz)', show: 'Anzeigen', hours: 'Nächste Stunden', theme: 'Aussehen', app: 'Wie in der App', def: 'Standard', mono: 'Mono', winter: 'Winter', sky: 'Himmel', place: 'Wetter-Widget', add: 'Widget hinzufügen', iosl: 'iPhone: Widget bearbeiten, Menü Aussehen offen', andl: 'Android: die Einstellungen des Widgets' },
+}
+function renderEdit() {
+  const e = EDIT[LANG], opts = ['app', 'def', 'mono', 'winter', 'sky']
+  const ios = '<div class="cell"><div class="sheet ios"><div class="ttl">' + e.edit + '</div><div class="list">'
+    + '<div class="r"><span>' + e.city + '</span><span class="v">' + e.home + '</span></div>'
+    + '<div class="r"><span>' + e.show + '</span><span class="v">' + e.hours + '</span></div>'
+    + '<div class="r"><span>' + e.theme + '</span><span class="v">' + e.app + '</span></div></div>'
+    + '<div class="menu">' + opts.map((o, i) => '<div class="r"><span class="ck">' + (i === 0 ? '✓' : '') + '</span>' + e[o] + '</div>').join('') + '</div></div><span class="lbl" style="color:var(--muted)">' + e.iosl + '</span></div>'
+  const phone = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#ffd98a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg>'
+  const sw = { app: '#0f151b', def: 'linear-gradient(90deg,#0f151b 50%,#ffffff 50%)', mono: '#000000', winter: 'radial-gradient(circle at 70% 30%, #ffffff 0 1.5px, transparent 2px), radial-gradient(circle at 40% 20%, #ffffff 0 1px, transparent 1.5px), linear-gradient(180deg,#0f151b 75%,#3a434d 75%)', sky: 'linear-gradient(180deg,#1b2452,#4f4072 80%,#9b6a7e)' }
+  const and = '<div class="cell"><div class="sheet and"><div class="ttl">' + e.place + '</div><div class="list" style="background:#1a222b">'
+    + '<div class="r"><span>' + e.city + '</span><span class="v">' + e.home + '</span></div>'
+    + '<div class="r"><span>' + e.show + '</span><span class="v">' + e.hours + '</span></div></div>'
+    + '<div style="font-size:14px;color:#b4bbc7">' + e.theme + '</div><div class="chips">'
+    + opts.map((o, i) => '<div class="chipw' + (i === 0 ? ' on' : '') + '"><div class="sw" style="background:' + sw[o] + '">' + (o === 'app' ? phone : '') + '</div>' + e[o] + '</div>').join('')
+    + '</div><div class="btn">' + e.add + '</div></div><span class="lbl" style="color:var(--muted)">' + e.andl + '</span></div>'
+  document.getElementById('edit').innerHTML = ios + and
+}
+
+function render(lang) {
+  LANG = lang
+  const p = DATA[lang]
+  renderThemes(); renderEdit()
+  for (const mode of ['dark', 'light']) {
+    document.getElementById(mode).innerHTML = ['ios', 'and'].map(plat => '<h3>' + NAMES[plat] + '</h3><div class="grid">'
+      + ['s', 'm'].map(size => '<div class="cell">' + hike(p, plat, size, mode) + '<span class="lbl">Hike, ' + SIZES[plat][size] + '</span></div>').join('')
+      + ['s', 'm'].map(size => '<div class="cell">' + city(p, plat, size, mode) + '<span class="lbl">City, ' + SIZES[plat][size] + '</span></div>').join('')
+      + '</div>').join('')
+  }
+  document.getElementById('now').src = 'i/now-' + lang + '.webp'
+  document.querySelectorAll('.seg button[data-lang]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)))
+}
+document.querySelectorAll('.seg button[data-lang]').forEach(b => b.addEventListener('click', () => render(b.dataset.lang)))
+document.querySelectorAll('#tseg button').forEach(b => b.addEventListener('click', () => { TH = b.dataset.theme; renderThemes() }))
+render('en')
+</script>
