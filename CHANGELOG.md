@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-16
+
+### Changed: the outlook's nightly check asks the most pressing airports first
+- Nothing changes for visitors. The first night with two requests at a time (16 November) asked 164 of 260 airports in its 180 seconds, not all of them: a pair of requests took 4.4 seconds on average. The backlog fell (4,600 predictions waiting the night before, 2,983 after), but 1,587 predictions still ran out unscored.
+- The airports were asked in the order of the stored predictions, so the same places stood at the end every night. Of 179 places, the last two fifths in that order lost half of their checks, the first two fifths 10 to 19 % (read from the marks on the stored predictions; they include the nights before the fix of 12 November).
+- Now the place whose oldest check that can still be scored is nearest to running out is asked first (`stationOrder` in lib/outlook/job.js, with a test). What the budget leaves can wait a night: at 164 airports a night each one comes up at least every second night, and a check can wait 70 hours. No more requests than before.
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language
