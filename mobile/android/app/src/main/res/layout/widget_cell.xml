@@ -12,7 +12,7 @@
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
     <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginTop="4dp">
         <ImageView android:id="@+id/cell_glyph" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" />
-        <ImageView android:id="@+id/cell_glyph2" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+        <ImageView android:id="@+id/cell_glyph2" style="@style/WidgetIcon" android:importantForAccessibility="no" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
     </FrameLayout>
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
     <TextView android:id="@+id/cell_main" style="@style/WidgetCellMain" android:layout_marginTop="4dp" />

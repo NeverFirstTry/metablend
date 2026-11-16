@@ -20,13 +20,67 @@ test('widget texts: all 13 languages in both apps, the same words', () => {
   assert.deepEqual(Object.keys(java).sort(), [...LANGS].sort())
   assert.deepEqual(Object.keys(swift).sort(), [...LANGS].sort())
   for (const lang of LANGS) {
-    const j = java[lang] // settings, city, home, show, hours, days, save, openOnce, pickCity, planHike, offline
-    assert.equal(j.length, 11, lang)
+    // settings, city, home, show, hours, days, save, the 4 messages, then the 10 spoken labels of the drawn icons
+    const j = java[lang]
+    assert.equal(j.length, 21, lang)
     assert.deepEqual(swift[lang], [j[2], ...j.slice(7)], lang)
     for (const text of j) assert.ok(text.trim(), `${lang}: an empty text`)
   }
   // Japanese, Chinese and Korean are their own, never the English row
-  for (const lang of ['ja', 'zh', 'ko']) for (let i = 0; i < 11; i++) assert.notEqual(java[lang][i], java.en[i], `${lang}[${i}]`)
+  for (const lang of ['ja', 'zh', 'ko']) for (let i = 0; i < 21; i++) assert.notEqual(java[lang][i], java.en[i], `${lang}[${i}]`)
+})
+
+// the drawn icons' spoken labels (VoiceOver, TalkBack) are the app's own words, in the same 13 languages
+const A11Y = { clear: 'cClear', partlyCloudy: 'cPartlyCloudy', cloudy: 'cCloudy', fog: 'cFog', showers: 'cShowers', rain: 'cRain', snow: 'cSnow', thunder: 'cThunder', wind: 'windLabel', summit: 'appIconSummit' }
+
+test('widget icons: the spoken labels are the app\'s own words in all 13 languages', async () => {
+  for (const lang of LANGS) {
+    const pack = (await import(new URL(`lib/i18n/${lang}.js`, root))).default
+    assert.deepEqual(java[lang].slice(11), Object.values(A11Y).map(k => pack[k]), lang)
+    for (const w of java[lang].slice(11)) assert.doesNotMatch(w, /\p{Extended_Pictographic}/u, `${lang}: ${w}`)
+  }
+})
+
+test('widget icons: both apps read each weather drawing as the same condition', () => {
+  const cases = (src, fn) => {
+    const body = src.slice(src.indexOf(fn)).split(/\n\s*default:/)[0]
+    const map = {}
+    for (const line of body.split('\n')) {
+      const m = line.match(/^\s*case (.*): return "?\.?(\w+)"?;?\s*$/) // Java: case "☀": case "🌙": return "clear"; Swift: case "☀", "🌙": return .clear
+      if (m) for (const e of m[1].matchAll(/"([^"]+)"/g)) map[e[1]] = m[2]
+    }
+    return map
+  }
+  const java = cases(read('mobile/android/app/src/main/java/app/metablend/widget/WidgetRenderer.java'), 'static String conditionKey(')
+  const swift = cases(read('mobile/ios/App/MetaBlendWidgets/MetaBlendWidgets.swift'), 'static func condition(')
+  assert.deepEqual(java, swift)
+  // every emoji the website draws (app/components/Glyph.jsx) has a spoken condition
+  const site = [...read('app/components/Glyph.jsx').matchAll(/'(\S{1,2})': \[/g)].map(m => m[1])
+  assert.equal(site.length, 13)
+  for (const e of site) assert.ok(java[e] in A11Y, `${e}: ${java[e]}`)
+})
+
+test('widget icons: every drawn icon has a spoken label on both platforms', () => {
+  // Android: each icon id in the layouts gets a content description in the renderer (glyph2 is the silent half of
+  // partly cloudy; the scenery is not an icon)
+  const renderer = read('mobile/android/app/src/main/java/app/metablend/widget/WidgetRenderer.java')
+  const described = new Set([...renderer.matchAll(/setContentDescription\(R\.id\.(\w+)/g)].map(m => m[1]))
+  assert.match(renderer, /setContentDescription\(a, look\.tx\.get\(conditionKey\(e\)\)\)/) // glyph and cell_glyph
+  const layouts = fs.readdirSync(new URL('mobile/android/app/src/main/res/layout/', root)).filter(f => /^widget_(weather|hike|cell)/.test(f))
+  for (const f of layouts) {
+    const xml = read(`mobile/android/app/src/main/res/layout/${f}`)
+    for (const m of xml.matchAll(/<ImageView android:id="@\+id\/(\w+)"[^>]*>/g)) {
+      const [tag, id] = m
+      if (/importantForAccessibility="no"/.test(tag)) continue
+      assert.ok(id === 'glyph' || id === 'cell_glyph' || described.has(id), `${f}: ${id} has no spoken label`)
+    }
+  }
+  assert.ok(described.has('cell_sub'), 'an hour\'s rain is read as "Rain 7%"')
+  // iPhone: every Icon outside the weather glyph (which speaks for its drawings as one element) passes a label
+  const swiftViews = read('mobile/ios/App/MetaBlendWidgets/MetaBlendWidgets.swift')
+  for (const line of swiftViews.split('\n').filter(l => /Icon\(name: "icon-/.test(l))) {
+    assert.ok(/label: /.test(line) || /size: size, color/.test(line), `unlabelled: ${line.trim()}`)
+  }
 })
 
 test('widget texts: no dashes, and the offline message is two sentences', () => {

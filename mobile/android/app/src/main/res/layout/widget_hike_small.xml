@@ -41,7 +41,7 @@
 
             <FrameLayout android:layout_width="20dp" android:layout_height="20dp">
                 <ImageView android:id="@+id/glyph" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" />
-                <ImageView android:id="@+id/glyph2" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+                <ImageView android:id="@+id/glyph2" style="@style/WidgetIcon" android:importantForAccessibility="no" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
             </FrameLayout>
             <TextView android:id="@+id/hilo" style="@style/WidgetText" android:layout_marginStart="6dp" />
         </LinearLayout>

@@ -6,7 +6,7 @@
 // Run it again after a change to the spec or the assets, and commit what it writes.
 import fs from 'node:fs'
 import path from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const arg = (name, fallback) => {
@@ -80,6 +80,23 @@ for (const lang of LANGS) {
   for (const [k, v] of Object.entries(TEXTS[lang])) {
     if (!v) throw new Error(`spec: ${lang}.${k} is empty`)
     if (/[–—]/.test(v)) throw new Error(`spec: ${lang}.${k} has a dash`)
+  }
+}
+
+// ---- spoken labels for the drawn icons (VoiceOver, TalkBack): the app's own words from its 13 language packs.
+// Each weather emoji's drawing is read as its condition, the drop as "Rain 32%", the wind as "Wind 25 km/h", the peak
+// as "Summit"; the storm row is read as its own text ("Storm risk: low").
+export const A11Y = {
+  clear: 'cClear', partlyCloudy: 'cPartlyCloudy', cloudy: 'cCloudy', fog: 'cFog', showers: 'cShowers',
+  rain: 'cRain', snow: 'cSnow', thunder: 'cThunder', wind: 'windLabel', summit: 'appIconSummit',
+}
+const A11Y_KEYS = Object.keys(A11Y)
+for (const lang of LANGS) {
+  const pack = (await import(pathToFileURL(path.join(ROOT, 'lib/i18n', `${lang}.js`)).href)).default
+  for (const [k, key] of Object.entries(A11Y)) {
+    const v = pack[key]
+    if (!v || /[–—]/.test(v) || /\p{Extended_Pictographic}/u.test(v)) throw new Error(`lib/i18n/${lang}.js ${key}: missing, a dash or an emoji: ${v}`)
+    TEXTS[lang][k] = v
   }
 }
 
@@ -177,7 +194,8 @@ for (const [dir, mode] of [['values', 'light'], ['values-night', 'dark']]) {
 
 // ---- Android: the texts and the colour resources by theme and role
 const jstr = s => JSON.stringify(s)
-const KEYS = [...SETTINGS_KEYS, ...MESSAGE_KEYS]
+const KEYS = [...SETTINGS_KEYS, ...MESSAGE_KEYS, ...A11Y_KEYS]
+const SWIFT_KEYS = ['home', ...MESSAGE_KEYS, ...A11Y_KEYS]
 write(path.join(JAVA, 'WidgetText.java'), `// ${HEAD}
 package app.metablend.widget;
 
@@ -185,8 +203,8 @@ import app.metablend.R;
 import java.util.HashMap;
 import java.util.Map;
 
-// The widgets' texts and their settings screen in the app's 13 languages (the language arrives with the app's sync),
-// and the colour resources per theme and role (light in values, dark in values-night).
+// The widgets' texts, their settings screen and the drawn icons' spoken labels in the app's 13 languages (the language
+// arrives with the app's sync), and the colour resources per theme and role (light in values, dark in values-night).
 public final class WidgetText {
     private static final String[] KEYS = { ${KEYS.map(jstr).join(', ')} };
     private static final Map<String, String[]> T = new HashMap<>();
@@ -222,11 +240,12 @@ const swiftColour = hex => `Color(hex: "${hex}")`
 write(path.join(IOS, 'WidgetLook.swift'), `// ${HEAD}
 import SwiftUI
 
-// The widgets' texts in the app's 13 languages: the row the app syncs, else the phone's language, else English.
+// The widgets' texts and the drawn icons' spoken labels in the app's 13 languages: the row the app syncs, else the
+// phone's language, else English.
 enum Texts {
-    enum Key: Int { case home, openOnce, pickCity, planHike, offline }
+    enum Key: Int { case ${SWIFT_KEYS.join(', ')} }
     private static let table: [String: [String]] = [
-${LANGS.map(l => `        ${sstr(l)}: [${['home', ...MESSAGE_KEYS].map(k => sstr(TEXTS[l][k])).join(', ')}],`).join('\n')}
+${LANGS.map(l => `        ${sstr(l)}: [${SWIFT_KEYS.map(k => sstr(TEXTS[l][k])).join(', ')}],`).join('\n')}
     ]
     static func t(_ lang: String?, _ key: Key) -> String {
         let phone = Locale.current.language.languageCode?.identifier ?? "en"

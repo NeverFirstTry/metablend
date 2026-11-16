@@ -102,9 +102,15 @@ public final class WidgetUpdater {
 
     private static void show(Context c, int id, String kind, JSONObject p, boolean stale) {
         WidgetRenderer.Look look = new WidgetRenderer.Look(
-            WidgetRenderer.theme(WidgetStore.settings(c)), stale, WidgetStore.cachedAt(c, id), WidgetStore.get(c, id, "show", "hours"));
+            WidgetRenderer.theme(WidgetStore.settings(c)), stale, WidgetStore.cachedAt(c, id), WidgetStore.get(c, id, "show", "hours"), text(c));
         RemoteViews v = HIKE.equals(kind) ? WidgetRenderer.hike(c, id, p, look) : WidgetRenderer.weather(c, id, p, look);
         AppWidgetManager.getInstance(c).updateAppWidget(id, v);
+    }
+
+    // the widgets' language: the app's, else the phone's
+    static WidgetText text(Context c) {
+        JSONObject s = WidgetStore.settings(c);
+        return new WidgetText(s == null ? Locale.getDefault().getLanguage() : s.optString("lang", "en"));
     }
 
     // the earliest plan dated today or later (the phone's calendar)

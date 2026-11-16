@@ -11,6 +11,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The website's drawn icons replace the emoji (sun, moon, cloud, rain, snow, storm, fog, the peak, wind, rain drop, storm risk), each in its theme colour: gold only on the sun, green only on a favourable window.
 - The hike widget is aligned to the top, and a window carries its words ("Summit window") above it, so its colour is never the only sign. A day with no favourable window shows the sentence alone; a day beyond tomorrow shows no window block.
 - Rain and wind sit in their own row in the medium and large city widgets, read from the new fields of /api/app-widget (feat/widget-data, which must be live before this build ships).
+- Every drawn icon has a spoken label for VoiceOver and TalkBack, in the app's own words in all 13 languages (owner, 2026-11-16): the weather drawing reads as its condition ("Partly cloudy"), the drop and the wind with their values ("Rain 32%", "Wind 3 km/h"), each value once, the storm row as its text ("Storm risk: low"), the peak as "Summit". Under the emoji, screen readers had read the emoji's name.
 - Every widget text and the Android settings screen are in all 13 languages (only 5 had them). The offline message loses its dash: "No connection. Tap to open MetaBlend." The Android hike widget no longer opens an empty settings screen.
 - One script makes the native colours, texts, icons and scenery from the spec and its drawings (scripts/brand/widget-native.mjs); a test holds both apps to the same words in all 13 languages, with no dash.
 

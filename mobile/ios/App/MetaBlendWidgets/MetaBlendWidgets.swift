@@ -127,8 +127,10 @@ struct Look {
     let theme: WidgetTheme
     let dark: Bool
     let accented: Bool
+    let lang: String?
     var p: Palette { theme.palette(dark: dark) }
     func ink(_ c: Color) -> Color { accented ? .primary : c }
+    func word(_ key: Texts.Key) -> String { Texts.t(lang, key) } // the drawn icons' spoken labels
 }
 
 // An elliptical radial glow: the colour at the centre fading to nothing at `fade` of the radius (section 3)
@@ -201,15 +203,40 @@ struct Background: View {
     }
 }
 
-// The website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is two drawings
+// The website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is two drawings.
+// VoiceOver reads the drawing as its condition, in the app's words ("Partly cloudy").
 struct Glyph: View {
     let emoji: String
     let size: CGFloat
     let look: Look
 
+    static func condition(_ e: String) -> Texts.Key? {
+        switch e {
+        case "☀", "🌙": return .clear
+        case "☁": return .cloudy
+        case "⛅", "🌤", "🌥": return .partlyCloudy
+        case "🌦": return .showers
+        case "🌧": return .rain
+        case "🌨", "❄": return .snow
+        case "⛈", "🌩": return .thunder
+        case "🌫": return .fog
+        default: return nil
+        }
+    }
+
     var body: some View {
+        let e = emoji.replacingOccurrences(of: "\u{FE0F}", with: "")
+        if let key = Glyph.condition(e) {
+            drawing(e)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(look.word(key))
+        }
+    }
+
+    @ViewBuilder
+    private func drawing(_ e: String) -> some View {
         let p = look.p
-        switch emoji.replacingOccurrences(of: "\u{FE0F}", with: "") {
+        switch e {
         case "☀": Icon(name: "icon-sun", size: size, color: look.ink(p.sun))
         case "🌙": Icon(name: "icon-moon", size: size, color: look.ink(p.moon))
         case "☁": Icon(name: "icon-cloud", size: size, color: look.ink(p.cloud))
@@ -222,22 +249,24 @@ struct Glyph: View {
         case "🌧": Icon(name: "icon-cloud-rain", size: size, color: look.ink(p.rain))
         case "🌨", "❄": Icon(name: "icon-cloud-snow", size: size, color: look.ink(p.rain))
         case "⛈", "🌩": Icon(name: "icon-cloud-lightning", size: size, color: look.ink(p.rain))
-        case "🌫": Icon(name: "icon-cloud-fog", size: size, color: look.ink(p.cloud))
-        default: EmptyView()
+        default: Icon(name: "icon-cloud-fog", size: size, color: look.ink(p.cloud)) // 🌫, the only one left
         }
     }
 }
 
+// A drawn icon; `label` is what VoiceOver says ("Rain 9%", "Wind 3 km/h"), nil when an enclosing view speaks for it
 struct Icon: View {
     let name: String
     let size: CGFloat
     let color: Color
+    var label: String? = nil
 
     var body: some View {
         Image(name).resizable().renderingMode(.template)
             .frame(width: size, height: size)
             .foregroundStyle(color)
-            .accessibilityHidden(true)
+            .accessibilityLabel(label ?? "")
+            .accessibilityHidden(label == nil)
     }
 }
 
@@ -257,12 +286,13 @@ func hilo(_ hi: String, _ lo: String) -> String { "↑ \(hi)  ↓ \(lo)" }
 // the widget's look from the environment: built once per view
 struct Themed<Content: View>: View {
     let theme: WidgetTheme
+    let lang: String?
     @ViewBuilder let content: (Look) -> Content
     @Environment(\.colorScheme) private var scheme
     @Environment(\.widgetRenderingMode) private var mode
 
     var body: some View {
-        content(Look(theme: theme, dark: scheme == .dark, accented: mode != .fullColor))
+        content(Look(theme: theme, dark: scheme == .dark, accented: mode != .fullColor, lang: lang))
             .dynamicTypeSize(...DynamicTypeSize.xxLarge)
     }
 }
@@ -272,7 +302,7 @@ struct MessageView: View {
     let theme: WidgetTheme
 
     var body: some View {
-        Themed(theme: theme) { look in
+        Themed(theme: theme, lang: nil) { look in
             Text(text)
                 .font(.footnote)
                 .multilineTextAlignment(.center)
@@ -295,11 +325,13 @@ struct WeatherEntry: TimelineEntry {
     let state: State
     let show: WidgetShow
     let theme: WidgetTheme
+    let lang: String?
 }
 
 struct WeatherProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> WeatherEntry {
-        WeatherEntry(date: .now, state: .data(.sample, hour: nil, fetched: .now, stale: false), show: .hours, theme: WidgetTheme(WidgetSettings.load()?.theme))
+        let s = WidgetSettings.load()
+        return WeatherEntry(date: .now, state: .data(.sample, hour: nil, fetched: .now, stale: false), show: .hours, theme: WidgetTheme(s?.theme), lang: s?.lang)
     }
 
     func snapshot(for configuration: WeatherConfig, in context: Context) async -> WeatherEntry {
@@ -312,12 +344,11 @@ struct WeatherProvider: AppIntentTimelineProvider {
     }
 
     private func entries(for config: WeatherConfig) async -> [WeatherEntry] {
-        let s = WidgetSettings.load()
-        let theme = WidgetTheme(s?.theme)
+        let settings = WidgetSettings.load()
         let entry = { (state: WeatherEntry.State, date: Date) in
-            WeatherEntry(date: date, state: state, show: config.show, theme: theme)
+            WeatherEntry(date: date, state: state, show: config.show, theme: WidgetTheme(settings?.theme), lang: settings?.lang)
         }
-        guard let s else { return [entry(.message(Texts.t(nil, .openOnce)), .now)] }
+        guard let s = settings else { return [entry(.message(Texts.t(nil, .openOnce)), .now)] }
         let chosen = config.city?.id ?? ""
         var city = chosen.isEmpty ? (s.home ?? "") : chosen
         if city.isEmpty { return [entry(.message(Texts.t(s.lang, .pickCity)), .now)] }
@@ -365,11 +396,11 @@ struct Strip: View {
         HStack(spacing: 0) {
             if show == .days {
                 ForEach(Array(p.days.prefix(count).enumerated()), id: \.offset) { _, d in
-                    cell(top: d.day, icon: d.icon, main: d.hi, sub: d.lo, subColor: look.p.muted)
+                    cell(top: d.day, icon: d.icon, main: d.hi, sub: d.lo, subColor: look.p.muted, subLabel: d.lo)
                 }
             } else {
                 ForEach(Array(p.hours.dropFirst(max(from, 0)).prefix(count).enumerated()), id: \.offset) { _, h in
-                    cell(top: h.t, icon: h.icon, main: h.temp, sub: h.rain, subColor: look.p.rain)
+                    cell(top: h.t, icon: h.icon, main: h.temp, sub: h.rain, subColor: look.p.rain, subLabel: "\(look.word(.rain)) \(h.rain)")
                 }
             }
         }
@@ -377,7 +408,7 @@ struct Strip: View {
     }
 
     @ViewBuilder
-    private func cell(top: String, icon: String, main: String, sub: String, subColor: Color) -> some View {
+    private func cell(top: String, icon: String, main: String, sub: String, subColor: Color, subLabel: String) -> some View {
         let items = VStack(spacing: fill ? 0 : 4) {
             Text(top).font(.footnote).foregroundStyle(look.ink(look.p.muted))
             if fill { Spacer(minLength: 2) }
@@ -385,7 +416,7 @@ struct Strip: View {
             if fill { Spacer(minLength: 2) }
             Text(main).font(.subheadline.weight(.medium)).foregroundStyle(look.ink(look.p.ink))
             if fill { Spacer(minLength: 2) }
-            Text(sub).font(.footnote).foregroundStyle(look.ink(subColor))
+            Text(sub).font(.footnote).foregroundStyle(look.ink(subColor)).accessibilityLabel(subLabel) // "Rain 7%"
         }
         .monospacedDigit()
         .lineLimit(1)
@@ -403,11 +434,12 @@ struct RainWind: View {
     let look: Look
 
     var body: some View {
+        // each value is read once, inside its icon's label: "Rain 9%", "Wind 3 km/h"
         HStack(spacing: 4) {
-            Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain))
-            Text(rain)
-            Icon(name: "icon-wind", size: 13, color: look.ink(look.p.muted)).padding(.leading, 6)
-            Text(wind)
+            Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain), label: "\(look.word(.rain)) \(rain)")
+            Text(rain).accessibilityHidden(true)
+            Icon(name: "icon-wind", size: 13, color: look.ink(look.p.muted), label: "\(look.word(.wind)) \(wind)").padding(.leading, 6)
+            Text(wind).accessibilityHidden(true)
         }
         .font(.footnote)
         .monospacedDigit()
@@ -425,7 +457,7 @@ struct WeatherWidgetView: View {
         case .message(let text):
             MessageView(text: text, theme: entry.theme)
         case .data(let p, let hour, let fetched, let stale):
-            Themed(theme: entry.theme) { look in
+            Themed(theme: entry.theme, lang: entry.lang) { look in
                 content(p, hour: hour, fetched: fetched, stale: stale, look: look)
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                     .opacity(isOld(fetched, stale) ? 0.55 : 1)
@@ -447,7 +479,10 @@ struct WeatherWidgetView: View {
         // once the timeline has moved past the first hour: that hour's rain instead of the condition now
         let condition = Group {
             if let h {
-                HStack(spacing: 4) { Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain)); Text(h.rain) }
+                HStack(spacing: 4) {
+                    Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain), label: "\(look.word(.rain)) \(h.rain)")
+                    Text(h.rain).accessibilityHidden(true)
+                }
             } else {
                 Text(p.now.text)
             }
@@ -526,11 +561,13 @@ struct HikeEntry: TimelineEntry {
     let date: Date
     let state: State
     let theme: WidgetTheme
+    let lang: String?
 }
 
 struct HikeProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> HikeEntry {
-        HikeEntry(date: .now, state: .data(.sample, fetched: .now, stale: false), theme: WidgetTheme(WidgetSettings.load()?.theme))
+        let s = WidgetSettings.load()
+        return HikeEntry(date: .now, state: .data(.sample, fetched: .now, stale: false), theme: WidgetTheme(s?.theme), lang: s?.lang)
     }
 
     func snapshot(for configuration: HikeConfig, in context: Context) async -> HikeEntry {
@@ -551,9 +588,9 @@ struct HikeProvider: AppIntentTimelineProvider {
     }
 
     private func entry(for config: HikeConfig) async -> HikeEntry {
-        let s = WidgetSettings.load()
-        let make = { (state: HikeEntry.State) in HikeEntry(date: .now, state: state, theme: WidgetTheme(s?.theme)) }
-        guard let s else { return make(.message(Texts.t(nil, .openOnce))) }
+        let settings = WidgetSettings.load()
+        let make = { (state: HikeEntry.State) in HikeEntry(date: .now, state: state, theme: WidgetTheme(settings?.theme), lang: settings?.lang) }
+        guard let s = settings else { return make(.message(Texts.t(nil, .openOnce))) }
         let today = Self.today()
         guard let plan = s.hikes.filter({ $0.date >= today }).min(by: { $0.date < $1.date }) else {
             return make(.message(Texts.t(s.lang, .planHike)))
@@ -584,7 +621,7 @@ struct HikeWidgetView: View {
         case .message(let text):
             MessageView(text: text, theme: entry.theme)
         case .data(let p, let fetched, let stale):
-            Themed(theme: entry.theme) { look in
+            Themed(theme: entry.theme, lang: entry.lang) { look in
                 let medium = family == .systemMedium
                 HStack(alignment: .top, spacing: 16) {
                     left(p, fetched: fetched, stale: stale, look: look, windowSize: medium ? 24 : 22)
@@ -605,7 +642,7 @@ struct HikeWidgetView: View {
         let ink = look.ink(look.p.ink), muted = look.ink(look.p.muted)
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 6) {
-                Icon(name: "icon-mountain", size: 15, color: ink)
+                Icon(name: "icon-mountain", size: 15, color: ink, label: look.word(.summit))
                 Text(p.peak).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(1).minimumScaleFactor(0.8)
             }
             Text(p.day).font(.footnote).foregroundStyle(muted).lineLimit(1)
@@ -637,16 +674,17 @@ struct HikeWidgetView: View {
     // wind, rain and storm risk, from the top, the first row level with the peak name
     private func facts(_ p: HikePayload, look: Look) -> some View {
         VStack(alignment: .leading, spacing: 10) {
-            fact("icon-wind", look.p.muted, p.wind, look: look)
-            fact("icon-droplet", look.p.rain, p.rain, look: look)
-            if let storm = p.storm { fact("icon-zap", look.p.muted, storm, look: look, lines: 2) }
+            fact("icon-wind", look.p.muted, p.wind, label: "(look.word(.wind)) (p.wind)", look: look)
+            fact("icon-droplet", look.p.rain, p.rain, label: "(look.word(.rain)) (p.rain)", look: look)
+            if let storm = p.storm { fact("icon-zap", look.p.muted, storm, label: storm, look: look, lines: 2) } // "Storm risk: low"
         }
     }
 
-    private func fact(_ icon: String, _ color: Color, _ text: String, look: Look, lines: Int = 1) -> some View {
+    // the value is read once, inside the icon's label
+    private func fact(_ icon: String, _ color: Color, _ text: String, label: String, look: Look, lines: Int = 1) -> some View {
         HStack(alignment: .top, spacing: 6) {
-            Icon(name: icon, size: 15, color: look.ink(color)).padding(.top, 2) // centred on the text's first line
-            Text(text).font(.footnote).monospacedDigit().foregroundStyle(look.ink(look.p.ink)).lineLimit(lines)
+            Icon(name: icon, size: 15, color: look.ink(color), label: label).padding(.top, 2) // centred on the text's first line
+            Text(text).font(.footnote).monospacedDigit().foregroundStyle(look.ink(look.p.ink)).lineLimit(lines).accessibilityHidden(true)
         }
     }
 }

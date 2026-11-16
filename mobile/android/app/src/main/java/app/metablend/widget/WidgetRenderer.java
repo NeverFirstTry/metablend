@@ -34,8 +34,10 @@ public final class WidgetRenderer {
         final boolean stale;
         final long at;
         final String show;
+        final WidgetText tx; // the spoken labels of the drawn icons
 
-        public Look(int theme, boolean stale, long at, String show) {
+        public Look(int theme, boolean stale, long at, String show, WidgetText tx) {
+            this.tx = tx;
             this.theme = theme;
             this.stale = stale;
             this.at = at;
@@ -93,16 +95,16 @@ public final class WidgetRenderer {
         JSONObject now = obj(p, "now"), today = obj(p, "today");
         v.setTextViewText(R.id.city, p.optString("city"));
         v.setTextViewText(R.id.temp, now.optString("temp"));
-        glyph(c, v, t, now.optString("icon"), R.id.glyph, R.id.glyph2);
+        glyph(c, v, look, now.optString("icon"), R.id.glyph, R.id.glyph2);
         v.setTextViewText(R.id.text, now.optString("text"));
         v.setTextViewText(R.id.hilo, hilo(today));
         color(c, v, t, WidgetText.INK, R.id.city, R.id.temp);
         color(c, v, t, WidgetText.MUTED, R.id.text, R.id.hilo, R.id.updated);
         if (size == MEDIUM) {
-            strip(c, v, R.id.strip, p, "days".equals(look.show), t, 5);
+            strip(c, v, R.id.strip, p, "days".equals(look.show), look, 5);
         } else if (size == LARGE) {
-            strip(c, v, R.id.strip, p, false, t, 6);
-            strip(c, v, R.id.strip_days, p, true, t, 5);
+            strip(c, v, R.id.strip, p, false, look, 6);
+            strip(c, v, R.id.strip_days, p, true, look, 5);
         }
         if (size != SMALL) {
             // rain and wind on their own (servers before 2026-11-16 send only the old combined line: then no row)
@@ -114,13 +116,16 @@ public final class WidgetRenderer {
             color(c, v, t, WidgetText.MUTED, R.id.rain, R.id.wind);
             tint(c, v, t, WidgetText.RAIN, R.id.rain_icon);
             tint(c, v, t, WidgetText.MUTED, R.id.wind_icon);
+            v.setContentDescription(R.id.rain_icon, look.tx.get("rain") + " " + rain);
+            v.setContentDescription(R.id.wind_icon, look.tx.get("wind") + " " + wind);
         }
         finish(c, v, id, p, look, now.optString("sky"));
         return v;
     }
 
     // a row of cells: the next hours (time, glyph, temperature, rain) or days (weekday, glyph, high, low)
-    private static void strip(Context c, RemoteViews v, int stripId, JSONObject p, boolean days, int t, int max) {
+    private static void strip(Context c, RemoteViews v, int stripId, JSONObject p, boolean days, Look look, int max) {
+        int t = look.theme;
         v.removeAllViews(stripId);
         JSONArray list = p.optJSONArray(days ? "days" : "hours");
         int n = list == null ? 0 : Math.min(list.length(), max);
@@ -129,12 +134,13 @@ public final class WidgetRenderer {
             if (it == null) continue;
             RemoteViews cell = new RemoteViews(c.getPackageName(), R.layout.widget_cell);
             cell.setTextViewText(R.id.cell_top, it.optString(days ? "day" : "t"));
-            glyph(c, cell, t, it.optString("icon"), R.id.cell_glyph, R.id.cell_glyph2);
+            glyph(c, cell, look, it.optString("icon"), R.id.cell_glyph, R.id.cell_glyph2);
             cell.setTextViewText(R.id.cell_main, it.optString(days ? "hi" : "temp"));
             cell.setTextViewText(R.id.cell_sub, it.optString(days ? "lo" : "rain"));
             color(c, cell, t, WidgetText.MUTED, R.id.cell_top);
             color(c, cell, t, WidgetText.INK, R.id.cell_main);
             color(c, cell, t, days ? WidgetText.MUTED : WidgetText.RAIN, R.id.cell_sub);
+            if (!days) cell.setContentDescription(R.id.cell_sub, look.tx.get("rain") + " " + it.optString("rain")); // "Rain 7%"
             v.addView(stripId, cell);
         }
     }
@@ -147,6 +153,7 @@ public final class WidgetRenderer {
         color(c, v, t, WidgetText.INK, R.id.peak, R.id.hilo);
         color(c, v, t, WidgetText.MUTED, R.id.day, R.id.label, R.id.updated);
         tint(c, v, t, WidgetText.INK, R.id.peak_icon);
+        v.setContentDescription(R.id.peak_icon, look.tx.get("summit"));
 
         // the window block: a window with its label, a sentence alone, or nothing (the day is beyond tomorrow)
         boolean hasLine = !p.isNull("line") && !p.optString("line").isEmpty();
@@ -162,7 +169,7 @@ public final class WidgetRenderer {
             boolean good = window && !p.isNull("good") && p.optBoolean("good");
             color(c, v, t, good ? WidgetText.WINDOW : WidgetText.INK, R.id.line);
         }
-        glyph(c, v, t, p.optString("icon"), R.id.glyph, R.id.glyph2);
+        glyph(c, v, look, p.optString("icon"), R.id.glyph, R.id.glyph2);
         v.setTextViewText(R.id.hilo, hilo(p));
         if (medium) {
             v.setTextViewText(R.id.wind, p.optString("wind"));
@@ -174,6 +181,9 @@ public final class WidgetRenderer {
             tint(c, v, t, WidgetText.MUTED, R.id.wind_icon);
             tint(c, v, t, WidgetText.RAIN, R.id.rain_icon);
             tint(c, v, t, WidgetText.MUTED, R.id.storm_icon);
+            v.setContentDescription(R.id.wind_icon, look.tx.get("wind") + " " + p.optString("wind"));
+            v.setContentDescription(R.id.rain_icon, look.tx.get("rain") + " " + p.optString("rain"));
+            if (storm) v.setContentDescription(R.id.storm_icon, p.optString("storm")); // "Storm risk: low"
         }
         finish(c, v, id, p, look, p.optString("sky"));
         return v;
@@ -205,13 +215,16 @@ public final class WidgetRenderer {
     }
 
     // section 5: the website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is
-    // two drawings, the sun's rays and the cloud, each in its own colour
-    static void glyph(Context c, RemoteViews v, int t, String emoji, int a, int b) {
-        int[] g = glyphFor(emoji == null ? "" : emoji.replace("️", ""));
+    // two drawings, the sun's rays and the cloud, each in its own colour; the first is read as the condition
+    static void glyph(Context c, RemoteViews v, Look look, String emoji, int a, int b) {
+        int t = look.theme;
+        String e = emoji == null ? "" : emoji.replace("️", "");
+        int[] g = glyphFor(e);
         show(v, g != null, a);
         show(v, g != null && g.length == 4, b);
         if (g == null) return;
         v.setImageViewResource(a, g[0]);
+        v.setContentDescription(a, look.tx.get(conditionKey(e)));
         tint(c, v, t, g[1], a);
         if (g.length == 4) {
             v.setImageViewResource(b, g[2]);
@@ -231,6 +244,21 @@ public final class WidgetRenderer {
             case "⛈": case "🌩": return new int[] { R.drawable.w_ic_cloud_lightning, WidgetText.RAIN };
             case "🌫": return new int[] { R.drawable.w_ic_cloud_fog, WidgetText.CLOUD };
             default: return null;
+        }
+    }
+
+    // the spoken condition of each drawing (the app's own words, WidgetText)
+    static String conditionKey(String e) {
+        switch (e) {
+            case "☀": case "🌙": return "clear";
+            case "☁": return "cloudy";
+            case "⛅": case "🌤": case "🌥": return "partlyCloudy";
+            case "🌦": return "showers";
+            case "🌧": return "rain";
+            case "🌨": case "❄": return "snow";
+            case "⛈": case "🌩": return "thunder";
+            case "🌫": return "fog";
+            default: return "";
         }
     }
 
