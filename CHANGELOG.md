@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-16
 
+### Changed: the home-screen widgets' new look (next native build, iPhone and Android)
+- The widgets follow the phone's appearance: Slate in dark mode with the sun's faint gold sheen, white in light mode. The blue "living sky" and the Style setting (Living sky / System) are gone on both platforms (docs/widgets-spec.md, approved 2026-11-16).
+- The app icon chosen under More gives the widgets its theme when it is Mono, Winter or Sky; every other icon keeps the default. Winter has its snow specks and a snow band, Sky its evening gradient and two clouds.
+- The website's drawn icons replace the emoji (sun, moon, cloud, rain, snow, storm, fog, the peak, wind, rain drop, storm risk), each in its theme colour: gold only on the sun, green only on a favourable window.
+- The hike widget is aligned to the top, and a window carries its words ("Summit window") above it, so its colour is never the only sign. A day with no favourable window shows the sentence alone; a day beyond tomorrow shows no window block.
+- Rain and wind sit in their own row in the medium and large city widgets, read from the new fields of /api/app-widget (feat/widget-data, which must be live before this build ships).
+- Every widget text and the Android settings screen are in all 13 languages (only 5 had them). The offline message loses its dash: "No connection. Tap to open MetaBlend." The Android hike widget no longer opens an empty settings screen.
+- One script makes the native colours, texts, icons and scenery from the spec and its drawings (scripts/brand/widget-native.mjs); a test holds both apps to the same words in all 13 languages, with no dash.
+
 ### Fixed: the outlook's nightly check scores the predictions it left waiting
 - Nothing changes for visitors. Where the nearest airport reports only by day, a day's check never had its 18 reports and ran out unscored, though the next airport in range reports all night: Rome (Urbe with 9 to 12 reports a day, beside Ciampino with 48), Tokyo, Johannesburg, Cloppenburg. Each check now goes to the nearest airport that has what it needs (`scoreCheck` in lib/outlook/verify.js, with a test).
 - A request the airport service does not answer is asked once more at the end of the run, at the same pace and inside the same 180 seconds. On 16 November 5 of 22 test requests came back as 502 or 504 and were answered on the second try minutes later; until now such a request cost both its airports the night. The night's record now counts the second tries and the airports left without an answer (`outlookRetries`, `outlookStationsFailed`).

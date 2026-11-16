@@ -1,13 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- One hour (time, glyph, temperature, rain) or day (weekday, glyph, high, low). In the medium widget the cell fills the
+     content height and its four items spread from top to bottom; in the large one it wraps them. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     android:layout_weight="1"
     android:gravity="center_horizontal"
     android:orientation="vertical">
 
-    <TextView android:id="@+id/cell_top" style="@style/WidgetSmall" />
-    <TextView android:id="@+id/cell_icon" style="@style/WidgetText" android:layout_marginTop="4dp" android:textSize="18sp" />
-    <TextView android:id="@+id/cell_main" style="@style/WidgetText" android:layout_marginTop="4dp" android:textSize="13sp" />
-    <TextView android:id="@+id/cell_sub" style="@style/WidgetSmall" android:layout_marginTop="2dp" />
+    <TextView android:id="@+id/cell_top" style="@style/WidgetSecondary" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <FrameLayout android:layout_width="20dp" android:layout_height="20dp" android:layout_marginTop="4dp">
+        <ImageView android:id="@+id/cell_glyph" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" />
+        <ImageView android:id="@+id/cell_glyph2" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+    </FrameLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <TextView android:id="@+id/cell_main" style="@style/WidgetCellMain" android:layout_marginTop="4dp" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+    <TextView android:id="@+id/cell_sub" style="@style/WidgetSecondary" android:layout_marginTop="4dp" />
 </LinearLayout>

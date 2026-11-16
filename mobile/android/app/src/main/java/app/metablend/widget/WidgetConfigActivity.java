@@ -19,7 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 // A widget's settings: on adding (Android 11 and older) and via long-press →
-// reconfigure. City and Show only for the weather widget, Style for both.
+// reconfigure. City and Show, for the weather widget (the hike widget has nothing to set).
 public class WidgetConfigActivity extends AppCompatActivity {
     private int id = AppWidgetManager.INVALID_APPWIDGET_ID;
 
@@ -66,11 +66,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
             option(show, "hours", tx.get("hours"), !"days".equals(sh));
             option(show, "days", tx.get("days"), "days".equals(sh));
         }
-        String st = WidgetStore.get(this, id, "style", "sky");
-        RadioGroup style = group(col, tx.get("style"));
-        option(style, "sky", tx.get("sky"), !"system".equals(st));
-        option(style, "system", tx.get("system"), "system".equals(st));
-
         Button save = new Button(this);
         save.setText(tx.get("save"));
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -80,7 +75,6 @@ public class WidgetConfigActivity extends AppCompatActivity {
         save.setOnClickListener(v -> {
             if (fCities != null) WidgetStore.put(this, id, "city", picked(fCities));
             if (fShow != null) WidgetStore.put(this, id, "show", picked(fShow));
-            WidgetStore.put(this, id, "style", picked(style));
             WidgetStore.dropCache(this, id); // don't flash the previous city
             WidgetUpdater.update(this, new int[] { id }, hike ? WidgetUpdater.HIKE : WidgetUpdater.WEATHER, null);
             setResult(RESULT_OK, new Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id));

@@ -2,6 +2,9 @@ import Foundation
 import WidgetKit
 import SwiftUI
 
+// The home-screen widgets (docs/widgets-spec.md). The texts, colours and backgrounds per theme are generated into
+// WidgetLook.swift; the icons and scenery are template images in Assets.xcassets.
+
 // MARK: - What the app syncs (WidgetBridge → App Group)
 
 let appGroup = "group.app.metablend"
@@ -20,6 +23,7 @@ struct WidgetSettings: Codable {
     let home: String?
     let recent: [String]
     let hikes: [Hike]
+    let theme: String? // the app icon's theme: default, mono, winter or sky (absent from apps before 2026-11-16)
 
     static func load() -> WidgetSettings? {
         guard let json = UserDefaults(suiteName: appGroup)?.string(forKey: "widget_settings"),
@@ -28,28 +32,10 @@ struct WidgetSettings: Codable {
     }
 }
 
-// MARK: - Texts in the app's five languages
-
-enum Texts {
-    enum Key: Int { case home, openOnce, pickCity, planHike, offline }
-    private static let table: [String: [String]] = [
-        "en": ["Home city", "Open MetaBlend once to pick a city", "Pick a city in MetaBlend", "Plan a hike in the app", "No connection — tap to open MetaBlend"],
-        "de": ["Heimatstadt", "Öffne MetaBlend einmal, um einen Ort zu wählen", "Wähle einen Ort in MetaBlend", "Plane eine Tour in der App", "Keine Verbindung – tippen, um MetaBlend zu öffnen"],
-        "fr": ["Ville principale", "Ouvrez MetaBlend une fois pour choisir une ville", "Choisissez une ville dans MetaBlend", "Planifiez une randonnée dans l’app", "Pas de connexion — touchez pour ouvrir MetaBlend"],
-        "es": ["Ciudad principal", "Abre MetaBlend una vez para elegir una ciudad", "Elige una ciudad en MetaBlend", "Planifica una excursión en la app", "Sin conexión: toca para abrir MetaBlend"],
-        "it": ["Città principale", "Apri MetaBlend una volta per scegliere una città", "Scegli una città in MetaBlend", "Pianifica un’escursione nell’app", "Nessuna connessione: tocca per aprire MetaBlend"],
-    ]
-    static func t(_ lang: String?, _ key: Key) -> String {
-        let phone = Locale.current.language.languageCode?.identifier ?? "en"
-        let row = table[lang ?? phone] ?? table["en"]!
-        return row[key.rawValue]
-    }
-}
-
 // MARK: - Payloads from /api/app-widget (display-ready text)
 
 struct WeatherPayload: Codable {
-    struct Now: Codable { let temp: String; let icon: String; let text: String; let sky: String; let detail: String? }
+    struct Now: Codable { let temp: String; let icon: String; let text: String; let sky: String; let rain: String?; let wind: String? }
     struct Today: Codable { let hi: String; let lo: String }
     struct Hour: Codable { let t: String; let ts: Double; let icon: String; let temp: String; let rain: String; let sky: String }
     struct Day: Codable { let day: String; let icon: String; let hi: String; let lo: String }
@@ -59,7 +45,17 @@ struct WeatherPayload: Codable {
     let today: Today
     let hours: [Hour]
     let days: [Day]
-    let skies: [String: [String]]
+
+    // the gallery and the placeholder: Lienz on 16 November
+    static let sample = WeatherPayload(
+        city: "Lienz", path: "/",
+        now: Now(temp: "7°", icon: "⛅", text: "Partly cloudy", sky: "dusk", rain: "9%", wind: "3 km/h"),
+        today: Today(hi: "11°", lo: "1°"),
+        hours: [("17:00", "☁", "6°", "7%"), ("18:00", "🌙", "5°", "4%"), ("19:00", "🌙", "5°", "2%"), ("20:00", "🌙", "4°", "2%"), ("21:00", "☁", "4°", "1%"), ("22:00", "☁", "4°", "1%")]
+            .map { Hour(t: $0.0, ts: 0, icon: $0.1, temp: $0.2, rain: $0.3, sky: "night") },
+        days: [("Tue", "🌦", "10°", "3°"), ("Wed", "🌦", "13°", "4°"), ("Thu", "🌦", "9°", "2°"), ("Fri", "⛅", "11°", "2°"), ("Sat", "🌦", "8°", "1°")]
+            .map { Day(day: $0.0, icon: $0.1, hi: $0.2, lo: $0.3) }
+    )
 }
 
 struct HikePayload: Codable {
@@ -67,6 +63,7 @@ struct HikePayload: Codable {
     let day: String
     let path: String
     let line: String?
+    let label: String? // "Summit window" above a window; absent from servers before 2026-11-16
     let good: Bool?
     let icon: String
     let hi: String
@@ -75,7 +72,11 @@ struct HikePayload: Codable {
     let rain: String
     let storm: String?
     let sky: String
-    let skies: [String: [String]]
+
+    static let sample = HikePayload(
+        peak: "Hochstein", day: "Tomorrow", path: "/hike", line: "08:00-13:33", label: "Summit window", good: true,
+        icon: "⛅", hi: "2°", lo: "-3°", wind: "25 km/h", rain: "72%", storm: "Storm risk: low", sky: "day"
+    )
 }
 
 enum Api {
@@ -120,25 +121,123 @@ extension Color {
     }
 }
 
-struct Ink {
-    let main: Color
-    let dim: Color
+// The theme, the phone's appearance, and whether the home screen is tinted or clear (then the system draws the
+// content in one colour and removes the background)
+struct Look {
+    let theme: WidgetTheme
+    let dark: Bool
+    let accented: Bool
+    var p: Palette { theme.palette(dark: dark) }
+    func ink(_ c: Color) -> Color { accented ? .primary : c }
 }
 
-// white on the sky; the system's colours on a plain or tinted home screen
-func palette(sky: Bool, mode: WidgetRenderingMode) -> Ink {
-    sky && mode == .fullColor ? Ink(main: .white, dim: .white.opacity(0.85)) : Ink(main: .primary, dim: .secondary)
-}
+// An elliptical radial glow: the colour at the centre fading to nothing at `fade` of the radius (section 3)
+struct Glow: View {
+    let cx: Double, cy: Double, rx: Double, ry: Double
+    let color: Color, alpha: Double, fade: Double
 
-struct SkyBackground: View {
-    let colors: [String]?
-    let sky: Bool
     var body: some View {
-        if sky, let colors, colors.count >= 2 {
-            LinearGradient(colors: colors.map { Color(hex: $0) }, startPoint: .top, endPoint: .bottom)
-        } else {
-            Color(.systemBackground)
+        GeometryReader { g in
+            let w = g.size.width * rx, h = g.size.height * ry
+            Circle()
+                .fill(RadialGradient(colors: [color.opacity(alpha), color.opacity(0)], center: .center, startRadius: 0, endRadius: w * fade))
+                .frame(width: w * 2, height: w * 2)
+                .scaleEffect(x: 1, y: h / w)
+                .position(x: g.size.width * cx, y: g.size.height * cy)
         }
+    }
+}
+
+struct Background: View {
+    let look: Look
+    let sky: String
+
+    var body: some View {
+        ZStack {
+            LinearGradient(stops: look.theme.background(dark: look.dark), startPoint: .top, endPoint: .bottom)
+            if !look.accented {
+                switch look.theme {
+                case .standard where look.dark:
+                    switch sky {
+                    case "dawn": Glow(cx: 0, cy: 0, rx: 0.9, ry: 0.7, color: Color(hex: "#ffd98a"), alpha: 0.09, fade: 0.7)
+                    case "day": Glow(cx: 0.5, cy: 0, rx: 1.1, ry: 0.55, color: Color(hex: "#ffd98a"), alpha: 0.08, fade: 0.8)
+                    case "dusk": Glow(cx: 1, cy: 0, rx: 0.9, ry: 0.7, color: Color(hex: "#ffc470"), alpha: 0.1, fade: 0.7)
+                    default: EmptyView()
+                    }
+                case .winter:
+                    ZStack(alignment: .topTrailing) {
+                        Color.clear
+                        Image("winter-specks").resizable().renderingMode(.template)
+                            .frame(width: 110, height: 77)
+                            .foregroundStyle(look.dark ? Color(hex: "#f6f8fc") : .white)
+                            .opacity(look.dark ? 0.3 : 1)
+                            .padding(.top, 6).padding(.trailing, 6)
+                    }
+                    VStack {
+                        Spacer(minLength: 0)
+                        Image("winter-snow").resizable().renderingMode(.template)
+                            .frame(maxWidth: .infinity).frame(height: 16)
+                            .foregroundStyle(look.dark ? Color(hex: "#e9eef5") : .white)
+                            .opacity(look.dark ? 0.22 : 1)
+                    }
+                case .sky:
+                    if look.dark { Glow(cx: 1, cy: 1.15, rx: 0.9, ry: 0.6, color: Color(hex: "#e8957a"), alpha: 0.3, fade: 0.7) }
+                    ZStack(alignment: .topTrailing) {
+                        Color.clear
+                        // opacity on the view, never in the artwork: the cloud is overlapping circles
+                        Image("sky-cloud").resizable().renderingMode(.template).foregroundStyle(.white)
+                            .frame(width: 55.5, height: 45).opacity(look.dark ? 0.09 : 0.6)
+                            .padding(.trailing, 4.75).offset(y: -8.75)
+                        Image("sky-cloud").resizable().renderingMode(.template).foregroundStyle(.white)
+                            .frame(width: 37, height: 30).opacity(look.dark ? 0.14 : 0.85)
+                            .offset(x: 3.5, y: -4.5)
+                    }
+                default:
+                    EmptyView()
+                }
+            }
+        }
+        .clipShape(ContainerRelativeShape())
+    }
+}
+
+// The website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is two drawings
+struct Glyph: View {
+    let emoji: String
+    let size: CGFloat
+    let look: Look
+
+    var body: some View {
+        let p = look.p
+        switch emoji.replacingOccurrences(of: "\u{FE0F}", with: "") {
+        case "☀": Icon(name: "icon-sun", size: size, color: look.ink(p.sun))
+        case "🌙": Icon(name: "icon-moon", size: size, color: look.ink(p.moon))
+        case "☁": Icon(name: "icon-cloud", size: size, color: look.ink(p.cloud))
+        case "⛅", "🌤", "🌥":
+            ZStack {
+                Icon(name: "icon-cloud-sun-rays", size: size, color: look.ink(p.sun))
+                Icon(name: "icon-cloud-sun-cloud", size: size, color: look.ink(p.cloud))
+            }
+        case "🌦": Icon(name: "icon-cloud-drizzle", size: size, color: look.ink(p.rain))
+        case "🌧": Icon(name: "icon-cloud-rain", size: size, color: look.ink(p.rain))
+        case "🌨", "❄": Icon(name: "icon-cloud-snow", size: size, color: look.ink(p.rain))
+        case "⛈", "🌩": Icon(name: "icon-cloud-lightning", size: size, color: look.ink(p.rain))
+        case "🌫": Icon(name: "icon-cloud-fog", size: size, color: look.ink(p.cloud))
+        default: EmptyView()
+        }
+    }
+}
+
+struct Icon: View {
+    let name: String
+    let size: CGFloat
+    let color: Color
+
+    var body: some View {
+        Image(name).resizable().renderingMode(.template)
+            .frame(width: size, height: size)
+            .foregroundStyle(color)
+            .accessibilityHidden(true)
     }
 }
 
@@ -153,16 +252,35 @@ func isOld(_ fetched: Date, _ stale: Bool) -> Bool {
     stale && Date().timeIntervalSince(fetched) > 3 * 3600
 }
 
+func hilo(_ hi: String, _ lo: String) -> String { "↑ \(hi)  ↓ \(lo)" }
+
+// the widget's look from the environment: built once per view
+struct Themed<Content: View>: View {
+    let theme: WidgetTheme
+    @ViewBuilder let content: (Look) -> Content
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.widgetRenderingMode) private var mode
+
+    var body: some View {
+        content(Look(theme: theme, dark: scheme == .dark, accented: mode != .fullColor))
+            .dynamicTypeSize(...DynamicTypeSize.xxLarge)
+    }
+}
+
 struct MessageView: View {
     let text: String
+    let theme: WidgetTheme
+
     var body: some View {
-        Text(text)
-            .font(.footnote)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(.secondary)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .containerBackground(for: .widget) { Color(.systemBackground) }
-            .widgetURL(appLink("/"))
+        Themed(theme: theme) { look in
+            Text(text)
+                .font(.footnote)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(look.ink(look.p.muted))
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .containerBackground(for: .widget) { Background(look: look, sky: "") }
+                .widgetURL(appLink("/"))
+        }
     }
 }
 
@@ -176,16 +294,17 @@ struct WeatherEntry: TimelineEntry {
     let date: Date
     let state: State
     let show: WidgetShow
-    let style: WidgetStyle
+    let theme: WidgetTheme
 }
 
 struct WeatherProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> WeatherEntry {
-        WeatherEntry(date: .now, state: .message("MetaBlend"), show: .hours, style: .sky)
+        WeatherEntry(date: .now, state: .data(.sample, hour: nil, fetched: .now, stale: false), show: .hours, theme: WidgetTheme(WidgetSettings.load()?.theme))
     }
 
     func snapshot(for configuration: WeatherConfig, in context: Context) async -> WeatherEntry {
-        await entries(for: configuration)[0]
+        if context.isPreview { return placeholder(in: context) }
+        return await entries(for: configuration)[0]
     }
 
     func timeline(for configuration: WeatherConfig, in context: Context) async -> Timeline<WeatherEntry> {
@@ -193,10 +312,12 @@ struct WeatherProvider: AppIntentTimelineProvider {
     }
 
     private func entries(for config: WeatherConfig) async -> [WeatherEntry] {
+        let s = WidgetSettings.load()
+        let theme = WidgetTheme(s?.theme)
         let entry = { (state: WeatherEntry.State, date: Date) in
-            WeatherEntry(date: date, state: state, show: config.show, style: config.style)
+            WeatherEntry(date: date, state: state, show: config.show, theme: theme)
         }
-        guard let s = WidgetSettings.load() else { return [entry(.message(Texts.t(nil, .openOnce)), .now)] }
+        guard let s else { return [entry(.message(Texts.t(nil, .openOnce)), .now)] }
         let chosen = config.city?.id ?? ""
         var city = chosen.isEmpty ? (s.home ?? "") : chosen
         if city.isEmpty { return [entry(.message(Texts.t(s.lang, .pickCity)), .now)] }
@@ -230,107 +351,156 @@ struct WeatherProvider: AppIntentTimelineProvider {
     }
 }
 
+// The next hours (time, glyph, temperature, rain) or days (weekday, glyph, high, low). `fill`: the medium widget's
+// cells take the full height and spread their four items from top to bottom.
 struct Strip: View {
     let p: WeatherPayload
     let from: Int
     let show: WidgetShow
-    let ink: Ink
+    let look: Look
     var count = 5
+    var fill = false
 
     var body: some View {
         HStack(spacing: 0) {
             if show == .days {
                 ForEach(Array(p.days.prefix(count).enumerated()), id: \.offset) { _, d in
-                    cell(top: d.day, icon: d.icon, main: d.hi, sub: d.lo)
+                    cell(top: d.day, icon: d.icon, main: d.hi, sub: d.lo, subColor: look.p.muted)
                 }
             } else {
                 ForEach(Array(p.hours.dropFirst(max(from, 0)).prefix(count).enumerated()), id: \.offset) { _, h in
-                    cell(top: h.t, icon: h.icon, main: h.temp, sub: h.rain)
+                    cell(top: h.t, icon: h.icon, main: h.temp, sub: h.rain, subColor: look.p.rain)
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: fill ? CGFloat.infinity : nil)
     }
 
-    private func cell(top: String, icon: String, main: String, sub: String) -> some View {
-        VStack(spacing: 4) {
-            Text(top).font(.system(size: 10)).foregroundStyle(ink.dim)
-            Text(icon).font(.system(size: 18))
-            Text(main).font(.caption.weight(.medium)).foregroundStyle(ink.main)
-            Text(sub).font(.system(size: 10)).foregroundStyle(ink.dim)
+    @ViewBuilder
+    private func cell(top: String, icon: String, main: String, sub: String, subColor: Color) -> some View {
+        let items = VStack(spacing: fill ? 0 : 4) {
+            Text(top).font(.footnote).foregroundStyle(look.ink(look.p.muted))
+            if fill { Spacer(minLength: 2) }
+            Glyph(emoji: icon, size: 20, look: look).frame(height: 20)
+            if fill { Spacer(minLength: 2) }
+            Text(main).font(.subheadline.weight(.medium)).foregroundStyle(look.ink(look.p.ink))
+            if fill { Spacer(minLength: 2) }
+            Text(sub).font(.footnote).foregroundStyle(look.ink(subColor))
         }
-        .frame(maxWidth: .infinity)
+        .monospacedDigit()
+        .lineLimit(1)
+        if fill {
+            items.frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            items.frame(maxWidth: .infinity)
+        }
+    }
+}
+
+struct RainWind: View {
+    let rain: String
+    let wind: String
+    let look: Look
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain))
+            Text(rain)
+            Icon(name: "icon-wind", size: 13, color: look.ink(look.p.muted)).padding(.leading, 6)
+            Text(wind)
+        }
+        .font(.footnote)
+        .monospacedDigit()
+        .foregroundStyle(look.ink(look.p.muted))
+        .lineLimit(1)
     }
 }
 
 struct WeatherWidgetView: View {
     let entry: WeatherEntry
     @Environment(\.widgetFamily) private var family
-    @Environment(\.widgetRenderingMode) private var mode
 
     var body: some View {
         switch entry.state {
         case .message(let text):
-            MessageView(text: text)
+            MessageView(text: text, theme: entry.theme)
         case .data(let p, let hour, let fetched, let stale):
-            let h = hour.map { p.hours[$0] }
-            let onSky = entry.style == .sky
-            let ink = palette(sky: onSky, mode: mode)
-            let from = (hour ?? -1) + 1
-            let line = h.map { "💧 \($0.rain)" } ?? p.now.text
-            Group {
-                if family == .systemLarge {
-                    // large: the header, then the next hours and the next days
+            Themed(theme: entry.theme) { look in
+                content(p, hour: hour, fetched: fetched, stale: stale, look: look)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .opacity(isOld(fetched, stale) ? 0.55 : 1)
+                    .containerBackground(for: .widget) { Background(look: look, sky: hour.map { p.hours[$0].sky } ?? p.now.sky) }
+                    .widgetURL(appLink(p.path))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func content(_ p: WeatherPayload, hour: Int?, fetched: Date, stale: Bool, look: Look) -> some View {
+        let h = hour.map { p.hours[$0] }
+        let from = (hour ?? -1) + 1
+        let ink = look.ink(look.p.ink), muted = look.ink(look.p.muted)
+        let name = Text(p.city).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(1).minimumScaleFactor(0.8)
+        let temp = Text(h?.temp ?? p.now.temp)
+            .font(.system(size: 44, weight: .light)).tracking(-0.88).monospacedDigit()
+            .foregroundStyle(ink).lineLimit(1).minimumScaleFactor(0.8).widgetAccentable()
+        // once the timeline has moved past the first hour: that hour's rain instead of the condition now
+        let condition = Group {
+            if let h {
+                HStack(spacing: 4) { Icon(name: "icon-droplet", size: 13, color: look.ink(look.p.rain)); Text(h.rain) }
+            } else {
+                Text(p.now.text)
+            }
+        }
+        .font(.footnote).foregroundStyle(muted).lineLimit(1)
+        let range = Text(hilo(p.today.hi, p.today.lo)).font(.footnote).monospacedDigit().foregroundStyle(muted)
+        let time = Text(fetched, style: .time).font(.footnote).foregroundStyle(muted)
+        let rainWind = h == nil ? p.now.rain.flatMap { r in p.now.wind.map { (r, $0) } } : nil
+
+        switch family {
+        case .systemLarge:
+            // the header, then the next 6 hours and the next 5 days
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 0) {
-                        HStack(alignment: .top) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(p.city).font(.subheadline.bold()).foregroundStyle(ink.main).lineLimit(1)
-                                HStack(spacing: 6) {
-                                    Text(h?.temp ?? p.now.temp).font(.system(size: 48, weight: .light)).foregroundStyle(ink.main)
-                                    Text(h?.icon ?? p.now.icon).font(.largeTitle)
-                                }
-                            }
-                            Spacer(minLength: 8)
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text(line).lineLimit(1)
-                                Text("↑ \(p.today.hi)  ↓ \(p.today.lo)")
-                                if h == nil, let detail = p.now.detail { Text(detail) }
-                                if stale { Text(fetched, style: .time) }
-                            }
-                            .font(.footnote)
-                            .foregroundStyle(ink.dim)
-                        }
-                        Spacer(minLength: 8)
-                        Strip(p: p, from: from, show: .hours, ink: ink, count: 6)
-                        Spacer(minLength: 8)
-                        Strip(p: p, from: 0, show: .days, ink: ink)
+                        name
+                        HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look) }
                     }
-                } else {
-                    HStack(alignment: .top, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(p.city).font(.caption.bold()).foregroundStyle(ink.main).lineLimit(1)
-                            HStack(spacing: 4) {
-                                Text(h?.temp ?? p.now.temp).font(.system(size: 34, weight: .light)).foregroundStyle(ink.main)
-                                Text(h?.icon ?? p.now.icon).font(.title2)
-                            }
-                            Spacer(minLength: 0)
-                            Text(line).font(.caption2).foregroundStyle(ink.dim).lineLimit(1)
-                            Text("↑ \(p.today.hi)  ↓ \(p.today.lo)").font(.caption2).foregroundStyle(ink.dim)
-                            if family == .systemMedium, h == nil, let detail = p.now.detail {
-                                Text(detail).font(.caption2).foregroundStyle(ink.dim).lineLimit(1)
-                            }
-                            if stale { Text(fetched, style: .time).font(.system(size: 10)).foregroundStyle(ink.dim) }
-                        }
-                        if family == .systemMedium {
-                            Strip(p: p, from: from, show: entry.show, ink: ink)
-                        }
+                    Spacer(minLength: 8)
+                    VStack(alignment: .trailing, spacing: 4) {
+                        condition
+                        range
+                        if let rainWind { RainWind(rain: rainWind.0, wind: rainWind.1, look: look) }
+                        if stale { time }
                     }
                 }
+                Spacer(minLength: 8)
+                Strip(p: p, from: from, show: .hours, look: look, count: 6)
+                Spacer(minLength: 8)
+                Strip(p: p, from: 0, show: .days, look: look)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .opacity(isOld(fetched, stale) ? 0.55 : 1)
-            .containerBackground(for: .widget) { SkyBackground(colors: p.skies[h?.sky ?? p.now.sky], sky: onSky) }
-            .widgetURL(appLink(p.path))
+        case .systemMedium:
+            HStack(alignment: .top, spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {
+                    name
+                    HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 28, look: look) }
+                    Spacer(minLength: 0)
+                    condition
+                    range
+                    if stale { time } else if let rainWind { RainWind(rain: rainWind.0, wind: rainWind.1, look: look) }
+                }
+                .frame(width: 116, alignment: .leading)
+                Strip(p: p, from: from, show: entry.show, look: look, fill: true)
+            }
+        default:
+            VStack(alignment: .leading, spacing: 0) {
+                name
+                HStack(spacing: 8) { temp; Glyph(emoji: h?.icon ?? p.now.icon, size: 30, look: look) }
+                Spacer(minLength: 0)
+                condition
+                range
+                if stale { time }
+            }
         }
     }
 }
@@ -355,16 +525,17 @@ struct HikeEntry: TimelineEntry {
     }
     let date: Date
     let state: State
-    let style: WidgetStyle
+    let theme: WidgetTheme
 }
 
 struct HikeProvider: AppIntentTimelineProvider {
     func placeholder(in context: Context) -> HikeEntry {
-        HikeEntry(date: .now, state: .message("MetaBlend"), style: .sky)
+        HikeEntry(date: .now, state: .data(.sample, fetched: .now, stale: false), theme: WidgetTheme(WidgetSettings.load()?.theme))
     }
 
     func snapshot(for configuration: HikeConfig, in context: Context) async -> HikeEntry {
-        await entry(for: configuration)
+        if context.isPreview { return placeholder(in: context) }
+        return await entry(for: configuration)
     }
 
     func timeline(for configuration: HikeConfig, in context: Context) async -> Timeline<HikeEntry> {
@@ -380,8 +551,9 @@ struct HikeProvider: AppIntentTimelineProvider {
     }
 
     private func entry(for config: HikeConfig) async -> HikeEntry {
-        let make = { (state: HikeEntry.State) in HikeEntry(date: .now, state: state, style: config.style) }
-        guard let s = WidgetSettings.load() else { return make(.message(Texts.t(nil, .openOnce))) }
+        let s = WidgetSettings.load()
+        let make = { (state: HikeEntry.State) in HikeEntry(date: .now, state: state, theme: WidgetTheme(s?.theme)) }
+        guard let s else { return make(.message(Texts.t(nil, .openOnce))) }
         let today = Self.today()
         guard let plan = s.hikes.filter({ $0.date >= today }).min(by: { $0.date < $1.date }) else {
             return make(.message(Texts.t(s.lang, .planHike)))
@@ -406,46 +578,75 @@ struct HikeProvider: AppIntentTimelineProvider {
 struct HikeWidgetView: View {
     let entry: HikeEntry
     @Environment(\.widgetFamily) private var family
-    @Environment(\.widgetRenderingMode) private var mode
 
     var body: some View {
         switch entry.state {
         case .message(let text):
-            MessageView(text: text)
+            MessageView(text: text, theme: entry.theme)
         case .data(let p, let fetched, let stale):
-            let onSky = entry.style == .sky
-            let ink = palette(sky: onSky, mode: mode)
-            let good: Color = onSky && mode == .fullColor ? Color(hex: "#A7F3D0") : .green
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("⛰ \(p.peak)").font(.caption.bold()).foregroundStyle(ink.main).lineLimit(1)
-                    Text(p.day).font(.caption2).foregroundStyle(ink.dim)
-                    Spacer(minLength: 0)
-                    HStack(spacing: 6) {
-                        Text(p.icon).font(.title3)
-                        Text("↑ \(p.hi)  ↓ \(p.lo)").font(.caption2).foregroundStyle(ink.dim)
-                    }
-                    Text(p.line ?? "💨 \(p.wind)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(p.good == true ? good : ink.main)
-                        .lineLimit(2)
-                    if stale { Text(fetched, style: .time).font(.system(size: 10)).foregroundStyle(ink.dim) }
+            Themed(theme: entry.theme) { look in
+                let medium = family == .systemMedium
+                HStack(alignment: .top, spacing: 16) {
+                    left(p, fetched: fetched, stale: stale, look: look, windowSize: medium ? 24 : 22)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if medium { facts(p, look: look).frame(width: 144, alignment: .leading) }
                 }
-                if family == .systemMedium {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("💨 \(p.wind)")
-                        Text("💧 \(p.rain)")
-                        if let storm = p.storm { Text("⚡ \(storm)").lineLimit(2) }
-                    }
-                    .font(.caption)
-                    .foregroundStyle(ink.main)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .opacity(isOld(fetched, stale) ? 0.55 : 1)
+                .containerBackground(for: .widget) { Background(look: look, sky: p.sky) }
+                .widgetURL(appLink(p.path))
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            .opacity(isOld(fetched, stale) ? 0.55 : 1)
-            .containerBackground(for: .widget) { SkyBackground(colors: p.skies[p.sky], sky: onSky) }
-            .widgetURL(appLink(p.path))
+        }
+    }
+
+    // one column, everything from the top: name, day, the window block, glyph with high and low
+    @ViewBuilder
+    private func left(_ p: HikePayload, fetched: Date, stale: Bool, look: Look, windowSize: CGFloat) -> some View {
+        let ink = look.ink(look.p.ink), muted = look.ink(look.p.muted)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 6) {
+                Icon(name: "icon-mountain", size: 15, color: ink)
+                Text(p.peak).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(1).minimumScaleFactor(0.8)
+            }
+            Text(p.day).font(.footnote).foregroundStyle(muted).lineLimit(1)
+            if let line = p.line {
+                VStack(alignment: .leading, spacing: 0) {
+                    if let label = p.label {
+                        // a window: its words above it, so its colour is never the only sign
+                        Text(label).font(.footnote).foregroundStyle(muted).lineLimit(1)
+                        Text(line)
+                            .font(.system(size: windowSize, weight: .semibold)).monospacedDigit()
+                            .foregroundStyle(look.ink(p.good == true ? look.p.window : look.p.ink))
+                            .lineLimit(1).minimumScaleFactor(0.8).widgetAccentable()
+                    } else {
+                        // "No favourable window", "No daylight left today"
+                        Text(line).font(.subheadline.weight(.semibold)).foregroundStyle(ink).lineLimit(2)
+                    }
+                }
+                .padding(.top, 10)
+            }
+            HStack(spacing: 6) {
+                Glyph(emoji: p.icon, size: 20, look: look).frame(height: 20)
+                Text(hilo(p.hi, p.lo)).font(.footnote).monospacedDigit().foregroundStyle(ink)
+            }
+            .padding(.top, p.line == nil ? 10 : 6)
+            if stale { Text(fetched, style: .time).font(.footnote).foregroundStyle(muted) }
+        }
+    }
+
+    // wind, rain and storm risk, from the top, the first row level with the peak name
+    private func facts(_ p: HikePayload, look: Look) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            fact("icon-wind", look.p.muted, p.wind, look: look)
+            fact("icon-droplet", look.p.rain, p.rain, look: look)
+            if let storm = p.storm { fact("icon-zap", look.p.muted, storm, look: look, lines: 2) }
+        }
+    }
+
+    private func fact(_ icon: String, _ color: Color, _ text: String, look: Look, lines: Int = 1) -> some View {
+        HStack(alignment: .top, spacing: 6) {
+            Icon(name: icon, size: 15, color: look.ink(color)).padding(.top, 2) // centred on the text's first line
+            Text(text).font(.footnote).monospacedDigit().foregroundStyle(look.ink(look.p.ink)).lineLimit(lines)
         }
     }
 }

@@ -3,60 +3,65 @@
     android:id="@android:id/background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/widget_bg"
+    android:background="@drawable/w_bg_default"
     android:clipToOutline="true">
 
-    <ImageView
-        android:id="@+id/sky"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:importantForAccessibility="no"
-        android:scaleType="fitXY"
-        android:visibility="gone" />
+    <include layout="@layout/widget_scenery" />
 
     <LinearLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:padding="14dp">
+        android:padding="16dp">
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="116dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.9"
             android:orientation="vertical">
 
-            <TextView android:id="@+id/city" style="@style/WidgetCaption" />
+            <TextView android:id="@+id/city" style="@style/WidgetName" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView android:id="@+id/temp" style="@style/WidgetTemp" />
-                <TextView android:id="@+id/icon" style="@style/WidgetIcon" />
+                <FrameLayout android:layout_width="28dp" android:layout_height="28dp" android:layout_marginStart="8dp">
+                    <ImageView android:id="@+id/glyph" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" />
+                    <ImageView android:id="@+id/glyph2" style="@style/WidgetIcon" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+                </FrameLayout>
             </LinearLayout>
 
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
+            <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
 
-            <TextView android:id="@+id/text" style="@style/WidgetBody" />
-            <TextView android:id="@+id/hilo" style="@style/WidgetBody" android:layout_marginTop="2dp" />
-            <TextView android:id="@+id/detail" style="@style/WidgetBody" android:layout_marginTop="2dp" />
-            <TextView android:id="@+id/updated" style="@style/WidgetSmall" android:layout_marginTop="2dp" android:visibility="gone" />
+            <TextView android:id="@+id/text" style="@style/WidgetSecondary" />
+            <TextView android:id="@+id/hilo" style="@style/WidgetSecondary" />
+
+            <LinearLayout
+                android:id="@+id/rainwind"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView android:id="@+id/rain_icon" style="@style/WidgetIcon" android:layout_width="13dp" android:layout_height="13dp" android:src="@drawable/w_ic_droplet" />
+                <TextView android:id="@+id/rain" style="@style/WidgetSecondary" android:layout_marginStart="4dp" />
+                <ImageView android:id="@+id/wind_icon" style="@style/WidgetIcon" android:layout_width="13dp" android:layout_height="13dp" android:layout_marginStart="10dp" android:src="@drawable/w_ic_wind" />
+                <TextView android:id="@+id/wind" style="@style/WidgetSecondary" android:layout_marginStart="4dp" />
+            </LinearLayout>
+
+            <TextView android:id="@+id/updated" style="@style/WidgetSecondary" android:visibility="gone" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/strip"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1.6"
-            android:gravity="center_vertical"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
             android:orientation="horizontal" />
     </LinearLayout>
 </FrameLayout>
