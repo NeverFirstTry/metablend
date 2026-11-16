@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-16
+
+### Added: what the new widgets need from the website (nothing changes in today's app)
+- The widgets' feed (`/api/app-widget`) also sends the rain chance and the wind on their own (`now.rain`, `now.wind`) and, for a summit window, its words (`label`: "Summit window", "Gipfelfenster", in all 13 languages), so the next native build shows them without taking text apart and never shows a window by its colour alone. Everything the feed sent before stays, so today's app is unchanged (owner, 2026-11-16; `docs/widgets-spec.md`, section 9).
+- The app tells its widgets which look to take: the Mono, Winter or Sky app icon gives them that theme, every other icon the default (`theme` in the widget settings), and switching the icon under More updates them at once.
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language
