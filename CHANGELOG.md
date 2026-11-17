@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Added, not switched on: Open-Meteo's paid plan (a key)
+- Nothing changes until a setting is set. With `OPEN_METEO_KEY` set in Vercel, every request to Open-Meteo's API hosts goes to their customer hosts with the key (forecasts, heights, air quality, the archive). Unset, the free service as before.
+- The key is added where a request leaves and nowhere else: the request counter, the notes about failed requests and the error log keep the address without it. It is never sent to our own Open-Meteo server.
+- The hourly station job's height request now goes through the same gate as every other Open-Meteo request (it was sent on its own), so it is counted in one place and gets the key too.
+- A plan without the archive (Standard) also needs `OPEN_METEO_ARCHIVE=off`. A wrong or expired key fails like any failed source; nothing falls back to the free service.
+- Not changed: the daily note at 7,000 and 9,000 calls still counts against the free tier's 10,000.
+
 ### Changed: the Content Security Policy is enforced
 - The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
 - Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.

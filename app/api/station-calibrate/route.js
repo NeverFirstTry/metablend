@@ -1,4 +1,4 @@
-import { openMeteoFetch, countRequest } from '@/lib/open-meteo'
+import { openMeteoFetch } from '@/lib/open-meteo'
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
 import { median, deltaFromDiff, rawErrors } from '@/lib/scoring'
@@ -93,8 +93,8 @@ async function stationReadings(cities) {
 async function pointHeights(places) {
   if (!places.length) return []
   const url = `https://api.open-meteo.com/v1/elevation?latitude=${places.map(p => p.lat).join(',')}&longitude=${places.map(p => p.lon).join(',')}`
-  void countRequest(url, { kind: 'shadow' })
-  const res = await fetch(url, { signal: AbortSignal.timeout(8000) }).catch(() => null)
+  // through the gate like every Open-Meteo request (counted there, and the paid plan's key is added there)
+  const res = await openMeteoFetch(url, { timeoutMs: 8000, kind: 'shadow' }).catch(() => null)
   const body = res?.ok ? await res.json().catch(() => null) : null
   return Array.isArray(body?.elevation) ? body.elevation : []
 }
