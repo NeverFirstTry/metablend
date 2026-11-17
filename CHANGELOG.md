@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-16
 
+### Changed: the Content Security Policy is enforced
+- The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
+- Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.
+- /widget keeps its exception: other sites may frame it. Every other page carries the same policy and may not be framed.
+- The phone layout check now fails when a page it opens asks for something the policy refuses, before a merge and after every deploy. Proved on a build whose policy lacked the OpenTopoMap hosts: the two route checks failed and named the refused map tiles, the other 131 passed.
+- After a deploy that changes the policy the app is walked by hand, right after Ready: mobile/README.md, "After a change to the Content Security Policy". Anything refused means rollback.
+- On Vercel preview pages the Vercel toolbar no longer loads (its host is not on the list). Production is not affected.
+
 ### Fixed: the outlook's nightly check scores the predictions it left waiting
 - Nothing changes for visitors. Where the nearest airport reports only by day, a day's check never had its 18 reports and ran out unscored, though the next airport in range reports all night: Rome (Urbe with 9 to 12 reports a day, beside Ciampino with 48), Tokyo, Johannesburg, Cloppenburg. Each check now goes to the nearest airport that has what it needs (`scoreCheck` in lib/outlook/verify.js, with a test).
 - A request the airport service does not answer is asked once more at the end of the run, at the same pace and inside the same 180 seconds. On 16 November 5 of 22 test requests came back as 502 or 504 and were answered on the second try minutes later; until now such a request cost both its airports the night. The night's record now counts the second tries and the airports left without an answer (`outlookRetries`, `outlookStationsFailed`).
