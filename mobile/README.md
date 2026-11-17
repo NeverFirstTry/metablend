@@ -106,7 +106,7 @@ Check on a device / emulator / simulator:
 - [ ] Airplane mode, wait for a refresh → the last data stays with its time.
 - [ ] App language German + °F → widgets follow after leaving the app.
 - [ ] iOS: tinted / clear home screen (long-press home screen → Edit → Customize) → readable, no scenery.
-- [ ] Screen reader (TalkBack on the A52 by touch; on iPhone VoiceOver, in the Simulator Xcode → Open Developer Tool → Accessibility Inspector): the hike widget reads "Summit, <peak>, …, Wind 25 km/h, Rain 72%, Storm risk: low", each value once; the city widget says its condition once ("Lienz, 7°, Partly cloudy, ↑ 11° ↓ 1°"); with a rain nowcast in that line the drawing keeps its own label.
+- [ ] Screen reader (TalkBack on the A52 by touch; VoiceOver on an iPhone; without an iPhone: the debug previews at the end of MetaBlendWidgets.swift, in the Xcode canvas switched to Selectable, each icon's Label in the Accessibility inspector. The Simulator's home screen shows a widget as one closed element, so the Accessibility Inspector app cannot check it): the hike widget reads "Summit, <peak>, …, Wind 25 km/h, Rain 72%, Storm risk: low", each value once; the city widget says its condition once ("Lienz, 7°, Partly cloudy, ↑ 11° ↓ 1°"); with a rain nowcast in that line the drawing keeps its own label.
 - [ ] Android: `adb shell am start -a android.intent.action.VIEW -d "metablend://open?path=%2Fmore"` → the app opens on More.
 
 ## Routes (hiking v2)
