@@ -1,16 +1,16 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
 import { windowText } from '@/lib/hike/text'
-import { formatCalendarDate } from '@/lib/localtime'
+import { formatCalendarDate, addDays } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { hikeApiPath } from '@/lib/hike/params'
-import { summitProps, madeAtText, LIVE_HEADER } from '@/lib/hike/summit-props'
+import { summitProps, summitDay, summitOn, madeAtText, LIVE_HEADER } from '@/lib/hike/summit-props'
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
@@ -37,18 +37,34 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
     setLive({ ...summitProps(d), ava: a ? { today: a.today, tomorrow: a.tomorrow } : null })
     setState('live')
   }
-  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, madeAt, kept } = live ?? stored
-  const ava = live?.ava ?? storedAva
+  const shown = live ?? stored
+  const { stormUnknown, sources, madeAt, kept, utcOffsetSec } = shown
+  // The reader's day at the summit. The stored page may be read on the day after it was built, so "today"
+  // is not the copy's: it is read off the clock, after mount only (the first render matches the server's,
+  // which calls no day today), and again each minute so a page left open over midnight follows.
+  const [summitToday, setSummitToday] = useState(null)
+  useEffect(() => {
+    if (utcOffsetSec == null) return
+    const tick = () => setSummitToday(summitDay(utcOffsetSec))
+    tick()
+    const id = setInterval(tick, 60_000)
+    return () => clearInterval(id)
+  }, [utcOffsetSec])
+  const { days, windows, todayLocal } = summitOn(shown, null, summitToday)
+  // the avalanche danger keeps the days of the copy it came with: when the live forecast arrives without
+  // one, the stored danger stays, dated by the stored copy and not by the live forecast's day
+  const { ava } = summitOn(live?.ava ? live : stored, live?.ava ?? storedAva, summitToday)
   const lang = useLang()
   const asOf = when => (when ? fill(t(lang, 'mtnAsOf'), { when: madeAtText(when, lang) }) : '')
   // the line next to the button: every text it can show lies in the same place, so the tallest sets its height
   const status = { stored: asOf(madeAt), loading: t(lang, 'mtnLiveLoading'), live: kept ? asOf(madeAt) : fill(t(lang, 'mtnLiveAsOf'), { when: madeAtText(madeAt, lang) }), failed: `${t(lang, 'mtnLiveFailed')} ${asOf(madeAt)}` }
   const blend = list => fill(t(lang, 'mtnBlend'), { elev: peak.elev, n: list.length, list: list.join(', ') })
   const fmt = tempFormatter(useUnit())
-  const today = windows?.today !== undefined ? windowText(lang, windows.today, { date: todayLocal, todayLocal, stormUnknown }) : null
-  const tomorrow = windows?.tomorrow !== undefined && tomorrowLocal ? windowText(lang, windows.tomorrow, { date: tomorrowLocal, todayLocal, stormUnknown }) : null
+  // the first window the copy has from the reader's day on stands large, the next one small below it
+  const [today, tomorrow] = windows.map(({ date, w }) => windowText(lang, w, { date, todayLocal, stormUnknown }))
   const day = date => (date === todayLocal ? t(lang, 'tabToday') : formatCalendarDate(date, lang, { weekday: 'short', month: 'short', day: 'numeric' }))
-  const avaDays = [[t(lang, 'avaToday'), ava?.today], [t(lang, 'avaTomorrow'), ava?.tomorrow]].filter(([, l]) => l)
+  const avaLabel = date => (date === todayLocal ? t(lang, 'avaToday') : todayLocal && date === addDays(todayLocal, 1) ? t(lang, 'avaTomorrow') : formatCalendarDate(date, lang, { weekday: 'short', day: 'numeric' }))
+  const avaDays = ava.map(({ date, level }) => [avaLabel(date), level])
   const region = t(lang, `region_${peak.region}`)
   const columns = [t(lang, 'colLowHigh'), t(lang, 'summitWind'), t(lang, 'colRain'), t(lang, 'freezingLevel'), t(lang, 'stormRisk')]
 
