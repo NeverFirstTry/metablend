@@ -26,6 +26,7 @@ export default function CityList({ cities }) {
             <Link
               key={c.slug}
               href={`/weather/${c.slug}`}
+              prefetch={false}
               className="press-soft bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
             >
               {cityName(c.slug, lang, c.name)}

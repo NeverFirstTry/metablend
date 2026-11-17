@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Changed: list pages no longer preload the pages they link to
+- On the lists of summits, cities and airports a page is now fetched when its link is opened. Until now the browser fetched every linked page as soon as its link scrolled into view, so a page was already there at the tap. Nothing else changes for a visitor.
+- Why: a preload of a stored page that is past its storage time rebuilds that page, and a summit page's rebuild asks Open-Meteo. On 16 November one visit of the summit list set off about 90 rebuilds within seconds, Open-Meteo refused 43 of them, and /api/health answered 503 from 14:34 to 14:50 UTC.
+- Measured on a local build, each page scrolled from top to bottom: the summit list sent 208 preloads before and 13 after, the city list 64 and 13, the airport list 43 and 13. The 13 that remain are the links of the header and the footer.
+- The "more in this region" list on a summit page and the "other cities" list on a city page carry the same setting. They sent no preloads before either (14 before and 14 after, header and footer).
+- A test fails when a link list to these pages preloads again (lib/list-preloads.test.js).
+
 ### Changed: the Content Security Policy is enforced
 - The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
 - Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.
