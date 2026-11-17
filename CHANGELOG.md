@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Changed: Exa's crawler and the SEO tools' crawlers are asked to stay out
+- robots.txt now asks ExaSearchBot (Exa), AhrefsBot and SemrushBot (with SemrushBot-BA) not to fetch any page. Search engines and OpenAI's search crawler are not affected.
+- Why: a stored page that a crawler fetches can cost a rebuild with requests to the weather services. Exa's crawler asked about 145 city pages a day, each rebuild about 21 weighted Open-Meteo calls: roughly 3,000 a day, a fifth of the total (an estimate from the averages of 14 to 16 November). Ahrefs and Semrush crawl for their own SEO tools.
+- All three say they obey robots.txt (crawler.exa.ai, ahrefs.com/robot, semrush.com/bot); Exa's crawler reads ours about once a day. It stops new fetches; it does not remove pages from their indexes.
+
 ### Changed: the Content Security Policy is enforced
 - The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
 - Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.
