@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Changed: summit pages are stored 12 hours instead of 6
+- A summit page on the website is now rebuilt at most every 12 hours, before 6. The page says when its forecast was made ("as of ..."), and its button still fetches the live forecast. The teaser on the hiking page uses the same stored copy.
+- Why: the pages are asked mostly by crawlers, each about three times a day, and every rebuild is one Open-Meteo request of about 5.1 weighted calls: about 536 rebuilds a day became at most 390 (at least 745 weighted calls a day less).
+- Known and not solved here: the page takes "Today" from the stored copy, not from the reader's clock. After midnight a stored page calls yesterday "Today", for its favourable window and its avalanche danger too, until it is rebuilt. That was up to 6 hours; it is now up to 12 (a page stored at 19:00 says so until 07:00).
+
 ### Changed: the Content Security Policy is enforced
 - The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
 - Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.

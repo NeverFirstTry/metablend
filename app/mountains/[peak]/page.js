@@ -11,10 +11,10 @@ import SummitPage from './SummitPage'
 // Server-rendered summit weather for each featured peak: the summit window,
 // a 7-day summit table and (in winter) the avalanche danger, in crawlable
 // HTML — "Großglockner weather" lands here, the app has the rest. Rendered on
-// demand and kept six hours, from a stored forecast of three models: the pages
+// demand and kept twelve hours, from a stored forecast of three models: the pages
 // are asked mostly by crawlers, and each render used to cost a full summit
 // forecast. The live one comes with the button on the page (SummitPage.jsx).
-export const revalidate = 21600 // STORED_SECONDS; Next wants the number itself here
+export const revalidate = 43200 // STORED_SECONDS; Next wants the number itself here
 
 // On-demand caching: no pages are built ahead; each is rendered on its first
 // visit and then served from the cache for `revalidate` seconds. Without
