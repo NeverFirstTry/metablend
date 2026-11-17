@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Fixed: the hiking page's teaser on a local server
+- Nothing changes on metablend.app. Run locally on another port than 3000, the hiking page asked port 3000 for its teaser all the same and showed "The live summit forecast is taking a break". It now reads the same setting as the summit and city pages (SELF_BASE), so a local check sees the teaser's window.
+
 ### Fixed: a summit page no longer calls yesterday "Today"
 - A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
 - Now the day comes from the reader's clock, in the summit's own time zone: after midnight yesterday's row is gone, the copy's "tomorrow" is today (window and avalanche danger), and a page left open over midnight follows within a minute.
