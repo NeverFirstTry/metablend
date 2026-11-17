@@ -145,7 +145,7 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-3">{fill(t(lang, 'mtnMore'), { region })}</h2>
             <ul className="flex flex-wrap gap-2 text-sm">
               {nearby.map(p => (
-                <li key={p.id}><Link href={`/mountains/${p.id}`} className="press inline-block rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
+                <li key={p.id}><Link prefetch={false} href={`/mountains/${p.id}`} className="press inline-block rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
               ))}
             </ul>
           </section>
