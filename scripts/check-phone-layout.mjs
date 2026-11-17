@@ -122,6 +122,9 @@ for (const [key, a] of Object.entries(recorded.answers)) { const route = key.spl
 const served = { exact: 0, route: 0, missing: new Set() }
 // requests the browser sends to other hosts (map tiles, the radar): counted, not answered
 const outside = new Map()
+// what the Content Security Policy refused on the page being checked: a missing map or a dead button for
+// a visitor, and nobody hears of it (the policy has no report address)
+const refused = new Set()
 // The browser (scripts/lib/browser.mjs, as for the accessibility check and the store screenshots): a free
 // debugging port of its own, read back from DevToolsActivePort in its profile, so two runs at once never drive
 // each other's browser (two sessions shared the fixed port 9441 on 2026-11-10; one run stalled, one saw a
@@ -178,6 +181,11 @@ const onEvent = m => {
   if (m.method === 'Fetch.requestPaused') answer(m.params).catch(() => send('Fetch.failRequest', { requestId: m.params.requestId, errorReason: 'Failed' }).catch(() => {}))
   if (m.method === 'Network.loadingFailed' && m.params.blockedReason === 'inspector') analytics.blocked++
   if (m.method === 'Network.responseReceived' && IS_ANALYTICS.test(m.params.response.url)) analytics.sent++
+  // what the page's Content Security Policy refuses (next.config.mjs): a finding for the page that asked
+  if (m.method === 'Audits.issueAdded' && m.params.issue.code === 'ContentSecurityPolicyIssue') {
+    const d = m.params.issue.details.contentSecurityPolicyIssueDetails
+    refused.add(`${d.violatedDirective}: ${d.blockedURL || d.contentSecurityPolicyViolationType}`)
+  }
   if (m.method === 'Network.requestWillBeSent') {
     const url = m.params.request.url, host = URL.canParse(url) ? new URL(url).hostname : ''
     if (host && host !== new URL(BASE).hostname && !IS_ANALYTICS.test(url)) outside.set(host, (outside.get(host) ?? 0) + 1)
@@ -191,7 +199,7 @@ async function openView() {
   const page = connect(active.replace(/\/devtools\/browser\/.*$/, `/devtools/page/${targetId}`), onEvent)
   await page.open
   send = page.call
-  await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
+  await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable'); await send('Audits.enable')
   // the terms notice counts as passed, so the pages show; a URL with terms=show gets the notice (lib/terms.js)
   await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
   const { userAgent } = (await browser.call('Browser.getVersion')).result
@@ -411,6 +419,7 @@ try {
         ])
         clearTimeout(timer)
         checked++
+        if (refused.size) { findings.push(`${current}: asks for what the Content Security Policy refuses (${[...refused].join('; ')}): list the host in next.config.mjs or stop asking`); console.log(`✗ ${current}: refused by the policy`); refused.clear() }
         if (outcome === 'done') continue
         // a stuck page ends the run: what follows would only wait on the same browser
         findings.push(`${current}: ${outcome === 'timeout' ? `no result within ${PAGE_LIMIT / 1000} s` : outcome}; the run stopped here`)
