@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Changed: a summit page reads the avalanche danger when it opens
+- The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A stored page never shows an old level, also not to the first visitor after a quiet spell, who until now got the last stored copy of any age once.
+- The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves. If the read fails, the section is left out rather than showing an old level.
+- The note under it no longer gives the forecast's time ("As of ..."), which was never the bulletin's.
+- The stored page itself (crawlers, readers without scripts) has the section's heading but no level.
+- Behind it: the danger no longer decides how long a summit page is kept. Today a page is rebuilt every 30 minutes, set by its forecast request, not the 6 hours its code said; that time can now be raised without keeping the danger longer.
+
 ### Fixed: a summit page no longer calls yesterday "Today"
 - A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
 - Now the day comes from the reader's clock, in the summit's own time zone: after midnight yesterday's row is gone, the copy's "tomorrow" is today (window and avalanche danger), and a page left open over midnight follows within a minute.
