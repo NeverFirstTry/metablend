@@ -457,7 +457,9 @@ struct RainWind: View {
 
 struct WeatherWidgetView: View {
     let entry: WeatherEntry
-    @Environment(\.widgetFamily) private var family
+    var size: WidgetFamily? = nil // only for the accessibility previews at the end (the size there is not settable)
+    @Environment(\.widgetFamily) private var homeFamily
+    private var family: WidgetFamily { size ?? homeFamily }
 
     var body: some View {
         switch entry.state {
@@ -622,7 +624,9 @@ struct HikeProvider: AppIntentTimelineProvider {
 
 struct HikeWidgetView: View {
     let entry: HikeEntry
-    @Environment(\.widgetFamily) private var family
+    var size: WidgetFamily? = nil // only for the accessibility previews at the end
+    @Environment(\.widgetFamily) private var homeFamily
+    private var family: WidgetFamily { size ?? homeFamily }
 
     var body: some View {
         switch entry.state {
@@ -707,3 +711,48 @@ struct HikeWidget: Widget {
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
+
+#if DEBUG
+// MARK: - Accessibility previews (debug builds only)
+// On the home screen the Simulator shows a widget as one closed element, so its spoken labels cannot be read there.
+// These previews draw each widget layout as a plain view at its iPhone size, with the sample data in English: in Xcode,
+// open the canvas, switch it to Selectable, click a drawn icon and read its Label in the Accessibility inspector.
+
+private func cityEntry(_ p: WeatherPayload) -> WeatherEntry {
+    WeatherEntry(date: .now, state: .data(p, hour: nil, fetched: .now, stale: false), show: .hours, theme: .standard, lang: "en")
+}
+
+// the city line says what the drawing shows ("Partly cloudy"): the drawing stays silent
+#Preview("City small, same words") {
+    WeatherWidgetView(entry: cityEntry(.sample), size: .systemSmall).frame(width: 170, height: 170)
+}
+
+// a rain nowcast in that line: the drawing keeps its label
+#Preview("City small, nowcast") {
+    let s = WeatherPayload.sample
+    let p = WeatherPayload(
+        city: "Wien", path: "/",
+        now: WeatherPayload.Now(temp: "7°", icon: "⛅", text: "Rain from 18:40", sky: "dusk", rain: "9%", wind: "3 km/h"),
+        today: s.today, hours: s.hours, days: s.days
+    )
+    WeatherWidgetView(entry: cityEntry(p), size: .systemSmall).frame(width: 170, height: 170)
+}
+
+#Preview("City medium") {
+    WeatherWidgetView(entry: cityEntry(.sample), size: .systemMedium).frame(width: 364, height: 170)
+}
+
+#Preview("City large") {
+    WeatherWidgetView(entry: cityEntry(.sample), size: .systemLarge).frame(width: 364, height: 382)
+}
+
+#Preview("Hike medium") {
+    HikeWidgetView(entry: HikeEntry(date: .now, state: .data(.sample, fetched: .now, stale: false), theme: .standard, lang: "en"), size: .systemMedium)
+        .frame(width: 364, height: 170)
+}
+
+#Preview("Hike small") {
+    HikeWidgetView(entry: HikeEntry(date: .now, state: .data(.sample, fetched: .now, stale: false), theme: .standard, lang: "en"), size: .systemSmall)
+        .frame(width: 170, height: 170)
+}
+#endif
