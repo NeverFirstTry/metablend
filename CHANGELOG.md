@@ -24,6 +24,10 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed: the morning briefing's temperature range says "to"
 - The morning briefing showed today's low and high as "-1-9°", which reads as minus one minus nine. It now puts the language's word between them: "-1 bis 9°" in German, "-1 to 9°" in English, "od -1 do 9°" in Polish, "-1から9°" in Japanese, in all 13 languages (owner, 2026-11-16). A day with the same low and high shows one number. No other notification or widget text shows a range: the widgets show the high and the low with arrows.
 
+### Added: what the new widgets need from the website (nothing changes in today's app)
+- The widgets' feed (`/api/app-widget`) also sends the rain chance and the wind on their own (`now.rain`, `now.wind`) and, for a summit window, its words (`label`: "Summit window", "Gipfelfenster", in all 13 languages), so the next native build shows them without taking text apart and never shows a window by its colour alone. Everything the feed sent before stays, so today's app is unchanged (owner, 2026-11-16; `docs/widgets-spec.md`, section 9).
+- The app tells its widgets which look to take: the Mono, Winter or Sky app icon gives them that theme, every other icon the default (`theme` in the widget settings), and switching the icon under More updates them at once.
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language
