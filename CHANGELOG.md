@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Fixed: a summit page no longer calls yesterday "Today"
+- A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
+- Now the day comes from the reader's clock, in the summit's own time zone: after midnight yesterday's row is gone, the copy's "tomorrow" is today (window and avalanche danger), and a page left open over midnight follows within a minute.
+- The stored page itself calls no day "Today" any more: until the browser has read its clock (and for a reader without scripts, or a crawler) every day stands with its weekday or date, and "No daylight left today" is not said.
+- The teaser on the hiking page reads the same stored copy and follows the same rule; with a copy from two days ago it shows no window instead of a wrong one.
+- What changes on a normal visit: for a moment after loading, the window reads with its weekday ("Summit window Tuesday 10:00-15:00") before it reads "today", and the avalanche danger and the first table row with their dates before "Today".
+
 ### Changed: list pages no longer preload the pages they link to
 - On the lists of summits, cities and airports a page is now fetched when its link is opened. Until now the browser fetched every linked page as soon as its link scrolled into view, so a page was already there at the tap. Nothing else changes for a visitor.
 - Why: a preload of a stored page that is past its storage time rebuilds that page, and a summit page's rebuild asks Open-Meteo. On 16 November one visit of the summit list set off about 90 rebuilds within seconds, Open-Meteo refused 43 of them, and /api/health answered 503 from 14:34 to 14:50 UTC.
