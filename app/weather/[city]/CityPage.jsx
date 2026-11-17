@@ -137,6 +137,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
               <Link
                 key={c.slug}
                 href={`/weather/${c.slug}`}
+                prefetch={false}
                 className="press bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
               >
                 {cityName(c.slug, lang, c.name)}

@@ -5,10 +5,29 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-17
 
+### Fixed: a summit page no longer calls yesterday "Today"
+- A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
+- Now the day comes from the reader's clock, in the summit's own time zone: after midnight yesterday's row is gone, the copy's "tomorrow" is today (window and avalanche danger), and a page left open over midnight follows within a minute.
+- The stored page itself calls no day "Today" any more: until the browser has read its clock (and for a reader without scripts, or a crawler) every day stands with its weekday or date, and "No daylight left today" is not said.
+- The teaser on the hiking page reads the same stored copy and follows the same rule; with a copy from two days ago it shows no window instead of a wrong one.
+- What changes on a normal visit: for a moment after loading, the window reads with its weekday ("Summit window Tuesday 10:00-15:00") before it reads "today", and the avalanche danger and the first table row with their dates before "Today".
+
+### Changed: list pages no longer preload the pages they link to
+- On the lists of summits, cities and airports a page is now fetched when its link is opened. Until now the browser fetched every linked page as soon as its link scrolled into view, so a page was already there at the tap. Nothing else changes for a visitor.
+- Why: a preload of a stored page that is past its storage time rebuilds that page, and a summit page's rebuild asks Open-Meteo. On 16 November one visit of the summit list set off about 90 rebuilds within seconds, Open-Meteo refused 43 of them, and /api/health answered 503 from 14:34 to 14:50 UTC.
+- Measured on a local build, each page scrolled from top to bottom: the summit list sent 208 preloads before and 13 after, the city list 64 and 13, the airport list 43 and 13. The 13 that remain are the links of the header and the footer.
+- The "more in this region" list on a summit page and the "other cities" list on a city page carry the same setting. They sent no preloads before either (14 before and 14 after, header and footer).
+- A test fails when a link list to these pages preloads again (lib/list-preloads.test.js).
+
+### Changed: Exa's crawler and the SEO tools' crawlers are asked to stay out
+- robots.txt now asks ExaSearchBot (Exa), AhrefsBot and SemrushBot (with SemrushBot-BA) not to fetch any page. Search engines and OpenAI's search crawler are not affected.
+- Why: a stored page that a crawler fetches can cost a rebuild with requests to the weather services. Exa's crawler asked about 145 city pages a day, each rebuild about 21 weighted Open-Meteo calls: roughly 3,000 a day, a fifth of the total (an estimate from the averages of 14 to 16 November). Ahrefs and Semrush crawl for their own SEO tools.
+- All three say they obey robots.txt (crawler.exa.ai, ahrefs.com/robot, semrush.com/bot); Exa's crawler reads ours about once a day. It stops new fetches; it does not remove pages from their indexes.
+
 ### Changed: summit pages are stored 12 hours instead of 6
 - A summit page on the website is now rebuilt at most every 12 hours, before 6. The page says when its forecast was made ("as of ..."), and its button still fetches the live forecast. The teaser on the hiking page uses the same stored copy.
 - Why: the pages are asked mostly by crawlers, each about three times a day, and every rebuild is one Open-Meteo request of about 5.1 weighted calls: about 536 rebuilds a day became at most 390 (at least 745 weighted calls a day less).
-- Known and not solved here: the page takes "Today" from the stored copy, not from the reader's clock. After midnight a stored page calls yesterday "Today", for its favourable window and its avalanche danger too, until it is rebuilt. That was up to 6 hours; it is now up to 12 (a page stored at 19:00 says so until 07:00).
+- The day on the page comes from the reader's clock at the summit (the fix of the same day, above), so the longer storage does not call yesterday "Today". What does get older is the forecast and the avalanche danger shown: up to 12 hours instead of 6, each with the time it was made.
 
 ### Changed: the Content Security Policy is enforced
 - The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
