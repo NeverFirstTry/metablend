@@ -28,6 +28,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The widgets' feed (`/api/app-widget`) also sends the rain chance and the wind on their own (`now.rain`, `now.wind`) and, for a summit window, its words (`label`: "Summit window", "Gipfelfenster", in all 13 languages), so the next native build shows them without taking text apart and never shows a window by its colour alone. Everything the feed sent before stays, so today's app is unchanged (owner, 2026-11-16; `docs/widgets-spec.md`, section 9).
 - The app tells its widgets which look to take: the Mono, Winter or Sky app icon gives them that theme, every other icon the default (`theme` in the widget settings), and switching the icon under More updates them at once.
 
+### Added: the spec for the widgets' new look (nothing changes in the app yet)
+- The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
+- The spec also lists every widget text in all 13 languages (the widgets' messages and Android's widget settings speak 5 today) and drops the dash from the offline message.
+
 ## 2026-11-15
 
 ### Fixed: a planned hike's date in Hike alerts is in the app's language
