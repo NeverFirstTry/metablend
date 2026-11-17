@@ -13,6 +13,17 @@ All notable changes to MetaBlend. Format loosely follows
 - After a deploy that changes the policy the app is walked by hand, right after Ready: mobile/README.md, "After a change to the Content Security Policy". Anything refused means rollback.
 - On Vercel preview pages the Vercel toolbar no longer loads (its host is not on the list). Production is not affected.
 
+### Added: what the new widgets need from the website (nothing changes in today's app)
+- The widgets' feed (`/api/app-widget`) also sends the rain chance and the wind on their own (`now.rain`, `now.wind`) and, for a summit window, its words (`label`: "Summit window", "Gipfelfenster", in all 13 languages), so the next native build shows them without taking text apart and never shows a window by its colour alone. Everything the feed sent before stays, so today's app is unchanged (owner, 2026-11-16; `docs/widgets-spec.md`, section 9).
+- The app tells its widgets which look to take: the Mono, Winter or Sky app icon gives them that theme, every other icon the default (`theme` in the widget settings), and switching the icon under More updates them at once.
+
+### Added: the spec for the widgets' new look (nothing changes in the app yet)
+- The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
+- The spec also lists every widget text in all 13 languages (the widgets' messages and Android's widget settings speak 5 today) and drops the dash from the offline message.
+
+### Docs: the project skill gains rules from the skill review of 16 November
+- Nothing changes for visitors. `.claude/skills/metablend/SKILL.md`: code that needs new SQL waits for the owner's word that it ran on dev and on production; a fault seen on the live site goes to the owner before any diagnosis; several approved branches go out as one deploy; an Open-Meteo request is costed in weighted calls with the plain count beside it; the layout check writes to a file; and a new Tests section (the shared `fetch` fake, what to list before the golden test is rebaselined).
+
 ## 2026-11-16
 
 ### Fixed: the outlook's nightly check scores the predictions it left waiting
@@ -754,7 +765,6 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed — the website's home page
 - The home page opens on a real forecast: your last city, or Lienz on a first visit. The explanation sits below it, with the sources trusted most in that region right now.
 - A concrete line replaces the tagline; drawn icons replace emoji; the feature grid, sparkle, banner and badge are gone, with one quiet beta note left. Left-aligned, one card style, an 8 px grid. The app's Forecast tab is unchanged.
-
 
 ### Added
 - Impressum at `/impressum` in all 13 languages, linked in the footer and under More.

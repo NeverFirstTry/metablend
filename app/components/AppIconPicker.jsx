@@ -5,6 +5,7 @@ import { Palette } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { currentIcon, setIcon } from '@/lib/app-icon'
 import { iconChoices, selectedIcon, switchNeedsWarning } from '@/lib/app-icon-choices'
+import { syncWidgets } from '@/lib/app-widget-client'
 import { SectionTitle } from './ui'
 
 const label = name => `appIcon${name[0].toUpperCase()}${name.slice(1)}`
@@ -35,7 +36,10 @@ export default function AppIconPicker({ lang }) {
     const ok = await setIcon(name)
     setBusy(false)
     setPending(null)
-    if (ok) setState(s => ({ ...s, name }))
+    if (ok) {
+      setState(s => ({ ...s, name }))
+      syncWidgets() // the widgets take the icon's theme (Mono, Winter, Sky) or the default
+    }
   }
 
   return (
