@@ -200,6 +200,7 @@ struct Background: View {
             }
         }
         .clipShape(ContainerRelativeShape())
+        .accessibilityHidden(true) // scenery only: an unlabelled Image would be read by its file name ("winter-specks")
     }
 }
 

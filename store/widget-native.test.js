@@ -95,8 +95,12 @@ test('widget icons: every drawn icon has a spoken label on both platforms', () =
     }
   }
   assert.ok(described.has('cell_sub'), 'an hour\'s rain is read as "Rain 7%"')
-  // iPhone: every Icon outside the weather glyph (which speaks for its drawings as one element) passes a label
+  // iPhone: every Icon outside the weather glyph (which speaks for its drawings as one element) passes a label, and
+  // the scenery behind the content is silent (an unlabelled Image is read by its file name)
   const swiftViews = read('mobile/ios/App/MetaBlendWidgets/MetaBlendWidgets.swift')
+  const background = swiftViews.slice(swiftViews.indexOf('struct Background: View'), swiftViews.indexOf('struct Glyph: View'))
+  assert.match(background, /\.clipShape\(ContainerRelativeShape\(\)\)\s*\.accessibilityHidden\(true\)/)
+  assert.match(read('mobile/android/app/src/main/res/layout/widget_scenery.xml'), /importantForAccessibility="noHideDescendants"/)
   for (const line of swiftViews.split('\n').filter(l => /Icon\(name: "icon-/.test(l))) {
     assert.ok(/label: /.test(line) || /size: size, color/.test(line), `unlabelled: ${line.trim()}`)
   }
