@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import featured from '@/lib/hike/featured.json'
 import { hikeApiPath } from '@/lib/hike/params'
 import { loadSummit } from '@/lib/hike/summit-fetch'
+import { readAvalanche } from '@/lib/avalanche/read'
 import { summitProps, storedPath, STORED_SECONDS } from '@/lib/hike/summit-props'
 import { OM_MODELS, modelCovers } from '@/lib/outlook/models'
 import { SOURCE_NAMES } from '@/lib/sources'
@@ -29,15 +30,11 @@ const peakById = id => featured.find(p => p.id === id && p.kind !== 'hut') ?? nu
 const getSummit = peak => loadSummit(`${BASE}${storedPath(hikeApiPath(peak))}`)
 // The avalanche danger is not kept with the page: the browser reads it when the page opens (SummitPage.jsx).
 // The server asks only for how many days the area has a rating, so the section holds its place and nothing
-// below it moves; kept as long as the page, so this request never shortens the page's time.
+// below it moves; kept as long as the page, so this request never shortens the page's time. A slow avalanche
+// source does not hold up the page: after 3 s it is built without that room (the browser still reads the danger).
 async function getAvalancheRows(peak) {
-  try {
-    const res = await fetch(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { next: { revalidate: STORED_SECONDS } })
-    const a = res.ok ? await res.json() : null
-    return [a?.today, a?.tomorrow].filter(Boolean).length
-  } catch {
-    return 0
-  }
+  const a = await readAvalanche(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { ms: 3000, init: { next: { revalidate: STORED_SECONDS } } })
+  return [a?.today, a?.tomorrow].filter(Boolean).length
 }
 
 export async function generateMetadata({ params }) {

@@ -3,14 +3,18 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-17
+## 2026-11-18
 
 ### Changed: a summit page reads the avalanche danger when it opens
-- The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A stored page never shows an old level, also not to the first visitor after a quiet spell, who until now got the last stored copy of any age once.
-- The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves. If the read fails, the section is left out rather than showing an old level.
-- The note under it no longer gives the forecast's time ("As of ..."), which was never the bulletin's.
-- The stored page itself (crawlers, readers without scripts) has the section's heading but no level.
-- Behind it: the danger no longer decides how long a summit page is kept. Today a page is rebuilt every 30 minutes, set by its forecast request, not the 6 hours its code said; that time can now be raised without keeping the danger longer.
+- The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A bulletin that changed after the page was stored shows its new level at once; until now the stored level stood until the page was rebuilt, and for the first visitor after a quiet spell a stored copy of any age.
+- The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves.
+- When the avalanche source is down or takes longer than 6 seconds, the section says so ("The avalanche danger could not be read just now. The official bulletins have the current level."), in all 13 languages, with the link to the official bulletins. Never an old level.
+- A slow avalanche source no longer holds up a summit page being built: after 3 seconds it is built without the danger's room.
+- The note under it no longer gives the forecast's time ("As of ..."), which was never the bulletin's. The stored page itself (crawlers, readers without scripts) has the section's heading but no level.
+- Open-Meteo: no change. The danger was never an Open-Meteo request; a summit page still makes at most one (three models) when it is built, and none when it opens.
+- Behind it: when today's bulletin cannot be read, /api/avalanche says so (`unavailable`) and keeps that answer one minute instead of 30. The danger no longer decides how long a summit page is kept (today every 30 minutes, set by its forecast request, not the 6 hours its code said); that time can now be raised without keeping the danger longer.
+
+## 2026-11-17
 
 ### Fixed: a summit page no longer calls yesterday "Today"
 - A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
