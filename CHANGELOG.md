@@ -8,8 +8,6 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed: a test that stopped passing on 19 November
 - Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
 
-## 2026-11-18
-
 ### Changed: a summit page reads the avalanche danger when it opens
 - The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A bulletin that changed after the page was stored shows its new level at once; until now the stored level stood until the page was rebuilt, and for the first visitor after a quiet spell a stored copy of any age.
 - The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves.
@@ -19,10 +17,10 @@ All notable changes to MetaBlend. Format loosely follows
 - Open-Meteo: no change. The danger was never an Open-Meteo request; a summit page still makes at most one (three models) when it is built, and none when it opens.
 - Behind it: when today's bulletin cannot be read, /api/avalanche says so (`unavailable`) and keeps that answer one minute instead of 30. The danger no longer decides how long a summit page is kept (today every 30 minutes, set by its forecast request, not the 6 hours its code said); that time can now be raised without keeping the danger longer.
 
-## 2026-11-17
-
 ### Fixed: the hiking page's teaser on a local server
 - Nothing changes on metablend.app. Run locally on another port than 3000, the hiking page asked port 3000 for its teaser all the same and showed "The live summit forecast is taking a break". It now reads the same setting as the summit and city pages (SELF_BASE), so a local check sees the teaser's window.
+
+## 2026-11-17
 
 ### Fixed: a summit page no longer calls yesterday "Today"
 - A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
