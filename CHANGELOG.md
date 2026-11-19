@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-20
+
+### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
+- When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
+- Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
+- Behind it: a page is rebuilt at the shortest storage time among its own requests, and that time cannot be set after the answers are in. So when the forecast comes marked as the last good answer, the page asks the same address once more under 30 minutes and uses that answer (lib/hike/summit-fetch.js). Two tests: the request itself, and the page built for real with such an answer, which fails when no request names 30 minutes.
+- Seen on the built site, with a stand-in that marks one peak's forecast as the last good answer: that page is served with `s-maxage=1800`, a normal one with `s-maxage=21600`, and the marked page's second request was answered from the copy just fetched (one request reached the forecast address, not two).
+
 ## 2026-11-19
 
 ### Fixed: a test that stopped passing on 19 November
