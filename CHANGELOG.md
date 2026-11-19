@@ -5,11 +5,6 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-19
 
-### Changed: the Czech ALADIN model's credit names its author, and the credit line leads to the licences
-- On /terms the credit for the ALADIN model reads "Author: Czech Hydrometeorological Institute (ČHMÚ)" where it said "Source:", and links the data's own address (opendata.chmi.cz, received through Open-Meteo). The licence (CC BY 4.0, linked) and the note that blended data are changed were there already, in all 13 languages. The README carries the same line.
-- The credit line under the Sources panel, in the footer and on the app's More screen ends with a new link, "Sources and licences" (13 languages), to the list on /terms. Until now that line named each provider but did not lead to its licence or to the note on changes, which CC BY 4.0 asks for. The link serves every source in the list, not only CHMI.
-- `docs/source-licences.md` (new) records CHMI's written confirmation of 18 November 2026 with its two key passages word for word: its open data are under CC BY 4.0, commercial use included, and attribution is the only obligation. CHMI's data folders carry no licence text, so the confirmation is the proof on file.
-
 ### Fixed: a test that stopped passing on 19 November
 - Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
 
@@ -24,6 +19,18 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Fixed: the hiking page's teaser on a local server
 - Nothing changes on metablend.app. Run locally on another port than 3000, the hiking page asked port 3000 for its teaser all the same and showed "The live summit forecast is taking a break". It now reads the same setting as the summit and city pages (SELF_BASE), so a local check sees the teaser's window.
+
+### Changed: the Czech ALADIN model's credit names its author, and the credit line leads to the licences
+- On /terms the credit for the ALADIN model reads "Author: Czech Hydrometeorological Institute (ČHMÚ)" where it said "Source:", and links the data's own address (opendata.chmi.cz, received through Open-Meteo). The licence (CC BY 4.0, linked) and the note that blended data are changed were there already, in all 13 languages. The README carries the same line.
+- The credit line under the Sources panel, in the footer and on the app's More screen ends with a new link, "Sources and licences" (13 languages), to the list on /terms. Until now that line named each provider but did not lead to its licence or to the note on changes, which CC BY 4.0 asks for. The link serves every source in the list, not only CHMI.
+- `docs/source-licences.md` (new) records CHMI's written confirmation of 18 November 2026 with its two key passages word for word: its open data are under CC BY 4.0, commercial use included, and attribution is the only obligation. CHMI's data folders carry no licence text, so the confirmation is the proof on file.
+
+### Changed: a summit page is really kept six hours
+- A summit page was meant to be stored six hours, but it was rebuilt every 30 minutes: a page is rebuilt at the shortest storage time among its own requests, and its forecast request said 30 minutes. That request now says six hours, like the page.
+- Why: about nine in ten requests to a summit page found the copy past its 30 minutes and rebuilt it, and each rebuild asks Open-Meteo once (18 November: 474 requests, 2,417 weighted calls, a quarter of the day). About 85 % of those page requests come from crawlers and AI assistants. Replayed on the page requests of 18 and 19 November, six hours gives about 274 rebuilds a day where there were 413, about 700 weighted calls a day less.
+- What a reader notices: little. A visit after a gap was answered with the stored copy before as well (about 4 hours old in the median; now about 5). The page says when its forecast was made, the button fetches the live one, and the avalanche danger is read when the page opens.
+- Open-Meteo: unchanged at most one request (three models) when a page is built; there are fewer builds.
+- Known limit: a page built during an Open-Meteo outage from the peak's last good answer, which is marked with its time, is kept six hours like any other.
 
 ## 2026-11-17
 
