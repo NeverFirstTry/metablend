@@ -120,7 +120,7 @@ The disk's size is not the limit. Two other things are:
 sudo smartctl -a /dev/nvme0 | grep -E "Percentage Used|Data Units Written"
 ```
 
-**Europe or world?** Start with Europe. One thing to know before the server answers first: for a place outside the box our server gives an answer with empty values (measured in the rehearsal: New York), and the site's switch takes an answered request as answered. So the Europe box is right for the comparison run (step 10), where nothing a visitor sees comes from our server. Before it answers first, either the global models are synced worldwide, or the switch learns to pass an empty answer on to the public service. That decision comes with the first measured days.
+**Europe or world?** Start with Europe. One thing to know before the server answers first: for a place outside the box our server gives an answer with empty values (measured in the rehearsal: New York), and the site's switch takes an answered request as answered. So the Europe box is right for the comparison run (step 10), where nothing a visitor sees comes from our server. Before it answers first, either the global models are synced worldwide, or the switch learns to pass an empty answer on to the public service. That one of the two comes first is decided (step 10); which of the two is decided with the first measured days.
 
 **The list on the day.** DWD ends the regular ICON grids on 2026-11-30 (Open-Meteo's page: after that date `dwd_icon_global`, `dwd_icon_eu` and `dwd_icon_d2` use native grids), so the ICON folders above change. Read the list from the server itself on the day you set it up. It takes about ten minutes:
 
@@ -261,6 +261,13 @@ These are production changes. Each waits for a decision, is set in Vercel's sett
 | `OPEN_METEO_SHADOW` | `0.2` | **the comparison run**: the public service answers everything as today, one request in five is also asked from our server afterwards and compared. Nothing a visitor sees comes from our server. |
 
 With the first three set and `OPEN_METEO_SHADOW` not set, our server **answers first** and the public service is the fallback (step 12). The plan: the comparison run for some days, a report on it, then the decision.
+
+**Before the server answers first: the empty answers are fixed (owner, 2026-11-19).** With a Europe box our server answers a place outside it with empty values, and the switch takes that as answered (step 5): for such a place the site would get no values from Open-Meteo's models, and the public service would not be asked. `OPEN_METEO_SHADOW` is not taken away before one of these is done and checked:
+
+1. the global models are synced worldwide (step 5, the world column: about 125 GB of the disk in use and 282 GB a day), or
+2. the switch treats an answer with empty values as not answered and asks the public service instead (a code change with its test, on a branch).
+
+The check for either: a place outside the box (New York) asked through the site with our server first gives the same values as the public service.
 
 Two more exist: `OPEN_METEO_SELF_TIMEOUT_MS` (how long our server may take, default 4000) and `OPEN_METEO_PUBLIC=off` (the public service is never asked; not planned).
 
