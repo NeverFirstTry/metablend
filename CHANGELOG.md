@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-19
 
+### Changed: the Czech ALADIN model's credit names its author, and the credit line leads to the licences
+- On /terms the credit for the ALADIN model reads "Author: Czech Hydrometeorological Institute (ČHMÚ)" where it said "Source:", and links the data's own address (opendata.chmi.cz, received through Open-Meteo). The licence (CC BY 4.0, linked) and the note that blended data are changed were there already, in all 13 languages. The README carries the same line.
+- The credit line under the Sources panel, in the footer and on the app's More screen ends with a new link, "Sources and licences" (13 languages), to the list on /terms. Until now that line named each provider but did not lead to its licence or to the note on changes, which CC BY 4.0 asks for. The link serves every source in the list, not only CHMI.
+- `docs/source-licences.md` (new) records CHMI's written confirmation of 18 November 2026: its open data are under CC BY 4.0, commercial use included, and attribution is the only obligation. CHMI's data folders carry no licence text, so the confirmation is the proof on file.
+
 ### Fixed: a test that stopped passing on 19 November
 - Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
 
