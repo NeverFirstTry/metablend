@@ -6,12 +6,12 @@ What a data provider has confirmed to us in writing about the use of its data. T
 
 - **Date of the confirmation:** 18 November 2026, by email.
 - **Sender:** CHMI, Director's Department, in answer to the owner's question ("from info@ inbox" in the owner's note). The sender's name and the email itself are kept in the owner's mailbox, not in this public file.
-- **Recorded:** 19 November 2026, from the owner's account of the email. The points below give its content; they are not CHMI's wording.
-- **What it says:**
-  1. All data on opendata.chmi.cz are under CC BY 4.0.
-  2. Commercial and non-commercial use is allowed, including the development of apps.
-  3. The only obligation is attribution: CHMI is cited as the author.
-  4. CHMI asks that an app's name is not identical to the name of the ALADIN model.
+- **Recorded:** 19 November 2026. The two passages below are CHMI's own words, as the owner copied them from the email. The point after them is the owner's account of the email, not a quotation.
+- **In CHMI's words:**
+  > "all data published on the opendata.chmi.cz portal are provided as open data under the free international Creative Commons BY 4.0 license. This license contains no restrictions regarding the purpose of use. You may therefore legally use the data for both commercial and non-commercial purposes, including application development."
+
+  > "Your sole legal obligation when using the CC BY 4.0 license is to attribute the origin of the data (i.e., to cite CHMI as the author)."
+- **Also asked (the owner's account):** that an app's name is not identical to the name of the ALADIN model.
 - **Why it is on file:** the folders on opendata.chmi.cz carry no licence text (looked at on 19 November 2026: the root, `meteorology/`, `meteorology/weather/` and `meteorology/weather/nwp_aladin/` are bare listings), so this email is our proof of the licence.
 - **What we use:** the ALADIN forecast model for central Europe, received through Open-Meteo (model `chmi_aladin_central_europe_2km`), a source in the blend since 12 November 2026 (`lib/weather.js`, `lib/sources.js`).
 - **How we meet it:**
