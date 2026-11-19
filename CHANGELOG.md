@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-19
 
+### Changed: a summit page is really kept six hours
+- A summit page was meant to be stored six hours, but it was rebuilt every 30 minutes: a page is rebuilt at the shortest storage time among its own requests, and its forecast request said 30 minutes. That request now says six hours, like the page.
+- Why: about nine in ten requests to a summit page found the copy past its 30 minutes and rebuilt it, and each rebuild asks Open-Meteo once (18 November: 474 requests, 2,417 weighted calls, a quarter of the day). About 85 % of those page requests come from crawlers and AI assistants. Replayed on the page requests of 18 and 19 November, six hours gives about 274 rebuilds a day where there were 413, about 700 weighted calls a day less.
+- What a reader notices: little. A visit after a gap was answered with the stored copy before as well (about 4 hours old in the median; now about 5). The page says when its forecast was made, the button fetches the live one, and the avalanche danger is read when the page opens.
+- Open-Meteo: unchanged at most one request (three models) when a page is built; there are fewer builds.
+- Known limit: a page built during an Open-Meteo outage from the peak's last good answer, which is marked with its time, is kept six hours like any other.
+
 ### Fixed: a test that stopped passing on 19 November
 - Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
 
