@@ -14,6 +14,21 @@ All notable changes to MetaBlend. Format loosely follows
 - The run for the 175 featured peaks without a list (57 extracts, 18 GB, one download at a time, none refused): 131 have marked routes (530 routes, 462 of them within the 40 km the site lists, all 462 with ascent and walking time, 35,985 heights), 41 have none within a kilometre of the summit, and on 3 every route was cut. 54 routes on 26 peaks leave their extract and were left out.
 - Loaded into the dev database first. The local site then answered seven of those peaks from the database, with the files' routes, ascent and walking times, and counted no Open-Meteo request.
 
+### Fixed: a test that stopped passing on 19 November
+- Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
+
+### Changed: a summit page reads the avalanche danger when it opens
+- The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A bulletin that changed after the page was stored shows its new level at once; until now the stored level stood until the page was rebuilt, and for the first visitor after a quiet spell a stored copy of any age.
+- The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves.
+- When the avalanche source is down or takes longer than 6 seconds, the section says so ("The avalanche danger could not be read just now. The official bulletins have the current level."), in all 13 languages, with the link to the official bulletins. Never an old level.
+- A slow avalanche source no longer holds up a summit page being built: after 3 seconds it is built without the danger's room.
+- The note under it no longer gives the forecast's time ("As of ..."), which was never the bulletin's. The stored page itself (crawlers, readers without scripts) has the section's heading but no level.
+- Open-Meteo: no change. The danger was never an Open-Meteo request; a summit page still makes at most one (three models) when it is built, and none when it opens.
+- Behind it: when today's bulletin cannot be read, /api/avalanche says so (`unavailable`) and keeps that answer one minute instead of 30. The danger no longer decides how long a summit page is kept (today every 30 minutes, set by its forecast request, not the 6 hours its code said); that time can now be raised without keeping the danger longer.
+
+### Fixed: the hiking page's teaser on a local server
+- Nothing changes on metablend.app. Run locally on another port than 3000, the hiking page asked port 3000 for its teaser all the same and showed "The live summit forecast is taking a break". It now reads the same setting as the summit and city pages (SELF_BASE), so a local check sees the teaser's window.
+
 ## 2026-11-17
 
 ### Fixed: a summit page no longer calls yesterday "Today"
