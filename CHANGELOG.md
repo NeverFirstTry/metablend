@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-19
+
+### Fixed: a test that stopped passing on 19 November
+- Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
+
 ## 2026-11-18
 
 ### Changed: a summit page reads the avalanche danger when it opens
