@@ -3,6 +3,14 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-19
+
+### Tools: route lists and route heights worked out locally
+- `scripts/routes/local.mjs` works out the marked routes of featured peaks and their heights on a developer's machine: the routes from Geofabrik extracts read on disk, the heights from Copernicus GLO-90 tiles, and the site's own route finder and height store make the rows. No request to the OpenStreetMap API and none to Open-Meteo. It writes files and stores nothing, so nothing a visitor sees changes.
+- Checked on 15 peaks whose list the live site already holds: the same 46 routes, 45 of them the same line point for point. Against the values worked out with Open-Meteo's heights, the ascent differs by 15 m in the median (1.7 %) and the walking time by 7 minutes (1.5 %); the largest difference is on a 64 km trail (5,690 m to 5,371 m of ascent). 21 of the 46 routes show no ascent and no time on the site today and get both.
+- Why: 175 featured peaks have no route list yet. Looking them up on the live site would be up to 1,575 requests to the OpenStreetMap API and up to 100 Open-Meteo calls a route.
+- A route that leaves its extract (a long-distance trail) is left out and counted, not stored in part.
+
 ## 2026-11-17
 
 ### Fixed: a summit page no longer calls yesterday "Today"
