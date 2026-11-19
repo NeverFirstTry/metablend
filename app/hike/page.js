@@ -26,7 +26,7 @@ export const metadata = {
 
 // Self-fetch through the public domain (like the city pages): the teaser
 // shares the peak's CDN entry with every app user looking at it.
-const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
+const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000') // SELF_BASE: a local `next start` on another port
 const PEAKS = featured.filter(p => p.kind === 'peak')
 const SUMMITS = featured.filter(p => p.kind !== 'hut').length
 // the teaser lists them without links or distances: only what a row shows
