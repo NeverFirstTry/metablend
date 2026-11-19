@@ -235,10 +235,10 @@ function AttributionList({ lang }) {
   const a = ATTRIBUTION[lang] ?? ATTRIBUTION.en
   const [osmBefore, osmAfter] = a.osm.split('{link}')
   return (
-    <ul className="list-disc pl-5 space-y-0.5 text-zinc-400">
+    <ul id="sources" className="list-disc pl-5 space-y-0.5 text-zinc-400 scroll-mt-16">
       <li><a href="https://open-meteo.com" {...EXT}>Open-Meteo</a> (CC BY 4.0){a.sep}“Weather data by Open-Meteo.com”, {a.models.replace('{models}', MODELS)}</li>
       <li>This service is based on data and products of the European Centre for Medium-Range Weather Forecasts (ECMWF). Source: <a href="https://www.ecmwf.int" {...EXT}>www.ecmwf.int</a>. Licence: <a href="https://creativecommons.org/licenses/by/4.0/" {...EXT}>CC BY 4.0</a>. {a.ecmwf}</li>
-      <li>ALADIN model forecasts. Source: Czech Hydrometeorological Institute (ČHMÚ), <a href="https://www.chmi.cz" {...EXT}>www.chmi.cz</a>. Licence: <a href="https://creativecommons.org/licenses/by/4.0/" {...EXT}>CC BY 4.0</a>. {a.ecmwf}</li>
+      <li>ALADIN model forecasts. Author: Czech Hydrometeorological Institute (ČHMÚ), <a href="https://www.chmi.cz" {...EXT}>www.chmi.cz</a>. Data: <a href="https://opendata.chmi.cz" {...EXT}>opendata.chmi.cz</a>, received through Open-Meteo. Licence: <a href="https://creativecommons.org/licenses/by/4.0/" {...EXT}>CC BY 4.0</a>. {a.ecmwf}</li>
       <li><a href="https://avalanches.org" {...EXT}>EAWS</a>{a.sep}{a.eaws}</li>
       <li><a href="https://meteoalarm.org" {...EXT}>MeteoAlarm</a> (EUMETNET, CC BY 4.0){a.sep}{a.meteoalarm}</li>
       <li><a href="https://www.met.no" {...EXT}>MET Norway</a> (NLOD / CC BY 4.0){a.sep}“Data from MET Norway”</li>
