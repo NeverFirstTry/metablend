@@ -2,6 +2,8 @@
 // the dev project (.env.local), or production after you confirm (scripts/lib/production.mjs; on the PC
 // only). It only adds. A peak that already has a route list keeps it, heights already stored for a
 // route's line stay as they are, and nothing is replaced or deleted, so a second run changes nothing.
+// Only whole lists go in: a peak with a route its extract cut gets no list here, the site looks it up itself
+// at the first visit (its heights go in all the same).
 // The site then finds the list (for a week, as after its own lookup) and the heights (for good) in the
 // database and asks neither OpenStreetMap nor Open-Meteo for them.
 // A list's date is its file's: copy the folder with the files' times kept (cp -p).
@@ -29,7 +31,7 @@ const parts = (rows, n) => Array.from({ length: Math.ceil(rows.length / n) }, (_
 const have = new Set()
 for (const keys of parts(files.map(f => f.peak_key), 100)) for (const row of await must('Reading route_cache', supabase.from('route_cache').select('peak_key').in('peak_key', keys))) have.add(row.peak_key)
 const plan = loadPlan(files, have)
-const what = `add ${plan.cache.length} route lists (${plan.held.length} of the ${files.length} peaks have one and keep it) and up to ${plan.heights.length} rows of route heights (rows already stored stay as they are); nothing is replaced or deleted`
+const what = `add ${plan.cache.length} route lists (of the ${files.length} peaks ${plan.held.length} have one and keep it, and ${plan.left.length} with a route their extract cut are left to the site's own lookup) and up to ${plan.heights.length} rows of route heights (rows already stored stay as they are); nothing is replaced or deleted`
 if (production) await confirmProduction(what)
 else console.log(`This will ${what}, in the dev database.`)
 
