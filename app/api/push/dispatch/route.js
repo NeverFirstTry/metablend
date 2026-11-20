@@ -63,6 +63,9 @@ export const GET = withErrorLog('push.dispatch', withJobLog('push-dispatch', asy
   const only = sp.get('only') === 'rain' ? 'rain' : null
   const summary = await runDispatch({ store, getJson, sender: senderFromEnv(), dry, routeWeather: routeWeatherFor, only, warningsAt, avalancheAt })
   if (summary.failed) await logError('push.dispatch', new Error(`${summary.failed} sends failed`), { errors: summary.errors })
+  // out of time: what the run did not get to (lib/push/dispatch.js RUN_MS); a sign of a flood of registrations
+  const { leftPlaces, leftPlans, leftSends } = summary
+  if (leftPlaces || leftPlans || leftSends) await logError('push.dispatch', new Error('the run ran out of time'), { leftPlaces, leftPlans, leftSends, devices: summary.devices, cities: summary.cities })
   if (summary.warningErrors?.length) await logError('push.warnings', new Error(summary.warningErrors[0]), { errors: summary.warningErrors })
   return Response.json(summary, { headers: { 'Cache-Control': 'no-store' } })
 }))

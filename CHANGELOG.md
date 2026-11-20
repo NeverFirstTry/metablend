@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
+- On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
+- A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
+- One address may register ten new phones an hour (counted in memory per server copy, an IPv6 line as one address). A phone that is already known registers again at every app start and is not counted.
+- The hourly and the quarter-hourly alert run handle phones oldest first and give each part its time within the function's 300 seconds: places until 150 s, planned hikes until 210 s, sending until 270 s. What a run did not reach is counted in its summary (`leftPlaces`, `leftPlans`, `leftSends`), noted in the error log, and tried by the next run. A message that was not sent is not logged as sent.
+- Open-Meteo: no new request. Registering a phone asks the database once more than before (is this phone known).
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
@@ -17,6 +24,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
 - The lists loaded on 19 November now count until 19 December.
 - Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+### Docs: the project skill names the gold rule for main buttons
+- Nothing changes on metablend.app.
+- The owner's answer of 20 November to the UX review's open question: on a screen without an answer the one main button keeps gold, since it is that screen's one job; tabs, toggles and chips stay neutral. One sentence in the skill's colour rule.
+
 ### Added: the UX walk, and the review criteria in the project skill
 - Nothing changes on metablend.app.
 - `scripts/ux/` holds the tools of the UX review of 20 November: `walk.mjs` walks every screen of a local build in one configuration (view, width, theme, language) and saves pictures and measures (control sizes, names for screen readers, contrast, text sizes, cut-off text, what is gold, response time after a tap); `report-build.mjs` builds a review and its page from one data file; `summary.mjs` lists the measured items. `ONLY=faults` runs the measures against a page of planted faults. The walk writes outside the repository (the system's temp folder).
