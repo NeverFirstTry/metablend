@@ -5,9 +5,8 @@ import Link from 'next/link'
 import { Star } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
-import { windowText } from '@/lib/hike/text'
 import { madeAtText } from '@/lib/hike/summit-props'
-import { readShelf, isSaved, rowWindow } from '@/lib/peak-shelf'
+import { readShelf, isSaved, rowView } from '@/lib/peak-shelf'
 import { SectionTitle } from '../ui'
 
 // Hiking → My peaks (starred on a peak) and the peaks opened lately, at the top of the tab (UX review H2).
@@ -38,17 +37,19 @@ export default function MyPeaks({ lang, hrefFor }) {
   )
 }
 
+
 function PeakRow({ p, lang, href, now }) {
-  const w = rowWindow(p, now)
-  const title = w ? windowText(lang, w.w, { date: w.date, todayLocal: w.todayLocal }).title : null
-  // the look's time at the summit, as a summit page says it
-  const madeAt = w ? new Date(p.seen.at + (p.seen.utcOffsetSec ?? 0) * 1000).toISOString().slice(0, 16) : null
+  const v = rowView(lang, p, now)
+  // when the forecast was made, at the summit, as a summit page says it
+  const madeAt = v ? new Date(p.seen.at + (p.seen.utcOffsetSec ?? 0) * 1000).toISOString().slice(0, 16) : null
   return (
     <li>
       <Link href={href} className="press flex flex-col justify-center min-h-11 px-4 py-2.5 hover:text-emerald-400">
         <span><span className="font-semibold">{p.name}</span> <span className="text-sm text-zinc-500">{p.elevApprox ? '≈' : ''}{p.elev} m</span></span>
-        {title && <span className="text-sm text-emerald-400">{title}</span>}
-        {title && <span className="text-xs text-zinc-500">{fill(t(lang, 'mtnAsOf'), { when: madeAtText(madeAt, lang) })}</span>}
+        {/* the accent for a favourable window only, the warning colour without storm data (Fable's review) */}
+        {v && <span className={`text-sm ${v.tone === 'ok' ? 'text-emerald-400' : 'text-zinc-300'}`} style={v.tone === 'warn' ? { color: 'var(--warn)' } : undefined}>{v.title}</span>}
+        {v?.sub && <span className="text-xs text-zinc-400">{v.sub}</span>}
+        {v && <span className="text-xs text-zinc-500">{fill(t(lang, 'mtnAsOf'), { when: madeAtText(madeAt, lang) })}</span>}
       </Link>
     </li>
   )
