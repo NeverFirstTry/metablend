@@ -55,10 +55,12 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
       )}
       {open && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 space-y-2 animate-fade-in">
+          {/* what a plan brings, before the day is picked (UX review N1): it was said only after */}
+          <p className="text-sm text-zinc-300">{t(lang, 'planExplain')}</p>
           <div className="text-xs text-zinc-500">{t(lang, 'planPick')}</div>
           <div className="flex flex-wrap gap-1.5">
             {planDays(lang, todayLocal).map(d => (
-              <button key={d.date} onClick={() => plan(d.date)} className="press rounded-lg bg-zinc-800 px-3 py-1.5 text-sm hover:text-emerald-400">{d.label}</button>
+              <button key={d.date} onClick={() => plan(d.date)} className="press min-h-11 rounded-lg bg-zinc-800 px-3 text-sm hover:text-emerald-400">{d.label}</button>
             ))}
           </div>
         </div>
