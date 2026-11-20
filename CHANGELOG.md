@@ -24,6 +24,10 @@ All notable changes to MetaBlend. Format loosely follows
 - Every forecast our server has to build writes about 20 rows for the scoring and one for the feed. One address may have 100 such forecasts written in a day; beyond that its forecasts are still answered and nothing is written for them. Counted in memory per server copy and forgotten after a day. The site's own readers (widget feed, share card, alert run) share a count of 1,000.
 - Why: the database's plan holds 500 MB and stood at 348 MB on 20 November; one address asking for a new town 40 times a minute wrote about 0.4 MB a minute.
 - Open-Meteo: no change.
+### Changed: the privacy notice, two sentences (German first, then the 12 translations)
+- "Technical data": our server counts the requests from an IP address in memory "for at most one day at a time"; it said "one hour". Two counts of this deploy run for a day (new places per address, stored forecasts per address); every other count still runs a minute or an hour. The address is still not stored.
+- "What stays on your device": saved and recently opened peaks, with the summit window of the forecast last viewed, join the list. They are kept in the browser's storage, not in cookies, so they do not reach our server.
+- `lib/legal-pages.test.js` pins both sentences word for word in all 13 languages.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
