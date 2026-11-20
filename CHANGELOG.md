@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: My routes tells routes apart
+- Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
+
 ### Changed: Plan a hike says what it does, and a removed route can be brought back
 - Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
 - Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
