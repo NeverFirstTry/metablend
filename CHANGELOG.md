@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Added: the summit forecast holds the favourable window of every day of the week
+- Nothing a visitor sees changes yet. The peak view's Week tab will use it to say which day has a window (UX review, entry P1; the screen itself follows on a branch of its own).
+- `/api/hike` now answers with `windows.days`: one entry `{ date, w, stormUnknown, n }` for every day the forecast covers to its evening. `w` is the same answer `windows.today` and `windows.tomorrow` are (a window, or the reason there is none). `stormUnknown` says that an hour of that day's window has no storm value, so the day is not to be shown as favourable without saying so; a week out fewer models report it. `n` is the fewest models behind an hour of the window.
+- A last day whose hours stop before its evening has no entry: a cut-off forecast is not a verdict.
+- Open-Meteo: no new request and no new variable. The answer grows by about seven small entries.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
