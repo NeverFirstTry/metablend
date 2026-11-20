@@ -21,7 +21,7 @@ Report only: no code was changed for it. Written by the Fable session so that it
 
 So the answer is good and the way to it is cluttered. Most entries below remove something or put a word on it.
 
-## Personas: three proposals, pick one
+## Personas: decided on 20 November
 
 | | Lena, the weekend hiker | Markus, the day decider | Jonas, the model watcher |
 | --- | --- | --- | --- |
@@ -30,9 +30,14 @@ So the answer is good and the way to it is cluttered. Most entries below remove 
 | What MetaBlend must do | Keep her mountains one tap away. Say which day of the week works. Give the window with its reason, wind, freezing level, thunderstorm risk, and a route with times. Tell her the evening before if the window moved. | Open on his place without typing. Put the rain answer first and say in plain words how sure it is. Warn him before rain. | Show every source, the spread, the weights and who was right. |
 | Where today's app leaves them | No saved peaks. The peak's Week tab gives no verdict. Plan a hike does not say what it does. The Hiking tab opens on an index. | First start asks him to choose and shows a pitch. Buttons without words. The one sentence he needs is there and good. | Best served today: compare, embed, the sources table, rankings and the heatmap are his tools. He is the smallest group and the least likely to need a new app. |
 
-**My recommendation: Lena as the main persona, Markus as the second.** Hiking is where MetaBlend answers a question no general weather app answers on one screen: a window, its reason and a start time. The launch material already leads with summits. Markus needs a subset of the same thing (the answer first, how sure, a warning), so serving him costs little extra. Jonas keeps his tools, but they move out of the way: behind the Sources panel and under More.
+**Decided by the owner on 20 November: the weekend hiker (Lena) is the main persona. The day decider (Markus) is the second, mainly for the website.** The model watcher keeps his tools, out of the way: behind the Sources panel and under More.
 
-If you pick Markus instead, the entries on the first start, the start page and notifications stay where they are and the hiking entries (H, P, O, N) move from "before launch" to "after launch". If you pick Lena, H2 (saved peaks) and P1 (a verdict on the Week tab) are the two most important entries in this report.
+What follows from it, and how the list below is sorted:
+
+- **Hiking comes first in the app.** H2 (save a peak) and P1 (a verdict on the peak's Week tab) are now before submission, next to the small hiking entries N1, O1 and G1. H5 is new: the app should open where the hiker left it.
+- **The website serves the day decider.** Its phone header (W1) and the summit pages at phone width (M1), where hikers arrive from a search, move up to before launch.
+- **Tools for other people move down:** the rankings layout (L1), the planner's empty page (V1) and the aviation pages' language (A1) are after launch.
+- **The load before 3 December:** fifteen entries, four of them medium (F1, S1, H2, P1). That is about ten working days for one session. If time runs short: H2 before P1, and S1 as words on the three buttons instead of removing the row.
 
 ## The tester's feedback
 
@@ -67,46 +72,59 @@ Everything passes on a normal connection. Two taps do not on a poor one, and poo
 
 ## Gold: one job per screen
 
-Your rule is that gold marks exactly one thing per screen. Counted on the first screen of each page, leaving out the logo, the tab bar's current tab and the sun in weather icons:
+The owner's rule (20 November): gold has one job per screen, and that job is the main answer: the consensus temperature, the summit window and so on. Selected tabs, toggles and chips do not use gold; they get a neutral highlight.
 
-| Screen | What gold marks today | The one job proposed |
+Counted on the first screen of each page, leaving out the logo and the sun in weather icons:
+
+| Screen | What gold marks today | The main answer that gets gold |
 | --- | --- | --- |
-| First start | location card, search button, a sparkle, three feature icons | the one button that starts the app: "Use my location" |
-| Forecast | search button, selected tab, the chart line, the label "Hour by hour" | MetaBlend's own line and number: the blend (as in the logo, where "Blend" is gold) |
-| Hiking list | title icon, "My routes", "Import GPX", "Near you", "All peaks" | the star of a saved peak (H2); until then nothing |
-| Peak | selected tab, chart line, two labels, the caution paragraph, a link | the blend's line in the chart |
-| Route | selected day, selected pace, profile line, a label, "Save route" | the route itself: its line on the map and in the profile |
-| More | two labels, the selected options, the email link | the selected option |
-| Rankings | selected tab, selected region, 19 weight bars | the weight bars |
+| First start | location card, search button, a sparkle, three feature icons | none yet; once F1 is done, the example forecast's temperature |
+| Forecast, Today and Tomorrow | search button, selected tab, the chart line, the label "Hour by hour" | the consensus temperature; its line in the chart is the same answer over the day |
+| Forecast, Week | selected tab, the "models split" lines | the best day ("Best day of the week") |
+| Hiking list | title icon, "My routes", "Import GPX", "Near you", "All peaks" | the next favourable window on a saved peak's row (H2); until then none |
+| Peak | selected tab, chart line, two labels, the caution paragraph, a link | the summit window: its headline and its stretch in the chart |
+| Route | selected day, selected pace, profile line, a label, "Save route" | the favourable start (start time, or the next favourable day) |
+| Summit page (website) | section labels, links | the summit window |
+| City page (website) | section labels, links | the consensus temperature |
+| Rankings | selected tab, selected region, 19 weight bars | the source trusted most right now |
 | Planner | search button, the place, the best months, the bars | the best months |
-| Airport, Terms, Support | page titles or half of them, section labels, links | links only |
+| More, Aviation, Terms, Support | labels, selected options, links, titles or half of them | none: these screens give no answer |
 
-"One job" allows several instances of the same thing (°C and Dark are both selected). What it rules out is gold as section label, as caution text and as title decoration. The selected tab would then be white on a raised chip, as the unselected one is grey. Entry X3.
+What that means for the rest:
+
+- **Selected things turn neutral:** the range tabs, the day and pace chips on a route, the pickers under More, the region buttons, the saved-city chips, the checkboxes of the notification settings (green today) and the current tab in the tab bar. A raised chip with white text is enough to read as selected.
+- **Gold leaves** section labels, links (underlined in the text colour), the caution paragraphs (the warning colour that exists), half-gold titles and the feature icons.
+- **Headline cards:** the card that carries the answer is gold when there is one (a window, a start time, a best day) and neutral when there is none. Green stays for status words ("Low", "Good", the agreement figure). T2 follows from this.
+- **Not settled by the rule, my reading:** main buttons ("Continue", "Turn on notifications", "Retry") are gold today. I have treated them like tabs and chips: a strong neutral. Say if the one main button on a screen without an answer may keep gold.
+
+Entry X3.
 
 ## The short list: before submission on 3 December
 
-Thirteen entries, all small or medium, all in the app:
+Fifteen entries, all small or medium, all in the app. Hiking first:
 
-1. **S1** Words on the buttons under the search field, or fewer buttons.
-2. **S2** Embed out of the app; refresh and share at a size a thumb can hit.
-3. **R1** One place once in Recent.
-4. **F1** A forecast after "Continue", not a pitch. **F2** goes with it.
-5. **X1** A way back that is more than a 20 px line of grey text.
-6. **Y1** A retry on the error box, and the word "offline" when that is the cause.
-7. **N1** Say what "Plan a hike" does before the tap.
-8. **E2** Say what notifications bring before asking for them.
-9. **O1** The route screen's back link names the wrong place.
-10. **G1** The bin deletes a route at once.
-11. **X5** Emoji in buttons and sentences. **A2** Em dashes on the aviation pages. Both break house rules and take minutes.
+1. **H2** Save a peak, and keep the peaks looked at.
+2. **P1** A verdict on the peak's Week tab.
+3. **N1** Say what "Plan a hike" does before the tap.
+4. **O1** The route screen's back link names the wrong place.
+5. **G1** The bin deletes a route at once.
+6. **F1** A forecast after "Continue", not a pitch. **F2** goes with it.
+7. **S1** Words on the buttons under the search field, or fewer buttons.
+8. **S2** Embed out of the app; refresh and share at a size a thumb can hit.
+9. **R1** One place once in Recent.
+10. **X1** A way back that is more than a 20 px line of grey text.
+11. **Y1** A retry on the error box, and the word "offline" when that is the cause.
+12. **E2** Say what notifications bring before asking for them.
+13. **X5** Emoji in buttons and sentences. **A2** Em dashes on the aviation pages. Both break house rules and take minutes.
 
 ## All problems, by screen
 
-68 entries. Each has an id for reference, the picture it was seen on (folder `docs/ux-review/`), a suggested fix, the effort (small: under half a day, medium: one to two days, large: more) and when it should be done.
+69 entries. Each has an id for reference, the picture it was seen on (folder `docs/ux-review/`), a suggested fix, the effort (small: under half a day, medium: one to two days, large: more) and when it should be done.
 
 | When | Count |
 | --- | --- |
-| Before submission (3 Dec) | 13 |
-| Before launch | 35 |
+| Before submission (3 Dec) | 15 |
+| Before launch | 34 |
 | After launch | 20 |
 
 ### Across all screens
@@ -133,11 +151,11 @@ Thirteen entries, all small or medium, all in the app:
 
 *Route screen: day chips 32 px, pace buttons 28 px*
 
-#### X3. Gold has three to six jobs on every screen
+#### X3. Gold has three to six jobs on every screen; the rule is one, the main answer
 
-- **What is wrong:** Gold is the selected tab, a link, a primary button, the chart line, every small section label ("Hour by hour", "Routes", "Settings", "Summit window"), the caution paragraph under the hiking pages, the "models split" warning, the saved-city chips, half of the Terms title and the airport's name. The count per screen is in the chapter "Gold: one job per screen".
-- **Why it matters:** The rule is one thing per screen. When one colour is label, link and warning at once, it stops telling the user what matters or what can be tapped. `color.md › Best practices`: "Avoid using the same color to mean different things."
-- **Suggested fix:** Per screen the one job from the table above. Section labels in the neutral grey. Caution text in the warning colour that already exists (`--warn`), with an icon. Links underlined in the text colour.
+- **What is wrong:** Gold is the selected tab, a link, a main button, the chart line, every small section label ("Hour by hour", "Routes", "Settings", "Summit window"), the caution paragraph under the hiking pages, the "models split" warning, the saved-city chips, half of the Terms title and the airport's name. The answer itself is not gold on any screen: the temperature is white, a favourable window green.
+- **Why it matters:** The owner's rule: gold marks the main answer of a screen and nothing else. When one colour is label, link, selection and warning at once, it tells the user nothing, and the answer has no colour of its own. `color.md › Best practices`: "Avoid using the same color to mean different things."
+- **Suggested fix:** Per screen the one answer from the table in "Gold: one job per screen". Selected tabs, toggles and chips get a neutral highlight. Section labels in grey. Caution text in the warning colour that already exists (`--warn`), with an icon. Links underlined in the text colour.
 - **Effort:** medium. **Priority:** Before launch.
 
 ![X3: Peak view: a label, a link and the caution paragraph, all gold](ux-review/X3.png)
@@ -147,6 +165,10 @@ Thirteen entries, all small or medium, all in the app:
 ![X3: Hiking: title icon, two labels and a button, all gold](ux-review/X3-2.png)
 
 *Hiking: title icon, two labels and a button, all gold*
+
+![X3: Forecast: the answer (10°) is white; the selected tab is gold](ux-review/X3-3.png)
+
+*Forecast: the answer (10°) is white; the selected tab is gold*
 
 #### X4. The caution sentence opens Rankings, Heatmap and Planner
 
@@ -194,7 +216,7 @@ Thirteen entries, all small or medium, all in the app:
 
 - **What is wrong:** The first screen holds: an offer to use the location, a search field, two buttons without words, then a sparkle icon in a rounded square, a centred headline "One forecast, every source.", and three feature cards, each an icon in a rounded square. The five "Try a city" chips are two screens down.
 - **Why it matters:** The user installed the app and still sees an advert for it. No number, no rain, no mountain in the first five seconds. It also breaks three of the project's own design rules at once: no sparkle icons, no icon-in-a-rounded-square feature grids, no centred everything. `launching.md`: "People want to start interacting with your app or game right away".
-- **Suggested fix:** Show the product: the location card, the search field, the "Try a city" chips directly under it, and below them the example forecast the website already has. Drop the headline and the three cards in the app.
+- **Suggested fix:** Show the product: the location card, the search field, the "Try a city" chips directly under it, and below them the example forecast the website already has. Drop the headline and the three cards in the app. For the main persona add one line that leads to the mountains: "Going up a mountain? Summit weather for 195 peaks", which opens the Hiking tab.
 - **Effort:** medium. **Priority:** Before submission (3 Dec).
 - **Where in the code:** app/HomePage.jsx:987-991 (WelcomeState), the block is app-only.
 
@@ -387,7 +409,7 @@ Thirteen entries, all small or medium, all in the app:
 
 - **What is wrong:** Green for "Dry for the rest of today", blue for "Rain likely 06:00-09:00 tomorrow", red for "No favourable start today" on a route, blue again for "No favourable summit window today".
 - **Why it matters:** The house rule knows gold as accent and green for status. Blue is used well for water and cold in every chart; as a card colour it becomes a second accent, and "no window" is blue on the peak and red on the route.
-- **Suggested fix:** Decide once: the card stays neutral and an icon carries the colour, or three fixed states (favourable green, not favourable red, rain blue) used the same way on peak and route.
+- **Suggested fix:** By the gold rule: the card that carries the answer (a dry day, a window, a start time) is gold, the card without one ("No favourable window", "No favourable start") is neutral, on peak and route alike. Rain keeps its blue in the charts, not as a card colour.
 - **Effort:** small. **Priority:** After launch.
 
 ![T2: Tomorrow: blue](ux-review/T2.png)
@@ -498,7 +520,7 @@ The list of cities and the page for one city (website pages, also reachable in t
 - **What is wrong:** Cities have "Saved" and "Recent". A mountain has neither. Only routes can be saved. To see the Großglockner again the user searches again or opens "Eastern Alps" and scrolls.
 - **Why it matters:** Lena checks the same three mountains on Thursday, Friday and Saturday morning. This is the most important missing piece for her.
 - **Suggested fix:** A star on the peak view. "My peaks" at the top of the Hiking tab, each row with name, height and the next favourable window. Recently opened peaks under it.
-- **Effort:** medium. **Priority:** Before launch.
+- **Effort:** medium. **Priority:** Before submission (3 Dec).
 
 ![H2: Peak view: no way to keep it](ux-review/H2.png)
 
@@ -519,6 +541,17 @@ The list of cities and the page for one city (website pages, also reachable in t
 
 *The tab*
 
+#### H5. The app opens on the city forecast, whatever the user came for last time
+
+- **What is wrong:** The tab bar is Forecast, Hiking, More, and the app always starts on Forecast. A hiker who closed the app on the Großglockner starts the next morning on a city and needs a tap on Hiking and a search to get back (H2).
+- **Why it matters:** The main persona opens the app for a mountain. The check at five in the morning should be one glance, not three taps.
+- **Suggested fix:** Open the app on the tab used last, and on the Hiking tab show the saved and last peaks first (H1, H2). Whether Hiking should be the first tab is a decision for after launch, with the numbers from X7.
+- **Effort:** small. **Priority:** Before launch.
+
+![H5: The tab bar: the hiker's tab is the second](ux-review/H5.png)
+
+*The tab bar: the hiker's tab is the second*
+
 #### H4. Search finds peaks through names it does not show
 
 - **What is wrong:** Typing "Glock" lists Großglockner, Glockturm and Glockhaus, and also "Bell Stone · Rio de Janeiro · BR" and "Dzwonkówka · Lower Silesia · PL".
@@ -537,7 +570,7 @@ The list of cities and the page for one city (website pages, also reachable in t
 - **What is wrong:** Seven rows with icon, low and high, wind, freezing level and storm bars. No rain, and no word on which day has a favourable summit window. The Today and Tomorrow tabs have a headline; Week has none. The city forecast's Week tab has one ("Best day of the week: today").
 - **Why it matters:** "Saturday or Sunday?" is Lena's question, and this is the screen where she asks it.
 - **Suggested fix:** A headline over the list ("Best day: Tuesday, window 08:00-13:00" or "No favourable window this week"). On every row the window or the reason it has none.
-- **Effort:** medium. **Priority:** Before launch.
+- **Effort:** medium. **Priority:** Before submission (3 Dec).
 
 ![P1: Peak, Week tab](ux-review/P1.png)
 
@@ -709,7 +742,7 @@ Seen with the stand-in for the phone's native layer.
 - **What is wrong:** No length, no ascent, no date, no next favourable day. The route screen has all of it.
 - **Why it matters:** With five routes the list tells nothing apart from names the user may not remember.
 - **Suggested fix:** Second line: "2.1 km · ↑1218 m · next favourable day Sunday".
-- **Effort:** medium. **Priority:** After launch.
+- **Effort:** medium. **Priority:** Before launch.
 
 ![G2: One row](ux-review/G2.png)
 
@@ -733,7 +766,7 @@ Seen with the stand-in for the phone's native layer.
 - **What is wrong:** Each day is a block with "Low / High, Summit wind, Rain, Freezing level, Storm risk" written out again. At desktop width it is a table.
 - **Why it matters:** Thirty-five labels for thirty-five numbers. The week takes four screens.
 - **Suggested fix:** The compact rows of the app's Week tab, with one legend.
-- **Effort:** medium. **Priority:** After launch.
+- **Effort:** medium. **Priority:** Before launch.
 
 ![M1: Summit page at phone width](ux-review/M1.png)
 
@@ -791,9 +824,9 @@ Seen with the stand-in for the phone's native layer.
 
 #### E4. The switches are green checkboxes, and "Home city" shows an empty field
 
-- **What is wrong:** Notification choices are checkboxes in bright green with a black tick. Everything else that is selected in the app is gold. "Home city" shows a dash, the link "Change" and under it an empty text field with no hint.
-- **Why it matters:** Green is the status colour ("87% agree", "Good"); here it is a control. The empty field looks broken.
-- **Suggested fix:** The gold accent for the checkboxes (`accent-color`), or switches. A hint in the field ("Search a city") or show the field only after "Change".
+- **What is wrong:** Notification choices are checkboxes in bright green with a black tick. "Home city" shows a dash, the link "Change" and under it an empty text field with no hint.
+- **Why it matters:** Green is the status colour ("87% agree", "Good"); here it is a control. Everything else that is selected is gold today and becomes neutral with the gold rule; these should follow. The empty field looks broken.
+- **Suggested fix:** A neutral highlight for the checkboxes, or switches (by the gold rule, toggles do not use gold; green stays for status). A hint in the field ("Search a city") or show the field only after "Change".
 - **Effort:** small. **Priority:** Before launch.
 
 ![E4: Notifications on](ux-review/E4.png)
@@ -835,7 +868,7 @@ The dev database has equal weights for every source, so the order seen says litt
 - **What is wrong:** Rank, name, the internal id under it ("visual-crossing", "owm", "aifs"), an unlabelled "5.5%" with a bar, Score, Reports, Ø Score, "Avg response 566ms" and a sparkline. Nineteen sources make about ten screens. Above them three tabs and six region buttons: eighteen combinations to choose from before the first row.
 - **Why it matters:** The page should answer "who is right where I live". Response time in milliseconds and internal ids answer questions nobody outside the project has.
 - **Suggested fix:** One row per source: rank, name, weight bar. Details on a tap. No ids, no response time. Label the percentage ("weight in the blend"). Open on the user's own region. On top, the one line the website already has: "Trusted most right now: Canada GEM".
-- **Effort:** medium. **Priority:** Before launch.
+- **Effort:** medium. **Priority:** After launch.
 
 ![L1: One source](ux-review/L1.png)
 
@@ -852,7 +885,7 @@ The dev database has equal weights for every source, so the order seen says litt
 - **What is wrong:** Title, caution, a search field. Nothing else on the screen. The hint in the field is cut off ("... Tokyo, Cape T"). With a city the result is good: best months, average temperature, rainy days.
 - **Why it matters:** The page does not show what it gives until the user has typed a city.
 - **Suggested fix:** Three example chips (Lisbon, Tokyo, Cape Town) and one sentence: "Type a city to see its best months, from ten years of weather." A shorter hint.
-- **Effort:** small. **Priority:** Before launch.
+- **Effort:** small. **Priority:** After launch.
 
 ![V1: Empty](ux-review/V1.png)
 
@@ -869,7 +902,7 @@ The dev database has equal weights for every source, so the order seen says litt
 - **What is wrong:** "← Back", "MetaBlend Aviation", the red warning, "Flight categories now", "Europe", "Americas". Only the tab bar is German. The same in Japanese.
 - **Why it matters:** Aviation weather itself is English everywhere, so the data can stay. The frame and above all the warning should be read in the user's language.
 - **Suggested fix:** Translate the frame: back, headings, the warning (legal text: with Fable). Or say on the More row that this part is in English.
-- **Effort:** medium. **Priority:** Before launch.
+- **Effort:** medium. **Priority:** After launch.
 
 ![A1: German app, Aviation: only the tab bar is German](ux-review/A1.png)
 
@@ -906,7 +939,7 @@ The dev database has equal weights for every source, so the order seen says litt
 #### Z1. Half of the title is gold
 
 - **What is wrong:** "Terms & Copyright" with "& Copyright" in gold. The texts themselves read well at phone width; nothing is cut off in English, German or Japanese.
-- **Why it matters:** An accent on half a headline is decoration. See X3.
+- **Why it matters:** An accent on half a headline is decoration, and by the gold rule this screen has no answer to mark. See X3.
 - **Suggested fix:** White. No change to the texts.
 - **Effort:** small. **Priority:** After launch.
 
@@ -965,7 +998,7 @@ The dev database has equal weights for every source, so the order seen says litt
 - **What is wrong:** Logo. Then °C, °F, a sun, the language and a download arrow. Then Rankings, Heatmap, Planner, Hiking, Aviation. Then two lines of tagline. The search field starts at y=220, the temperature at y=440. On a first visit the "Example" line comes on top of that: the temperature starts at y=530 and the terms bar covers the last 110 px. The five menu links are 20 px high.
 - **Why it matters:** A phone visitor from a search result sees settings and a menu before any weather. On a first visit the example, which is the best thing the page has, gets the narrow strip between the header and the terms bar.
 - **Suggested fix:** Units, appearance and language into one menu. The five links into a row that scrolls or the same menu. Links 44 px high.
-- **Effort:** medium. **Priority:** After launch.
+- **Effort:** medium. **Priority:** Before launch.
 
 ![W1: The website on a phone](ux-review/W1.png)
 
