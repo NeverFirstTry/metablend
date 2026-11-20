@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Added: save a peak, and the peaks you opened stay one tap away
+- A star beside a peak's name keeps it under "My peaks" at the top of the Hiking tab; the peaks opened lately stand under "Recently opened". Kept on the phone, up to 12 saved and 5 recent, in all 13 languages.
+- Each row shows the peak's next favourable summit window from the last forecast you looked at, with the time it was made, while it still speaks of today or tomorrow. The Hiking tab makes no forecast request of its own for these rows; a tap opens the peak with a fresh forecast.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
