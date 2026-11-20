@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Added: privacy manifests for the iPhone app and its widget extension
+- Nothing changes on metablend.app or in an installed app. Ships with the next native build (the submission of 3 December).
+- Apple asks an app that uses UserDefaults to say why, in a `PrivacyInfo.xcprivacy` file, in the app and in every extension that uses it. The app now declares its own settings (reason `CA92.1`) and the app group it shares with the widgets (`1C8F.1`); the widget extension declares the app group (`1C8F.1`). Neither declares tracking. The app's file names the six data types of the App Privacy form (`store/compliance.md`), linked or not as there.
+- The app's file is added to the App target in the Xcode project; the widgets' file lies in the folder the extension is synchronised with. Written on Windows and not compiled: the first Xcode build is the test, and `docs/launch-checklist.md` says what to look at in Xcode.
+- `lib/privacy-manifest.test.js` (6 tests, 5 of them seen failing before the files existed) holds the two files, the project file and the form's data types together.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
