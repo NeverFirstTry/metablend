@@ -28,6 +28,11 @@ All notable changes to MetaBlend. Format loosely follows
 - "Technical data": our server counts the requests from an IP address in memory "for at most one day at a time"; it said "one hour". Two counts of this deploy run for a day (new places per address, stored forecasts per address); every other count still runs a minute or an hour. The address is still not stored.
 - "What stays on your device": saved and recently opened peaks, with the summit window of the forecast last viewed, join the list. They are kept in the browser's storage, not in cookies, so they do not reach our server.
 - `lib/legal-pages.test.js` pins both sentences word for word in all 13 languages.
+### Changed: notifications carry no emoji
+- The alerts for rain, thunderstorms, severe weather, official warnings and heat, the warning line of a hike alert and the test message no longer carry an emoji, in all 13 languages (owner, 20 November). Each phone drew them its own way, and a screen reader read them out.
+- A planned hike's alert is titled "Hike: Großglockner" ("Tour: Großglockner" in German, each language's own word), where it was a mountain sign and the name alone.
+- The morning briefing on a hot day is titled like the heat alert ("Hot day in Vienna"), where it had a thermometer in front of "Vienna today". The heat is said in words.
+- Open-Meteo: no change.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
