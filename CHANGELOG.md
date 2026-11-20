@@ -14,6 +14,11 @@ All notable changes to MetaBlend. Format loosely follows
 - Nothing a visitor sees changes.
 - Limits that count by visitor address give the site's own jobs a count of their own, under a fixed name. The address comes from a request header, which the platform writes on Vercel. A value in it that is no address now counts under one fixed name of its own and can never equal the jobs' name (found by the automated security review of 20 November).
 - Open-Meteo: no change.
+### Changed: a place nobody asked for before is budgeted at Open-Meteo
+- For a visitor: a place we have no climate table for yet may show its outlook without the comparison with the normal for a day or more, and the planner may answer "The climate figures for this place are not ready yet. Please try again tomorrow." (in all 13 languages) where it tried to fetch them at once. A place that has its table is not touched.
+- Why: such a place costs one 10-year archive request, about 104 weighted calls. About 86 new places in a day used up the whole day's 10,000 at Open-Meteo, for every visitor and every source that comes from there. Nothing limited it.
+- The limits: all new places together 2,100 weighted calls a day (about 20 places; `OPEN_METEO_CLIMATE_CALLS` changes it), read from our own request counter; and five new places per address and day, counted in memory per server copy. The site's own jobs count against the day's budget only. A refused place borrows the table of a kept place within 25 km and 300 m of height where there is one, as before, and gets its own on a later day. A script the owner runs (the prefill) is not budgeted.
+- Open-Meteo: new places 20 requests and 2,100 weighted calls a day at most, where there was no limit (18 November: 5 requests, 522 weighted calls; 19 November: 1 and 104).
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
