@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the mountain section has one name
+- The app's tab, the website's menu and the section's page title now all say "Mountains" (German "Berge"), the word the footer already used. They said "Hiking" and "Mountain weather". In all 13 languages; the tester page and the notes for App Review name the tab the same way.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
