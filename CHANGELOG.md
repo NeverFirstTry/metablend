@@ -67,6 +67,9 @@ All notable changes to MetaBlend. Format loosely follows
 - The back link at the top of Rankings, Heatmap, Planner, Aviation, an airport, the legal pages, a peak and a route is now 44 px high instead of a 20 px line of text, easier to hit with a thumb.
 - It names where it leads: in the app, the pages opened from More lead back to More and say "More" (they led to the forecast and said "Back"); an airport says "Aviation"; a peak says "Hiking".
 - A route opened from a peak says the peak's name ("Großglockner") instead of "All peaks"; an imported route says "Hiking".
+### Changed: Plan a hike says what it does, and a removed route can be brought back
+- Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
+- Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
