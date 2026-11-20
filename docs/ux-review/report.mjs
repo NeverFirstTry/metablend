@@ -104,7 +104,7 @@ What that means for the rest:
 - **Selected things turn neutral:** the range tabs, the day and pace chips on a route, the pickers under More, the region buttons, the saved-city chips, the checkboxes of the notification settings (green today) and the current tab in the tab bar. A raised chip with white text is enough to read as selected.
 - **Gold leaves** section labels, links (underlined in the text colour), the caution paragraphs (the warning colour that exists), half-gold titles and the feature icons.
 - **Headline cards:** the card that carries the answer is gold when there is one (a window, a start time, a best day) and neutral when there is none. Green stays for status words ("Low", "Good", the agreement figure). T2 follows from this.
-- **Main buttons (owner, 20 November):** on a screen without an answer the one main button keeps gold, since it is that screen's one job: "Continue", "Turn on notifications", "Retry", the search button of the first start. Never two gold buttons on one screen. My reading of the rest: on a screen with an answer the answer has the gold, so its buttons are a strong neutral.
+- **Main buttons (owner, 20 November):** on a screen without an answer the one main button keeps gold, since it is that screen's one job: "Continue", "Turn on notifications", "Retry", the search button of the first start. My reading of the rest: never two gold buttons on one screen, and on a screen with an answer the answer has the gold, so its buttons are a strong neutral.
 
 Entry X3.
 
