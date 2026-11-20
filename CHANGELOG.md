@@ -15,6 +15,13 @@ All notable changes to MetaBlend. Format loosely follows
 - Beside the place name only refresh and share remain, each 44 px, a size a thumb hits. Embed left that row: in the app it is gone (a code for another website is of no use there), on the website it is a fold of its own after Sources and Feedback.
 - Recent places hold each place once: two spellings of one town ("Buôn Ma Thuột", "Buon Ma Thuot") count as one, and lists saved before clean themselves up when read. The same town in two languages ("Wien", "Vienna") can still stand twice.
 
+### Changed: no emoji in the interface, no dashes on the aviation pages
+- The region buttons under Rankings lose their flags and globes, and the weather choices in Feedback their weather emoji ("Sunny" instead of "☀️ Sunny"), in all 13 languages.
+- Under More, an empty list of planned hikes now says "No planned hikes. Open a peak and tap “Plan a hike”." instead of showing a bell emoji.
+- The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
+- The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
+- Notification titles keep their emoji: they are notifications, not the interface.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).

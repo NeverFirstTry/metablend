@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Trash2 } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { fill } from '@/lib/outlook/text'
 import { countryName } from '@/lib/city-names'
 import { formatCalendarDate } from '@/lib/localtime'
 import { useHans } from '@/lib/useHans'
@@ -170,7 +171,7 @@ export default function NotificationSettings({ lang, unit }) {
                 <span>⛰ {p.name} · {formatCalendarDate(p.date, lang, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                 <button onClick={() => removePlan(p.id)} aria-label={t(lang, 'planRemove')} className="press text-zinc-500 hover:text-red-400"><Trash2 size={15} aria-hidden /></button>
               </div>
-            )) : <p className="text-xs text-zinc-400">{t(lang, 'notifNoHikes')}</p>}
+            )) : <p className="text-xs text-zinc-400">{fill(t(lang, 'notifNoHikes'), { plan: t(lang, 'planHike') })}</p>}
           </div>
           <button onClick={test} className="press text-sm text-emerald-400 underline underline-offset-4">{t(lang, 'notifTest')}</button>
         </>
