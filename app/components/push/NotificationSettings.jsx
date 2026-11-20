@@ -168,7 +168,7 @@ export default function NotificationSettings({ lang, unit }) {
             <div className={caption}>{t(lang, 'notifHikes')}</div>
             {state.plans.length ? state.plans.map(p => (
               <div key={p.id} className="flex items-center justify-between text-sm">
-                <span>⛰ {p.name} · {formatCalendarDate(p.date, lang, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                <span>{p.name} · {formatCalendarDate(p.date, lang, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                 <button onClick={() => removePlan(p.id)} aria-label={t(lang, 'planRemove')} className="press text-zinc-500 hover:text-red-400"><Trash2 size={15} aria-hidden /></button>
               </div>
             )) : <p className="text-xs text-zinc-400">{fill(t(lang, 'notifNoHikes'), { plan: t(lang, 'planHike') })}</p>}

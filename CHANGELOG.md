@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the last emoji leave the screens
+- A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
+- The planned hikes under More, Notifications no longer start with a mountain emoji.
+- 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
+
 ### Changed: the app's first screen shows the product, not a pitch
 - After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
 - "Use my location" is offered once: the location button under the search field steps aside while the card offers the same.
