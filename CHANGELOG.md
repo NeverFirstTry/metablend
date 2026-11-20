@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
+- Nothing a visitor sees changes.
+- The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
+- The widget feed and the share card ask our own forecast addresses with the server's key. Counted as the site's own, all their visitors shared one count. They now pass on the address of the visitor who asked, and what is counted by address (stored forecasts, new places, kept answers) is counted for that visitor. The header is read only together with the server's key (both points from the automated security review of 20 November).
+
 ### Fixed: a made-up address can never count as the site's own jobs
 - Nothing a visitor sees changes.
 - Limits that count by visitor address give the site's own jobs a count of their own, under a fixed name. The address comes from a request header, which the platform writes on Vercel. A value in it that is no address now counts under one fixed name of its own and can never equal the jobs' name (found by the automated security review of 20 November).
