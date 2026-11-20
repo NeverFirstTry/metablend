@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: notifications carry no emoji
+- The alerts for rain, thunderstorms, severe weather, official warnings and heat, the warning line of a hike alert and the test message no longer carry an emoji, in all 13 languages (owner, 20 November). Each phone drew them its own way, and a screen reader read them out.
+- A planned hike's alert is titled "Hike: Großglockner" ("Tour: Großglockner" in German, each language's own word), where it was a mountain sign and the name alone.
+- The morning briefing on a hot day is titled like the heat alert ("Hot day in Vienna"), where it had a thermometer in front of "Vienna today". The heat is said in words.
+- Open-Meteo: no change.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
