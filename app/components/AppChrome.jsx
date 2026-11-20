@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { usePagePath } from '@/lib/page-path'
+import { usePagePath, pagePath } from '@/lib/page-path'
 import { CloudSun, MountainSnow, Menu } from 'lucide-react'
 import { t, preferredLang } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
@@ -15,7 +15,7 @@ import { restoreAppMark } from '@/lib/app-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
-import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp } from '@/lib/app-tabs'
+import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp, keepStartTab } from '@/lib/app-tabs'
 import { repairHeights } from '@/lib/route-store'
 import TermsNotice from './TermsNotice'
 
@@ -47,6 +47,14 @@ export default function AppChrome() {
     themeWatch.observe(html, { attributes: true, attributeFilter: ['data-theme'] })
     let off = () => {}
     let gone = false
+    // a cold start that goes on to the Hiking tab used last (the boot script's mark, lib/app-tabs.js); should
+    // the screen not have changed after eight seconds, the page is loaded there
+    const resumeTo = html.dataset.resumeTab
+    let resumeTimer = 0
+    if (resumeTo) {
+      router.replace(resumeTo)
+      resumeTimer = setTimeout(() => { if (html.dataset.resumeTab && tabOf(pagePath(window.location.pathname)) === '/') window.location.replace(resumeTo) }, 8000)
+    }
     onBackButton(({ canGoBack, exit }) => (canGoBack ? router.back() : exit())).then(fn => { if (gone) fn(); else off = fn })
     // push: a fresh token at every start; a tapped notification or widget opens its screen
     const open = url => (opensByReload(url) ? window.location.assign(url) : router.push(url))
@@ -63,8 +71,18 @@ export default function AppChrome() {
     // Larger Text: the phone's text size scales the page
     let offScale = () => {}
     watchTextScale().then(fn => { if (gone) fn(); else offScale = fn })
-    return () => { gone = true; off(); offPush(); offUrl(); offHidden(); offScale(); themeWatch.disconnect() }
+    return () => { gone = true; clearTimeout(resumeTimer); off(); offPush(); offUrl(); offHidden(); offScale(); themeWatch.disconnect() }
   }, [router])
+
+  // the tab used last opens at the next start (Hiking keeps its address in HikeApp); the start page shows again
+  // once the Hiking tab is there
+  useEffect(() => {
+    if (!app) return
+    const html = document.documentElement
+    const root = tabOf(path)
+    if (root === '/' && !html.dataset.resumeTab) keepStartTab('/')
+    else if (root === '/hike') delete html.dataset.resumeTab
+  }, [app, path])
 
   if (!app) return null
   const activeTab = tabOf(path)

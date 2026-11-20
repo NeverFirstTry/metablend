@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the app opens on the tab used last
+- A hiker who closed the app on a peak or a route starts the next time on that peak or route, not on a city. Forecast and Hiking count as the tab used last; More does not. A city link still opens its city.
+- The start page stays out of sight on the way there and asks for no forecast.
+
 ### Changed: the app's first screen shows the product, not a pitch
 - After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
 - "Use my location" is offered once: the location button under the search field steps aside while the card offers the same.
