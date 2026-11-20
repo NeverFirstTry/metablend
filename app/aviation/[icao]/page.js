@@ -238,7 +238,7 @@ export default async function AirportPage({ params }) {
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm mb-5">
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Weather</dt>
                   <dd className="font-bold" style={metarSig.length ? { color: metarSig.some(s => s.severity === 'severe') ? 'var(--bad)' : 'var(--warn)' } : undefined}>
-                    {metar.wxString ?? 'not reported'}
+                    {metar.wxString ?? 'none'}
                   </dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Wind</dt>
                   <dd className="font-bold tabular-nums">
