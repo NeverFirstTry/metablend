@@ -22,7 +22,7 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 
 These stand for every design task; the owner should not have to repeat them. Re-read this list before sending a comparison link.
 
-- **Colour:** gold is the only accent, and on a screen it marks one thing: the main answer (the consensus temperature, the summit window, the favourable start). Selected tabs, toggles and chips get a neutral highlight, never gold (owner, 2026-11-20). Green is for status only.
+- **Colour:** gold is the only accent, and on a screen it marks one thing: the main answer (the consensus temperature, the summit window, the favourable start). Selected tabs, toggles and chips get a neutral highlight, never gold (owner, 2026-11-20). On a screen without an answer the one main button keeps gold, since it is that screen's one job (owner, 2026-11-20). Green is for status only.
 - **Who it is for:** the weekend hiker first (is my summit on, and when do I start), the day decider second, mainly on the website (owner, 2026-11-20). What is used most comes first on a screen.
 - **Website and app:** 13 px minimum, whole degrees, no countdowns.
 - **Cards:** no nested cards.

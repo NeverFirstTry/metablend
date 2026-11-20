@@ -24,6 +24,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
 - The lists loaded on 19 November now count until 19 December.
 - Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+### Docs: the project skill names the gold rule for main buttons
+- Nothing changes on metablend.app.
+- The owner's answer of 20 November to the UX review's open question: on a screen without an answer the one main button keeps gold, since it is that screen's one job; tabs, toggles and chips stay neutral. One sentence in the skill's colour rule.
+
 ### Added: the UX walk, and the review criteria in the project skill
 - Nothing changes on metablend.app.
 - `scripts/ux/` holds the tools of the UX review of 20 November: `walk.mjs` walks every screen of a local build in one configuration (view, width, theme, language) and saves pictures and measures (control sizes, names for screen readers, contrast, text sizes, cut-off text, what is gold, response time after a tap); `report-build.mjs` builds a review and its page from one data file; `summary.mjs` lists the measured items. `ONLY=faults` runs the measures against a page of planted faults. The walk writes outside the repository (the system's temp folder).
