@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the privacy notice, two sentences (German first, then the 12 translations)
+- "Technical data": our server counts the requests from an IP address in memory "for at most one day at a time"; it said "one hour". Two counts of this deploy run for a day (new places per address, stored forecasts per address); every other count still runs a minute or an hour. The address is still not stored.
+- "What stays on your device": saved and recently opened peaks, with the summit window of the forecast last viewed, join the list. They are kept in the browser's storage, not in cookies, so they do not reach our server.
+- `lib/legal-pages.test.js` pins both sentences word for word in all 13 languages.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
