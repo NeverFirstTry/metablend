@@ -10,15 +10,18 @@ import { findRoutes, healRoutes, withoutGuesses, replacesCache, listedRoutes } f
 import { routeHeights, dailyBudget, LIVE_MAX_KM } from '@/lib/route/height-store'
 import { noStore } from '@/lib/no-store'
 
-// The marked routes up a peak (OpenStreetMap). One OSM lookup per peak a
-// week (route_cache), plus a day on the CDN; an OSM outage serves the stale
+// The marked routes up a peak (OpenStreetMap). One OSM lookup per peak in
+// 30 days (route_cache), plus a day on the CDN; an OSM outage serves the stale
 // copy rather than nothing.
 // GET /api/routes?lat=47.0745&lon=12.6941&elev=3798&name=Großglockner
 
-const WEEK = 7 * 86400e3
+// How long a list counts before OpenStreetMap is asked again: 30 days (owner, 2026-11-20; a week before).
+// Marked routes rarely change, and a public service is asked as little as we can. The price: a route that
+// did change (moved, new, removed) shows up to 30 days late.
+const KEPT = 30 * 86400e3
 const limiter = createRateLimiter({ max: 20, windowMs: 60 * 1000 })
 // A route's heights are kept for good (route_heights): at most 100 points a route are asked, once, short
-// lines only, within a daily budget; the weekly lookup of a peak's routes asks none for a line it knows.
+// lines only, within a daily budget; the next lookup of a peak's routes asks none for a line it knows.
 const budget = dailyBudget(supabase)
 const routeElevations = points => fetchElevations(points, { kind: 'route-heights' })
 // what the route cache already holds for a place costs nothing: "lat,lon" → height
@@ -50,11 +53,11 @@ export const GET = withErrorLog('routes', async (request) => {
   }
 
   const { data: cached } = await supabase.from('route_cache').select('routes, fetched_at').eq('peak_key', key).maybeSingle()
-  if (cached && Date.now() - Date.parse(cached.fetched_at) < WEEK) return serve(cached.routes)
+  if (cached && Date.now() - Date.parse(cached.fetched_at) < KEPT) return serve(cached.routes)
   const fresh = await findRoutes(peak, { getJson, getElevations: routeElevations, heightsFor: heightsWith(knownHeights(cached?.routes)) })
   if (fresh && replacesCache(fresh, cached)) {
-    // some lookups failed: dated so it's looked up again in a day, not a week
-    const at = fresh.complete ? Date.now() : Date.now() - WEEK + 86400e3
+    // some lookups failed: dated so it's looked up again in a day, not in 30
+    const at = fresh.complete ? Date.now() : Date.now() - KEPT + 86400e3
     await supabase.from('route_cache').upsert({ peak_key: key, routes: fresh.routes, fetched_at: new Date(at).toISOString() })
     return serve(fresh.routes, { heal: false })
   }

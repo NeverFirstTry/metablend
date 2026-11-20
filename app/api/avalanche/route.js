@@ -2,8 +2,8 @@ import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import regionData from '@/lib/avalanche/regions.json'
-import { avalancheLevel, bulletinDates } from '@/lib/avalanche/avalanche'
-import { ratingsFor } from '@/lib/avalanche/fetch'
+import { avalancheAnswer, bulletinDates } from '@/lib/avalanche/avalanche'
+import { ratingsRead } from '@/lib/avalanche/fetch'
 import { noStore } from '@/lib/no-store'
 
 // GET /api/avalanche?lat=47.07&lon=12.69 → { region, today, tomorrow, dates }:
@@ -11,6 +11,7 @@ import { noStore } from '@/lib/no-store'
 // today and tomorrow — null when there's no rating (no avalanche region
 // there, out of season, or tomorrow's bulletin isn't out yet; they come
 // around 17:00). The day's ratings file is cached 30 minutes, the answer too.
+// When today's file could not be read, `unavailable: true`, kept one minute.
 const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 
 export const GET = withErrorLog('avalanche', async (request) => {
@@ -20,10 +21,7 @@ export const GET = withErrorLog('avalanche', async (request) => {
   if (!(Math.abs(lat) <= 90 && Math.abs(lon) <= 180)) return noStore({ error: 'Needs lat and lon.' }, 400)
   if (limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
   const dates = bulletinDates()
-  const [a, b] = await Promise.all([ratingsFor(dates.today), ratingsFor(dates.tomorrow)])
-  const today = avalancheLevel(regionData, a, lat, lon), tomorrow = avalancheLevel(regionData, b, lat, lon)
-  return Response.json(
-    { region: today?.region ?? tomorrow?.region ?? null, today: today?.level ?? null, tomorrow: tomorrow?.level ?? null, dates },
-    { headers: { 'Cache-Control': 'public, s-maxage=1800, stale-while-revalidate=1800' } },
-  )
+  const [a, b] = await Promise.all([ratingsRead(dates.today), ratingsRead(dates.tomorrow)])
+  const { body, maxAge } = avalancheAnswer(regionData, a, b, lat, lon, dates)
+  return Response.json(body, { headers: { 'Cache-Control': `public, s-maxage=${maxAge}, stale-while-revalidate=${maxAge}` } })
 })

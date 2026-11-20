@@ -3,6 +3,121 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-20
+
+### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
+- On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
+- A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
+- One address may register ten new phones an hour (counted in memory per server copy, an IPv6 line as one address). A phone that is already known registers again at every app start and is not counted.
+- The hourly and the quarter-hourly alert run handle phones oldest first and give each part its time within the function's 300 seconds: places until 150 s, planned hikes until 210 s, sending until 270 s. What a run did not reach is counted in its summary (`leftPlaces`, `leftPlans`, `leftSends`), noted in the error log, and tried by the next run. A message that was not sent is not logged as sent.
+- Open-Meteo: no new request. Registering a phone asks the database once more than before (is this phone known).
+
+### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
+- When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
+- Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
+- Behind it: a page is rebuilt at the shortest storage time among its own requests, and that time cannot be set after the answers are in. So when the forecast comes marked as the last good answer, the page asks the same address once more under 30 minutes and uses that answer (lib/hike/summit-fetch.js). Two tests: the request itself, and the page built for real with such an answer, which fails when no request names 30 minutes.
+- Seen on the built site, with a stand-in that marks one peak's forecast as the last good answer: that page is served with `s-maxage=1800`, a normal one with `s-maxage=21600`, and the marked page's second request was answered from the copy just fetched (one request reached the forecast address, not two).
+### Changed: a peak's route list is kept 30 days before OpenStreetMap is asked again
+- The marked routes up a peak are looked up from OpenStreetMap once and then kept. Until now a list counted for a week; it now counts for 30 days (owner, 20 November). Marked routes rarely change, and a public service should be asked as little as possible: the site sent about 16 requests a day to the OpenStreetMap API (125 in eight days), and a peak that is visited every week is now looked up once a month instead of four times.
+- The price: a route that really changed (moved, new or removed in OpenStreetMap) shows up to 30 days late, where it was up to 7. The CDN may add up to 8 days, as before. Closures were never read and are not affected.
+- A lookup in which one route did not answer is still tried again after one day.
+- The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
+- The lists loaded on 19 November now count until 19 December.
+- Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+### Docs: the project skill names the gold rule for main buttons
+- Nothing changes on metablend.app.
+- The owner's answer of 20 November to the UX review's open question: on a screen without an answer the one main button keeps gold, since it is that screen's one job; tabs, toggles and chips stay neutral. One sentence in the skill's colour rule.
+
+### Added: the UX walk, and the review criteria in the project skill
+- Nothing changes on metablend.app.
+- `scripts/ux/` holds the tools of the UX review of 20 November: `walk.mjs` walks every screen of a local build in one configuration (view, width, theme, language) and saves pictures and measures (control sizes, names for screen readers, contrast, text sizes, cut-off text, what is gold, response time after a tap); `report-build.mjs` builds a review and its page from one data file; `summary.mjs` lists the measured items. `ONLY=faults` runs the measures against a page of planted faults. The walk writes outside the repository (the system's temp folder).
+- The project skill gained the owner's rules of 20 November: gold marks the main answer of a screen and nothing else (selected tabs, toggles and chips get a neutral highlight); the weekend hiker is the main persona, the day decider the second; every animation has its Reduce Motion version; a review measures the answer to a tap (0.4 s), the choices on a first screen, target size and thumb reach, and order by use.
+
+### Tools: route lists and route heights worked out locally
+- `scripts/routes/local.mjs` works out the marked routes of featured peaks and their heights on a developer's machine: the routes from Geofabrik extracts read on disk, the heights from Copernicus GLO-90 tiles, and the site's own route finder and height store make the rows. No request to the OpenStreetMap API and none to Open-Meteo. It writes files and stores nothing, so nothing a visitor sees changes.
+- Checked on 15 peaks whose list the live site already holds: the same 46 routes, 45 of them the same line point for point. Against the values worked out with Open-Meteo's heights, the ascent differs by 15 m in the median (1.7 %) and the walking time by 7 minutes (1.5 %); the largest difference is on a 64 km trail (5,690 m to 5,371 m of ascent). 21 of the 46 routes show no ascent and no time on the site today and get both.
+- Why: 175 featured peaks have no route list yet. Looking them up on the live site would be up to 1,575 requests to the OpenStreetMap API and up to 100 Open-Meteo calls a route.
+- A route that leaves its extract (a long-distance trail) is left out and counted, not stored in part.
+- `scripts/routes/load.mjs` puts those files into the database: the dev project, or production after the project ref is typed (the owner runs that). It only adds: a peak that has a route list keeps it, heights already stored for a route's line stay as they are, nothing is replaced or deleted, and a second run changes nothing. Only whole lists go in, dated from the day they were read, so the site looks them up again after 30 days, as after its own lookup (the keeping time of a list went from a week to 30 days in this same deploy). A peak with a route its extract cut gets no list from the loader: the site looks it up itself at the first visit and finds the heights of its whole routes stored. The heights stay for good.
+- The run for the 175 featured peaks without a list (57 extracts, 18 GB, one download at a time, none refused): 131 have marked routes (530 routes, 462 of them within the 40 km the site lists, all 462 with ascent and walking time, 35,985 heights), 41 have none within a kilometre of the summit, and on 3 every route was cut. 54 routes on 26 peaks leave their extract and were left out.
+- Loaded into the dev database first. The local site then answered seven of those peaks from the database, with the files' routes, ascent and walking times, and counted no Open-Meteo request.
+
+### Docs: a setup guide for our own Open-Meteo server at home
+- `docs/home-server.md`: step by step for the mini-ITX system (i5-7500, 16 GB, 500 GB NVMe, Ubuntu Server): Docker, the Open-Meteo containers, the 40 data folders and 56 variables the site's requests read today with the download a day and the disk each needs, the Cloudflare tunnel locked with a service token, updates, and what the site does when the server is down. Nothing a visitor sees changes: the site asks the public service until the settings named in the guide are set in Vercel.
+- 500 GB is enough either way (about 65 GB for a Europe box, about 125 GB for the world). The limits are the line (131 or 282 GB a day) and the NVMe's rated life (48 or 103 TB written a year).
+- `scripts/home-server/check.sh` asks a server the twelve requests the site makes today, twice each, with the answer code and the seconds.
+- Decided on 2026-11-19 and written into step 10: before our server answers first, the empty answers for places outside a Europe box are fixed, by a worldwide sync of the global models or by the switch passing an empty answer on to the public service.
+
+
+## 2026-11-19
+
+### Fixed: a test that stopped passing on 19 November
+- Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
+
+### Changed: a summit page reads the avalanche danger when it opens
+- The avalanche danger on a summit page is read fresh each time the page opens, from the official bulletins, instead of being kept with the stored page. A bulletin that changed after the page was stored shows its new level at once; until now the stored level stood until the page was rebuilt, and for the first visitor after a quiet spell a stored copy of any age.
+- The levels come a moment after the page; the section keeps its place meanwhile, so nothing below it moves.
+- When the avalanche source is down or takes longer than 6 seconds, the section says so ("The avalanche danger could not be read just now. The official bulletins have the current level."), in all 13 languages, with the link to the official bulletins. Never an old level.
+- A slow avalanche source no longer holds up a summit page being built: after 3 seconds it is built without the danger's room.
+- The note under it no longer gives the forecast's time ("As of ..."), which was never the bulletin's. The stored page itself (crawlers, readers without scripts) has the section's heading but no level.
+- Open-Meteo: no change. The danger was never an Open-Meteo request; a summit page still makes at most one (three models) when it is built, and none when it opens.
+- Behind it: when today's bulletin cannot be read, /api/avalanche says so (`unavailable`) and keeps that answer one minute instead of 30. The danger no longer decides how long a summit page is kept (today every 30 minutes, set by its forecast request, not the 6 hours its code said); that time can now be raised without keeping the danger longer.
+
+### Fixed: the hiking page's teaser on a local server
+- Nothing changes on metablend.app. Run locally on another port than 3000, the hiking page asked port 3000 for its teaser all the same and showed "The live summit forecast is taking a break". It now reads the same setting as the summit and city pages (SELF_BASE), so a local check sees the teaser's window.
+
+### Changed: the Czech ALADIN model's credit names its author, and the credit line leads to the licences
+- On /terms the credit for the ALADIN model reads "Author: Czech Hydrometeorological Institute (ČHMÚ)" where it said "Source:", and links the data's own address (opendata.chmi.cz, received through Open-Meteo). The licence (CC BY 4.0, linked) and the note that blended data are changed were there already, in all 13 languages. The README carries the same line.
+- The credit line under the Sources panel, in the footer and on the app's More screen ends with a new link, "Sources and licences" (13 languages), to the list on /terms. Until now that line named each provider but did not lead to its licence or to the note on changes, which CC BY 4.0 asks for. The link serves every source in the list, not only CHMI.
+- `docs/source-licences.md` (new) records CHMI's written confirmation of 18 November 2026 with its two key passages word for word: its open data are under CC BY 4.0, commercial use included, and attribution is the only obligation. CHMI's data folders carry no licence text, so the confirmation is the proof on file.
+
+### Changed: a summit page is really kept six hours
+- A summit page was meant to be stored six hours, but it was rebuilt every 30 minutes: a page is rebuilt at the shortest storage time among its own requests, and its forecast request said 30 minutes. That request now says six hours, like the page.
+- Why: about nine in ten requests to a summit page found the copy past its 30 minutes and rebuilt it, and each rebuild asks Open-Meteo once (18 November: 474 requests, 2,417 weighted calls, a quarter of the day). About 85 % of those page requests come from crawlers and AI assistants. Replayed on the page requests of 18 and 19 November, six hours gives about 274 rebuilds a day where there were 413, about 700 weighted calls a day less.
+- What a reader notices: little. A visit after a gap was answered with the stored copy before as well (about 4 hours old in the median; now about 5). The page says when its forecast was made, the button fetches the live one, and the avalanche danger is read when the page opens.
+- Open-Meteo: unchanged at most one request (three models) when a page is built; there are fewer builds.
+- Known limit: a page built during an Open-Meteo outage from the peak's last good answer, which is marked with its time, is kept six hours like any other.
+
+## 2026-11-17
+
+### Fixed: a summit page no longer calls yesterday "Today"
+- A summit page is stored for hours, and it took "Today" from the stored copy. A page stored in the evening and read after midnight called yesterday "Today" and showed yesterday's favourable window and avalanche danger under it, until it was rebuilt (up to 6 hours later, and once more for the first visitor after that).
+- Now the day comes from the reader's clock, in the summit's own time zone: after midnight yesterday's row is gone, the copy's "tomorrow" is today (window and avalanche danger), and a page left open over midnight follows within a minute.
+- The stored page itself calls no day "Today" any more: until the browser has read its clock (and for a reader without scripts, or a crawler) every day stands with its weekday or date, and "No daylight left today" is not said.
+- The teaser on the hiking page reads the same stored copy and follows the same rule; with a copy from two days ago it shows no window instead of a wrong one.
+- What changes on a normal visit: for a moment after loading, the window reads with its weekday ("Summit window Tuesday 10:00-15:00") before it reads "today", and the avalanche danger and the first table row with their dates before "Today".
+
+### Changed: list pages no longer preload the pages they link to
+- On the lists of summits, cities and airports a page is now fetched when its link is opened. Until now the browser fetched every linked page as soon as its link scrolled into view, so a page was already there at the tap. Nothing else changes for a visitor.
+- Why: a preload of a stored page that is past its storage time rebuilds that page, and a summit page's rebuild asks Open-Meteo. On 16 November one visit of the summit list set off about 90 rebuilds within seconds, Open-Meteo refused 43 of them, and /api/health answered 503 from 14:34 to 14:50 UTC.
+- Measured on a local build, each page scrolled from top to bottom: the summit list sent 208 preloads before and 13 after, the city list 64 and 13, the airport list 43 and 13. The 13 that remain are the links of the header and the footer.
+- The "more in this region" list on a summit page and the "other cities" list on a city page carry the same setting. They sent no preloads before either (14 before and 14 after, header and footer).
+- A test fails when a link list to these pages preloads again (lib/list-preloads.test.js).
+
+### Changed: Exa's crawler and the SEO tools' crawlers are asked to stay out
+- robots.txt now asks ExaSearchBot (Exa), AhrefsBot and SemrushBot (with SemrushBot-BA) not to fetch any page. Search engines and OpenAI's search crawler are not affected.
+- Why: a stored page that a crawler fetches can cost a rebuild with requests to the weather services. Exa's crawler asked about 145 city pages a day, each rebuild about 21 weighted Open-Meteo calls: roughly 3,000 a day, a fifth of the total (an estimate from the averages of 14 to 16 November). Ahrefs and Semrush crawl for their own SEO tools.
+- All three say they obey robots.txt (crawler.exa.ai, ahrefs.com/robot, semrush.com/bot); Exa's crawler reads ours about once a day. It stops new fetches; it does not remove pages from their indexes.
+
+### Changed: the Content Security Policy is enforced
+- The policy lists the hosts a page may load from. Since 8 November it only reported, and it has no report address, so a refused request showed in that visitor's browser console and nowhere else. It is now enforced on every page (owner, 2026-11-16): the browser refuses scripts, pictures, frames and requests from hosts that are not on the list in next.config.mjs, form posts to other sites, and plugins. Inline scripts stay allowed, because Next's own start-up code needs them; the policy limits where a page loads from and sends to, it does not stop an injected inline script.
+- Checked on metablend.app before: 26 page loads (20 website pages, 4 in the app view, the forecast with the rain radar open, one route page in the app view) asked for nothing the policy refuses. The hosts in use are OpenStreetMap and OpenTopoMap tiles, RainViewer and Plausible, all on the list.
+- /widget keeps its exception: other sites may frame it. Every other page carries the same policy and may not be framed.
+- The phone layout check now fails when a page it opens asks for something the policy refuses, before a merge and after every deploy. Proved on a build whose policy lacked the OpenTopoMap hosts: the two route checks failed and named the refused map tiles, the other 131 passed.
+- After a deploy that changes the policy the app is walked by hand, right after Ready: mobile/README.md, "After a change to the Content Security Policy". Anything refused means rollback.
+- On Vercel preview pages the Vercel toolbar no longer loads (its host is not on the list). Production is not affected.
+
+### Added: what the new widgets need from the website (nothing changes in today's app)
+- The widgets' feed (`/api/app-widget`) also sends the rain chance and the wind on their own (`now.rain`, `now.wind`) and, for a summit window, its words (`label`: "Summit window", "Gipfelfenster", in all 13 languages), so the next native build shows them without taking text apart and never shows a window by its colour alone. Everything the feed sent before stays, so today's app is unchanged (owner, 2026-11-16; `docs/widgets-spec.md`, section 9).
+- The app tells its widgets which look to take: the Mono, Winter or Sky app icon gives them that theme, every other icon the default (`theme` in the widget settings), and switching the icon under More updates them at once.
+
+### Added: the spec for the widgets' new look (nothing changes in the app yet)
+- The home-screen widgets get a new look with the next native build: Slate in dark mode and white in light mode, following the phone, with the faint gold sheen of the sun in dark; the Mono, Winter and Sky app icons give the widgets their own theme; the hike widget's layout starts at the top; the website's drawn icons instead of emoji (owner, 2026-11-16). The spec for the build is `docs/widgets-spec.md`, the mockups and their assets are in `store/design/widgets/` (`node scripts/brand/widget-mockups.mjs`).
+- The spec also lists every widget text in all 13 languages (the widgets' messages and Android's widget settings speak 5 today) and drops the dash from the offline message.
+
+### Docs: the project skill gains rules from the skill review of 16 November
+- Nothing changes for visitors. `.claude/skills/metablend/SKILL.md`: code that needs new SQL waits for the owner's word that it ran on dev and on production; a fault seen on the live site goes to the owner before any diagnosis; several approved branches go out as one deploy; an Open-Meteo request is costed in weighted calls with the plain count beside it; the layout check writes to a file; and a new Tests section (the shared `fetch` fake, what to list before the golden test is rebaselined).
+
 ## 2026-11-16
 
 ### Changed: the home-screen widgets' new look (next native build, iPhone and Android)
@@ -756,7 +871,6 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed — the website's home page
 - The home page opens on a real forecast: your last city, or Lienz on a first visit. The explanation sits below it, with the sources trusted most in that region right now.
 - A concrete line replaces the tagline; drawn icons replace emoji; the feature grid, sparkle, banner and badge are gone, with one quiet beta note left. Left-aligned, one card style, an 8 px grid. The app's Forecast tab is unchanged.
-
 
 ### Added
 - Impressum at `/impressum` in all 13 languages, linked in the footer and under More.

@@ -4,10 +4,9 @@ import { MountainSnow } from 'lucide-react'
 import featured from '@/lib/hike/featured.json'
 import { isAppRequest } from '@/lib/app-client'
 import { hikeApiPath } from '@/lib/hike/params'
-import { storedPath, STORED_SECONDS } from '@/lib/hike/summit-props'
+import { storedPath, STORED_SECONDS, teaserWindow } from '@/lib/hike/summit-props'
 import { windowText, windowTone } from '@/lib/hike/text'
 import { t, detectLang, LANGUAGES } from '@/lib/i18n'
-import { addDays } from '@/lib/localtime'
 import { fill } from '@/lib/outlook/text'
 import Footer from '../components/Footer'
 import Headline from '../components/outlook/Headline'
@@ -27,7 +26,7 @@ export const metadata = {
 
 // Self-fetch through the public domain (like the city pages): the teaser
 // shares the peak's CDN entry with every app user looking at it.
-const BASE = process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000'
+const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metablend.app' : 'http://localhost:3000') // SELF_BASE: a local `next start` on another port
 const PEAKS = featured.filter(p => p.kind === 'peak')
 const SUMMITS = featured.filter(p => p.kind !== 'hut').length
 // the teaser lists them without links or distances: only what a row shows
@@ -63,11 +62,8 @@ export default async function HikePage({ searchParams }) {
   const lang = LANGUAGES.some(l => l.code === saved) ? saved : detectLang(h.get('accept-language') ?? 'en')
   const peak = peakOfDay()
   const data = await liveWindow(peak)
-  const todayLocal = data?.nowLocal?.slice(0, 10)
-  // after dark "no daylight left" says nothing — show tomorrow's window instead
-  const late = data && !data.windows?.today
-  const w = late ? data.windows?.tomorrow : data?.windows?.today
-  const date = late ? addDays(todayLocal, 1) : todayLocal
+  // the stored copy can be from yesterday: the window of today at the summit (after dark tomorrow's), or none
+  const seen = data ? teaserWindow(data) : null
   const stormUnknown = !!data?.notes?.includes('no_storm_data')
 
   // .web-only: should this ever reach the app, it's hidden before first paint
@@ -86,8 +82,8 @@ export default async function HikePage({ searchParams }) {
 
       <section className="mt-8 space-y-3">
         <div className="text-emerald-400 text-xs tracking-widest">{peak.name} · {peak.elev} m</div>
-        {data
-          ? <Headline text={windowText(lang, w, { date, todayLocal, stormUnknown })} tone={windowTone(w, { stormUnknown })} />
+        {seen
+          ? <Headline text={windowText(lang, seen.w, { date: seen.date, todayLocal: seen.todayLocal, stormUnknown })} tone={windowTone(seen.w, { stormUnknown })} />
           : <p className="text-sm text-zinc-500">{t(lang, 'hikeLiveNone')}</p>}
       </section>
 

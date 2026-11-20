@@ -2,15 +2,16 @@ import { notFound } from 'next/navigation'
 import featured from '@/lib/hike/featured.json'
 import { hikeApiPath } from '@/lib/hike/params'
 import { loadSummit } from '@/lib/hike/summit-fetch'
-import { summitProps, storedPath } from '@/lib/hike/summit-props'
+import { readAvalanche } from '@/lib/avalanche/read'
+import { summitProps, storedPath, STORED_SECONDS } from '@/lib/hike/summit-props'
 import { OM_MODELS, modelCovers } from '@/lib/outlook/models'
 import { SOURCE_NAMES } from '@/lib/sources'
 import { jsonForScript } from '@/lib/html'
 import SummitPage from './SummitPage'
 
 // Server-rendered summit weather for each featured peak: the summit window,
-// a 7-day summit table and (in winter) the avalanche danger, in crawlable
-// HTML — "Großglockner weather" lands here, the app has the rest. Rendered on
+// a 7-day summit table in crawlable HTML, and (in winter) the avalanche danger,
+// read by the browser — "Großglockner weather" lands here, the app has the rest. Rendered on
 // demand and kept six hours, from a stored forecast of three models: the pages
 // are asked mostly by crawlers, and each render used to cost a full summit
 // forecast. The live one comes with the button on the page (SummitPage.jsx).
@@ -27,13 +28,13 @@ const BASE = process.env.SELF_BASE ?? (process.env.VERCEL_ENV ? 'https://metable
 const peakById = id => featured.find(p => p.id === id && p.kind !== 'hut') ?? null
 
 const getSummit = peak => loadSummit(`${BASE}${storedPath(hikeApiPath(peak))}`)
-async function getAvalanche(peak) {
-  try {
-    const res = await fetch(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { next: { revalidate: 1800 } })
-    return res.ok ? await res.json() : null
-  } catch {
-    return null
-  }
+// The avalanche danger is not kept with the page: the browser reads it when the page opens (SummitPage.jsx).
+// The server asks only for how many days the area has a rating, so the section holds its place and nothing
+// below it moves; kept as long as the page, so this request never shortens the page's time. A slow avalanche
+// source does not hold up the page: after 3 s it is built without that room (the browser still reads the danger).
+async function getAvalancheRows(peak) {
+  const a = await readAvalanche(`${BASE}/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { ms: 3000, init: { next: { revalidate: STORED_SECONDS } } })
+  return [a?.today, a?.tomorrow].filter(Boolean).length
 }
 
 export async function generateMetadata({ params }) {
@@ -51,7 +52,7 @@ export async function generateMetadata({ params }) {
 export default async function MountainWeather({ params }) {
   const peak = peakById((await params).peak)
   if (!peak) notFound()
-  const [d, ava] = await Promise.all([getSummit(peak), getAvalanche(peak)])
+  const [d, avaRows] = await Promise.all([getSummit(peak), getAvalancheRows(peak)])
   const nearby = featured
     .filter(p => p.region === peak.region && p.id !== peak.id && p.kind !== 'hut')
     .slice(0, 10)
@@ -78,7 +79,7 @@ export default async function MountainWeather({ params }) {
         peak={{ id: peak.id, name: peak.name, elev: peak.elev, lat: peak.lat, lon: peak.lon, region: peak.region, country: peak.country, grade: peak.grade }}
         {...summitProps(d)}
         fullList={OM_MODELS.filter(m => modelCovers(m.model, peak.lat, peak.lon)).map(m => SOURCE_NAMES[m.id] ?? m.id)}
-        ava={ava ? { today: ava.today, tomorrow: ava.tomorrow } : null}
+        avaRows={avaRows}
         nearby={nearby}
       />
     </>

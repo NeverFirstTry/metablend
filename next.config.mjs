@@ -6,26 +6,26 @@ const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'Permissions-Policy', value: 'geolocation=(self), camera=(), microphone=(), payment=()' },
-  // Report-only: nothing is blocked, violations show in the browser console.
-  // Inline scripts stay allowed (the boot scripts, Next's own); the hosts are
-  // the ones the pages load from. Framing is enforced separately below.
-  {
-    key: 'Content-Security-Policy-Report-Only',
-    value: [
-      "default-src 'self'",
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"} https://plausible.io https://va.vercel-scripts.com`,
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile.opentopomap.org https://tile.opentopomap.org https://tilecache.rainviewer.com https://*.rainviewer.com",
-      "connect-src 'self' https://api.rainviewer.com https://plausible.io https://vitals.vercel-insights.com https://va.vercel-scripts.com",
-      "font-src 'self' data:",
-      "worker-src 'self' blob:",
-      "frame-src 'self'",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join('; '),
-  },
 ]
+
+// The Content Security Policy, enforced (owner, 2026-11-16; report-only from 2026-11-08): the browser
+// refuses whatever a page asks from a host that is not listed here. Inline scripts stay allowed (the boot
+// scripts, Next's own), so this limits where a page loads from and sends to; it does not stop an injected
+// inline script. A page that needs a new host needs it here first: scripts/check-phone-layout.mjs fails on
+// anything refused, and mobile/README.md has the walk through the app after a change.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'production' ? '' : " 'unsafe-eval'"} https://plausible.io https://va.vercel-scripts.com`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://*.tile.openstreetmap.org https://tile.openstreetmap.org https://*.tile.opentopomap.org https://tile.opentopomap.org https://tilecache.rainviewer.com https://*.rainviewer.com",
+  "connect-src 'self' https://api.rainviewer.com https://plausible.io https://vitals.vercel-insights.com https://va.vercel-scripts.com",
+  "font-src 'self' data:",
+  "worker-src 'self' blob:",
+  "frame-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join('; ')
 
 const nextConfig = {
   experimental: {
@@ -39,7 +39,9 @@ const nextConfig = {
   },
   async headers() {
     return [
-      { source: '/:path*', headers: securityHeaders },
+      // every path, /widget included; the framing rule further down replaces this value on every other path
+      // (where two rules set one header, Next keeps the later one)
+      { source: '/:path*', headers: [...securityHeaders, { key: 'Content-Security-Policy', value: contentSecurityPolicy }] },
       // the email signature's logo: mail clients fetch it on every open, so a year in caches
       { source: '/email/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] },
       // nobody else may frame MetaBlend's pages (clickjacking; inside the app
@@ -48,7 +50,7 @@ const nextConfig = {
       {
         source: '/((?!widget/).*)',
         headers: [
-          { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+          { key: 'Content-Security-Policy', value: `${contentSecurityPolicy}; frame-ancestors 'none'` },
           { key: 'X-Frame-Options', value: 'DENY' },
         ],
       },

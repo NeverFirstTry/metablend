@@ -1,26 +1,28 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
 import { windowText } from '@/lib/hike/text'
-import { formatCalendarDate } from '@/lib/localtime'
+import { formatCalendarDate, addDays } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
+import { readAvalanche } from '@/lib/avalanche/read'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { hikeApiPath } from '@/lib/hike/params'
-import { summitProps, madeAtText, LIVE_HEADER } from '@/lib/hike/summit-props'
+import { summitProps, summitDay, summitOn, freshAva, madeAtText, LIVE_HEADER } from '@/lib/hike/summit-props'
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
 
 // One summit in the visitor's language and unit. The server renders it in English for
 // search engines; the URL stays the same in every language.
-export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...stored }) {
-  // The page shows the forecast it was built with (three models, kept up to six hours) and says when
-  // that was made. Nothing is fetched on its own: crawlers run scripts too, and every live forecast is a
-  // full request. The button fetches the live forecast and the avalanche danger.
+export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...stored }) {
+  // The page shows the forecast it was built with (three models) and says when that was made. The
+  // forecast is not fetched on its own: crawlers run scripts too, and every live forecast is a full
+  // request; the button fetches it. The avalanche danger is read when the page opens: it is no Open-Meteo
+  // request (/api/avalanche, kept 30 minutes), and a stored page must not show an old level.
   const [live, setLive] = useState(null)
   const [state, setState] = useState('stored') // stored | loading | live | failed
   const box = useRef(null)
@@ -28,27 +30,44 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
     // what stands on the page keeps its height, so nothing jumps when the live forecast replaces it
     for (const el of box.current?.querySelectorAll('[data-keep]') ?? []) el.style.minHeight = `${el.offsetHeight}px`
     setState('loading')
-    const json = (url, init) => fetch(url, init).then(r => (r.ok ? r.json() : null)).catch(() => null)
-    const [d, a] = await Promise.all([
-      json(hikeApiPath(peak), { headers: { [LIVE_HEADER]: '1' } }),
-      json(`/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`),
-    ])
+    const d = await fetch(hikeApiPath(peak), { headers: { [LIVE_HEADER]: '1' } }).then(r => (r.ok ? r.json() : null)).catch(() => null)
     if (!d?.days?.length || d.unavailable) return setState('failed')
-    setLive({ ...summitProps(d), ava: a ? { today: a.today, tomorrow: a.tomorrow } : null })
+    setLive(summitProps(d))
     setState('live')
   }
-  const { days, windows, todayLocal, tomorrowLocal, stormUnknown, sources, madeAt, kept } = live ?? stored
-  const ava = live?.ava ?? storedAva
+  const [avaNow, setAvaNow] = useState(undefined) // undefined while it is read, null when that failed
+  useEffect(() => {
+    let off = false
+    // a slow source does not hold the section either: after 6 s the note stands instead
+    readAvalanche(`/api/avalanche?lat=${peak.lat.toFixed(2)}&lon=${peak.lon.toFixed(2)}`, { ms: 6000 }).then(a => { if (!off) setAvaNow(a) })
+    return () => { off = true }
+  }, [peak.lat, peak.lon])
+  const shown = live ?? stored
+  const { stormUnknown, sources, madeAt, kept, utcOffsetSec } = shown
+  // The reader's day at the summit. The stored page may be read on the day after it was built, so "today"
+  // is not the copy's: it is read off the clock, after mount only (the first render matches the server's,
+  // which calls no day today), and again each minute so a page left open over midnight follows.
+  const [summitToday, setSummitToday] = useState(null)
+  useEffect(() => {
+    if (utcOffsetSec == null) return
+    const tick = () => setSummitToday(summitDay(utcOffsetSec))
+    tick()
+    const id = setInterval(tick, 60_000)
+    return () => clearInterval(id)
+  }, [utcOffsetSec])
+  const { days, windows, todayLocal } = summitOn(shown, null, summitToday)
+  const ava = freshAva(shown, avaNow, summitToday)
   const lang = useLang()
   const asOf = when => (when ? fill(t(lang, 'mtnAsOf'), { when: madeAtText(when, lang) }) : '')
   // the line next to the button: every text it can show lies in the same place, so the tallest sets its height
   const status = { stored: asOf(madeAt), loading: t(lang, 'mtnLiveLoading'), live: kept ? asOf(madeAt) : fill(t(lang, 'mtnLiveAsOf'), { when: madeAtText(madeAt, lang) }), failed: `${t(lang, 'mtnLiveFailed')} ${asOf(madeAt)}` }
   const blend = list => fill(t(lang, 'mtnBlend'), { elev: peak.elev, n: list.length, list: list.join(', ') })
   const fmt = tempFormatter(useUnit())
-  const today = windows?.today !== undefined ? windowText(lang, windows.today, { date: todayLocal, todayLocal, stormUnknown }) : null
-  const tomorrow = windows?.tomorrow !== undefined && tomorrowLocal ? windowText(lang, windows.tomorrow, { date: tomorrowLocal, todayLocal, stormUnknown }) : null
+  // the first window the copy has from the reader's day on stands large, the next one small below it
+  const [today, tomorrow] = windows.map(({ date, w }) => windowText(lang, w, { date, todayLocal, stormUnknown }))
   const day = date => (date === todayLocal ? t(lang, 'tabToday') : formatCalendarDate(date, lang, { weekday: 'short', month: 'short', day: 'numeric' }))
-  const avaDays = [[t(lang, 'avaToday'), ava?.today], [t(lang, 'avaTomorrow'), ava?.tomorrow]].filter(([, l]) => l)
+  const avaLabel = date => (date === todayLocal ? t(lang, 'avaToday') : todayLocal && date === addDays(todayLocal, 1) ? t(lang, 'avaTomorrow') : formatCalendarDate(date, lang, { weekday: 'short', day: 'numeric' }))
+  const avaDays = ava.map(({ date, level }) => [avaLabel(date), level])
   const region = t(lang, `region_${peak.region}`)
   const columns = [t(lang, 'colLowHigh'), t(lang, 'summitWind'), t(lang, 'colRain'), t(lang, 'freezingLevel'), t(lang, 'stormRisk')]
 
@@ -84,21 +103,7 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
           <p className="text-xs text-zinc-500 mt-4">{t(lang, 'hikeDisclaimer')} <Link href="/terms#disclaimer" className="underline hover:text-emerald-400">{t(lang, 'legalDisclaimerLink')}</Link></p>
         </section>
 
-        {avaDays.length > 0 && (
-          <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
-            <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'avaTitle')}</h2>
-            <ul className="space-y-2 text-sm">
-              {avaDays.map(([label, level]) => (
-                <li key={label} className="flex flex-wrap items-center gap-x-3 gap-y-1">
-                  <span className="w-20 text-zinc-400">{label}</span>
-                  <span aria-hidden className="inline-flex h-6 w-6 items-center justify-center rounded font-bold text-xs" style={{ background: AVA_COLORS[level], color: level === 5 ? '#fff' : '#111' }}>{level}</span>
-                  <span className="font-bold"><span className="sr-only">{level}: </span>{t(lang, `avaLevel${level}`)}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="text-xs text-zinc-500 mt-3">{[asOf(live?.ava ? madeAt : stored.madeAt), t(lang, 'avaNote')].filter(Boolean).join(' · ')} · <a href="https://avalanches.org/" className="underline hover:text-emerald-400">{t(lang, 'avaSource')}</a></p>
-          </section>
-        )}
+        <AvalancheSection lang={lang} reserve={avaRows} read={avaNow} levels={avaDays} />
 
         {days?.length > 0 && (
           <section data-keep aria-label={t(lang, 'mtn7Day')} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
@@ -145,7 +150,7 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-3">{fill(t(lang, 'mtnMore'), { region })}</h2>
             <ul className="flex flex-wrap gap-2 text-sm">
               {nearby.map(p => (
-                <li key={p.id}><Link href={`/mountains/${p.id}`} className="press inline-block rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
+                <li key={p.id}><Link prefetch={false} href={`/mountains/${p.id}`} className="press inline-block rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
               ))}
             </ul>
           </section>
@@ -153,5 +158,35 @@ export default function SummitPage({ peak, ava: storedAva, nearby, fullList, ...
         <Footer lang={lang} badges={false} />
       </div>
     </main>
+  )
+}
+
+// The avalanche danger, read when the page opens. read: undefined while it is read, null when that failed
+// or took too long, else the answer (`unavailable` when today's bulletin could not be read). reserve: the
+// rows the area had when the page was stored; their room is kept in every state, so nothing below moves.
+// A failed read says so and points to the official bulletins: never an old level, and no partial one.
+export function AvalancheSection({ lang, reserve, read, levels }) {
+  const failed = read === null || !!read?.unavailable
+  const state = failed ? (reserve > 0 || levels.length ? 'failed' : null) : levels.length ? 'levels' : read === undefined && reserve > 0 ? 'reading' : null
+  if (!state) return null
+  return (
+    <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+      <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'avaTitle')}</h2>
+      <div style={reserve > 0 ? { minHeight: reserve * 32 - 8 } : undefined}>
+        {state === 'failed' && <p role="status" className="text-sm text-zinc-300">{t(lang, 'avaUnavailable')}</p>}
+        {state === 'levels' && (
+          <ul className="space-y-2 text-sm">
+            {levels.map(([label, level]) => (
+              <li key={label} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span className="w-20 text-zinc-400">{label}</span>
+                <span aria-hidden className="inline-flex h-6 w-6 items-center justify-center rounded font-bold text-xs" style={{ background: AVA_COLORS[level], color: level === 5 ? '#fff' : '#111' }}>{level}</span>
+                <span className="font-bold"><span className="sr-only">{level}: </span>{t(lang, `avaLevel${level}`)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <p className="text-xs text-zinc-500 mt-3">{t(lang, 'avaNote')} · <a href="https://avalanches.org/" className="underline hover:text-emerald-400">{t(lang, 'avaSource')}</a></p>
+    </section>
   )
 }
