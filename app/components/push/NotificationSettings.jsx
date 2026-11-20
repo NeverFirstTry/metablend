@@ -115,6 +115,8 @@ export default function NotificationSettings({ lang, unit }) {
       ) : !s ? (
         <div className={box}>
           <button onClick={turnOn} className="press w-full bg-emerald-400 text-black font-semibold rounded-full py-2.5 text-sm hover:bg-emerald-300">{t(lang, 'notifEnable')}</button>
+          {/* what they bring, before the yes (UX review E2): the list showed only after it */}
+          <p className="text-sm text-zinc-300">{t(lang, 'notifWhat')}</p>
           <p className="text-xs text-zinc-400">{t(lang, 'notifRules')}</p>
         </div>
       ) : (

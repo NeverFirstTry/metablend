@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the app says what notifications bring before asking for them
+- Under "Turn on notifications" the app now lists what can come: "Rain soon, thunderstorms, severe weather, heat, a morning briefing and your planned hikes. You choose which." Until now the list showed only after saying yes. The quiet-hours line follows, in all 13 languages.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
