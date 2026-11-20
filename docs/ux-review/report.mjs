@@ -81,30 +81,30 @@ Everything passes on a normal connection. Two taps do not on a poor one, and poo
 
 ### Gold: one job per screen
 
-The owner's rule (20 November): gold has one job per screen, and that job is the main answer: the consensus temperature, the summit window and so on. Selected tabs, toggles and chips do not use gold; they get a neutral highlight.
+The owner's rule (20 November): gold has one job per screen, and that job is the main answer: the consensus temperature, the summit window and so on. Selected tabs, toggles and chips do not use gold; they get a neutral highlight. On a screen without an answer the one main button keeps gold, since it is that screen's one job (the owner's answer of 20 November to the question this chapter asked).
 
 Counted on the first screen of each page, leaving out the logo and the sun in weather icons:
 
-| Screen | What gold marks today | The main answer that gets gold |
+| Screen | What gold marks today | What gets gold: the main answer, or the one main button where there is none |
 | --- | --- | --- |
-| First start | location card, search button, a sparkle, three feature icons | none yet; once F1 is done, the example forecast's temperature |
+| First start | location card, search button, a sparkle, three feature icons | the search button, the one thing to do here; once F1 is done, the example forecast's temperature has it and the button turns neutral |
 | Forecast, Today and Tomorrow | search button, selected tab, the chart line, the label "Hour by hour" | the consensus temperature; its line in the chart is the same answer over the day |
 | Forecast, Week | selected tab, the "models split" lines | the best day ("Best day of the week") |
-| Hiking list | title icon, "My routes", "Import GPX", "Near you", "All peaks" | the next favourable window on a saved peak's row (H2); until then none |
+| Hiking list | title icon, "My routes", "Import GPX", "Near you", "All peaks" | the next favourable window on a saved peak's row (H2); until then one main button, to be picked from the four that are gold today |
 | Peak | selected tab, chart line, two labels, the caution paragraph, a link | the summit window: its headline and its stretch in the chart |
 | Route | selected day, selected pace, profile line, a label, "Save route" | the favourable start (start time, or the next favourable day) |
 | Summit page (website) | section labels, links | the summit window |
 | City page (website) | section labels, links | the consensus temperature |
 | Rankings | selected tab, selected region, 19 weight bars | the source trusted most right now |
 | Planner | search button, the place, the best months, the bars | the best months |
-| More, Aviation, Terms, Support | labels, selected options, links, titles or half of them | none: these screens give no answer |
+| More, Aviation, Terms, Support | labels, selected options, links, titles or half of them | no answer here: the one main button where the screen has one ("Send" on Support, "Turn on notifications"), nothing else; a screen without a main button has no gold |
 
 What that means for the rest:
 
 - **Selected things turn neutral:** the range tabs, the day and pace chips on a route, the pickers under More, the region buttons, the saved-city chips, the checkboxes of the notification settings (green today) and the current tab in the tab bar. A raised chip with white text is enough to read as selected.
 - **Gold leaves** section labels, links (underlined in the text colour), the caution paragraphs (the warning colour that exists), half-gold titles and the feature icons.
 - **Headline cards:** the card that carries the answer is gold when there is one (a window, a start time, a best day) and neutral when there is none. Green stays for status words ("Low", "Good", the agreement figure). T2 follows from this.
-- **Not settled by the rule, my reading:** main buttons ("Continue", "Turn on notifications", "Retry") are gold today. I have treated them like tabs and chips: a strong neutral. Say if the one main button on a screen without an answer may keep gold.
+- **Main buttons (owner, 20 November):** on a screen without an answer the one main button keeps gold, since it is that screen's one job: "Continue", "Turn on notifications", "Retry", the search button of the first start. Never two gold buttons on one screen. My reading of the rest: on a screen with an answer the answer has the gold, so its buttons are a strong neutral.
 
 Entry X3.
 
