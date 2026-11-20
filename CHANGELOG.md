@@ -52,6 +52,12 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the app's offline screen looks like the app and speaks the phone's language
 - When the app starts without a connection, its screen now uses the app's type and two-colour logo instead of a typewriter face, follows the phone's light or dark appearance, and says "No connection. MetaBlend needs the internet to show the forecast." in the phone's language, in all 13 of the app's languages (English and German only until now). The Retry button is a 44 px target and the one gold thing on the screen.
 - The screen ships inside the app, so phones get it with the next native build.
+### Changed: no emoji in the interface, no dashes on the aviation pages
+- The region buttons under Rankings lose their flags and globes, and the weather choices in Feedback their weather emoji ("Sunny" instead of "☀️ Sunny"), in all 13 languages.
+- Under More, an empty list of planned hikes now says "No planned hikes. Open a peak and tap “Plan a hike”." instead of showing a bell emoji.
+- The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
+- The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
+- Notification titles keep their emoji: they are notifications, not the interface.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
