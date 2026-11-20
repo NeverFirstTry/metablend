@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the route screen
+- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
+- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
+- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark.
+- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.

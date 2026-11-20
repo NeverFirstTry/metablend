@@ -46,7 +46,7 @@ export default function RouteScreen({ routeId, peak, lang, unit, onBack }) {
   return (
     <RouteView route={state.route} lang={lang} unit={unit} onBack={onBack}
       saved={state.saved} onSave={canSave ? () => saveRoute({ ...state.route, savedAt: Date.now() }).then(() => setState(s => ({ ...s, saved: true }))) : undefined}>
-      {isNative() ? ({ pace }) => <PlanHike peak={planPeak} lang={lang} unit={unit} todayLocal={localToday()} route={state.route} pace={pace} /> : null}
+      {isNative() ? ({ pace, date }) => <PlanHike peak={planPeak} lang={lang} unit={unit} todayLocal={localToday()} route={state.route} pace={pace} date={date} /> : null}
     </RouteView>
   )
 }
