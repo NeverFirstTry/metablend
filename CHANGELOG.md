@@ -9,7 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
 - A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
 - Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
-- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages.
+- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
 
 ### Changed: Plan a hike says what it does, and a removed route can be brought back
 - Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.

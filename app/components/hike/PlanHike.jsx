@@ -48,6 +48,7 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
         </button>
       ) : (
       // neutral like Save beside it: gold is the screen's answer, the favourable start (owner, 2026-11-20)
+      // (the direct button above says what a plan brings below it; this one in its panel, UX review N1)
       <button onClick={() => { setOpen(o => !o); setMsg(null) }} aria-expanded={open}
         className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
         <BellRing size={16} aria-hidden /> {t(lang, 'planHike')}
@@ -65,6 +66,8 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
           </div>
         </div>
       )}
+      {/* the direct button plans at once: what a plan brings is said before the tap, until 'Planned. ...' says it */}
+      {direct && !msg && <p className="text-sm text-zinc-400">{t(lang, 'planExplain')}</p>}
       {msg && <p className="text-xs text-zinc-400" role="status">{msg}</p>}
     </div>
   )
