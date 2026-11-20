@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Added: the peak's Week tab says which day works
+- The Week tab of a peak now opens with a verdict: "Best day: Saturday, summit window 08:00-13:00", or "No favourable summit window this week". Every day in the list says its window or why it has none ("rain from 08:00"), in all 13 languages.
+- Today, tomorrow and the day after get times to the hour; later days say their window as a tendency ("About 09:00-12:00, a tendency") and are the best day only when no nearer day has a window. A day whose storm risk is unknown says so and never beats a day where it is known.
+
 ### Added: the summit forecast holds the favourable window of every day of the week
 - Nothing a visitor sees changes yet. The peak view's Week tab will use it to say which day has a window (UX review, entry P1; the screen itself follows on a branch of its own).
 - `/api/hike` now answers with `windows.days`: one entry `{ date, w, stormUnknown, n }` for every day the forecast covers to its evening. `w` is the same answer `windows.today` and `windows.tomorrow` are (a window, or the reason there is none). `stormUnknown` says that an hour of that day's window has no storm value, so the day is not to be shown as favourable without saying so; a week out fewer models report it. `n` is the fewest models behind an hour of the window.

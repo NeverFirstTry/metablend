@@ -106,7 +106,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
       ) : !d ? (
         <SkyLoader lang={lang} title={t(lang, 'loadingSummit')} names={SUMMIT_MODELS} />
       ) : shown === 'd7' ? (
-        <SummitDays days={d.days} todayLocal={todayLocal} lang={lang} fmt={fmt} />
+        <SummitDays days={d.days} windows={d.windows?.days} todayLocal={todayLocal} lang={lang} fmt={fmt} />
       ) : dark ? (
         // after sunset: one line to tomorrow's window instead of a mostly empty page
         <>
