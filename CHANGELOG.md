@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the buttons around the search field say what they do (tester's three points)
+- On a phone the three buttons under the search field carry a word: "Location", "Compare" and "Save" ("Saved" once the place is saved), in all 13 languages. Compare has a new icon, two columns, instead of the swap arrows.
+- Beside the place name only refresh and share remain, each 44 px, a size a thumb hits. Embed left that row: in the app it is gone (a code for another website is of no use there), on the website it is a fold of its own after Sources and Feedback.
+- Recent places hold each place once: two spellings of one town ("Buôn Ma Thuột", "Buon Ma Thuot") count as one, and lists saved before clean themselves up when read. The same town in two languages ("Wien", "Vienna") can still stand twice.
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).

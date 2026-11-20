@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
-  Search, Navigation, ArrowLeftRight, Star, Share2, Code2,
+  Search, Navigation, Columns2, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
   CheckCircle2, Send, Gauge, CloudRain, Layers,
   Sparkles, ChevronDown, X, Info,
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
+import { uniquePlaces, samePlace } from '@/lib/recent-places'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -81,18 +82,18 @@ function readCachedForecast(city) {
 // don't add to it. The last city viewed (any way) is kept per session apart.
 const LAST_KEY = 'metablend_last'
 function getRecent() {
-  try { return JSON.parse(getCookie('metablend_recent') ?? '[]') } catch { return [] }
+  try { return uniquePlaces(JSON.parse(getCookie('metablend_recent') ?? '[]')) } catch { return [] }
 }
 function pushRecent(city) {
   if (!city) return getRecent()
-  const list = [city, ...getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())].slice(0, 5)
+  const list = [city, ...getRecent().filter(c => !samePlace(c, city))].slice(0, 5)
   setCookie('metablend_recent', JSON.stringify(list))
   return list
 }
 // Removing the last one, or all of them, also forgets the last city viewed: the
 // next visit starts as a first one (the landing page, or the app's first screen).
 function removeRecent(city) {
-  const list = getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())
+  const list = getRecent().filter(c => !samePlace(c, city))
   if (list.length) setCookie('metablend_recent', JSON.stringify(list))
   else clearRecent()
   return list
@@ -272,7 +273,6 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [favorites, setFavorites] = useState([])
   const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
-  const [showEmbed, setShowEmbed] = useState(false)
   const [compareMode, setCompareMode] = useState(false)
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
@@ -818,18 +818,21 @@ ${url}`)
         )}
 
         {/* Search: on a phone (a row under 26rem) and with large text the field takes its own line and location, compare
-            and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report) */}
+            and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report).
+            There each of the three says what it does in a word (tester, 2026-11-19; UX review S1); beside the field on
+            a wide screen compare keeps its word and the other two their icon */}
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
             disabled={locating || loading}
             title={t(lang, 'a11yLocate')}
             aria-label={t(lang, 'a11yLocate')}
-            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:py-3"
+            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3"
           >
             {locating
-              ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow" aria-hidden />
-              : <Navigation size={18} className="text-zinc-300" aria-hidden />}
+              ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow shrink-0" aria-hidden />
+              : <Navigation size={18} className="text-zinc-300 shrink-0" aria-hidden />}
+            <span className="hidden @max-[26rem]:inline">{t(lang, 'locateShort')}</span>
           </button>
           <div className="relative flex-1 @max-[26rem]:basis-full @max-[26rem]:order-first">
             {/* the search button sits inside the field at its right edge, so a phone shows more of a long name
@@ -869,24 +872,25 @@ ${url}`)
             title={t(lang, 'compareBtn')}
             aria-label={t(lang, 'compareBtn')}
             aria-pressed={compareMode}
-            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
-              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
+            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${
+              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-emerald-400'
             }`}
           >
-            <ArrowLeftRight size={14} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'compareBtn')}</span>
+            <Columns2 size={16} className="shrink-0" aria-hidden /> <span className="hidden sm:inline @max-[26rem]:inline">{t(lang, 'compareBtn')}</span>
           </button>
           {data && (
             <button
               onClick={() => setFavorites(toggleFavorite(data.city))}
               title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
               aria-label={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
-              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
+              className={`press px-3 rounded-lg text-xs shrink-0 border flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${
                 isFavorite(favorites, data.city)
                   ? 'bg-amber-400 text-black border-amber-400'
-                  : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-amber-400'
+                  : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-amber-400'
               }`}
             >
-              <Star size={16} fill={isFavorite(favorites, data.city) ? 'currentColor' : 'none'} aria-hidden />
+              <Star size={16} className="shrink-0" fill={isFavorite(favorites, data.city) ? 'currentColor' : 'none'} aria-hidden />
+              <span className="hidden @max-[26rem]:inline">{t(lang, isFavorite(favorites, data.city) ? 'savedShort' : 'saveShort')}</span>
             </button>
           )}
         </div>
@@ -1021,10 +1025,10 @@ ${url}`)
             )}
 
             <div className="home-now space-y-4">
-            {/* Toolbar: the place, then refresh, share and embed as one row of like buttons, then the data age. The buttons
-                stand beside the name, centred on its first line (h-9 and sm:h-10 are the heading's line heights); a name that
-                would take more than two lines beside them gets the whole width and the buttons move into a row under it
-                (tester and owner, 2026-11-14: Garmisch-Partenkirchen took five lines on a 320 px phone) */}
+            {/* Toolbar: the place, then refresh and share, 44 px each, then the data age. The buttons stand beside the
+                name, centred on its first line; a name that would take more than two lines beside them gets the whole
+                width and the buttons move into a row under it (tester and owner, 2026-11-14: Garmisch-Partenkirchen took
+                five lines on a 320 px phone). Embed left this row for a fold of its own, website only (UX review S2) */}
             <div ref={toolbarRef} className={`home-toolbar grid gap-x-3 ${stackActions ? 'grid-cols-1' : 'grid-cols-[minmax(0,1fr)_auto]'}`}>
               {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
                   whole), a single over-long name still anywhere */}
@@ -1032,36 +1036,29 @@ ${url}`)
                 {/* the example comes in English from the server: its name in the reader's language */}
                 <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
               </h2>
-              <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-9 sm:h-10'}`}>
+              <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
                 <button
                   onClick={manualRefresh}
                   disabled={refreshing || loading}
                   title={t(lang, 'refreshNow')}
                   aria-label={t(lang, 'refreshNow')}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
+                  className="press size-11 inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
                 >
-                  <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
+                  <RefreshCw size={18} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                 </button>
                 <button
                   onClick={shareForecast}
+                  title={t(lang, 'shareBtn')}
                   aria-label={t(lang, 'shareBtn')}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
+                  className="press h-11 min-w-11 px-3 inline-flex items-center justify-center gap-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
                 >
-                  <Share2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'shareBtn')}</span>
-                </button>
-                <button
-                  onClick={() => setShowEmbed(s => !s)}
-                  aria-label={t(lang, 'embedBtn')} aria-expanded={showEmbed}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
-                >
-                  <Code2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'embedBtn')}</span>
+                  <Share2 size={18} className="shrink-0" aria-hidden /> <span className="hidden sm:inline">{t(lang, 'shareBtn')}</span>
                 </button>
               </div>
               {/* under the name beside the buttons, or under the buttons once they moved under the name */}
               {generatedAt && <div className={stackActions ? 'mt-1' : 'col-start-1'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} /></div>}
             </div>
 
-            {showEmbed && <EmbedPanel city={data.city} lang={lang} unit={unit} />}
 
             {outlook && <WarningStrip lat={data.lat} lon={data.lon} cc={outlook.cc} lang={lang} todayLocal={outlook.nowLocal.slice(0, 10)}
               onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
@@ -1106,6 +1103,12 @@ ${url}`)
               <Fold icon={Send} title={t(lang, 'feedbackFold')}>
                 <FeedbackPanel data={data} unit={unit} lang={lang} onWeights={mergeWeights} />
               </Fold>
+              {/* a code for another website: of no use inside the app, rare on the website (UX review S2) */}
+              <div className="web-only">
+                <Fold icon={Code2} title={t(lang, 'embedBtn')}>
+                  <EmbedPanel city={data.city} lang={lang} unit={unit} />
+                </Fold>
+              </div>
             </div>
 
           </div>
