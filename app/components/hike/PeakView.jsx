@@ -27,6 +27,7 @@ import RouteList from './RouteList'
 import { isNative } from '@/lib/native'
 import WarningsCard from '../outlook/WarningsCard'
 import AvalancheCard from './AvalancheCard'
+import SavePeak from './SavePeak'
 
 // the models a summit request asks, for the loader's ticker
 const SUMMIT_MODELS = OM_MODELS.map(m => sourceName(m.id))
@@ -83,7 +84,10 @@ export default function PeakView({ peak, lang, unit, onBack }) {
     <div className="space-y-4 animate-fade-in">
       <BackLink onClick={onBack}>{t(lang, 'hiking')}</BackLink>
       <div>
-        <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{peak.name}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight">{peak.name}</h1>
+          <SavePeak peak={peak} d={d} lang={lang} />
+        </div>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
           <span title={peak.elevApprox ? t(lang, 'elevApprox') : undefined}>{peak.elevApprox ? '≈' : ''}{peak.elev} m</span>
           {peak.grade ? ` · ${t(lang, 'gradeScale')} ${peak.grade}` : ''}
