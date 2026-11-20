@@ -318,9 +318,13 @@ html[data-app][data-terms-due] body > :not(.terms-notice) { visibility: hidden; 
 /* the app with no city yet (the boot script marks it before first paint): "Use my location" */
 .first-use-only { display: none; }
 html[data-first-use] .first-use-only { display: block; }
+/* the location button under the field steps aside while that card offers the same (UX review F2) */
+html[data-first-use] .first-use-hide { display: none; }
 /* the website: the landing page, or a returning visitor's forecast. The boot script marks
    them before first paint (lib/app-client.js); without a script, the landing page */
 html:is([data-app], [data-returning]) .landing-view { display: none; }
+/* the app shows the example forecast too, the product instead of a pitch (UX review F1) */
+html[data-app] .home-data.landing-view { display: block; }
 html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
 .returning-only { display: none; }
 html[data-returning] .returning-only { display: block; }
