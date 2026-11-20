@@ -3,6 +3,16 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-20
+
+### Changed: a peak's route list is kept 30 days before OpenStreetMap is asked again
+- The marked routes up a peak are looked up from OpenStreetMap once and then kept. Until now a list counted for a week; it now counts for 30 days (owner, 20 November). Marked routes rarely change, and a public service should be asked as little as possible: the site sent about 16 requests a day to the OpenStreetMap API (125 in eight days), and a peak that is visited every week is now looked up once a month instead of four times.
+- The price: a route that really changed (moved, new or removed in OpenStreetMap) shows up to 30 days late, where it was up to 7. The CDN may add up to 8 days, as before. Closures were never read and are not affected.
+- A lookup in which one route did not answer is still tried again after one day.
+- The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
+- The lists loaded on 19 November now count until 19 December.
+- Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+
 ## 2026-11-19
 
 ### Fixed: a test that stopped passing on 19 November

@@ -160,8 +160,10 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
     supabase.from('push_devices').delete().lt('last_seen', new Date(Date.now() - 90 * 86_400_000).toISOString()),
     supabase.from('hike_plans').delete().lt('date', new Date(Date.now() - 2 * 86_400_000).toISOString().slice(0, 10)),
     supabase.from('push_log').delete().lt('sent_at', new Date(Date.now() - 14 * 86_400_000).toISOString()),
-    // caches past their use: routes are looked up again after a week, Nominatim answers after 30 days
-    supabase.from('route_cache').delete().lt('fetched_at', new Date(Date.now() - 30 * 86_400_000).toISOString()),
+    // caches past their use. Route lists are looked up again after 30 days (app/api/routes/route.js) and kept
+    // 30 more: an old copy stands in when OpenStreetMap is down, and a list dated for a retry after one day
+    // (a route's lookup failed) must not be deleted before that retry. Nominatim answers go after 30 days.
+    supabase.from('route_cache').delete().lt('fetched_at', new Date(Date.now() - 60 * 86_400_000).toISOString()),
     supabase.from('nominatim_cache').delete().lt('fetched_at', new Date(Date.now() - NOMINATIM_DAYS * 86_400_000).toISOString()),
   ])
 
