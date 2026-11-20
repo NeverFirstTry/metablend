@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import BackLink from '../../components/BackLink'
 import { notFound } from 'next/navigation'
 import Footer from '../../components/Footer'
 import {
@@ -112,9 +112,7 @@ export default async function AirportPage({ params }) {
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
-          <Link href="/aviation" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-            <ArrowLeft size={15} aria-hidden /> Back
-          </Link>
+          <BackLink href="/aviation" className="app-only">Aviation</BackLink>
           <nav className="text-zinc-500 text-xs flex gap-2">
             <Link href="/" className="hover:text-emerald-400">MetaBlend</Link>
             <span>/</span>

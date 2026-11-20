@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowLeft, CloudOff, RotateCcw, Bookmark, BookmarkCheck, Footprints } from 'lucide-react'
+import { CloudOff, RotateCcw, Bookmark, BookmarkCheck, Footprints } from 'lucide-react'
+import BackLink from '../BackLink'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter, dayWord, dayPhrase } from '@/lib/outlook/text'
 import { addDays } from '@/lib/localtime'
@@ -26,7 +27,7 @@ const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padS
 // stages along the way. route = { id, name, source, roundTrip, points }.
 // children may be a function of { pace, date } (Plan a hike keeps the chosen pace and plans the chosen day).
 // Save and Plan stand beside the title (UX review O4: they came after the whole table).
-export default function RouteView({ route, lang, unit, onBack, onSave, saved, children }) {
+export default function RouteView({ route, lang, unit, onBack, backLabel, onSave, saved, children }) {
   const today = localToday()
   const [date, setDate] = useState(today)
   const [pace, setPace] = useState('normal')
@@ -71,9 +72,7 @@ export default function RouteView({ route, lang, unit, onBack, onSave, saved, ch
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <button onClick={onBack} className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-        <ArrowLeft size={15} aria-hidden /> {t(lang, 'hikeBack')}
-      </button>
+      <BackLink onClick={onBack}>{backLabel}</BackLink>
       <div>
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{route.name || t(lang, 'routesTitle')}</h1>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">
