@@ -31,6 +31,7 @@ import { TermsBar } from './components/TermsNotice'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
 import PlaceName from './components/PlaceName'
+import Glyph from './components/Glyph'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
 import WarningStrip from './components/outlook/WarningStrip'
@@ -1007,7 +1008,7 @@ ${url}`)
             {data.warning?.active && (
               <div className="home-warning bg-red-600/20 border-2 border-red-500 rounded-2xl p-5 sm:p-6 animate-pulse">
                 <div className="flex items-center gap-3">
-                  <span className="app-only text-3xl">{data.warning.type === 'thunderstorm' ? '⛈' : '🌧'}</span>
+                  <span className="app-only text-red-300"><Glyph emoji={data.warning.type === 'thunderstorm' ? '⛈' : '🌧'} size={28} /></span>
                   <div>
                     <div className="text-red-400 font-bold text-lg uppercase tracking-wide flex items-center gap-2">
                       <AlertTriangle size={18} className="shrink-0" aria-hidden /> {t(lang, 'warningTitle')}
