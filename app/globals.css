@@ -327,8 +327,10 @@ html:is([data-app], [data-returning]) .landing-view { display: none; }
 html[data-app]:not([data-returning]) .home-data.landing-view { display: block; }
 /* a returning app user sees the small loader until the resume, not the example and its "Try a city" */
 html[data-returning] .first-start { display: none; }
-/* a cold start of the app on its way to the Hiking tab used last (lib/app-tabs.js): the start page stays out of sight */
+/* a cold start of the app on its way to the Hiking tab used last (lib/app-tabs.js): the start page stays out of sight,
+   all but its small loader, which shows from the first frame while a slow line brings the Hiking screen */
 html[data-resume-tab] main.home { visibility: hidden; }
+html[data-resume-tab] main.home .returning-only { display: block; visibility: visible; }
 html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
 .returning-only { display: none; }
 html[data-returning] .returning-only { display: block; }

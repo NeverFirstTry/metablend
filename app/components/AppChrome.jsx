@@ -48,12 +48,12 @@ export default function AppChrome() {
     let off = () => {}
     let gone = false
     // a cold start that goes on to the Hiking tab used last (the boot script's mark, lib/app-tabs.js); should
-    // the screen not have changed after eight seconds, the page is loaded there
+    // the screen not have changed after fifteen seconds, the page is loaded there (a slow line can take that long, and a reload starts over)
     const resumeTo = html.dataset.resumeTab
     let resumeTimer = 0
     if (resumeTo) {
       router.replace(resumeTo)
-      resumeTimer = setTimeout(() => { if (html.dataset.resumeTab && tabOf(pagePath(window.location.pathname)) === '/') window.location.replace(resumeTo) }, 8000)
+      resumeTimer = setTimeout(() => { if (html.dataset.resumeTab && tabOf(pagePath(window.location.pathname)) === '/') window.location.replace(resumeTo) }, 15000)
     }
     onBackButton(({ canGoBack, exit }) => (canGoBack ? router.back() : exit())).then(fn => { if (gone) fn(); else off = fn })
     // push: a fresh token at every start; a tapped notification or widget opens its screen
