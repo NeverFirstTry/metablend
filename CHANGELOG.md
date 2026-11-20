@@ -40,6 +40,11 @@ All notable changes to MetaBlend. Format loosely follows
 - One address may register ten new phones an hour (counted in memory per server copy, an IPv6 line as one address). A phone that is already known registers again at every app start and is not counted.
 - The hourly and the quarter-hourly alert run handle phones oldest first and give each part its time within the function's 300 seconds: places until 150 s, planned hikes until 210 s, sending until 270 s. What a run did not reach is counted in its summary (`leftPlaces`, `leftPlans`, `leftSends`), noted in the error log, and tried by the next run. A message that was not sent is not logged as sent.
 - Open-Meteo: no new request. Registering a phone asks the database once more than before (is this phone known).
+### Added: privacy manifests for the iPhone app and its widget extension
+- Nothing changes on metablend.app or in an installed app. Ships with the next native build (the submission of 3 December).
+- Apple asks an app that uses UserDefaults to say why, in a `PrivacyInfo.xcprivacy` file, in the app and in every extension that uses it. The app now declares its own settings (reason `CA92.1`) and the app group it shares with the widgets (`1C8F.1`); the widget extension declares the app group (`1C8F.1`). Neither declares tracking. The app's file names the six data types of the App Privacy form (`store/compliance.md`), linked or not as there.
+- The app's file is added to the App target in the Xcode project; the widgets' file lies in the folder the extension is synchronised with. Written on Windows and not compiled: the first Xcode build is the test, and `docs/launch-checklist.md` says what to look at in Xcode.
+- `lib/privacy-manifest.test.js` (6 tests, 5 of them seen failing before the files existed) holds the two files, the project file and the form's data types together.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
