@@ -13,6 +13,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-19
 
+### Tools: route lists and route heights worked out locally
+- `scripts/routes/local.mjs` works out the marked routes of featured peaks and their heights on a developer's machine: the routes from Geofabrik extracts read on disk, the heights from Copernicus GLO-90 tiles, and the site's own route finder and height store make the rows. No request to the OpenStreetMap API and none to Open-Meteo. It writes files and stores nothing, so nothing a visitor sees changes.
+- Checked on 15 peaks whose list the live site already holds: the same 46 routes, 45 of them the same line point for point. Against the values worked out with Open-Meteo's heights, the ascent differs by 15 m in the median (1.7 %) and the walking time by 7 minutes (1.5 %); the largest difference is on a 64 km trail (5,690 m to 5,371 m of ascent). 21 of the 46 routes show no ascent and no time on the site today and get both.
+- Why: 175 featured peaks have no route list yet. Looking them up on the live site would be up to 1,575 requests to the OpenStreetMap API and up to 100 Open-Meteo calls a route.
+- A route that leaves its extract (a long-distance trail) is left out and counted, not stored in part.
+- `scripts/routes/load.mjs` puts those files into the database: the dev project, or production after the project ref is typed (the owner runs that). It only adds: a peak that has a route list keeps it, heights already stored for a route's line stay as they are, nothing is replaced or deleted, and a second run changes nothing. Only whole lists go in, dated from the day they were read, so the site looks them up again after a week, as after its own lookup. A peak with a route its extract cut gets no list from the loader: the site looks it up itself at the first visit and finds the heights of its whole routes stored. The heights stay for good.
+- The run for the 175 featured peaks without a list (57 extracts, 18 GB, one download at a time, none refused): 131 have marked routes (530 routes, 462 of them within the 40 km the site lists, all 462 with ascent and walking time, 35,985 heights), 41 have none within a kilometre of the summit, and on 3 every route was cut. 54 routes on 26 peaks leave their extract and were left out.
+- Loaded into the dev database first. The local site then answered seven of those peaks from the database, with the files' routes, ascent and walking times, and counted no Open-Meteo request.
+
 ### Fixed: a test that stopped passing on 19 November
 - Nothing changes on metablend.app. One test read a recorded MET Norway answer that ends on 19 November 2026; from that day on the answer held no hour ahead and the test failed, which stops every push. The test now runs on the recording's own clock (lib/open-meteo-missing.test.js).
 
