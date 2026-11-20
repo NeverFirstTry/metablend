@@ -8,7 +8,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the route screen
 - The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
 - A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
-- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark.
+- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
 - Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time

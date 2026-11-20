@@ -47,9 +47,10 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
           <BellRing size={16} aria-hidden /> {fill(t(lang, 'planRouteFor'), { day: dayWord(lang, direct, todayLocal) })}
         </button>
       ) : (
+      // neutral like Save beside it: gold is the screen's answer, the favourable start (owner, 2026-11-20)
       <button onClick={() => { setOpen(o => !o); setMsg(null) }} aria-expanded={open}
-        className="press inline-flex items-center gap-1.5 text-sm text-emerald-400 border border-emerald-400/40 rounded-full px-3 py-1.5 hover:bg-emerald-400/10">
-        <BellRing size={14} aria-hidden /> {t(lang, 'planHike')}
+        className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
+        <BellRing size={16} aria-hidden /> {t(lang, 'planHike')}
       </button>
       )}
       {open && (
