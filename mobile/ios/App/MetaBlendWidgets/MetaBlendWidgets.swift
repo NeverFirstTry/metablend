@@ -291,6 +291,15 @@ func isOld(_ fetched: Date, _ stale: Bool) -> Bool {
 
 func hilo(_ hi: String, _ lo: String) -> String { "↑ \(hi)  ↓ \(lo)" }
 
+// When a stored answer was fetched: the time, and the day too when that is not the day the entry is shown on (owner,
+// 2026-11-20); after midnight a bare time reads as today's. The hike widget's single entry is shown until its next
+// refresh, so there the day can appear up to 30 minutes after midnight.
+func fetchedTime(_ fetched: Date, on shown: Date) -> Text {
+    Calendar.current.isDate(fetched, inSameDayAs: shown)
+        ? Text(fetched, style: .time)
+        : Text(fetched, format: .dateTime.day().month(.abbreviated).hour().minute())
+}
+
 // the widget's look from the environment: built once per view
 struct Themed<Content: View>: View {
     let theme: WidgetTheme
@@ -499,7 +508,7 @@ struct WeatherWidgetView: View {
         }
         .font(.footnote).foregroundStyle(muted).lineLimit(1)
         let range = Text(hilo(p.today.hi, p.today.lo)).font(.footnote).monospacedDigit().foregroundStyle(muted)
-        let time = Text(fetched, style: .time).font(.footnote).foregroundStyle(muted)
+        let time = fetchedTime(fetched, on: entry.date).font(.footnote).foregroundStyle(muted)
         let rainWind = h == nil ? p.now.rain.flatMap { r in p.now.wind.map { (r, $0) } } : nil
         let line: String? = h == nil ? p.now.text : nil // the words under the drawing (see Glyph)
 
@@ -680,7 +689,7 @@ struct HikeWidgetView: View {
                 Text(hilo(p.hi, p.lo)).font(.footnote).monospacedDigit().foregroundStyle(ink)
             }
             .padding(.top, p.line == nil ? 10 : 6)
-            if stale { Text(fetched, style: .time).font(.footnote).foregroundStyle(muted) }
+            if stale { fetchedTime(fetched, on: entry.date).font(.footnote).foregroundStyle(muted) }
         }
     }
 

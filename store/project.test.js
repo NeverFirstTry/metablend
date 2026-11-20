@@ -103,3 +103,24 @@ test('iOS entitlements — Release builds sign with aps-environment production, 
   assert.equal(aps('App/AppRelease.entitlements'), 'production')
   for (const f of ['App/App.entitlements', 'App/AppRelease.entitlements']) assert.match(read(`mobile/ios/App/${f}`), /group\.app\.metablend/)
 })
+
+test('the app\'s own texts outside the language packs have no dash: iPhone permission texts and widget catalog, Android strings', () => {
+  const found = []
+  for (const f of ['mobile/ios/App/App/InfoPlist.xcstrings', 'mobile/ios/App/MetaBlendWidgets/Localizable.xcstrings']) {
+    for (const [key, v] of Object.entries(JSON.parse(read(f)).strings)) {
+      for (const [lang, l] of Object.entries(v.localizations ?? {})) {
+        const s = l.stringUnit?.value ?? ''
+        if (/[–—]/.test(s)) found.push(`${f} ${key} ${lang}: ${s}`)
+      }
+    }
+  }
+  const plist = read('mobile/ios/App/App/Info.plist')
+  for (const m of plist.matchAll(/<key>(NS\w+UsageDescription)<\/key>\s*<string>([^<]*)<\/string>/g)) if (/[–—]/.test(m[2])) found.push(`Info.plist ${m[1]}: ${m[2]}`)
+  const res = new URL('mobile/android/app/src/main/res/', root)
+  for (const dir of fs.readdirSync(res).filter(d => d.startsWith('values'))) {
+    const f = new URL(`${dir}/strings.xml`, res)
+    if (!fs.existsSync(f)) continue
+    for (const m of fs.readFileSync(f, 'utf8').matchAll(/<string name="(\w+)">([^<]*)<\/string>/g)) if (/[–—]/.test(m[2])) found.push(`${dir}/strings.xml ${m[1]}: ${m[2]}`)
+  }
+  assert.deepEqual(found, [])
+})

@@ -7,15 +7,18 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.SizeF;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 import app.metablend.R;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -196,7 +199,13 @@ public final class WidgetRenderer {
     private static void finish(Context c, RemoteViews v, int id, JSONObject p, Look look, String sky) {
         scenery(v, look.theme, sky);
         if (look.stale && look.at > 0) {
-            v.setTextViewText(R.id.updated, DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(look.at)));
+            // the day too when the stored answer is not from today (owner, 2026-11-20): after midnight a bare time reads as
+            // today's. shortcut: the text changes at the next refresh attempt (up to 30 minutes after midnight), when an
+            // exact switch is wanted, schedule an update for midnight
+            String when = sameDay(look.at, System.currentTimeMillis(), TimeZone.getDefault())
+                ? DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(look.at))
+                : DateUtils.formatDateTime(c, look.at, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_TIME);
+            v.setTextViewText(R.id.updated, when);
             v.setViewVisibility(R.id.updated, View.VISIBLE);
         } else {
             v.setViewVisibility(R.id.updated, View.GONE);
@@ -254,6 +263,13 @@ public final class WidgetRenderer {
     static boolean sameWords(Look look, String emoji, String line) {
         String key = conditionKey(emoji == null ? "" : emoji.replace("️", ""));
         return !key.isEmpty() && look.tx.get(key).equals(line);
+    }
+
+    static boolean sameDay(long a, long b, TimeZone tz) {
+        Calendar x = Calendar.getInstance(tz), y = Calendar.getInstance(tz);
+        x.setTimeInMillis(a);
+        y.setTimeInMillis(b);
+        return x.get(Calendar.YEAR) == y.get(Calendar.YEAR) && x.get(Calendar.DAY_OF_YEAR) == y.get(Calendar.DAY_OF_YEAR);
     }
 
     static String conditionKey(String e) {

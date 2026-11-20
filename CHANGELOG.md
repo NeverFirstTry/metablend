@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Fixed: two texts in the next native build (iPhone and Android)
+- A widget that could not refresh shows when its stored answer was fetched; when that was on an earlier day, it now shows the date too ("Nov 19, 5:27 PM" instead of "5:27 PM"), so an answer from last night does not read as today's after midnight. An answer from today keeps the bare time. On Android the date appears with the next refresh attempt, at most 30 minutes after midnight; the iPhone city widget switches at the hour (code audit, owner 2026-11-20).
+- The German text of the iPhone's location question no longer has a dash: "Wird verwendet, um Berggipfel in deiner Nähe zu finden, nur während du MetaBlend nutzt." A test now keeps dashes out of every app text outside the language packs (iPhone permission texts and widget catalog, Android strings).
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.

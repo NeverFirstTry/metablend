@@ -138,3 +138,13 @@ test('widget themes: Default, Mono, Winter and Sky with every colour role, light
   assert.match(light, /w_default_window">#117948</)
   assert.equal((SWIFT.match(/case \(\.(standard|mono|winter|sky), (true|false)\): return Palette/g) ?? []).length, 8)
 })
+
+test('widget old data: the time carries the day when the stored answer is not from the day it is shown on', () => {
+  // owner, 2026-11-20 (code audit): after midnight a bare time reads as today's
+  const swift = read('mobile/ios/App/MetaBlendWidgets/MetaBlendWidgets.swift')
+  assert.match(swift, /func fetchedTime\(_ fetched: Date, on shown: Date\) -> Text \{\s*Calendar\.current\.isDate\(fetched, inSameDayAs: shown\)\s*\? Text\(fetched, style: \.time\)\s*: Text\(fetched, format: \.dateTime\.day\(\)\.month\(\.abbreviated\)\.hour\(\)\.minute\(\)\)/)
+  assert.equal(swift.split('Text(fetched, style: .time)').length - 1, 1, 'every old-data time goes through fetchedTime')
+  assert.equal(swift.split('fetchedTime(fetched, on: entry.date)').length - 1, 2, 'the city and the hike widget')
+  const java = read('mobile/android/app/src/main/java/app/metablend/widget/WidgetRenderer.java')
+  assert.match(java, /sameDay\(look\.at, System\.currentTimeMillis\(\), TimeZone\.getDefault\(\)\)\s*\? DateFormat\.getTimeInstance\(DateFormat\.SHORT\)\.format\(new Date\(look\.at\)\)\s*: DateUtils\.formatDateTime\(c, look\.at, DateUtils\.FORMAT_SHOW_DATE/)
+})
