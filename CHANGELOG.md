@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Added: the database's size is measured every night, with an alarm at 400 MB
+- Nothing a visitor sees changes.
+- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
+- The nightly job (05:00 UTC) now reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there. At 400 MB or more it leaves a note in the error log, and `/api/health` reports that note as a problem for a quarter of an hour: the outside monitor sends its mail once a day while the database stays that full, and is free to report anything else the rest of the day.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles) on dev and then production. Without it the job runs as before and measures nothing.
+- Open-Meteo: no change.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
