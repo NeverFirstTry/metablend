@@ -22,14 +22,18 @@ description: "Use for any MetaBlend task: releases, data refresh, legal pages, d
 
 These stand for every design task; the owner should not have to repeat them. Re-read this list before sending a comparison link.
 
-- **Colour:** gold is the only accent. Green is for status only.
+- **Colour:** gold is the only accent, and on a screen it marks one thing: the main answer (the consensus temperature, the summit window, the favourable start). Selected tabs, toggles and chips get a neutral highlight, never gold (owner, 2026-11-20). Green is for status only.
+- **Who it is for:** the weekend hiker first (is my summit on, and when do I start), the day decider second, mainly on the website (owner, 2026-11-20). What is used most comes first on a screen.
 - **Website and app:** 13 px minimum, whole degrees, no countdowns.
 - **Cards:** no nested cards.
+- **Motion:** every animation has its Reduce Motion version: one rule in `app/globals.css` cuts all motion, so the resting state must be the finished picture. Ideas for new motion are listed apart from problems and are not launch work.
+- **A review measures:** an answer to a tap within 0.4 s, also on a poor connection; the number of choices on a first screen; target size (44 px) and thumb reach; order by frequency of use. `scripts/ux/walk.mjs` measures them (see Captures).
 - **Wording:** no "safe" or "sicher". No em or en dashes in UI copy: full stops and commas, a plain hyphen for ranges (`lib/wording.test.js`). All user-facing text as i18n keys in all 13 languages.
 - **Scope:** website only unless stated. Tell the owner before touching a component the app shares.
 - **Before any merge:** a before/after comparison page with desktop and phone, dark and light, and a German phone. When the owner explicitly asks for a lean comparison, that scope wins over this default. Check that every image loads before sending the link. Each part on its own branch; no merge until the owner says go. For any change to an API route (`app/api/**`): check the branch's Vercel preview deployment before main, every time (`MSYS_NO_PATHCONV=1 npx vercel curl "/api/..." --deployment <preview url> --scope never-s-projects1 -- -s -D -`, cold and warm); the 2026-11-09 forecast outage passed tests, lint and build.
   - Run `./scripts/check-phone-layout.mjs` (also enforced in CI). Send its output to a file, never through a filter: a pipe holds the output until the run ends, and a long run then looks dead.
 - **Captures:** a new folder per run, language pinned by cookie. Stop only processes this session started, by the process ID it got when starting them, never whatever holds a port: another session's server or browser may hold it. A busy port means pick another one. First grep the served CSS for the change (stale: delete `.next/dev`) and re-pin fixtures that expire or that the diff computes. Ready means visible and complete (all sources), not just present.
+  - **UX walk:** `node scripts/ux/walk.mjs <config>` walks every screen of a local build (never production) in one configuration (view, width, theme, language) and saves slices and measures; its header has the steps. Before a first-visit capture, ask the start page once and wait for its rebuild: its example forecast is fetched while the page is built. `ONLY=faults` runs the measures against planted faults; do that before a green result counts. `native-*` configurations show the app-only parts through a stand-in for the phone's bridge, so no system dialog is seen. `scripts/ux/report-build.mjs` builds a review (`docs/ux-review.md`) and its page from one data file.
 
 ## Tests
 
