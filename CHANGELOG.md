@@ -3,6 +3,41 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-20
+
+### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
+- When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
+- Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
+- Behind it: a page is rebuilt at the shortest storage time among its own requests, and that time cannot be set after the answers are in. So when the forecast comes marked as the last good answer, the page asks the same address once more under 30 minutes and uses that answer (lib/hike/summit-fetch.js). Two tests: the request itself, and the page built for real with such an answer, which fails when no request names 30 minutes.
+- Seen on the built site, with a stand-in that marks one peak's forecast as the last good answer: that page is served with `s-maxage=1800`, a normal one with `s-maxage=21600`, and the marked page's second request was answered from the copy just fetched (one request reached the forecast address, not two).
+### Changed: a peak's route list is kept 30 days before OpenStreetMap is asked again
+- The marked routes up a peak are looked up from OpenStreetMap once and then kept. Until now a list counted for a week; it now counts for 30 days (owner, 20 November). Marked routes rarely change, and a public service should be asked as little as possible: the site sent about 16 requests a day to the OpenStreetMap API (125 in eight days), and a peak that is visited every week is now looked up once a month instead of four times.
+- The price: a route that really changed (moved, new or removed in OpenStreetMap) shows up to 30 days late, where it was up to 7. The CDN may add up to 8 days, as before. Closures were never read and are not affected.
+- A lookup in which one route did not answer is still tried again after one day.
+- The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
+- The lists loaded on 19 November now count until 19 December.
+- Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+### Added: the UX walk, and the review criteria in the project skill
+- Nothing changes on metablend.app.
+- `scripts/ux/` holds the tools of the UX review of 20 November: `walk.mjs` walks every screen of a local build in one configuration (view, width, theme, language) and saves pictures and measures (control sizes, names for screen readers, contrast, text sizes, cut-off text, what is gold, response time after a tap); `report-build.mjs` builds a review and its page from one data file; `summary.mjs` lists the measured items. `ONLY=faults` runs the measures against a page of planted faults. The walk writes outside the repository (the system's temp folder).
+- The project skill gained the owner's rules of 20 November: gold marks the main answer of a screen and nothing else (selected tabs, toggles and chips get a neutral highlight); the weekend hiker is the main persona, the day decider the second; every animation has its Reduce Motion version; a review measures the answer to a tap (0.4 s), the choices on a first screen, target size and thumb reach, and order by use.
+
+### Tools: route lists and route heights worked out locally
+- `scripts/routes/local.mjs` works out the marked routes of featured peaks and their heights on a developer's machine: the routes from Geofabrik extracts read on disk, the heights from Copernicus GLO-90 tiles, and the site's own route finder and height store make the rows. No request to the OpenStreetMap API and none to Open-Meteo. It writes files and stores nothing, so nothing a visitor sees changes.
+- Checked on 15 peaks whose list the live site already holds: the same 46 routes, 45 of them the same line point for point. Against the values worked out with Open-Meteo's heights, the ascent differs by 15 m in the median (1.7 %) and the walking time by 7 minutes (1.5 %); the largest difference is on a 64 km trail (5,690 m to 5,371 m of ascent). 21 of the 46 routes show no ascent and no time on the site today and get both.
+- Why: 175 featured peaks have no route list yet. Looking them up on the live site would be up to 1,575 requests to the OpenStreetMap API and up to 100 Open-Meteo calls a route.
+- A route that leaves its extract (a long-distance trail) is left out and counted, not stored in part.
+- `scripts/routes/load.mjs` puts those files into the database: the dev project, or production after the project ref is typed (the owner runs that). It only adds: a peak that has a route list keeps it, heights already stored for a route's line stay as they are, nothing is replaced or deleted, and a second run changes nothing. Only whole lists go in, dated from the day they were read, so the site looks them up again after 30 days, as after its own lookup (the keeping time of a list went from a week to 30 days in this same deploy). A peak with a route its extract cut gets no list from the loader: the site looks it up itself at the first visit and finds the heights of its whole routes stored. The heights stay for good.
+- The run for the 175 featured peaks without a list (57 extracts, 18 GB, one download at a time, none refused): 131 have marked routes (530 routes, 462 of them within the 40 km the site lists, all 462 with ascent and walking time, 35,985 heights), 41 have none within a kilometre of the summit, and on 3 every route was cut. 54 routes on 26 peaks leave their extract and were left out.
+- Loaded into the dev database first. The local site then answered seven of those peaks from the database, with the files' routes, ascent and walking times, and counted no Open-Meteo request.
+
+### Docs: a setup guide for our own Open-Meteo server at home
+- `docs/home-server.md`: step by step for the mini-ITX system (i5-7500, 16 GB, 500 GB NVMe, Ubuntu Server): Docker, the Open-Meteo containers, the 40 data folders and 56 variables the site's requests read today with the download a day and the disk each needs, the Cloudflare tunnel locked with a service token, updates, and what the site does when the server is down. Nothing a visitor sees changes: the site asks the public service until the settings named in the guide are set in Vercel.
+- 500 GB is enough either way (about 65 GB for a Europe box, about 125 GB for the world). The limits are the line (131 or 282 GB a day) and the NVMe's rated life (48 or 103 TB written a year).
+- `scripts/home-server/check.sh` asks a server the twelve requests the site makes today, twice each, with the answer code and the seconds.
+- Decided on 2026-11-19 and written into step 10: before our server answers first, the empty answers for places outside a Europe box are fixed, by a worldwide sync of the global models or by the switch passing an empty answer on to the public service.
+
+
 ## 2026-11-19
 
 ### Fixed: a test that stopped passing on 19 November
