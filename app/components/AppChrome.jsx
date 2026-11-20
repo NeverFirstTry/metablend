@@ -15,7 +15,7 @@ import { restoreAppMark } from '@/lib/app-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { pathFromAppUrl } from '@/lib/deep-link'
 import { watchTextScale } from '@/lib/text-scale'
-import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp, keepStartTab } from '@/lib/app-tabs'
+import { tabOf, tabHref, rememberTabUrl, lastTabUrls, retapScrollsUp, keepStartTab, endResume } from '@/lib/app-tabs'
 import { repairHeights } from '@/lib/route-store'
 import TermsNotice from './TermsNotice'
 
@@ -88,6 +88,8 @@ export default function AppChrome() {
   const activeTab = tabOf(path)
   const leave = (e, href) => {
     tapHaptic()
+    // a tab tapped while a cold start still goes on to Hiking: that tap wins, and the start page shows again
+    endResume()
     // the open tab tapped again at its start: back to the top (smooth unless reduced motion — globals.css)
     if (retapScrollsUp(href, activeTab, window.location)) { e.preventDefault(); window.scrollTo({ top: 0 }); return }
     // coming back to Hiking finds the peak or route you had open (lib/app-tabs.js)
