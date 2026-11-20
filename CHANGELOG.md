@@ -29,6 +29,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly job (05:00 UTC) now reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there. At 400 MB or more it leaves a note in the error log, and `/api/health` reports that note as a problem for a quarter of an hour: the outside monitor sends its mail once a day while the database stays that full, and is free to report anything else the rest of the day.
 - Needs `supabase/database-size.sql` (one small function, not callable by the public roles) on dev and then production. Without it the job runs as before and measures nothing.
 - Open-Meteo: no change.
+### Changed: the privacy notice, two sentences (German first, then the 12 translations)
+- "Technical data": our server counts the requests from an IP address in memory "for at most one day at a time"; it said "one hour". Two counts of this deploy run for a day (new places per address, stored forecasts per address); every other count still runs a minute or an hour. The address is still not stored.
+- "What stays on your device": saved and recently opened peaks, with the summit window of the forecast last viewed, join the list. They are kept in the browser's storage, not in cookies, so they do not reach our server.
+- `lib/legal-pages.test.js` pins both sentences word for word in all 13 languages.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
