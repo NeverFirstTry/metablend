@@ -960,9 +960,9 @@ ${url}`)
         {loading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} />}
 
 
-        {/* a returning visitor's forecast on the website (first paint, until the effect starts it) */}
+        {/* a returning visitor's forecast, on the website and in the app (first paint, until the effect starts it) */}
         {(!data || isExample) && !loading && !error && !compareMode && (
-          <div className="web-only returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
+          <div className="returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
         )}
 
         {/* Offline banner */}

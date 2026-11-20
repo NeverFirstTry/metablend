@@ -324,7 +324,9 @@ html[data-first-use] .first-use-hide { display: none; }
    them before first paint (lib/app-client.js); without a script, the landing page */
 html:is([data-app], [data-returning]) .landing-view { display: none; }
 /* the app shows the example forecast too, the product instead of a pitch (UX review F1) */
-html[data-app] .home-data.landing-view { display: block; }
+html[data-app]:not([data-returning]) .home-data.landing-view { display: block; }
+/* a returning app user sees the small loader until the resume, not the example and its "Try a city" */
+html[data-returning] .first-start { display: none; }
 html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
 .returning-only { display: none; }
 html[data-returning] .returning-only { display: block; }

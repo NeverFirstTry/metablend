@@ -8,6 +8,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the app's first screen shows the product, not a pitch
 - After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
 - "Use my location" is offered once: the location button under the search field steps aside while the card offers the same.
+- A returning app user no longer sees the example forecast and Try a city for a moment before their own place opens: the app marks its returning users before the first frame, as the website does, and they see the small loader instead.
 
 ### Changed: the buttons around the search field say what they do (tester's three points)
 - On a phone the three buttons under the search field carry a word: "Location", "Compare" and "Save" ("Saved" once the place is saved), in all 13 languages. Compare has a new icon, two columns, instead of the swap arrows.
