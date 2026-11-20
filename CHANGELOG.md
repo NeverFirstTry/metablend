@@ -9,7 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The region buttons under Rankings lose their flags and globes, and the weather choices in Feedback their weather emoji ("Sunny" instead of "☀️ Sunny"), in all 13 languages.
 - Under More, an empty list of planned hikes now says "No planned hikes. Open a peak and tap “Plan a hike”." instead of showing a bell emoji.
 - The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
-- The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none" under Weather: in a METAR that means no significant weather, not a missing value.
+- The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
 - Notification titles keep their emoji: they are notifications, not the interface.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours

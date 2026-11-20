@@ -1008,7 +1008,7 @@ ${url}`)
             {data.warning?.active && (
               <div className="home-warning bg-red-600/20 border-2 border-red-500 rounded-2xl p-5 sm:p-6 animate-pulse">
                 <div className="flex items-center gap-3">
-                  <span className="app-only text-red-300"><Glyph emoji={data.warning.type === 'thunderstorm' ? '⛈' : '🌧'} size={28} /></span>
+                  <span className="app-only"><Glyph emoji={data.warning.type === 'thunderstorm' ? '⛈' : '🌧'} size={28} /></span>
                   <div>
                     <div className="text-red-400 font-bold text-lg uppercase tracking-wide flex items-center gap-2">
                       <AlertTriangle size={18} className="shrink-0" aria-hidden /> {t(lang, 'warningTitle')}
