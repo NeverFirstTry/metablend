@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { ArrowLeft, Clock, Wind, Snowflake, Zap, CloudOff, RotateCcw } from 'lucide-react'
+import { Clock, Wind, Snowflake, Zap, CloudOff, RotateCcw } from 'lucide-react'
+import BackLink from '../BackLink'
 import { t, tn } from '@/lib/i18n'
 import { tempFormatter, deltaFormatter, spanFormatter } from '@/lib/outlook/text'
 import { addDays } from '@/lib/localtime'
@@ -80,9 +81,7 @@ export default function PeakView({ peak, lang, unit, onBack }) {
 
   return (
     <div className="space-y-4 animate-fade-in">
-      <button onClick={onBack} className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-        <ArrowLeft size={15} aria-hidden /> {t(lang, 'hikeBack')}
-      </button>
+      <BackLink onClick={onBack}>{t(lang, 'hiking')}</BackLink>
       <div>
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight">{peak.name}</h1>
         <p className="text-zinc-500 text-xs tracking-wider mt-1">

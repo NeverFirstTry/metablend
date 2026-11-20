@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Changed: the way back at the top of a page is a real target and names where it goes
+- The back link at the top of Rankings, Heatmap, Planner, Aviation, an airport, the legal pages, a peak and a route is now 44 px high instead of a 20 px line of text, easier to hit with a thumb.
+- It names where it leads: in the app, the pages opened from More lead back to More and say "More" (they led to the forecast and said "Back"); an airport says "Aviation"; a peak says "Hiking".
+- A route opened from a peak says the peak's name ("Großglockner") instead of "All peaks"; an imported route says "Hiking".
+
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
