@@ -4,7 +4,7 @@
 // route's line stay as they are, and nothing is replaced or deleted, so a second run changes nothing.
 // Only whole lists go in: a peak with a route its extract cut gets no list here, the site looks it up itself
 // at the first visit (its heights go in all the same).
-// The site then finds the list (for a week, as after its own lookup) and the heights (for good) in the
+// The site then finds the list (for 30 days, as after its own lookup) and the heights (for good) in the
 // database and asks neither OpenStreetMap nor Open-Meteo for them.
 // A list's date is its file's: copy the folder with the files' times kept (cp -p).
 //   node scripts/routes/load.mjs --from=<folder of peak files>                 the dev database
