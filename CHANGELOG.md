@@ -23,6 +23,11 @@ All notable changes to MetaBlend. Format loosely follows
 - For a visitor nothing changes: every forecast is answered as before.
 - Every forecast our server has to build writes about 20 rows for the scoring and one for the feed. One address may have 100 such forecasts written in a day; beyond that its forecasts are still answered and nothing is written for them. Counted in memory per server copy and forgotten after a day. The site's own readers (widget feed, share card, alert run) share a count of 1,000.
 - Why: the database's plan holds 500 MB and stood at 348 MB on 20 November; one address asking for a new town 40 times a minute wrote about 0.4 MB a minute.
+### Added: the database's size is measured every night, with an alarm at 400 MB
+- Nothing a visitor sees changes.
+- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
+- The nightly job (05:00 UTC) now reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there. At 400 MB or more it leaves a note in the error log, and `/api/health` reports that note as a problem for a quarter of an hour: the outside monitor sends its mail once a day while the database stays that full, and is free to report anything else the rest of the day.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles) on dev and then production. Without it the job runs as before and measures nothing.
 - Open-Meteo: no change.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
