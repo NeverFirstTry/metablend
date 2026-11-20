@@ -49,6 +49,12 @@ All notable changes to MetaBlend. Format loosely follows
 - Open-Meteo: unchanged at most one request (three models) when a page is built; there are fewer builds.
 - Known limit: a page built during an Open-Meteo outage from the peak's last good answer, which is marked with its time, is kept six hours like any other.
 
+### Docs: a setup guide for our own Open-Meteo server at home
+- `docs/home-server.md`: step by step for the mini-ITX system (i5-7500, 16 GB, 500 GB NVMe, Ubuntu Server): Docker, the Open-Meteo containers, the 40 data folders and 56 variables the site's requests read today with the download a day and the disk each needs, the Cloudflare tunnel locked with a service token, updates, and what the site does when the server is down. Nothing a visitor sees changes: the site asks the public service until the settings named in the guide are set in Vercel.
+- 500 GB is enough either way (about 65 GB for a Europe box, about 125 GB for the world). The limits are the line (131 or 282 GB a day) and the NVMe's rated life (48 or 103 TB written a year).
+- `scripts/home-server/check.sh` asks a server the twelve requests the site makes today, twice each, with the answer code and the seconds.
+- Decided on 2026-11-19 and written into step 10: before our server answers first, the empty answers for places outside a Europe box are fixed, by a worldwide sync of the global models or by the switch passing an empty answer on to the public service.
+
 ## 2026-11-17
 
 ### Fixed: a summit page no longer calls yesterday "Today"
