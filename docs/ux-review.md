@@ -16,6 +16,7 @@ Report only: no code was changed for it. Written by the Fable session so that it
 - **App, first start:** a logo, the line "One forecast from up to 20 sources", an offer to use the location, a search field, two buttons without words and a pitch with three feature cards. No temperature, no rain, no mountain. The user understands "a weather app that wants something from me first".
 - **App, once a place is chosen:** "Vienna, Austria", 10°, "Partly cloudy", "87% agree" and the sentence "Most of the 19 sources agree on 10-11°." That sentence is the product in one line and it works. Around it sit thirteen controls of which seven have no words.
 - **Hiking tab:** a search field and an index of 13 mountain regions. Nothing shows what the tab can tell a hiker.
+- **Website, first visit:** an example forecast for Vienna, with one line that says so ("Example: Vienna · search your place below") and the offer to use the location. The product is on the screen at once. On a phone the header rows come first and the temperature starts at y=530 of 844 (W1).
 - **Website, with the forecast:** the same forecast, with words on the buttons. Tidy.
 
 So the answer is good and the way to it is cluttered. Most entries below remove something or put a word on it.
@@ -204,6 +205,10 @@ Thirteen entries, all small or medium, all in the app:
 ![F1: The useful part, "Try a city", is on the second screen](ux-review/F1-2.png)
 
 *The useful part, "Try a city", is on the second screen*
+
+![F1: The website's first visit: an example forecast, marked as one](ux-review/F1-3.png)
+
+*The website's first visit: an example forecast, marked as one*
 
 #### F2. "Use my location" is offered twice, 60 px apart
 
@@ -957,14 +962,18 @@ The dev database has equal weights for every source, so the order seen says litt
 
 #### W1. At phone width the header takes three rows before the page begins
 
-- **What is wrong:** Logo. Then °C, °F, a sun, the language and a download arrow. Then Rankings, Heatmap, Planner, Hiking, Aviation. Then two lines of tagline. The search field starts at y=220, the temperature at y=440. The five menu links are 20 px high.
-- **Why it matters:** A phone visitor from a search result sees settings and a menu before any weather.
+- **What is wrong:** Logo. Then °C, °F, a sun, the language and a download arrow. Then Rankings, Heatmap, Planner, Hiking, Aviation. Then two lines of tagline. The search field starts at y=220, the temperature at y=440. On a first visit the "Example" line comes on top of that: the temperature starts at y=530 and the terms bar covers the last 110 px. The five menu links are 20 px high.
+- **Why it matters:** A phone visitor from a search result sees settings and a menu before any weather. On a first visit the example, which is the best thing the page has, gets the narrow strip between the header and the terms bar.
 - **Suggested fix:** Units, appearance and language into one menu. The five links into a row that scrolls or the same menu. Links 44 px high.
 - **Effort:** medium. **Priority:** After launch.
 
 ![W1: The website on a phone](ux-review/W1.png)
 
 *The website on a phone*
+
+![W1: First visit on a phone](ux-review/W1-2.png)
+
+*First visit on a phone*
 
 #### W2. A gold arrow in the header with no word
 
@@ -1050,12 +1059,12 @@ On the website at phone width another 20 are added, mainly the five menu links a
 - **"Dry for the rest of today, up to 12° at 12:00"** and "Dry for the next 2 hours": the answer before the chart.
 - **Route screen:** "No favourable start today. Next favourable day: Sunday, start 07:30." That is exactly what a hiker wants to read.
 - **The sentence after planning** ("The summit window comes the evening before at 18:00, or at 06:00 on the day") and the one under the notification switch ("Turning them off deletes your home city, your settings and your planned hikes from our server right away"). Plain and honest.
+- **The website's first visit:** an example forecast with one line that says it is an example. It is the model for the app's first start (F1).
 - **The Planner's result,** the website's hiking teaser with one live peak, and the Support page.
 - **Light and dark** are the same design in two colourings. Nothing breaks in either.
 
 ## Not seen
 
-- **The website's first page for a new visitor.** The local build had no example forecast in it when the walks ran, so that view is not judged here.
 - **Anything the phone itself draws:** the permission dialogs, a real notification, the widgets, the share sheet, the keyboard, swipe-back, the Android back button.
 - **A real phone.** Response times come from a desktop browser slowed down to a mid-range phone, not from a device.
 - **A real screen reader.** Names and roles were read from the browser's accessibility tree, which is what VoiceOver and TalkBack are given; how it sounds was not heard.
