@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Fixed: a made-up address can never count as the site's own jobs
+- Nothing a visitor sees changes.
+- Limits that count by visitor address give the site's own jobs a count of their own, under a fixed name. The address comes from a request header, which the platform writes on Vercel. A value in it that is no address now counts under one fixed name of its own and can never equal the jobs' name (found by the automated security review of 20 November).
+- Open-Meteo: no change.
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
