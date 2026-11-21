@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Fixed: GeoSphere no longer says "Clear" whenever it is dry
+- In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
+- GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
+- Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).

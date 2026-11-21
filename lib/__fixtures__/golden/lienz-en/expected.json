@@ -70,7 +70,7 @@
         "feelsLike": 5.2,
         "rainPct": 0,
         "windKmh": 2,
-        "condition": "Clear",
+        "condition": "Dry",
         "responseMs": 0
       },
       {
@@ -356,7 +356,7 @@
         "temp": 5.2,
         "rain_pct": 0,
         "wind_kmh": 2,
-        "condition": "Clear",
+        "condition": "Dry",
         "region": "europe"
       },
       {
