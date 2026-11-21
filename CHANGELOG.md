@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the caption of store screen 3 (owner 2026-11-21)
+- App Store and Google Play, screen 3: "195 peaks, from famous to nearby", German "195 Gipfel, von berühmt bis um die Ecke", the other 11 languages in the same spirit (store/captions.json). "Popular peaks" now stands above "Near you" on that screen, so "nearest first" no longer fits.
+- The pictures follow at the store run of 28 November; the store texts are unchanged.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
