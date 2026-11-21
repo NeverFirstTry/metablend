@@ -53,6 +53,9 @@ All notable changes to MetaBlend. Format loosely follows
 - A route opened from a peak's list is taken from that list, so its title and map show at once.
 ### Changed: the website's header on a phone is one row
 - On a phone the website's header is now the logo and a Menu button. The menu holds the five pages as rows big enough for a thumb, and the unit, theme and language settings. It took three rows before any weather. From laptop width up the header is unchanged. In all 13 languages.
+### Added: a first-time hiker sees three peaks with today's summit window
+- In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
+- Only a phone with no saved or recent peak asks for them, and no new Open-Meteo request: they are the forecasts the summit pages already keep. The names show at once, the windows as they arrive.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
