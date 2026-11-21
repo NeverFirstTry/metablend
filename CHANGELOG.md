@@ -13,6 +13,10 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed: after midnight the hike widget shows each day its own summit window
 - A planned hike's widget, read at night from a summit forecast made before midnight, showed "No daylight left today" for the new day and gave the day after it the new day's window, in green. Each window now stays with its own day. A day the stored forecast has no window for shows the day's weather without a verdict until the forecast is renewed (at most about two hours).
 - Server only: the widgets on the phones need no update.
+### Fixed: in the app, a peak's "Today" is the reader's day, not the day the forecast was made
+- When a summit forecast was kept through an outage, or made before midnight and opened after it, the app's peak view called the day before "Today" and showed what was left of that day's window. The summit pages were corrected for this on 17 November; the app's view was not.
+- Today and Tomorrow now go by the day it is at the summit. Each day shows its own window; the Week tab starts at today. After midnight the peak opens on Today with its window, where it opened on the day after.
+- A phone set to a date the forecast does not cover is not believed: the forecast is then shown as it is.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
