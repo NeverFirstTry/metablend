@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the route screen
+- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
+- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
+- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
+- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
@@ -102,16 +108,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Under More, an empty list of planned hikes now says "No planned hikes. Open a peak and tap “Plan a hike”." instead of showing a bell emoji.
 - The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
 - The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
-
-### Changed: the route screen
-- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
-- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
-- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
-- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
-
-### Changed: Plan a hike says what it does, and a removed route can be brought back
-- Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
-- Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
 
 ### Changed: the way back at the top of a page is a real target and names where it goes
 - The back link at the top of Rankings, Heatmap, Planner, Aviation, an airport, the legal pages, a peak and a route is now 44 px high instead of a 20 px line of text, easier to hit with a thumb.
