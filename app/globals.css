@@ -771,3 +771,9 @@ html:not([data-app]) .home-warning { animation: none; }
   .recent-chip, .recent-chip > button:first-child, .recent-clear { min-height: 44px; }
   .recent-x { width: 44px; height: 44px; margin: 0; }
 }
+/* every button, tab, picker and chip link at least 44 px high on a touch screen (UX review X2: 79 controls in the
+   app view were under it); small text links in running text (credits, legal) stay as they are */
+@media (pointer: coarse) {
+  main button, main [role="tab"], main select, .tap-target { min-height: 44px; }
+  .leaflet-touch .leaflet-bar a { width: 44px; height: 44px; line-height: 44px; }
+}

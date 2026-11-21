@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: every button is big enough for a thumb
+- On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time

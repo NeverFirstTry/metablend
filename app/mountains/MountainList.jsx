@@ -25,7 +25,7 @@ export default function MountainList({ groups, total }) {
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-3">{t(lang, `region_${g.region}`)}</h2>
             <ul className="flex flex-wrap gap-2 text-sm">
               {g.peaks.map(p => (
-                <li key={p.id}><Link prefetch={false} href={`/mountains/${p.id}`} className="press inline-block rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
+                <li key={p.id}><Link prefetch={false} href={`/mountains/${p.id}`} className="tap-target press inline-flex items-center gap-1.5 rounded-lg border border-zinc-800 px-3 py-1.5 hover:border-emerald-400">{p.name} <span className="text-zinc-500">{p.elev} m</span></Link></li>
               ))}
             </ul>
           </section>
