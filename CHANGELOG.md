@@ -58,6 +58,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Only a phone with no saved or recent peak asks for them, and no new Open-Meteo request: they are the forecasts the summit pages already keep. The names show at once, the windows as they arrive.
 ### Changed: every button is big enough for a thumb
 - On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
+### Changed: the mountain section has one name
+- The app's tab, the website's menu and the section's page title now all say "Mountains" (German "Berge"), the word the footer already used. They said "Hiking" and "Mountain weather". In all 13 languages; the tester page and the notes for App Review name the tab the same way.
+- Kept as they are: "a hike", "Plan a hike" and "Hike alerts" (the activity, not the section), and the search titles of the pages. The device checklist and docs/how-it-works.md name the tab "Mountains" too (owner kept the name, 2026-11-21).
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
