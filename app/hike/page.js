@@ -6,6 +6,7 @@ import { isAppRequest } from '@/lib/app-client'
 import { hikeApiPath } from '@/lib/hike/params'
 import { storedPath, STORED_SECONDS, teaserWindow } from '@/lib/hike/summit-props'
 import { windowText, windowTone } from '@/lib/hike/text'
+import { FIRST_PEAKS, firstPeakRows } from '@/lib/hike/first-peaks'
 import { t, detectLang, LANGUAGES } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import Footer from '../components/Footer'
@@ -44,6 +45,17 @@ async function liveWindow(p) {
   }
 }
 
+// the first-time peaks in the app (lib/hike/first-peaks.js): the same stored copies, at most 2.5 s each, so a slow
+// forecast source never holds the Hiking tab; a peak whose copy did not come shows without a window
+async function storedAnswer(p) {
+  try {
+    const res = await fetch(`${BASE}${storedPath(hikeApiPath(p))}`, { next: { revalidate: STORED_SECONDS }, signal: AbortSignal.timeout(2500) })
+    return res.ok ? await res.json() : null
+  } catch {
+    return null
+  }
+}
+
 const shell = children => (
   <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
     <div className="max-w-3xl mx-auto">{children}</div>
@@ -55,7 +67,8 @@ export default async function HikePage({ searchParams }) {
   const h = await headers()
   const appParam = typeof sp?.app === 'string' ? sp.app : null
   if (isAppRequest({ userAgent: h.get('user-agent') ?? '', cookie: h.get('cookie') ?? '', appParam })) {
-    return shell(<><AppFlag value={appParam} /><HikeApp /></>)
+    const first = firstPeakRows(featured, await Promise.all(FIRST_PEAKS.map(id => storedAnswer(featured.find(p => p.id === id)))))
+    return shell(<><AppFlag value={appParam} /><HikeApp firstPeaks={first} /></>)
   }
 
   const saved = (await cookies()).get('metablend_lang')?.value
