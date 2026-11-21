@@ -189,6 +189,13 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   const climates = await supabase.from('place_climate').delete().lt('fetched_at', new Date(Date.now() - 400 * 86_400_000).toISOString())
   if (climates.error && climates.error.code !== 'PGRST205') await logError('cleanup.place-climate', climates.error)
 
+  // The database's size (supabase/database-size.sql), once a night after the deletes: in the job's summary,
+  // so the growth per day can be read from the job log. No alarm from here: that is /api/health/db's, which a
+  // monitor of its own asks. The function may not exist yet: then there is no size.
+  const size = await supabase.rpc('database_size')
+  const databaseMb = typeof size.data === 'number' ? Math.round(size.data / 1048576) : null
+  if (size.error && size.error.code !== 'PGRST202') await logError('cleanup.database-size', size.error)
+
   let validation
   try {
     validation = await runMeteostatValidation()
@@ -208,12 +215,12 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
 
   const failed = deletes.find(d => d.error)
   if (failed) {
-    return Response.json({ error: failed.error.message, validation, outlook }, { status: 500 })
+    return Response.json({ error: failed.error.message, validation, outlook, databaseMb }, { status: 500 })
   }
 
   // the night's outlook counts as plain numbers: the job log keeps numbers, not nested objects
   const counts = outlook && !outlook.error
     ? { outlookDue: outlook.snapshots, outlookScored: outlook.scored, outlookExpired: outlook.expired, outlookWaiting: outlook.waiting, outlookStations: outlook.stations, outlookRequests: outlook.requests, outlookRetries: outlook.retries, outlookTruncated: outlook.truncated, outlookStationsLeft: outlook.stationsLeft, outlookStationsFailed: outlook.stationsFailed }
     : {}
-  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook, ...counts })
+  return Response.json({ ok: true, cutoff, retentionCutoff, validation, outlook, databaseMb, ...counts })
 }))
