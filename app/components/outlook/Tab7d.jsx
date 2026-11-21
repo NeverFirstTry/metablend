@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Thermometer, CloudRain, AlertTriangle } from 'lucide-react'
+import { Thermometer, CloudRain, AlertTriangle, ChevronDown } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, headlineTone, dayPhrase, fill } from '@/lib/outlook/text'
@@ -34,6 +34,8 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'd7', h, { todayLocal, ...fmt })} tone={headlineTone('d7', h)} />
+      {/* what the dots mean and that a day opens, above the list where it is read first (UX review T1) */}
+      <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       <div className="@container bg-zinc-900 border border-zinc-800 rounded-2xl p-2 sm:p-4">
         {days.map(d => {
           const open = openDay === d.date
@@ -62,6 +64,8 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                 <span className="w-9 shrink-0 tabular-nums">{fmt.fmtTemp(d.tempMax)}</span>
                 <span className="w-12 shrink-0 text-right tabular-nums" style={{ color: 'var(--info)' }}>{d.rainPct != null ? <Valued kind="rain">{d.rainPct}%</Valued> : '–'}</span>
                 <Agree level={d.agree} lang={lang} />
+                {/* a day with hours opens: the chevron says so, and turns while it is open */}
+                {dayHours.length ? <ChevronDown size={16} className={`shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden /> : <span className="w-4 shrink-0" />}
               </button>
               {d.spread > 4 && (
                 <div className="px-2 pb-2 -mt-1 text-xs" style={{ color: 'var(--warn)' }}>
@@ -73,7 +77,6 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
           )
         })}
       </div>
-      <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       {(w1 != null || rd?.of > 0) && (
         <TileGrid>
           {w1 != null && (

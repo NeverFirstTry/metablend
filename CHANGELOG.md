@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the week list shows that a day opens
+- The line that explains the agreement dots now stands above the week list instead of under it, and every day that has hours ends in a chevron that turns while the day is open.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
