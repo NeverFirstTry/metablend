@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-21
 
 ### Fixed: "feels like" is no longer pulled towards the air temperature
-- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature. In Austria that was up to seven of the sources.
+- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature.
 - Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
 - When no source has the value, the line shows the air temperature, as before.
 - Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
