@@ -34,6 +34,7 @@ const ATTRIBUTION = {
     osm: 'maps, routes, and the summits and huts in the hiking search (how our copy of them is made: {link})',
     routeMaps: 'route maps in the app',
     geonames: 'towns for the hiking search (summits and huts around a town)',
+    heights: 'heights along hiking routes (ascent, walking time and the height profile)',
     overture: 'country boundaries, by which each summit and hut is given its country',
   },
   de: {
@@ -50,6 +51,7 @@ const ATTRIBUTION = {
     osm: 'Karten, Routen sowie die Gipfel und Hütten in der Wandersuche (wie unsere Kopie davon entsteht: {link})',
     routeMaps: 'Routenkarten in der App',
     geonames: 'Orte für die Wandersuche (Gipfel und Hütten rund um einen Ort)',
+    heights: 'Höhen entlang der Wanderrouten (Aufstieg, Gehzeit und Höhenprofil)',
     overture: 'Ländergrenzen, nach denen jeder Gipfel und jede Hütte ihr Land erhält',
   },
   fr: {
@@ -66,6 +68,7 @@ const ATTRIBUTION = {
     osm: 'cartes, itinéraires, ainsi que les sommets et refuges de la recherche de randonnée (comment notre copie est produite : {link})',
     routeMaps: 'cartes d’itinéraires dans l’application',
     geonames: 'localités pour la recherche de randonnée (sommets et refuges autour d’une localité)',
+    heights: 'altitudes le long des itinéraires de randonnée (dénivelé, temps de marche et profil altimétrique)',
     overture: 'frontières des pays, d’après lesquelles chaque sommet et chaque refuge reçoit son pays',
   },
   es: {
@@ -82,6 +85,7 @@ const ATTRIBUTION = {
     osm: 'mapas, rutas y las cumbres y refugios de la búsqueda de senderismo (cómo se elabora nuestra copia: {link})',
     routeMaps: 'mapas de rutas en la app',
     geonames: 'localidades para la búsqueda de senderismo (cumbres y refugios cerca de una localidad)',
+    heights: 'alturas a lo largo de las rutas de senderismo (desnivel, tiempo de marcha y perfil de altura)',
     overture: 'fronteras de los países, según las cuales cada cumbre y cada refugio recibe su país',
   },
   it: {
@@ -98,6 +102,7 @@ const ATTRIBUTION = {
     osm: 'mappe, percorsi e le cime e i rifugi della ricerca escursioni (come viene creata la nostra copia: {link})',
     routeMaps: 'mappe dei percorsi nell’app',
     geonames: 'località per la ricerca escursioni (cime e rifugi intorno a una località)',
+    heights: 'altitudini lungo i percorsi escursionistici (dislivello, tempo di percorrenza e profilo altimetrico)',
     overture: 'confini dei paesi, in base ai quali ogni cima e ogni rifugio riceve il suo paese',
   },
   nl: {
@@ -114,6 +119,7 @@ const ATTRIBUTION = {
     osm: 'kaarten, routes en de toppen en hutten in de wandelzoekfunctie (hoe onze kopie daarvan wordt gemaakt: {link})',
     routeMaps: 'routekaarten in de app',
     geonames: 'plaatsen voor de wandelzoekfunctie (toppen en hutten rond een plaats)',
+    heights: 'hoogtes langs wandelroutes (stijging, looptijd en hoogteprofiel)',
     overture: 'landsgrenzen, op basis waarvan elke top en elke hut zijn land krijgt',
   },
   pl: {
@@ -130,6 +136,7 @@ const ATTRIBUTION = {
     osm: 'mapy, trasy oraz szczyty i schroniska w wyszukiwarce górskiej (jak powstaje nasza kopia: {link})',
     routeMaps: 'mapy tras w aplikacji',
     geonames: 'miejscowości do wyszukiwarki górskiej (szczyty i schroniska wokół miejscowości)',
+    heights: 'wysokości wzdłuż tras pieszych (podejście, czas przejścia i profil wysokości)',
     overture: 'granice państw, według których każdy szczyt i każde schronisko otrzymuje swój kraj',
   },
   cs: {
@@ -146,6 +153,7 @@ const ATTRIBUTION = {
     osm: 'mapy, trasy a vrcholy a chaty v turistickém vyhledávání (jak vzniká naše kopie: {link})',
     routeMaps: 'mapy tras v aplikaci',
     geonames: 'obce pro turistické vyhledávání (vrcholy a chaty v okolí obce)',
+    heights: 'výšky podél turistických tras (stoupání, doba chůze a výškový profil)',
     overture: 'hranice států, podle nichž je každému vrcholu a každé chatě přiřazena země',
   },
   sl: {
@@ -162,6 +170,7 @@ const ATTRIBUTION = {
     osm: 'zemljevidi, poti ter vrhovi in koče v pohodniškem iskanju (kako nastane naša kopija: {link})',
     routeMaps: 'zemljevidi poti v aplikaciji',
     geonames: 'kraji za pohodniško iskanje (vrhovi in koče v okolici kraja)',
+    heights: 'višine vzdolž pohodniških poti (vzpon, čas hoje in višinski profil)',
     overture: 'državne meje, po katerih vsak vrh in vsaka koča dobi svojo državo',
   },
   pt: {
@@ -178,6 +187,7 @@ const ATTRIBUTION = {
     osm: 'mapas, rotas e os cumes e refúgios da busca de trilhas (como nossa cópia é produzida: {link})',
     routeMaps: 'mapas de rotas no app',
     geonames: 'localidades para a busca de trilhas (cumes e refúgios ao redor de uma localidade)',
+    heights: 'altitudes ao longo das rotas de caminhada (subida, tempo de caminhada e perfil de altitude)',
     overture: 'fronteiras dos países, pelas quais cada cume e cada refúgio recebe o seu país',
   },
   ja: {
@@ -194,6 +204,7 @@ const ATTRIBUTION = {
     osm: '地図、ルート、ハイキング検索の山頂と山小屋（当サービスでの複製の作成方法：{link}）',
     routeMaps: 'アプリ内のルート地図',
     geonames: 'ハイキング検索用の町（町の周辺の山頂と山小屋）',
+    heights: '登山ルート沿いの標高（登り、歩行時間、標高プロファイル）',
     overture: '国境線（各山頂・山小屋の国の判定に使用）',
   },
   zh: {
@@ -210,6 +221,7 @@ const ATTRIBUTION = {
     osm: '地图、路线，以及徒步搜索中的山峰和山屋（我们如何制作这份副本：{link}）',
     routeMaps: '应用中的路线地图',
     geonames: '徒步搜索所用的城镇（城镇周边的山峰和山屋）',
+    heights: '徒步路线沿途的高程（爬升、步行时间和高程剖面）',
     overture: '国家边界（用于确定每座山峰和山屋所属的国家）',
   },
   ko: {
@@ -226,6 +238,7 @@ const ATTRIBUTION = {
     osm: '지도, 경로, 하이킹 검색의 산 정상과 산장(사본을 만드는 방법: {link})',
     routeMaps: '앱의 경로 지도',
     geonames: '하이킹 검색용 마을(마을 주변의 산 정상과 산장)',
+    heights: '하이킹 경로의 고도(오르막, 보행 시간, 고도 프로필)',
     overture: '국경선(각 산 정상과 산장의 국가를 정하는 데 사용)',
   },
 }
@@ -253,6 +266,7 @@ function AttributionList({ lang }) {
       <li>Map data: © OpenStreetMap contributors, SRTM | Map style: © <a href="https://opentopomap.org" {...EXT}>OpenTopoMap</a> (CC-BY-SA){a.sep}{a.routeMaps}</li>
       <li><a href="https://docs.overturemaps.org/attribution/" {...EXT}>© OpenStreetMap contributors, Overture Maps Foundation</a> (ODbL){a.sep}{a.overture}</li>
       <li><a href="https://www.geonames.org/" {...EXT}>GeoNames</a> (CC BY 4.0){a.sep}{a.geonames}</li>
+      <li>produced using <a href="https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM" {...EXT}>Copernicus WorldDEM™-90</a> © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved{a.sep}{a.heights} · “The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90”</li>
     </ul>
   )
 }
