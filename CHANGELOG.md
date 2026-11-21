@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: only main and merge branches are built at Vercel
+- Nothing a visitor sees changes.
+- A push of a feature, ux or docs branch no longer starts a Vercel build (`vercel.json`, `git.deploymentEnabled` off for every branch prefix this repository has used). Since 21 November those branches stay on the owner's PC anyway; this is the net for a push by mistake. Of this billing cycle's 486 deployments, 324 were builds of such branches.
+- A branch with a new prefix would still build: add the prefix to the list.
+- Open-Meteo: no change.
+
 ### Added: the shadow run keeps what the app shows on a summit, and the day's weights
 - Nothing a visitor sees changes. Both are for the weighting report of 5 December.
 - Each hourly summit row of the shadow run now holds the temperature the app's peak view shows for that hour (the same blend, the same weights), so the report can score it. Rows before this deploy have none.
