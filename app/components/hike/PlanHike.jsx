@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { BellRing } from 'lucide-react'
 import { t } from '@/lib/i18n'
+import { fill, dayWord } from '@/lib/outlook/text'
 import { planDays } from '@/lib/push-days'
 import { enablePush, pushApi, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
@@ -10,12 +11,15 @@ import { simplify } from '@/lib/route/geometry'
 import { keepPlanned } from '@/lib/route-store'
 import { haptic } from '@/lib/native'
 
-// 🔔 Plan a hike (app only): pick a day, get the summit window the evening
+// Plan a hike (app only): pick a day, get the summit window the evening
 // before at 18:00 and a morning update if it moves. On a route: the plan
 // carries a simplified copy (≤ 150 points) and the alerts give the start.
-export default function PlanHike({ peak, lang, unit, todayLocal, route = null, pace = 'normal' }) {
+// `date`: the day already picked on the route; when it can be planned (from tomorrow), one button plans it
+// ("Remind me for Sunday") instead of asking "Which day?" again (UX review O5).
+export default function PlanHike({ peak, lang, unit, todayLocal, route = null, pace = 'normal', date = null }) {
   const [open, setOpen] = useState(false)
   const [msg, setMsg] = useState(null)
+  const direct = date && planDays(lang, todayLocal).some(d => d.date === date) ? date : null
 
   async function plan(date) {
     if ((await permission()) !== 'granted') {
@@ -37,10 +41,19 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
 
   return (
     <div className="space-y-2">
+      {direct ? (
+        <button onClick={() => { setMsg(null); plan(direct) }}
+          className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
+          <BellRing size={16} aria-hidden /> {fill(t(lang, 'planRouteFor'), { day: dayWord(lang, direct, todayLocal) })}
+        </button>
+      ) : (
+      // neutral like Save beside it: gold is the screen's answer, the favourable start (owner, 2026-11-20)
+      // (the direct button above says what a plan brings below it; this one in its panel, UX review N1)
       <button onClick={() => { setOpen(o => !o); setMsg(null) }} aria-expanded={open}
-        className="press inline-flex items-center gap-1.5 text-sm text-emerald-400 border border-emerald-400/40 rounded-full px-3 py-1.5 hover:bg-emerald-400/10">
-        <BellRing size={14} aria-hidden /> {t(lang, 'planHike')}
+        className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
+        <BellRing size={16} aria-hidden /> {t(lang, 'planHike')}
       </button>
+      )}
       {open && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 space-y-2 animate-fade-in">
           {/* what a plan brings, before the day is picked (UX review N1): it was said only after */}
@@ -53,6 +66,8 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
           </div>
         </div>
       )}
+      {/* the direct button plans at once: what a plan brings is said before the tap, until 'Planned. ...' says it */}
+      {direct && !msg && <p className="text-sm text-zinc-400">{t(lang, 'planExplain')}</p>}
       {msg && <p className="text-xs text-zinc-400" role="status">{msg}</p>}
     </div>
   )
