@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed: the mountain section has one name
 - The app's tab, the website's menu and the section's page title now all say "Mountains" (German "Berge"), the word the footer already used. They said "Hiking" and "Mountain weather". In all 13 languages; the tester page and the notes for App Review name the tab the same way.
+- Kept as they are: "a hike", "Plan a hike" and "Hike alerts" (the activity, not the section), and the search titles of the pages. The device checklist and docs/how-it-works.md name the tab "Mountains" too (owner kept the name, 2026-11-21).
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.

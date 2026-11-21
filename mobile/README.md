@@ -29,7 +29,7 @@ store release); only native changes need a new build.
 - [ ] Tabs switch between Forecast, Mountains and More; the active tab is green; a tap gives a light haptic tick (phones with haptics).
 - [ ] Mountains shows the full app view (search, popular peaks), not the "lives in the app" teaser.
 - [ ] "Near me" asks for location once and then sorts the popular peaks by distance; denying it changes nothing and doesn't crash.
-- [ ] Approximate location only (Android, A52; from the build after 2026-11-11, which no longer declares the precise permission): with location reset in the app's settings, "my location" on the forecast and "Near me" in Hiking ask for the approximate location only (no Precise choice), find the right town, and the app's location settings show no "Use precise location" switch. The emulator gave no position to any build, so this needs the phone.
+- [ ] Approximate location only (Android, A52; from the build after 2026-11-11, which no longer declares the precise permission): with location reset in the app's settings, "my location" on the forecast and "Near me" in Mountains ask for the approximate location only (no Precise choice), find the right town, and the app's location settings show no "Use precise location" switch. The emulator gave no position to any build, so this needs the phone.
 - [ ] Share on the forecast opens the native share sheet.
 - [ ] Android back button goes back; on the first screen it closes the app.
 - [ ] iPhone: a swipe from the left edge goes back; on the first screen it does nothing; dragging the hour strip or a map away from the edge still works.
@@ -193,6 +193,6 @@ New app build needed: Larger Text uses the TextScale plugin, which lives in the 
 
 - [ ] iPhone: Settings → Accessibility → Display & Text Size → Larger Text → largest size: open MetaBlend — text is larger, nothing cut off on the forecast, a peak page and More; change the size while the app is open → it follows.
 - [ ] Android: Settings → Display → Font size → largest: same check — back in the app the text has changed without the page reloading (you stay where you were).
-- [ ] VoiceOver (iPhone: triple-click the side button if set up, or Settings → Accessibility → VoiceOver): search a city and hear the forecast, the chart summary and an hour card as one sentence; open Hiking → a peak → its summit window and a route; plan a hike; change the language in More. Every button says what it does.
+- [ ] VoiceOver (iPhone: triple-click the side button if set up, or Settings → Accessibility → VoiceOver): search a city and hear the forecast, the chart summary and an hour card as one sentence; open Mountains → a peak → its summit window and a route; plan a hike; change the language in More. Every button says what it does.
 - [ ] TalkBack (Android): the same four tasks.
 - [ ] Then App Store Connect → App Accessibility: tick VoiceOver, Larger Text, Dark Interface, Differentiate Without Color Alone, Sufficient Contrast, Reduced Motion (Voice Control if the VoiceOver walk went smoothly).
