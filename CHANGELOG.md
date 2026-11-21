@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Fixed: the weather word is never cut off
 - On a narrow phone the weather word beside the big temperature lost its end in French, Spanish, Italian, Polish and Portuguese ("Partiellement nuag..."). A long word now wraps onto a second line.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
