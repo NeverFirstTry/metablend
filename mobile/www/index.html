@@ -5,19 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>MetaBlend</title>
   <style>
-    html, body { margin: 0; height: 100%; background: #0f151b; color: #e4e4e7; font-family: ui-monospace, Menlo, monospace; }
-    main { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center; box-sizing: border-box; }
-    h1 { font-size: 22px; margin: 0; }
-    p { color: #a1a1aa; font-size: 14px; margin: 0; }
-    a { background: #ffd98a; color: #000; font-weight: 700; padding: 12px 24px; border-radius: 12px; text-decoration: none; }
+    /* The app's look: its type, solid slate in dark and the near-white sky in light. This page cannot read the
+       theme picked in the app (it lives with metablend.app), so it follows the phone's appearance. Gold marks
+       the one thing to do here, the button; the logo keeps its two colours. */
+    :root { color-scheme: dark; --bg: #0f151b; --ink: #f6f8fc; --muted: #b4bbc7; --gold: #ffd98a; --btn: #ffd98a; --on-btn: #0f151b; }
+    @media (prefers-color-scheme: light) {
+      :root { color-scheme: light; --bg: #f6f8fc; --ink: #141c2b; --muted: #4a5566; --gold: #966400; --btn: #f8ecd0; --on-btn: #6b4300; }
+    }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, "Segoe UI", system-ui, sans-serif; -webkit-text-size-adjust: 100%; }
+    main {
+      box-sizing: border-box; min-height: 100vh; max-width: 28rem; margin: 0 auto;
+      display: flex; flex-direction: column; justify-content: center; gap: 12px;
+      padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+    }
+    .logo { font-size: 24px; line-height: 32px; font-weight: 700; letter-spacing: -0.01em; margin: 0 0 12px; }
+    .logo span { color: var(--gold); }
+    h1 { font-size: 20px; line-height: 28px; font-weight: 600; margin: 0; }
+    p { font-size: 15px; line-height: 22px; color: var(--muted); margin: 0; }
+    a {
+      align-self: flex-start; box-sizing: border-box; min-height: 44px; margin-top: 8px; padding: 0 20px;
+      display: inline-flex; align-items: center; border-radius: 12px;
+      background: var(--btn); color: var(--on-btn); font-size: 15px; font-weight: 600; text-decoration: none;
+    }
+    a:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
   </style>
 </head>
 <body>
-  <!-- Shown when the app starts without a connection (Capacitor errorPath). -->
+  <!-- Shown when the app starts without a connection (Capacitor errorPath). In the phone's language when it is
+       one of the app's 13, else English; the texts are the JSON below (lib/offline-screen.test.js checks them). -->
   <main>
-    <h1>MetaBlend</h1>
-    <p>No connection · Keine Verbindung</p>
-    <a href="https://metablend.app/">Retry</a>
+    <div class="logo" aria-label="MetaBlend">Meta<span>Blend</span></div>
+    <h1 id="title">No connection</h1>
+    <p id="text">MetaBlend needs the internet to show the forecast.</p>
+    <a id="retry" href="https://metablend.app/">Retry</a>
   </main>
+  <script type="application/json" id="texts">
+{
+  "en": { "title": "No connection", "text": "MetaBlend needs the internet to show the forecast.", "retry": "Retry" },
+  "de": { "title": "Keine Verbindung", "text": "MetaBlend braucht das Internet, um die Vorhersage zu zeigen.", "retry": "Erneut versuchen" },
+  "fr": { "title": "Pas de connexion", "text": "MetaBlend a besoin d’internet pour afficher les prévisions.", "retry": "Réessayer" },
+  "es": { "title": "Sin conexión", "text": "MetaBlend necesita internet para mostrar el pronóstico.", "retry": "Reintentar" },
+  "it": { "title": "Nessuna connessione", "text": "MetaBlend ha bisogno di internet per mostrare le previsioni.", "retry": "Riprova" },
+  "nl": { "title": "Geen verbinding", "text": "MetaBlend heeft internet nodig om de verwachting te tonen.", "retry": "Opnieuw" },
+  "pl": { "title": "Brak połączenia", "text": "MetaBlend potrzebuje internetu, aby pokazać prognozę.", "retry": "Ponów" },
+  "cs": { "title": "Bez připojení", "text": "MetaBlend potřebuje internet, aby mohl ukázat předpověď.", "retry": "Zkusit znovu" },
+  "sl": { "title": "Ni povezave", "text": "MetaBlend potrebuje internet, da prikaže napoved.", "retry": "Poskusi znova" },
+  "pt": { "title": "Sem conexão", "text": "O MetaBlend precisa de internet para mostrar a previsão.", "retry": "Tentar de novo" },
+  "ja": { "title": "接続できません", "text": "予報を表示するにはインターネット接続が必要です。", "retry": "再試行" },
+  "zh": { "title": "无网络连接", "text": "MetaBlend 需要联网才能显示预报。", "retry": "重试" },
+  "ko": { "title": "연결이 없어요", "text": "예보를 보려면 인터넷 연결이 필요해요.", "retry": "다시 시도" }
+}
+  </script>
+  <script>
+    (function () {
+      try {
+        var texts = JSON.parse(document.getElementById('texts').textContent)
+        var langs = (navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'en'])
+        for (var i = 0; i < langs.length; i++) {
+          var code = String(langs[i]).slice(0, 2).toLowerCase(), x = texts[code]
+          if (!x) continue
+          document.documentElement.lang = code
+          document.getElementById('title').textContent = x.title
+          document.getElementById('text').textContent = x.text
+          document.getElementById('retry').textContent = x.retry
+          return
+        }
+      } catch (e) { /* the English above stays */ }
+    })()
+  </script>
 </body>
 </html>
