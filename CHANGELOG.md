@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: the website's header on a phone is one row
+- On a phone the website's header is now the logo and a Menu button. The menu holds the five pages as rows big enough for a thumb, and the unit, theme and language settings. It took three rows before any weather. From laptop width up the header is unchanged. In all 13 languages.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
