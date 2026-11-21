@@ -11,6 +11,8 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly job keeps the weights of the day, one row per region, in a new table, `weights_daily`. Needs `supabase/weights-daily.sql` on dev and then production; without it the job runs as before and keeps nothing.
 - Database: the summit value fills a column that stood empty (5 summits an hour); the weights are about 7 rows and 5 KB a day, about 0.15 MB a month.
 - Open-Meteo: no new request. One more database read per hourly run and one read and one write per night.
+### Fixed: the weather word is never cut off
+- On a narrow phone the weather word beside the big temperature lost its end in French, Spanish, Italian, Polish and Portuguese ("Partiellement nuag..."). A long word now wraps onto a second line.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
