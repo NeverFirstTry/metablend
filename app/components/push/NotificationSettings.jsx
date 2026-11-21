@@ -93,10 +93,11 @@ export default function NotificationSettings({ lang, unit }) {
 
   const box = 'bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-3'
   const caption = 'text-zinc-500 text-xs uppercase tracking-wider'
+  // a toggle is neutral (the text colour), green stays for status; the whole 44 px row toggles (UX review E4)
   const toggle = (key, label) => (
-    <label key={key} className="flex items-center justify-between gap-3 text-sm py-1">
+    <label key={key} className="flex min-h-11 items-center justify-between gap-3 text-sm">
       <span>{label}</span>
-      <input type="checkbox" className="h-5 w-5 accent-emerald-400" checked={!!state.settings?.[key]} onChange={e => { haptic('selection'); save({ [key]: e.target.checked }) }} />
+      <input type="checkbox" className="h-5 w-5 accent-[var(--foreground)]" checked={!!state.settings?.[key]} onChange={e => { haptic('selection'); save({ [key]: e.target.checked }) }} />
     </label>
   )
 
@@ -123,21 +124,23 @@ export default function NotificationSettings({ lang, unit }) {
       ) : (
         <>
           <div className={box}>
-            <label className="flex items-center justify-between gap-3 text-sm py-1">
+            <label className="flex min-h-11 items-center justify-between gap-3 text-sm">
               <span>{t(lang, 'notifOn')}</span>
-              <input type="checkbox" role="switch" className="h-5 w-5 accent-emerald-400" checked onChange={() => { haptic('selection'); turnOff() }} />
+              <input type="checkbox" role="switch" className="h-5 w-5 accent-[var(--foreground)]" checked onChange={() => { haptic('selection'); turnOff() }} />
             </label>
             <p className="text-xs text-zinc-400">{t(lang, 'notifOffDeletes')}</p>
           </div>
           <div className={box}>
             <div className="flex items-center justify-between gap-3">
-              <div><div className={caption}>{t(lang, 'notifHome')}</div><div className="text-sm mt-0.5">{s.home_name ? hans(s.home_name) : '–'}</div></div>
-              <button onClick={() => setEditHome(v => !v)} className="press text-sm text-emerald-400">{t(lang, 'notifChange')}</button>
+              <div><div className={caption}>{t(lang, 'notifHome')}</div>{s.home_name && <div className="text-sm mt-0.5">{hans(s.home_name)}</div>}</div>
+              {s.home_name && <button onClick={() => setEditHome(v => !v)} className="press min-h-11 px-2 text-sm text-emerald-400">{t(lang, 'notifChange')}</button>}
             </div>
             {!s.home_name && !editHome && <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'notifPickHome')}</p>}
-            {editHome && (
+            {/* no home city yet: the field at once, with a hint, not a dash and an empty box after Change (E4) */}
+            {(editHome || !s.home_name) && (
               <div className="space-y-1">
-                <input value={query} onChange={e => search(e.target.value)} maxLength={80} autoFocus
+                <input value={query} onChange={e => search(e.target.value)} maxLength={80} autoFocus={editHome}
+                  placeholder={t(lang, 'notifHomeSearch')} aria-label={t(lang, 'notifHomeSearch')}
                   className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-400" />
                 {hits.map(h => (
                   <button key={h.id} onClick={() => { save({ home_name: h.name }); setEditHome(false); setQuery(''); setHits([]) }}

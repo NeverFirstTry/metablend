@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the notification settings look like settings
+- The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb.
+- Without a home city, the settings show the city search at once with a hint ("Search a city") instead of a dash, "Change" and an empty field. In all 13 languages.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
