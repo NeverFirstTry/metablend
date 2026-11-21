@@ -14,6 +14,7 @@ import PeakView from './PeakView'
 import HikeNotes from './HikeNotes'
 import RouteScreen from './RouteScreen'
 import MyRoutes from './MyRoutes'
+import MyPeaks from './MyPeaks'
 import PeakDirectory from './PeakDirectory'
 // in the app's code (downloaded once, cached), not in every visit's page data
 import featured from '@/lib/hike/featured.json'
@@ -59,6 +60,7 @@ function HikeAppInner() {
       <h1 className="text-3xl font-bold tracking-tight inline-flex items-center gap-3">
         <MountainSnow size={28} className="text-emerald-400" aria-hidden /> {t(lang, 'hikeTitle')}
       </h1>
+      <MyPeaks lang={lang} hrefFor={hrefFor} />
       <PeakSearch lang={lang} hrefFor={hrefFor} onLocate={setPos} />
       <MyRoutes lang={lang} />
       <PeakDirectory peaks={featured} lang={lang} hrefFor={hrefFor} pos={pos} />

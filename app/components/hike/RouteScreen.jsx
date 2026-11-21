@@ -53,7 +53,7 @@ export default function RouteScreen({ routeId, peak, lang, unit, onBack }) {
   const top = pts[highestIndex(pts.map(p => ({ lat: p[0], lon: p[1], ele: p[2] })))]
   const planPeak = { name: state.route.name.slice(0, 80) || peakName || '—', lat: top[0], lon: top[1], elev: Math.max(0, Math.round(top[2] ?? elev ?? 0)) }
   return (
-    <RouteView route={state.route} lang={lang} unit={unit} onBack={onBack}
+    <RouteView route={state.route} lang={lang} unit={unit} onBack={onBack} backLabel={peak?.name || t(lang, 'hiking')}
       saved={state.saved} onSave={canSave ? () => saveRoute({ ...state.route, savedAt: Date.now() }).then(() => setState(s => ({ ...s, saved: true }))) : undefined}>
       {isNative() ? ({ pace }) => <PlanHike peak={planPeak} lang={lang} unit={unit} todayLocal={localToday()} route={state.route} pace={pace} /> : null}
     </RouteView>
