@@ -8,7 +8,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed: the nightly scoring compares a reading with the measurement of its own hour
 - Nothing a visitor sees changes at once. The sources' weights now learn from a fair comparison.
 - Every night each source's last stored temperature of a place was scored against the mean of the whole day. On 20 November in Lienz a reading of 4° at 15:00 was 5° off that day's mean of -1° and would have been marked down, though 4.2° was measured at that hour. Now each reading is scored against the measured temperature of the hour it was read, with the thresholds of a same-moment comparison.
-- What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day and the live forecasts use about 170, so a night now scores about 30 places, not 50. The job's summary says how many records it used and how many places it did not reach.
+- What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day for the live forecasts and this run together, and a live forecast costs 1 (measured). The forecasts come first: the night takes what the forecasts of the last 24 hours leave, less a reserve of 150, and never more than 720. In the week to 21 November the forecasts asked between 199 and 447 times on a full day, so a night scores between 16 and 27 places, where it scored 50. The job's summary says its budget, the forecasts it counted, the records it used and how many places it did not reach.
 - Not changed: the job still runs at 06:00 UTC, when yesterday is not over on the American west coast; readings stored there after that hour are not scored.
 - Open-Meteo: no change.
 

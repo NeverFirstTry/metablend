@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
-import { dailyDeltas, dayHours } from '@/lib/daily-score'
+import { dailyDeltas, dayHours, recordBudget } from '@/lib/daily-score'
 import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
 import { withErrorLog } from '@/lib/log'
@@ -13,10 +13,10 @@ import { withJobLog } from '@/lib/job-log'
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
 
-// Visual Crossing counts a day asked with its hours as 24 records, and its free plan has 1,000 a day, of
-// which the live forecasts use about 170 (counted on 2026-11-21). The night's scoring stops before this many,
-// counted from each answer's own queryCost: about 30 places, where the day's mean was one record a place and 50.
-const MAX_RECORDS = 720
+// Visual Crossing counts a day asked with its hours as 24 records, and its free plan has 1,000 a day for the
+// live forecasts and this run together. The forecasts come first: how many records the night may use is worked
+// out from the forecasts built in the last 24 hours (lib/daily-score.js recordBudget), and the run stops
+// before that many, counted from each answer's own queryCost.
 
 // The day's measured temperature hour by hour at a place, on the place's own clock (lib/daily-score.js dayHours)
 async function fetchDay(lat, lon, date, key) {
@@ -67,12 +67,20 @@ export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (requ
     }
   }
 
+  // the forecasts built in the last 24 hours, by their history rows (a build past an address's storing limit
+  // writes none: on 2026-11-14 that was 47 of 434, the reserve covers them); a count that cannot be read
+  // plans for a busy day
+  const since = new Date(Date.now() - 86_400_000).toISOString()
+  const { count } = await supabase.from('consensus_history').select('*', { count: 'exact', head: true }).gte('created_at', since)
+  const live = typeof count === 'number' ? count : 450
+  const budget = recordBudget(live)
+
   const results = []
   let calibrated = 0, records = 0, left = 0
 
   for (const [i, { city, lat, lon, region }] of cities.entries()) {
     // the service's daily allowance: the places not reached tonight are counted, not scored
-    if (records + 24 > MAX_RECORDS) { left = cities.length - i; break }
+    if (records + 24 > budget) { left = cities.length - i; break }
     const day = await fetchDay(lat, lon, yesterday, key)
     if (!day) { results.push({ city, skipped: 'no Visual Crossing data' }); continue }
     records += day.cost
@@ -100,5 +108,5 @@ export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (requ
   }
 
 
-  return Response.json({ calibrated, date: yesterday, records, left, results })
+  return Response.json({ calibrated, date: yesterday, records, budget, live, left, results })
 }))
