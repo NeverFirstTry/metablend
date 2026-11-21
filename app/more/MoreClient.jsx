@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Settings, Compass, ChevronRight } from 'lucide-react'
+import { Settings, Compass, LifeBuoy, Scale, ChevronRight } from 'lucide-react'
 import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
@@ -17,7 +17,9 @@ import AppIconPicker from '../components/AppIconPicker'
 import FeedbackLink from '../components/FeedbackLink'
 import { isNative } from '@/lib/native'
 
-const LINKS = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/aviation', 'aviation'], ['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms'], ['/impressum', 'footerImpressum']]
+// three groups, each tool saying what it is (UX review E1: one list of eight rows, "Planner" and "Aviation" unexplained)
+const TOOLS = [['/leaderboard', 'leaderboard', 'toolLineRankings'], ['/heatmap', 'heatmap', 'toolLineHeatmap'], ['/planner', 'planner', 'toolLinePlanner'], ['/aviation', 'aviation', 'toolLineAviation']]
+const LEGAL = [['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms'], ['/impressum', 'footerImpressum']]
 const label = s => s.replace(/\s*→$/, '')
 
 
@@ -41,7 +43,7 @@ export default function MoreClient() {
 
   const pick = (key, on, text, onClick) => (
     <button key={key} onClick={onClick} aria-pressed={on}
-      className={`press flex-1 rounded-lg py-2 text-sm ${on ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}>
+      className={`press flex-1 rounded-lg py-2 text-sm ${on ? 'bg-zinc-700 text-white font-semibold' : 'text-zinc-400 hover:text-emerald-400'}`}>
       {text}
     </button>
   )
@@ -51,6 +53,8 @@ export default function MoreClient() {
     applyTheme(x)
   }
   const box = 'bg-zinc-900 border border-zinc-800 rounded-xl p-4 space-y-2'
+  const row = 'press-row flex items-center justify-between gap-3 px-4 py-3 text-sm hover:text-emerald-400'
+  const list = 'bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800'
   const caption = 'text-zinc-500 text-xs uppercase tracking-wider'
 
   return (
@@ -79,21 +83,37 @@ export default function MoreClient() {
           </div>
         </div>
       </section>
-      {native && <AppIconPicker lang={lang} />}
+      {/* notifications right after the pickers, the icon grid last (UX review E3: it stood above them, a screen tall) */}
       {native && <NotificationSettings lang={lang} unit={u} />}
       <section className="space-y-3">
-        <SectionTitle icon={Compass}>{t(lang, 'moreLinks')}</SectionTitle>
-        <ul className="bg-zinc-900 border border-zinc-800 rounded-xl divide-y divide-zinc-800">
-          {LINKS.map(([href, key]) => (
+        <SectionTitle icon={Compass}>{t(lang, 'moreTools')}</SectionTitle>
+        <ul className={list}>
+          {TOOLS.map(([href, key, line]) => (
             <li key={href}>
-              <Link href={href} className="press-row flex items-center justify-between px-4 py-3 text-sm hover:text-emerald-400">
-                {label(t(lang, key))}<ChevronRight size={16} className="text-zinc-600" aria-hidden />
+              <Link href={href} className={row}>
+                <span className="min-w-0"><span className="block">{label(t(lang, key))}</span><span className="block text-xs text-zinc-500">{t(lang, line)}</span></span>
+                <ChevronRight size={16} className="shrink-0 text-zinc-600" aria-hidden />
               </Link>
             </li>
           ))}
-          <li><FeedbackLink lang={lang} /></li>
         </ul>
       </section>
+      <section className="space-y-3">
+        <SectionTitle icon={LifeBuoy}>{t(lang, 'moreHelp')}</SectionTitle>
+        <ul className={list}>
+          <li><FeedbackLink lang={lang} /></li>
+          <li><Link href="/support" className={row}>{t(lang, 'footerSupport')}<ChevronRight size={16} className="shrink-0 text-zinc-600" aria-hidden /></Link></li>
+        </ul>
+      </section>
+      <section className="space-y-3">
+        <SectionTitle icon={Scale}>{t(lang, 'moreLegal')}</SectionTitle>
+        <ul className={list}>
+          {LEGAL.map(([href, key]) => (
+            <li key={href}><Link href={href} className={row}>{label(t(lang, key))}<ChevronRight size={16} className="shrink-0 text-zinc-600" aria-hidden /></Link></li>
+          ))}
+        </ul>
+      </section>
+      {native && <AppIconPicker lang={lang} />}
       {/* the footer is hidden in the app, but its data attribution (Open-Meteo CC BY, OpenStreetMap) must stay reachable */}
       <section className="space-y-2 text-xs text-zinc-500 leading-relaxed">
         <p><Credits lang={lang} full /></p>

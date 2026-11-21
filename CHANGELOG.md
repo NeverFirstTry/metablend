@@ -3,6 +3,13 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: the More tab is sorted
+- Tools, Help and Legal are three groups instead of one list of eight rows, and each tool says what it is ("Planner: the best months for a trip", "Aviation: METAR and TAF, in English"). Support joins Send feedback under Help.
+- In the app, notifications come right after the language, unit and appearance settings; the app icons come last instead of a screen-tall grid above them.
+- The unit and appearance pickers show the choice in a neutral grey, not in gold. In all 13 languages.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
