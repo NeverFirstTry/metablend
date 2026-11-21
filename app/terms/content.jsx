@@ -266,7 +266,7 @@ function AttributionList({ lang }) {
       <li>Map data: © OpenStreetMap contributors, SRTM | Map style: © <a href="https://opentopomap.org" {...EXT}>OpenTopoMap</a> (CC-BY-SA){a.sep}{a.routeMaps}</li>
       <li><a href="https://docs.overturemaps.org/attribution/" {...EXT}>© OpenStreetMap contributors, Overture Maps Foundation</a> (ODbL){a.sep}{a.overture}</li>
       <li><a href="https://www.geonames.org/" {...EXT}>GeoNames</a> (CC BY 4.0){a.sep}{a.geonames}</li>
-      <li>produced using <a href="https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM" {...EXT}>Copernicus WorldDEM-90</a> © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved{a.sep}{a.heights}</li>
+      <li>produced using <a href="https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM" {...EXT}>Copernicus WorldDEM™-90</a> © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved{a.sep}{a.heights} · “The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90”</li>
     </ul>
   )
 }
