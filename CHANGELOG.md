@@ -39,6 +39,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
 - When no source has the value, the line shows the air temperature, as before.
 - Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
+### Added: the height model's notice in the list of sources on /terms
+- Since 19 November a hiking route's ascent, walking time and height profile are made from the Copernicus height model (GLO-90). Its notice was missing where the public can read it. It now stands in the list of sources on /terms in all 13 languages, in its licence's own words: "produced using Copernicus WorldDEM™-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved", followed by what it is used for in the page's language and by the sentence the licence asks to stand with it: "The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90".
+- The wording was read on 21 November in the licence itself (Licence for the use of the Copernicus WorldDEM™-90, Article 6) and is on file in `docs/source-licences.md`; `docs/how-it-works.md` no longer says that no heights are published.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor

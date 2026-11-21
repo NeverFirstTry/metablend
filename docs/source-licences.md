@@ -60,3 +60,33 @@ What a data provider has confirmed to us in writing about the use of its data. T
   - Open, for the owner: the forecast address is public JSON and now holds one Visual Crossing temperature per place, because the list is drawn in the browser from that answer. Whether that falls under "API responses" in the passage above is a reading of their terms that only Visual Crossing can settle.
   - The key: read from the server's environment (`VISUAL_CROSSING_KEY`) in the two files named above. No value is in this repository (the recorded test answers hold `x` in its place), none in the browser's code, and none in the apps, which load the website.
   - Not infallible, no substitute for official warnings: the disclaimer on /terms ("MetaBlend is a planning aid. It does not replace official warnings ..."; German original) and the note in the footer and on the More screen ("Forecasts can be wrong. Not for decisions that life, health or property depend on. For those, follow the official warnings.").
+
+## Copernicus DEM (GLO-90): its licence, the notice and the liability sentence
+
+- **Read:** 21 November 2026. First the collection's own page at the Copernicus Data Space Ecosystem, section "User Obligations": https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM. Then, on the owner's order of the same day, the two documents that page links, as text taken from the PDF files:
+  - https://dataspace.copernicus.eu/sites/default/files/media/files/2025-06/copernicus_contributing_mission_data_access_v2_cop_dem_licenses.pdf ("Copernicus Data Access, Mission-specific Annex: Amendments to the CSCDA ESA - User Licence", version 15 February 2024)
+  - https://s3.waw3-1.cloudferro.com/swift/v1/portal_uploads_prod/CSCDA_ESA_Mission-specific_Annex_31_Oct_22_latest.pdf ("Copernicus Contributing Mission Data Access, Licence between ESA and Copernicus User", issue date 21/02/2025)
+
+  Both hold the same "Licence for COP-DEM-GLO-90-F Global 90m Full, Free & Open: Licence for the use of the Copernicus WorldDEM™-90". The passages below are from it, with the trademark sign where the documents print "TM" raised.
+- **In the licence's words:**
+  - Article 4, Right of Use:
+    > "The Licensor grants to the User the following non-exclusive rights of use regarding the Copernicus WorldDEM™-90: (a) reproduction; (b) distribution; (c) communication to the General Public; (d) adaptation, modification and combination with other data and information."
+  - Article 5:
+    > "The use rights granted under this licence are free of charge to the User."
+  - Article 6 (a):
+    > "When communicating to the General Public or distributing the Copernicus WorldDEM™-90, the User shall inform the General Public of the source by using the following notice: © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved."
+  - Article 6 (b):
+    > "Where the Copernicus WorldDEM™-90 data have been adapted or modified, the User shall provide the following notice: "produced using Copernicus WorldDEM™-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved"."
+  - Article 6 (c):
+    > "Users exercising the right of distribution or communication to the General Public of the Copernicus WorldDEM™-90, modified or not, must ensure that the Subsequent Users understand that neither the Licensor nor any other legal entities in charge of the Copernicus programme or the delivery of Copernicus data and information under the Copernicus programme may be held liable with regard to any aspect of the Copernicus WorldDEM™-90. The following sentence or its translation in any language shall be added by such Users in a licence or any legal warning or notice covering their distribution or communication to the General Public of the Copernicus WorldDEM™-90: "The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90"."
+  - Article 6 (d):
+    > "User shall make sure not to convey the impression to the General Public that the user's activities are officially endorsed by the Provider, the Licensor or any other legal entities in charge of the Copernicus programme or the delivery of Copernicus data and information under the Copernicus programme."
+  - Article 7, Warranty and Liability:
+    > "The Copernicus WorldDEM™-90 is made available to the Users 'as is'. The User uses it under its own responsibility."
+- **What we use:** the GLO-90 tiles, read from disk on the owner's computer and never asked from a server at run time: the heights along hiking routes (`scripts/routes/local.mjs`, loaded into production on 19 November 2026) and a check of town positions. Shown to the public: a route's ascent, walking time and height profile, which are made from those heights. That is data "adapted or modified", so the notice of Article 6 (b) is the one that applies.
+- **How we meet it:**
+  - The notice of Article 6 (b) stands in the list of sources on /terms in all 13 languages, word for word, followed by what it is used for in the page's language (`app/terms/content.jsx`; held by `lib/legal-pages.test.js`).
+  - The sentence of Article 6 (c) stands in the same line, in the licence's own English words on every page; the licence allows the sentence or a translation.
+  - Article 6 (d): the site names Copernicus as a source and nowhere as a partner or supporter.
+  - From 19 November until the deploy of this change the heights were shown without the notice (code audit of 20 November 2026, finding 20).
+- **A difference between the page and the licence:** the collection's page prints the notice as "Copernicus WorldDEM-90", without the trademark sign. The licence is the document that binds, so /terms follows the licence.
