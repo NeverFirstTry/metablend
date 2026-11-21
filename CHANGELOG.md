@@ -9,6 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it.
 - After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
 - When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
