@@ -9,6 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
 - The planned hikes under More, Notifications no longer start with a mountain emoji.
 - 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
