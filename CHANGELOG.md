@@ -65,6 +65,9 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: Plan a hike says what it does, and a removed route can be brought back
 - Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
 - Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
+### Added: save a peak, and the peaks you opened stay one tap away
+- A star beside a peak's name keeps it under "My peaks" at the top of the Hiking tab; the peaks opened lately stand under "Recently opened". Kept on the phone, up to 12 saved and 5 recent, in all 13 languages.
+- Each row shows the peak's next favourable summit window from the last forecast you looked at, with the time that forecast was made, while it still speaks of today or tomorrow. A favourable window is in the accent colour; a window judged without storm data says so in the warning colour; no window stays plain. The Hiking tab makes no forecast request of its own for these rows; a tap opens the peak with a fresh forecast.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
