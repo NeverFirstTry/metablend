@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePagePath } from '@/lib/page-path'
@@ -21,6 +21,14 @@ const NAV = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planne
 // one panel; from lg up they stand in the row (UX review W1: at phone width it took three rows before any weather).
 export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit, onInstall = null }) {
   const [open, setOpen] = useState(false)
+  const menuButton = useRef(null)
+  // Escape closes the panel and gives the focus back to its button (Fable's review)
+  useEffect(() => {
+    if (!open) return
+    const onKey = e => { if (e.key === 'Escape') { setOpen(false); menuButton.current?.focus() } }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   // the button flips what's on screen and keeps that as an explicit choice;
   // More → Appearance → System goes back to following the device
@@ -32,7 +40,7 @@ export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit,
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
       {logo}
-      <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} aria-controls="site-menu"
+      <button type="button" ref={menuButton} onClick={() => setOpen(o => !o)} aria-expanded={open} aria-controls="site-menu"
         className="web-only press lg:hidden min-h-11 inline-flex items-center gap-1.5 rounded-lg px-3 text-sm text-zinc-300 hover:text-emerald-400">
         {open ? <X size={18} aria-hidden /> : <Menu size={18} aria-hidden />}{t(lang, 'siteMenu')}
       </button>
