@@ -64,6 +64,10 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the caption of store screen 3 (owner 2026-11-21)
 - App Store and Google Play, screen 3: "195 peaks, from famous to nearby", German "195 Gipfel, von berühmt bis um die Ecke", the other 11 languages in the same spirit (store/captions.json). "Popular peaks" now stands above "Near you" on that screen, so "nearest first" no longer fits.
 - The pictures follow at the store run of 28 November; the store texts are unchanged.
+### Changed: the store descriptions' mountain block (for the final store text check before 30 November)
+- App Store and Google Play, all 13 languages: the block's heading is the tab's name, "Mountains" (German "Berge"; it said "Mountains and hiking", "Berge und Wandern"), since the owner kept that name on 2026-11-21.
+- The peak line says "from famous to nearby" (German "von berühmt bis um die Ecke"), the words of store screen 3's caption, instead of "the nearest first"; "Popular peaks" now stands above "Near you". It drops "worldwide", which the summit line above it already says.
+- Spanish: "Rutas de senderismo señalizadas", so the Google Play listing still holds the word people search for.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
