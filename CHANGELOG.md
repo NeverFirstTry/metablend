@@ -21,6 +21,10 @@ All notable changes to MetaBlend. Format loosely follows
 - Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
 - The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
 - A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
+### Fixed: GeoSphere no longer says "Clear" whenever it is dry
+- In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
+- GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
+- Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
