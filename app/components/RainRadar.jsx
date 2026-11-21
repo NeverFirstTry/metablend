@@ -36,7 +36,7 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar', bare = false
           attribution: '&copy; OpenStreetMap contributors',
           className: 'osm-dark',
         }).addTo(mapRef.current)
-        L.circleMarker([lat, lon], { radius: 7, weight: 3, fillOpacity: 1, className: 'radar-place' }).addTo(mapRef.current)
+        L.circleMarker([lat, lon], { radius: 7, weight: 3, fillOpacity: 1, interactive: false, className: 'radar-place' }).addTo(mapRef.current)
       } else {
         mapRef.current.setView([lat, lon], 7)
       }
