@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { CloudOff } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
 import { windowText } from '@/lib/hike/text'
@@ -94,6 +95,14 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
           </p>
           <span role="status" className="sr-only">{state === 'stored' ? '' : status[state]}</span>
         </div>
+
+        {/* built from the last good forecast while the source failed (lib/hike/summit-fetch.js): said in the start
+            page's words and look for the last known forecast, not left to an older time (UX review M2) */}
+        {kept && (
+          <p role="status" className="bg-amber-900/30 border border-amber-500/40 rounded-lg p-3 text-amber-300 text-sm mb-6 flex items-center gap-2">
+            <CloudOff size={16} className="shrink-0" aria-hidden /> {t(lang, 'keptBanner')}
+          </p>
+        )}
 
         <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtnWindow')}</h2>

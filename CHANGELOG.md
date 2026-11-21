@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: a summit page built during an outage says so
+- When the weather source did not answer and a summit page was built from the last good forecast, it now says "Showing last known forecast. The weather source is not answering right now." above the summit window, in the look of the start page's offline line. Before, only an older "As of" time told. In all 13 languages.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
