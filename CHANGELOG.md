@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Fixed: two accessibility misses
+- In "How is the weather where you are?" a screen reader now names the Condition and temperature fields; their labels were not tied to them.
+- In the light theme the red of error messages is a little darker, so it reads clearly on its pink box (5.5:1, it was 4.2:1).
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
