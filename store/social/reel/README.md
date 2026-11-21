@@ -54,3 +54,11 @@ node scripts/render-new-look.mjs <path to this folder> --stills   # frames to lo
 ```
 
 The script checks the texts first (no dashes, none of the words the copy rules forbid) and reads the pictures from `shots/`.
+
+## Version 2, in work (owner's feedback of 21 November: no wipes, one stage turns into the next part by part)
+
+Not rendered yet: the films, covers and pictures above are still version 1. The final run waits for the owner's word that main carries UX batches 5 to 7 and the gold rule.
+
+- `scripts/brand/reel-shots.mjs` now also writes `shots/film/`: every screen 320 px taller, `1-before-on-slate-…` (the old page on Slate, so the film can change the background first) and `regions.json` (where each picture's parts are: header, search row, headline, tabs, first card, the rest, tab bar). The parts are read from the page, so a new layout needs no numbers by hand.
+- The film (`my-video`, branch `new-look-reel`) cross-fades the parts top to bottom, 13 frames each, 8 frames apart, the sky first. Summit page: the Week tab, where the best day's line grows in. Two quiet words beside what is new ("Labelled buttons", "Best day at a glance"), one close-up (the first start), and a reduced motion version (`…-reduced-motion.mp4`, every change one fade).
+- For the final run: all three stages again in the same quarter hour (the weather has to match), then `node scripts/render-new-look.mjs <this folder>`, look at the frames (`--stills`), update `check.html`, push once.
