@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: My routes tells routes apart
+- Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
@@ -107,9 +110,6 @@ All notable changes to MetaBlend. Format loosely follows
 - The back link at the top of Rankings, Heatmap, Planner, Aviation, an airport, the legal pages, a peak and a route is now 44 px high instead of a 20 px line of text, easier to hit with a thumb.
 - It names where it leads: in the app, the pages opened from More lead back to More and say "More" (they led to the forecast and said "Back"); an airport says "Aviation"; a peak says "Hiking".
 - A route opened from a peak says the peak's name ("Großglockner") instead of "All peaks"; an imported route says "Hiking".
-
-### Changed: My routes tells routes apart
-- Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
 
 ### Changed: Plan a hike says what it does, and a removed route can be brought back
 - Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
