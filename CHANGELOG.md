@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: the rain radar says when and what
+- The radar picture shows its time on the map ("Radar 00:10") and a legend under it: light, moderate and heavy rain in the radar's own colours.
+- The maps look like the rest of the app: zoom buttons in the theme's colours, a plain dot for the place instead of the bright blue pin, and on the radar one credit line instead of a credit box over the map. The heatmap's credit drops the optional "Leaflet" prefix. In all 13 languages.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time

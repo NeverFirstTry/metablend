@@ -766,6 +766,16 @@ html:not([data-app]) .home-warning { animation: none; }
 .home-bar { background: var(--muted); opacity: 0.6; }
 .home-bar-lead { background: var(--accent); }
 
+/* the maps' zoom buttons and credit in the theme's colours, not Leaflet's white (UX review D1); html first, to
+   outweigh Leaflet's own sheet, which loads after this one */
+html .leaflet-container .leaflet-bar { border: 1px solid var(--border); box-shadow: none; }
+html .leaflet-container .leaflet-bar a { background: var(--surface); color: var(--foreground); border-bottom-color: var(--border); }
+html .leaflet-container .leaflet-bar a:hover, html .leaflet-container .leaflet-bar a:focus-visible { background: var(--surface); color: var(--accent); }
+html .leaflet-container .leaflet-control-attribution { background: var(--surface); color: var(--muted); }
+html .leaflet-container .leaflet-control-attribution a { color: var(--foreground); }
+/* the place on the rain radar: a plain dot in the text colour, ringed in the page colour */
+.radar-place { fill: var(--foreground); stroke: var(--background); }
+
 /* recent places: on touch screens every target is at least 44 px (Apple's minimum); the × icon keeps its size */
 @media (pointer: coarse) {
   .recent-chip, .recent-chip > button:first-child, .recent-clear { min-height: 44px; }
