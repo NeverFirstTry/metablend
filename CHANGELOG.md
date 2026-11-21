@@ -10,6 +10,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
 - What leaves our server of Visual Crossing: that one temperature, in the forecast answer. Its feels-like, rain, wind and condition words do not. The landing page's example names it without a value, since no credit stands beside that example.
 - The line "Value not shown (licence)" leaves all 13 languages.
+### Fixed: after midnight the hike widget shows each day its own summit window
+- A planned hike's widget, read at night from a summit forecast made before midnight, showed "No daylight left today" for the new day and gave the day after it the new day's window, in green. Each window now stays with its own day. A day the stored forecast has no window for shows the day's weather without a verdict until the forecast is renewed (at most about two hours).
+- Server only: the widgets on the phones need no update.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
