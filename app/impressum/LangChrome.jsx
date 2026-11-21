@@ -1,7 +1,6 @@
 'use client'
 
-import Link from 'next/link'
-import { ArrowLeft } from 'lucide-react'
+import WayBack from '../components/BackLink'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import Footer from '../components/Footer'
@@ -16,9 +15,7 @@ export function VisibleLang() {
 export function BackLink() {
   const lang = useLang()
   return (
-    <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
-      <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-    </Link>
+    <WayBack href="/more" className="app-only mb-6">{t(lang, 'more')}</WayBack>
   )
 }
 

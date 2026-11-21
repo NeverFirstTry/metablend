@@ -5,13 +5,14 @@ import Link from 'next/link'
 import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
-  Search, Navigation, ArrowLeftRight, Star, Share2, Code2,
+  Search, Navigation, Columns2, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
-  CheckCircle2, Send, Gauge, CloudRain, Layers,
-  Sparkles, ChevronDown, X, Info,
+  CheckCircle2, Send, Gauge, Layers,
+  MountainSnow, ChevronDown, X, Info,
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
+import { uniquePlaces, samePlace } from '@/lib/recent-places'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -31,6 +32,7 @@ import { TermsBar } from './components/TermsNotice'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
 import PlaceName from './components/PlaceName'
+import Glyph from './components/Glyph'
 import { SectionTitle, Fold } from './components/ui'
 import NowLine from './components/outlook/NowLine'
 import WarningStrip from './components/outlook/WarningStrip'
@@ -81,18 +83,18 @@ function readCachedForecast(city) {
 // don't add to it. The last city viewed (any way) is kept per session apart.
 const LAST_KEY = 'metablend_last'
 function getRecent() {
-  try { return JSON.parse(getCookie('metablend_recent') ?? '[]') } catch { return [] }
+  try { return uniquePlaces(JSON.parse(getCookie('metablend_recent') ?? '[]')) } catch { return [] }
 }
 function pushRecent(city) {
   if (!city) return getRecent()
-  const list = [city, ...getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())].slice(0, 5)
+  const list = [city, ...getRecent().filter(c => !samePlace(c, city))].slice(0, 5)
   setCookie('metablend_recent', JSON.stringify(list))
   return list
 }
 // Removing the last one, or all of them, also forgets the last city viewed: the
 // next visit starts as a first one (the landing page, or the app's first screen).
 function removeRecent(city) {
-  const list = getRecent().filter(c => c.toLowerCase() !== city.toLowerCase())
+  const list = getRecent().filter(c => !samePlace(c, city))
   if (list.length) setCookie('metablend_recent', JSON.stringify(list))
   else clearRecent()
   return list
@@ -147,57 +149,23 @@ const nameMap = () => { try { return JSON.parse(localStorage.getItem(NAMES_KEY))
 const keepName = (json, lang) => { try { localStorage.setItem(NAMES_KEY, JSON.stringify(rememberName(nameMap(), json.city, json.learnCity, lang))) } catch { /* private mode */ } }
 const TAB_KEY = 'mb_tab'
 
-// ── Welcome / empty state ────────────────────────────────────────────────────
-// Shown before any city is searched, so a first-time visitor sees a real
-// product landing rather than a bare search box.
+// ── The app with no place of its own (UX review 2026-11-20, F1) ─────────────────
+// Right under the search field: places to try and the way to the mountains; the example forecast
+// follows (globals.css shows it in the app too). It was a pitch: a sparkle, a headline and three cards.
 const SAMPLE_CITIES = ['Vienna', 'Berlin', 'London', 'New York', 'Tokyo']
-function WelcomeState({ lang, onPick }) {
-  const features = [
-    { icon: Layers, title: t(lang, 'welcomeF1Title'), sub: t(lang, 'welcomeF1Sub') },
-    { icon: Gauge, title: t(lang, 'welcomeF2Title'), sub: t(lang, 'welcomeF2Sub') },
-    { icon: CloudRain, title: t(lang, 'welcomeF3Title'), sub: t(lang, 'welcomeF3Sub') },
-  ]
+function FirstStart({ lang, peaks, isExample, onPick }) {
   return (
-    <div className="animate-fade-in-up text-center py-2 sm:py-4">
-      <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 mb-5">
-        <Sparkles className="text-emerald-400" size={28} aria-hidden />
-      </div>
-      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 text-balance">
-        {t(lang, 'welcomeTitle')}
-      </h2>
-      <p className="text-zinc-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
-        {t(lang, 'welcomeSub')}
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
-        {features.map((f, i) => (
-          <div
-            key={f.title}
-            className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 animate-fade-in-up"
-            style={{ animationDelay: `${120 + i * 90}ms` }}
-          >
-            <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-400/10 text-emerald-400 mb-3">
-              <f.icon size={18} aria-hidden />
-            </div>
-            <div className="font-bold text-sm mb-1">{f.title}</div>
-            <div className="text-zinc-500 text-xs leading-relaxed">{f.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="text-zinc-500 text-xs uppercase tracking-widest mb-3">{t(lang, 'welcomeTry')}</div>
-      <div className="flex gap-2 flex-wrap justify-center">
+    <div className="first-start app-only -mt-4 mb-6 space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
         {SAMPLE_CITIES.map(c => (
-          <button
-            key={c}
-            onClick={() => onPick(c)}
-            className="press bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
-          >
-            {c}
-          </button>
+          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
         ))}
       </div>
-      <p className="text-zinc-500 text-xs mt-6">{t(lang, 'welcomeHint')}</p>
+      <Link href="/hike" className="press inline-flex items-center gap-2 min-h-11 text-sm text-zinc-300 hover:text-emerald-400">
+        <MountainSnow size={16} className="shrink-0" aria-hidden /> {fill(t(lang, 'firstHike'), { n: peaks })}
+      </Link>
+      {isExample && <p className="text-sm text-zinc-400">{t(lang, 'exampleNote')}</p>}
     </div>
   )
 }
@@ -268,11 +236,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [resume] = useState(() => resumeForecast({ deepLink: typeof window === 'undefined' ? null : deepLinkCity(window.location.search) }))
   const router = useRouter()
   const [offline, setOffline] = useState(false)
+  // the place a failed load asked for, with the error text it left: Try again in the box loads it again
+  const [errorRetry, setErrorRetry] = useState(null)
   const [recent, setRecent] = useState([])
   const [favorites, setFavorites] = useState([])
   const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
-  const [showEmbed, setShowEmbed] = useState(false)
   const [compareMode, setCompareMode] = useState(false)
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
@@ -560,10 +529,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         // and just try again in a minute rather than the full 15.
         setNextRefreshAt(Date.now() + 60_000)
       } else {
-        // online but the request failed: surface the error, stay "online"; with no place of
-        // their own on screen (a bad shared link), the example stays under the error
+        // the request failed: surface the error with Try again (offline and nothing stored for the place:
+        // say so, UX review Y1); with no place of their own on screen (a bad shared link), the example
+        // stays under the error
+        const text = genuinelyOffline ? t(asLang, 'offlineNoStored') : e.message
         setOffline(false)
-        setError(e.message)
+        setError(text)
+        setErrorRetry({ text, q })
         if (!ownCity.current) showExample()
       }
     } finally {
@@ -802,7 +774,8 @@ ${url}`)
         {/* First use in the app (no city yet): one clear way to start. Only CSS shows it
             (html[data-first-use], set before first paint), so it's there from the first
             frame; the phone asks for location only when it's tapped, never by itself. */}
-        {!data && !loading && (
+        {/* also over the example forecast: the app with no place of its own shows it (UX review F1) */}
+        {(!data || isExample) && !loading && (
           <div className="first-use-only mb-4">
             <button onClick={handleLocation} disabled={locating}
               className="press w-full text-left rounded-2xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-4 flex items-center gap-4 disabled:opacity-60">
@@ -818,18 +791,22 @@ ${url}`)
         )}
 
         {/* Search: on a phone (a row under 26rem) and with large text the field takes its own line and location, compare
-            and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report) */}
+            and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report).
+            There each of the three says what it does in a word (tester, 2026-11-19; UX review S1); beside the field on
+            a wide screen compare keeps its word and the other two their icon */}
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
             disabled={locating || loading}
             title={t(lang, 'a11yLocate')}
             aria-label={t(lang, 'a11yLocate')}
-            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:py-3"
+            // first-use-hide: steps aside while the card above offers the same (UX review F2)
+            className={`press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${(!data || isExample) && !loading ? 'first-use-hide' : ''}`}
           >
             {locating
-              ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow" aria-hidden />
-              : <Navigation size={18} className="text-zinc-300" aria-hidden />}
+              ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow shrink-0" aria-hidden />
+              : <Navigation size={18} className="text-zinc-300 shrink-0" aria-hidden />}
+            <span className="hidden @max-[26rem]:inline">{t(lang, 'locateShort')}</span>
           </button>
           <div className="relative flex-1 @max-[26rem]:basis-full @max-[26rem]:order-first">
             {/* the search button sits inside the field at its right edge, so a phone shows more of a long name
@@ -869,27 +846,33 @@ ${url}`)
             title={t(lang, 'compareBtn')}
             aria-label={t(lang, 'compareBtn')}
             aria-pressed={compareMode}
-            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
-              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-emerald-400'
+            className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${
+              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-emerald-400'
             }`}
           >
-            <ArrowLeftRight size={14} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'compareBtn')}</span>
+            <Columns2 size={16} className="shrink-0" aria-hidden /> <span className="hidden sm:inline @max-[26rem]:inline">{t(lang, 'compareBtn')}</span>
           </button>
           {data && (
             <button
               onClick={() => setFavorites(toggleFavorite(data.city))}
               title={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
               aria-label={isFavorite(favorites, data.city) ? t(lang, 'unsaveCity') : t(lang, 'saveCity')}
-              className={`press px-3 rounded-lg text-sm shrink-0 border flex items-center justify-center @max-[26rem]:flex-1 @max-[26rem]:py-3 ${
+              className={`press px-3 rounded-lg text-xs shrink-0 border flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${
                 isFavorite(favorites, data.city)
                   ? 'bg-amber-400 text-black border-amber-400'
-                  : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-amber-400'
+                  : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-amber-400'
               }`}
             >
-              <Star size={16} fill={isFavorite(favorites, data.city) ? 'currentColor' : 'none'} aria-hidden />
+              <Star size={16} className="shrink-0" fill={isFavorite(favorites, data.city) ? 'currentColor' : 'none'} aria-hidden />
+              <span className="hidden @max-[26rem]:inline">{t(lang, isFavorite(favorites, data.city) ? 'savedShort' : 'saveShort')}</span>
             </button>
           )}
         </div>
+
+        {/* the app with no place of its own: places to try right under the field, then the way to the mountains */}
+        {(!data || isExample) && !loading && !error && !compareMode && (
+          <FirstStart lang={lang} peaks={peaks} isExample={isExample} onPick={c => { setCity(c); loadForecast(c) }} />
+        )}
 
         {/* Favorite city chips */}
         {favorites.length > 0 && !compareMode && (
@@ -974,8 +957,15 @@ ${url}`)
 
         {/* Error */}
         {error && (
-          <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex items-center gap-2">
-            <AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}
+          <div role="alert" className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="flex-1 min-w-0 inline-flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</span>
+            {/* the next step, for a forecast that did not load (not for a location error) (UX review Y1) */}
+            {errorRetry?.text === error && (
+              <button type="button" onClick={() => loadForecast(errorRetry.q)} disabled={loading}
+                className="press min-h-11 inline-flex items-center gap-1.5 border border-red-500/40 rounded-lg px-3 text-sm hover:bg-red-500/10 disabled:opacity-60 shrink-0">
+                <RefreshCw size={15} aria-hidden /> {t(lang, 'retry')}
+              </button>
+            )}
           </div>
         )}
 
@@ -983,13 +973,9 @@ ${url}`)
         {loading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} />}
 
 
-        {/* Welcome / empty state — before any city has been searched */}
+        {/* a returning visitor's forecast, on the website and in the app (first paint, until the effect starts it) */}
         {(!data || isExample) && !loading && !error && !compareMode && (
-          <>
-            {/* a returning visitor's forecast (first paint, until the effect starts it) */}
-            <div className="web-only returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
-            <div className="app-only"><WelcomeState lang={lang} onPick={c => { setCity(c); loadForecast(c) }} /></div>
-          </>
+          <div className="returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
         )}
 
         {/* Offline banner */}
@@ -1007,7 +993,7 @@ ${url}`)
             {data.warning?.active && (
               <div className="home-warning bg-red-600/20 border-2 border-red-500 rounded-2xl p-5 sm:p-6 animate-pulse">
                 <div className="flex items-center gap-3">
-                  <span className="app-only text-3xl">{data.warning.type === 'thunderstorm' ? '⛈' : '🌧'}</span>
+                  <span className="app-only"><Glyph emoji={data.warning.type === 'thunderstorm' ? '⛈' : '🌧'} size={28} /></span>
                   <div>
                     <div className="text-red-400 font-bold text-lg uppercase tracking-wide flex items-center gap-2">
                       <AlertTriangle size={18} className="shrink-0" aria-hidden /> {t(lang, 'warningTitle')}
@@ -1021,10 +1007,10 @@ ${url}`)
             )}
 
             <div className="home-now space-y-4">
-            {/* Toolbar: the place, then refresh, share and embed as one row of like buttons, then the data age. The buttons
-                stand beside the name, centred on its first line (h-9 and sm:h-10 are the heading's line heights); a name that
-                would take more than two lines beside them gets the whole width and the buttons move into a row under it
-                (tester and owner, 2026-11-14: Garmisch-Partenkirchen took five lines on a 320 px phone) */}
+            {/* Toolbar: the place, then refresh and share, 44 px each, then the data age. The buttons stand beside the
+                name, centred on its first line; a name that would take more than two lines beside them gets the whole
+                width and the buttons move into a row under it (tester and owner, 2026-11-14: Garmisch-Partenkirchen took
+                five lines on a 320 px phone). Embed left this row for a fold of its own, website only (UX review S2) */}
             <div ref={toolbarRef} className={`home-toolbar grid gap-x-3 ${stackActions ? 'grid-cols-1' : 'grid-cols-[minmax(0,1fr)_auto]'}`}>
               {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
                   whole), a single over-long name still anywhere */}
@@ -1032,36 +1018,29 @@ ${url}`)
                 {/* the example comes in English from the server: its name in the reader's language */}
                 <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
               </h2>
-              <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-9 sm:h-10'}`}>
+              <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
                 <button
                   onClick={manualRefresh}
                   disabled={refreshing || loading}
                   title={t(lang, 'refreshNow')}
                   aria-label={t(lang, 'refreshNow')}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
+                  className="press size-11 inline-flex items-center justify-center bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 hover:border-emerald-400 hover:text-emerald-400 disabled:opacity-60"
                 >
-                  <RefreshCw size={13} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
+                  <RefreshCw size={18} className={refreshing || loading ? 'animate-spin-slow' : ''} aria-hidden />
                 </button>
                 <button
                   onClick={shareForecast}
+                  title={t(lang, 'shareBtn')}
                   aria-label={t(lang, 'shareBtn')}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
+                  className="press h-11 min-w-11 px-3 inline-flex items-center justify-center gap-1.5 bg-zinc-800 border border-zinc-700 rounded-lg text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
                 >
-                  <Share2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'shareBtn')}</span>
-                </button>
-                <button
-                  onClick={() => setShowEmbed(s => !s)}
-                  aria-label={t(lang, 'embedBtn')} aria-expanded={showEmbed}
-                  className="press inline-flex items-center gap-1.5 leading-none bg-zinc-800 border border-zinc-700 rounded-lg px-2.5 py-1.5 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
-                >
-                  <Code2 size={13} aria-hidden /> <span className="hidden sm:inline">{t(lang, 'embedBtn')}</span>
+                  <Share2 size={18} className="shrink-0" aria-hidden /> <span className="hidden sm:inline">{t(lang, 'shareBtn')}</span>
                 </button>
               </div>
               {/* under the name beside the buttons, or under the buttons once they moved under the name */}
               {generatedAt && <div className={stackActions ? 'mt-1' : 'col-start-1'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} /></div>}
             </div>
 
-            {showEmbed && <EmbedPanel city={data.city} lang={lang} unit={unit} />}
 
             {outlook && <WarningStrip lat={data.lat} lon={data.lon} cc={outlook.cc} lang={lang} todayLocal={outlook.nowLocal.slice(0, 10)}
               onOpen={() => { changeTab('today'); requestAnimationFrame(() => document.getElementById('warnings')?.scrollIntoView({ block: 'start' })) }} />}
@@ -1106,6 +1085,12 @@ ${url}`)
               <Fold icon={Send} title={t(lang, 'feedbackFold')}>
                 <FeedbackPanel data={data} unit={unit} lang={lang} onWeights={mergeWeights} />
               </Fold>
+              {/* a code for another website: of no use inside the app, rare on the website (UX review S2) */}
+              <div className="web-only">
+                <Fold icon={Code2} title={t(lang, 'embedBtn')}>
+                  <EmbedPanel city={data.city} lang={lang} unit={unit} />
+                </Fold>
+              </div>
             </div>
 
           </div>
