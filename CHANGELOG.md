@@ -8,6 +8,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: a tap on a peak or a route answers at once
 - In the app's mountain section, a peak or a route opens the moment it is tapped, with its name on screen while its forecast loads. On a poor line the screen waited for the server first (about 0.7 s; a route's title came after 2 s).
 - A route opened from a peak's list is taken from that list, so its title and map show at once.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
