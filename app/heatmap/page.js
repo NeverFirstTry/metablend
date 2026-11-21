@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
+import BackLink from '../components/BackLink'
 import { loadLeaflet } from '@/lib/leaflet'
 import { t } from '@/lib/i18n'
 import { escapeHtml } from '@/lib/html'
@@ -93,9 +94,7 @@ export default function Heatmap() {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="max-w-4xl mx-auto">
-        <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors mb-6 inline-flex items-center gap-1.5">
-          <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-        </Link>
+        <BackLink href="/more" className="app-only mb-6">{t(lang, 'more')}</BackLink>
 
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight mb-1">{t(lang, 'heatmap')}</h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
