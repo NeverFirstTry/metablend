@@ -36,7 +36,9 @@ export default function RainRadar({ lat, lon, title = 'Rain Radar', bare = false
           attribution: '&copy; OpenStreetMap contributors',
           className: 'osm-dark',
         }).addTo(mapRef.current)
-        L.circleMarker([lat, lon], { radius: 7, weight: 3, fillOpacity: 1, interactive: false, className: 'radar-place' }).addTo(mapRef.current)
+        const dot = L.circleMarker([lat, lon], { radius: 7, weight: 3, fillOpacity: 1, interactive: false, className: 'radar-place' }).addTo(mapRef.current)
+        // the dot is decoration (the place is named above the map); its SVG layer read as an unnamed image
+        dot.getElement()?.closest('svg')?.setAttribute('aria-hidden', 'true')
       } else {
         mapRef.current.setView([lat, lon], 7)
       }
