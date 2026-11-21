@@ -52,6 +52,7 @@ export default function AppChrome() {
     const resumeTo = html.dataset.resumeTab
     let resumeTimer = 0
     if (resumeTo) {
+      html.dataset.resumeTaken = '1' // the boot script's six-second fallback stands back
       router.replace(resumeTo)
       resumeTimer = setTimeout(() => { if (html.dataset.resumeTab && tabOf(pagePath(window.location.pathname)) === '/') window.location.replace(resumeTo) }, 15000)
     }
@@ -81,7 +82,7 @@ export default function AppChrome() {
     const html = document.documentElement
     const root = tabOf(path)
     if (root === '/' && !html.dataset.resumeTab) keepStartTab('/')
-    else if (root === '/hike') delete html.dataset.resumeTab
+    else if (root === '/hike') endResume(html)
   }, [app, path])
 
   if (!app) return null
