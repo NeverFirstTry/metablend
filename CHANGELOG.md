@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: Visual Crossing's temperature is shown again in the list of sources
+- The Sources panel lists Visual Crossing's temperature, its distance from the blend and its share like every other source, where it said "Value not shown (licence)" since 7 November. Website and app.
+- Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
+- What leaves our server of Visual Crossing: that one temperature, in the forecast answer. Its feels-like, rain, wind and condition words do not. The landing page's example names it without a value, since no credit stands beside that example.
+- The line "Value not shown (licence)" leaves all 13 languages.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).

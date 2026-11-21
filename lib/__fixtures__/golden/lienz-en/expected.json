@@ -61,7 +61,7 @@
         "apiId": "visual-crossing",
         "displayName": "Visual Crossing",
         "responseMs": 0,
-        "valuesHidden": true
+        "temp": 3.8
       },
       {
         "apiId": "geosphere",
