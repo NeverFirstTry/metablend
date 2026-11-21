@@ -5,6 +5,45 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Added: the database's size is measured every night, and has a health address of its own
+- Nothing a visitor sees changes.
+- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
+- The nightly job (05:00 UTC) reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there.
+- New address `/api/health/db`: 200 below 400 MB, 503 from 400 MB on and when the size cannot be read. Its answer holds the size in MB, the two limits and the time, nothing else; it is kept a minute per server and never cached outside. A second outside monitor asks it.
+- The main health check `/api/health` does not know the size, on purpose (owner, 20 November): a main check that fails for it spoils the uptime figures and can set off the deploy guard and a rollback.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles); run on dev and production on 20 November.
+- Open-Meteo: no change.
+
+### Changed: Visual Crossing's temperature is shown again in the list of sources
+- The Sources panel lists Visual Crossing's temperature, its distance from the blend and its share like every other source, where it said "Value not shown (licence)" since 7 November. Website and app.
+- Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
+- What leaves our server of Visual Crossing: that one temperature, in the forecast answer. Its feels-like, rain, wind and condition words do not. The landing page's example names it without a value, since no credit stands beside that example.
+- The line "Value not shown (licence)" leaves all 13 languages.
+### Fixed: after midnight the hike widget shows each day its own summit window
+- A planned hike's widget, read at night from a summit forecast made before midnight, showed "No daylight left today" for the new day and gave the day after it the new day's window, in green. Each window now stays with its own day. A day the stored forecast has no window for shows the day's weather without a verdict until the forecast is renewed (at most about two hours).
+- Server only: the widgets on the phones need no update.
+### Fixed: in the app, a peak's "Today" is the reader's day, not the day the forecast was made
+- When a summit forecast was kept through an outage, or made before midnight and opened after it, the app's peak view called the day before "Today" and showed what was left of that day's window. The summit pages were corrected for this on 17 November; the app's view was not.
+- Today and Tomorrow now go by the day it is at the summit. Each day shows its own window; the Week tab starts at today. After midnight the peak opens on Today with its window, where it opened on the day after.
+- A phone set to a date the forecast does not cover is not believed: the forecast is then shown as it is.
+### Fixed: no server code in the browser's part of a peak
+- Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
+- The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
+- A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
+### Fixed: GeoSphere no longer says "Clear" whenever it is dry
+- In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
+- GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
+- Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
+### Fixed: "feels like" is no longer pulled towards the air temperature
+- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature.
+- Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
+- When no source has the value, the line shows the air temperature, as before.
+- Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
+### Added: the height model's notice in the list of sources on /terms
+- Since 19 November a hiking route's ascent, walking time and height profile are made from the Copernicus height model (GLO-90). Its notice was missing where the public can read it. It now stands in the list of sources on /terms in all 13 languages, in its licence's own words: "produced using Copernicus WorldDEM™-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved", followed by what it is used for in the page's language and by the sentence the licence asks to stand with it: "The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90".
+- The wording was read on 21 November in the licence itself (Licence for the use of the Copernicus WorldDEM™-90, Article 6) and is on file in `docs/source-licences.md`; `docs/how-it-works.md` no longer says that no heights are published.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
