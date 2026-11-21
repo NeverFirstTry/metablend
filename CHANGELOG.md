@@ -5,6 +5,17 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: planned hikes show where they are made
+- A peak or route with a planned hike says "Planned for Saturday" above the Plan button, with Cancel plan next to it. The day already planned is not offered again.
+- The Hiking tab lists the planned hikes at the top, each opening its peak. They were only under More, Notifications. In all 13 languages.
+- The list is read once per app start, and only with notifications on; More, Notifications and the peaks show the same list.
+
+### Changed: the route screen
+- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
+- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
+- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
+- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
@@ -103,21 +114,6 @@ All notable changes to MetaBlend. Format loosely follows
 - The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
 - The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
 
-### Changed: planned hikes show where they are made
-- A peak or route with a planned hike says "Planned for Saturday" above the Plan button, with Cancel plan next to it. The day already planned is not offered again.
-- The Hiking tab lists the planned hikes at the top, each opening its peak. They were only under More, Notifications. In all 13 languages.
-- The list is read once per app start, and only with notifications on; More, Notifications and the peaks show the same list.
-
-### Changed: the route screen
-- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
-- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
-- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
-- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
-
-### Changed: Plan a hike says what it does, and a removed route can be brought back
-- Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
-- Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
-
 ### Changed: the way back at the top of a page is a real target and names where it goes
 - The back link at the top of Rankings, Heatmap, Planner, Aviation, an airport, the legal pages, a peak and a route is now 44 px high instead of a 20 px line of text, easier to hit with a thumb.
 - It names where it leads: in the app, the pages opened from More lead back to More and say "More" (they led to the forecast and said "Back"); an airport says "Aviation"; a peak says "Hiking".
@@ -156,10 +152,6 @@ All notable changes to MetaBlend. Format loosely follows
 - One address may register ten new phones an hour (counted in memory per server copy, an IPv6 line as one address). A phone that is already known registers again at every app start and is not counted.
 - The hourly and the quarter-hourly alert run handle phones oldest first and give each part its time within the function's 300 seconds: places until 150 s, planned hikes until 210 s, sending until 270 s. What a run did not reach is counted in its summary (`leftPlaces`, `leftPlans`, `leftSends`), noted in the error log, and tried by the next run. A message that was not sent is not logged as sent.
 - Open-Meteo: no new request. Registering a phone asks the database once more than before (is this phone known).
-
-### Added: save a peak, and the peaks you opened stay one tap away
-- A star beside a peak's name keeps it under "My peaks" at the top of the Hiking tab; the peaks opened lately stand under "Recently opened". Kept on the phone, up to 12 saved and 5 recent, in all 13 languages.
-- Each row shows the peak's next favourable summit window from the last forecast you looked at, with the time that forecast was made, while it still speaks of today or tomorrow. A favourable window is in the accent colour; a window judged without storm data says so in the warning colour; no window stays plain. The Hiking tab makes no forecast request of its own for these rows; a tap opens the peak with a fresh forecast.
 
 ### Changed: a summit page built during an Open-Meteo outage is kept 30 minutes, not six hours
 - When Open-Meteo is down, a summit page is built from the peak's last good forecast and says from when it is ("As of ..."). Since 19 November such a page was kept six hours like any other, so it could go on showing the old forecast for hours after Open-Meteo was back. It is now built again after 30 minutes. A normal page keeps its six hours.
