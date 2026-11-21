@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed: a summit page built during an outage says so
 - When the weather source did not answer and a summit page was built from the last good forecast, it now says "Showing last known forecast. The weather source is not answering right now." above the summit window, in the look of the start page's offline line. Before, only an older "As of" time told. In all 13 languages.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
