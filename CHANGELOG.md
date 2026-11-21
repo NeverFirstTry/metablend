@@ -17,6 +17,10 @@ All notable changes to MetaBlend. Format loosely follows
 - When a summit forecast was kept through an outage, or made before midnight and opened after it, the app's peak view called the day before "Today" and showed what was left of that day's window. The summit pages were corrected for this on 17 November; the app's view was not.
 - Today and Tomorrow now go by the day it is at the summit. Each day shows its own window; the Week tab starts at today. After midnight the peak opens on Today with its window, where it opened on the day after.
 - A phone set to a date the forecast does not cover is not believed: the forecast is then shown as it is.
+### Fixed: no server code in the browser's part of a peak
+- Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
+- The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
+- A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
