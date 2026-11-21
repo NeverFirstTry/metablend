@@ -3,7 +3,105 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-20
+## 2026-11-21
+
+### Added: the database's size is measured every night, and has a health address of its own
+- Nothing a visitor sees changes.
+- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
+- The nightly job (05:00 UTC) reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there.
+- New address `/api/health/db`: 200 below 400 MB, 503 from 400 MB on and when the size cannot be read. Its answer holds the size in MB, the two limits and the time, nothing else; it is kept a minute per server and never cached outside. A second outside monitor asks it.
+- The main health check `/api/health` does not know the size, on purpose (owner, 20 November): a main check that fails for it spoils the uptime figures and can set off the deploy guard and a rollback.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles); run on dev and production on 20 November.
+- Open-Meteo: no change.
+
+### Changed: Visual Crossing's temperature is shown again in the list of sources
+- The Sources panel lists Visual Crossing's temperature, its distance from the blend and its share like every other source, where it said "Value not shown (licence)" since 7 November. Website and app.
+- Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
+- What leaves our server of Visual Crossing: that one temperature, in the forecast answer. Its feels-like, rain, wind and condition words do not. The landing page's example names it without a value, since no credit stands beside that example.
+- The line "Value not shown (licence)" leaves all 13 languages.
+### Fixed: after midnight the hike widget shows each day its own summit window
+- A planned hike's widget, read at night from a summit forecast made before midnight, showed "No daylight left today" for the new day and gave the day after it the new day's window, in green. Each window now stays with its own day. A day the stored forecast has no window for shows the day's weather without a verdict until the forecast is renewed (at most about two hours).
+- Server only: the widgets on the phones need no update.
+### Fixed: in the app, a peak's "Today" is the reader's day, not the day the forecast was made
+- When a summit forecast was kept through an outage, or made before midnight and opened after it, the app's peak view called the day before "Today" and showed what was left of that day's window. The summit pages were corrected for this on 17 November; the app's view was not.
+- Today and Tomorrow now go by the day it is at the summit. Each day shows its own window; the Week tab starts at today. After midnight the peak opens on Today with its window, where it opened on the day after.
+- A phone set to a date the forecast does not cover is not believed: the forecast is then shown as it is.
+### Fixed: no server code in the browser's part of a peak
+- Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
+- The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
+- A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
+### Fixed: GeoSphere no longer says "Clear" whenever it is dry
+- In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
+- GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
+- Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
+### Fixed: "feels like" is no longer pulled towards the air temperature
+- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature.
+- Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
+- When no source has the value, the line shows the air temperature, as before.
+- Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
+### Added: the height model's notice in the list of sources on /terms
+- Since 19 November a hiking route's ascent, walking time and height profile are made from the Copernicus height model (GLO-90). Its notice was missing where the public can read it. It now stands in the list of sources on /terms in all 13 languages, in its licence's own words: "produced using Copernicus WorldDEM™-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved", followed by what it is used for in the page's language and by the sentence the licence asks to stand with it: "The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90".
+- The wording was read on 21 November in the licence itself (Licence for the use of the Copernicus WorldDEM™-90, Article 6) and is on file in `docs/source-licences.md`; `docs/how-it-works.md` no longer says that no heights are published.
+- Open-Meteo: no change.
+
+### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
+- Nothing a visitor sees changes.
+- The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
+- The widget feed and the share card ask our own forecast addresses with the server's key. Counted as the site's own, all their visitors shared one count. They now pass on the address of the visitor who asked, and what is counted by address (stored forecasts, new places, kept answers) is counted for that visitor. The header is read only together with the server's key (both points from the automated security review of 20 November).
+
+### Fixed: a made-up address can never count as the site's own jobs
+- Nothing a visitor sees changes.
+- Limits that count by visitor address give the site's own jobs a count of their own, under a fixed name. The address comes from a request header, which the platform writes on Vercel. A value in it that is no address now counts under one fixed name of its own and can never equal the jobs' name (found by the automated security review of 20 November).
+- Open-Meteo: no change.
+
+### Changed: a place nobody asked for before is budgeted at Open-Meteo
+- For a visitor: a place we have no climate table for yet may show its outlook without the comparison with the normal for a day or more, and the planner may answer "The climate figures for this place are not ready yet. Please try again tomorrow." (in all 13 languages) where it tried to fetch them at once. A place that has its table is not touched.
+- Why: such a place costs one 10-year archive request, about 104 weighted calls. About 86 new places in a day used up the whole day's 10,000 at Open-Meteo, for every visitor and every source that comes from there. Nothing limited it.
+- The limits: all new places together 2,100 weighted calls a day (about 20 places; `OPEN_METEO_CLIMATE_CALLS` changes it), read from our own request counter; and five new places per address and day, counted in memory per server copy. The site's own jobs count against the day's budget only. A refused place borrows the table of a kept place within 25 km and 300 m of height where there is one, as before, and gets its own on a later day. A script the owner runs (the prefill) is not budgeted.
+- Open-Meteo: new places 20 requests and 2,100 weighted calls a day at most, where there was no limit (18 November: 5 requests, 522 weighted calls; 19 November: 1 and 104).
+
+### Changed: one address fills the database with at most 100 forecasts a day
+- For a visitor nothing changes: every forecast is answered as before.
+- Every forecast our server has to build writes about 20 rows for the scoring and one for the feed. One address may have 100 such forecasts written in a day; beyond that its forecasts are still answered and nothing is written for them. Counted in memory per server copy and forgotten after a day. The site's own readers (widget feed, share card, alert run) share a count of 1,000.
+- Why: the database's plan holds 500 MB and stood at 348 MB on 20 November; one address asking for a new town 40 times a minute wrote about 0.4 MB a minute.
+- Open-Meteo: no change.
+
+### Changed: the privacy notice, two sentences (German first, then the 12 translations)
+- "Technical data": our server counts the requests from an IP address in memory "for at most one day at a time"; it said "one hour". Two counts of this deploy run for a day (new places per address, stored forecasts per address); every other count still runs a minute or an hour. The address is still not stored.
+- "What stays on your device": saved and recently opened peaks, with the summit window of the forecast last viewed, join the list. They are kept in the browser's storage, not in cookies, so they do not reach our server.
+- `lib/legal-pages.test.js` pins both sentences word for word in all 13 languages.
+
+### Changed: notifications carry no emoji
+- The alerts for rain, thunderstorms, severe weather, official warnings and heat, the warning line of a hike alert and the test message no longer carry an emoji, in all 13 languages (owner, 20 November). Each phone drew them its own way, and a screen reader read them out.
+- A planned hike's alert is titled "Hike: Großglockner" ("Tour: Großglockner" in German, each language's own word), where it was a mountain sign and the name alone.
+- The morning briefing on a hot day is titled like the heat alert ("Hot day in Vienna"), where it had a thermometer in front of "Vienna today". The heat is said in words.
+- Open-Meteo: no change.
+
+### Added: privacy manifests for the iPhone app and its widget extension
+- Nothing changes on metablend.app or in an installed app. Ships with the next native build (the submission of 3 December).
+- Apple asks an app that uses UserDefaults to say why, in a `PrivacyInfo.xcprivacy` file, in the app and in every extension that uses it. The app now declares its own settings (reason `CA92.1`) and the app group it shares with the widgets (`1C8F.1`); the widget extension declares the app group (`1C8F.1`). Neither declares tracking. The app's file names the six data types of the App Privacy form (`store/compliance.md`), linked or not as there.
+- The app's file is added to the App target in the Xcode project; the widgets' file lies in the folder the extension is synchronised with. Written on Windows and not compiled: the first Xcode build is the test, and `docs/launch-checklist.md` says what to look at in Xcode.
+- `lib/privacy-manifest.test.js` (6 tests, 5 of them seen failing before the files existed) holds the two files, the project file and the form's data types together.
+
+### Changed: the app's first screen shows the product, not a pitch
+- After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
+- "Use my location" is offered once: the location button under the search field steps aside while the card offers the same.
+- A returning app user no longer sees the example forecast and Try a city for a moment before their own place opens: the app marks its returning users before the first frame, as the website does, and they see the small loader instead.
+
+### Changed: the buttons around the search field say what they do (tester's three points)
+- On a phone the three buttons under the search field carry a word: "Location", "Compare" and "Save" ("Saved" once the place is saved), in all 13 languages. Compare has a new icon, two columns, instead of the swap arrows.
+- Beside the place name only refresh and share remain, each 44 px, a size a thumb hits. Embed left that row: in the app it is gone (a code for another website is of no use there), on the website it is a fold of its own after Sources and Feedback.
+- Recent places hold each place once: two spellings of one town ("Buôn Ma Thuột", "Buon Ma Thuot") count as one, and lists saved before clean themselves up when read. The same town in two languages ("Wien", "Vienna") can still stand twice.
+
+### Changed: the app's offline screen looks like the app and speaks the phone's language
+- When the app starts without a connection, its screen now uses the app's type and two-colour logo instead of a typewriter face, follows the phone's light or dark appearance, and says "No connection. MetaBlend needs the internet to show the forecast." in the phone's language, in all 13 of the app's languages (English and German only until now). The Retry button is a 44 px target and the one gold thing on the screen.
+- The screen ships inside the app, so phones get it with the next native build.
+
+### Changed: no emoji in the interface, no dashes on the aviation pages
+- The region buttons under Rankings lose their flags and globes, and the weather choices in Feedback their weather emoji ("Sunny" instead of "☀️ Sunny"), in all 13 languages.
+- Under More, an empty list of planned hikes now says "No planned hikes. Open a peak and tap “Plan a hike”." instead of showing a bell emoji.
+- The warning before a day where the models split by more than 4°, the app's rain and thunderstorm warning and the airport page's "Significant weather" use the app's own icons instead of ⚠, ⛈ and 🌧 as text.
+- The aviation pages use full stops and commas instead of dashes, and say "not reported" where a value is missing instead of a lone dash. A report without a weather group says "none reported" under Weather: in a METAR that usually means no significant weather, but an automatic station with its weather sensor out reports none either.
 
 ### Changed: planned hikes show where they are made
 - A peak or route with a planned hike says "Planned for Saturday" above the Plan button, with Cancel plan next to it. The day already planned is not offered again.
@@ -25,6 +123,33 @@ All notable changes to MetaBlend. Format loosely follows
 - It names where it leads: in the app, the pages opened from More lead back to More and say "More" (they led to the forecast and said "Back"); an airport says "Aviation"; a peak says "Hiking".
 - A route opened from a peak says the peak's name ("Großglockner") instead of "All peaks"; an imported route says "Hiking".
 
+### Changed: Plan a hike says what it does, and a removed route can be brought back
+- Plan a hike now says what a plan brings before a day is picked: "The summit window comes the evening before at 18:00, or at 06:00 on the day." Until now that sentence came only after the choice. The day buttons are 44 px high.
+- Removing a route under My routes no longer happens at once: the row goes, "Route removed." with Undo stands in its place for a few seconds, and only then is the route deleted. The bin is a 44 px target.
+
+### Added: save a peak, and the peaks you opened stay one tap away
+- A star beside a peak's name keeps it under "My peaks" at the top of the Hiking tab; the peaks opened lately stand under "Recently opened". Kept on the phone, up to 12 saved and 5 recent, in all 13 languages.
+- Each row shows the peak's next favourable summit window from the last forecast you looked at, with the time that forecast was made, while it still speaks of today or tomorrow. A favourable window is in the accent colour; a window judged without storm data says so in the warning colour; no window stays plain. The Hiking tab makes no forecast request of its own for these rows; a tap opens the peak with a fresh forecast.
+
+### Changed: when a forecast cannot be loaded, the box offers Try again and knows "offline"
+- The red box on the start page now has a Try again button (44 px) that loads the same place again.
+- Without a connection and with no forecast stored for the place, it says so: "You are offline. No forecast is stored for this place yet." instead of "The forecast could not be loaded.", in all 13 languages. A place with a stored forecast still shows it with the offline banner, as before.
+
+### Changed: the app says what notifications bring before asking for them
+- Under "Turn on notifications" the app now lists what can come: "Rain soon, thunderstorms, severe weather, heat, a morning briefing and your planned hikes. You choose which." Until now the list showed only after saying yes. The quiet-hours line follows, in all 13 languages.
+
+### Added: the peak's Week tab says which day works
+- The Week tab of a peak now opens with a verdict: "Best day: Saturday, summit window 08:00-13:00", or "No favourable summit window this week". Every day in the list says its window or why it has none ("rain from 08:00"), in all 13 languages.
+- Today, tomorrow and the day after get times to the hour; later days say their window as a tendency ("About 09:00-12:00, a tendency") and are the best day only when no nearer day has a window. A day whose storm risk is unknown says so and never beats a day where it is known.
+
+### Added: the summit forecast holds the favourable window of every day of the week
+- Nothing a visitor sees changes yet. The peak view's Week tab will use it to say which day has a window (UX review, entry P1; the screen itself follows on a branch of its own).
+- `/api/hike` now answers with `windows.days`: one entry `{ date, w, stormUnknown, n }` for every day the forecast covers to its evening. `w` is the same answer `windows.today` and `windows.tomorrow` are (a window, or the reason there is none). `stormUnknown` says that an hour of that day's window has no storm value, so the day is not to be shown as favourable without saying so; a week out fewer models report it. `n` is the fewest models behind an hour of the window.
+- A last day whose hours stop before its evening has no entry: a cut-off forecast is not a verdict.
+- Open-Meteo: no new request and no new variable. The answer grows by about seven small entries.
+
+## 2026-11-20
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
@@ -41,6 +166,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Open-Meteo: no change on a normal day. During an outage a visited summit page asks our forecast address again every 30 minutes (the stored copy's request, three models, 5.1 weighted calls once it reaches Open-Meteo again).
 - Behind it: a page is rebuilt at the shortest storage time among its own requests, and that time cannot be set after the answers are in. So when the forecast comes marked as the last good answer, the page asks the same address once more under 30 minutes and uses that answer (lib/hike/summit-fetch.js). Two tests: the request itself, and the page built for real with such an answer, which fails when no request names 30 minutes.
 - Seen on the built site, with a stand-in that marks one peak's forecast as the last good answer: that page is served with `s-maxage=1800`, a normal one with `s-maxage=21600`, and the marked page's second request was answered from the copy just fetched (one request reached the forecast address, not two).
+
 ### Changed: a peak's route list is kept 30 days before OpenStreetMap is asked again
 - The marked routes up a peak are looked up from OpenStreetMap once and then kept. Until now a list counted for a week; it now counts for 30 days (owner, 20 November). Marked routes rarely change, and a public service should be asked as little as possible: the site sent about 16 requests a day to the OpenStreetMap API (125 in eight days), and a peak that is visited every week is now looked up once a month instead of four times.
 - The price: a route that really changed (moved, new or removed in OpenStreetMap) shows up to 30 days late, where it was up to 7. The CDN may add up to 8 days, as before. Closures were never read and are not affected.
@@ -48,6 +174,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly cleanup now keeps a list 60 days where it kept 30: 30 days fresh and 30 more as the copy that stands in when OpenStreetMap is down. With the old 30 days it would have deleted a list on the night it became due, and a list waiting for its one-day retry on the night after it was stored. The table is small (204 lists on 19 November).
 - The lists loaded on 19 November now count until 19 December.
 - Tests: the route is called for real with a list 8, 29 and 31 days old and with a lookup in which a route fails; the cleanup's cut-off is read from its own request (lib/routes-kept.test.js). All four failed before the change.
+
 ### Docs: the project skill names the gold rule for main buttons
 - Nothing changes on metablend.app.
 - The owner's answer of 20 November to the UX review's open question: on a screen without an answer the one main button keeps gold, since it is that screen's one job; tabs, toggles and chips stay neutral. One sentence in the skill's colour rule.
@@ -71,7 +198,6 @@ All notable changes to MetaBlend. Format loosely follows
 - 500 GB is enough either way (about 65 GB for a Europe box, about 125 GB for the world). The limits are the line (131 or 282 GB a day) and the NVMe's rated life (48 or 103 TB written a year).
 - `scripts/home-server/check.sh` asks a server the twelve requests the site makes today, twice each, with the answer code and the seconds.
 - Decided on 2026-11-19 and written into step 10: before our server answers first, the empty answers for places outside a Europe box are fixed, by a worldwide sync of the global models or by the switch passing an empty answer on to the public service.
-
 
 ## 2026-11-19
 
@@ -808,6 +934,7 @@ All notable changes to MetaBlend. Format loosely follows
 - The same page in every other language at its own address (/de, /fr, /ja …), each with its own title, description and share image. Returning visitors and shared links go straight to their city.
 - Dark mode has one fixed, calm background; the tint that followed the weather and the time of day is gone.
 - "6 of 19 sources report rain right now" only shows when most sources do, so it can't contradict "dry today". In the evening the chart labels every hour and keeps its rain bars narrow.
+
 ### Added
 - Recent places: each one has an × to remove it, and "Clear all" ends the list. With none left, the next visit starts as a first one. Keyboard and screen readers included, all 13 languages. Asked for by a user.
 - A logo for email signatures at /email/logo.png.

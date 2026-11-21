@@ -84,7 +84,7 @@ export default function Planner() {
     try {
       const res = await fetch(`/api/planner?city=${encodeURIComponent(q)}`)
       const json = await res.json()
-      if (json.error) throw new Error(json.error)
+      if (json.error) throw new Error(json.code === 'later' ? t(lang, 'plLater') : json.error)
       setData(json)
     } catch (e) {
       setError(e.message); setData(null)

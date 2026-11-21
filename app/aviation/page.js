@@ -63,7 +63,7 @@ export default async function AviationHub() {
 
         <h1 className="mb-rise text-3xl sm:text-4xl font-semibold tracking-tight mb-1">MetaBlend Aviation</h1>
         <p className="text-zinc-500 text-sm mb-6 tracking-widest uppercase">
-          METAR · TAF · crosswind · density altitude — {AIRPORT_COUNT.toLocaleString('en')} airports
+          METAR · TAF · crosswind · density altitude · {AIRPORT_COUNT.toLocaleString('en')} airports
         </p>
 
         <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-200 text-xs mb-8 leading-relaxed">
@@ -97,7 +97,7 @@ export default async function AviationHub() {
                     {cat ? (
                       <span className="text-[0.625rem] font-bold tracking-wider" style={{ color: RULES_COLOR[cat] }}>● {cat}</span>
                     ) : (
-                      <span className="text-[0.625rem] text-zinc-600 tracking-wider">–</span>
+                      <span className="text-[0.625rem] text-zinc-600 tracking-wider">not reported</span>
                     )}
                   </Link>
                 )
@@ -108,7 +108,7 @@ export default async function AviationHub() {
         <p className="text-zinc-600 text-[0.625rem] mb-10">
           VFR <span style={{ color: RULES_COLOR.VFR }}>●</span> · MVFR <span style={{ color: RULES_COLOR.MVFR }}>●</span> ·
           IFR <span style={{ color: RULES_COLOR.IFR }}>●</span> · LIFR <span style={{ color: RULES_COLOR.LIFR }}>●</span> ·
-          – means the METAR didn’t report enough to classify
+          not reported: the METAR did not give enough to classify
         </p>
 
         <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8">
