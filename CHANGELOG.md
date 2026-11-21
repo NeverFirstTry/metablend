@@ -9,6 +9,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Tools, Help and Legal are three groups instead of one list of eight rows, and each tool says what it is ("Planner: the best months for a trip", "Aviation: METAR and TAF, in English"). Support joins Send feedback under Help.
 - In the app, notifications come right after the language, unit and appearance settings; the app icons come last instead of a screen-tall grid above them.
 - The unit and appearance pickers show the choice in a neutral grey, not in gold. In all 13 languages.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
