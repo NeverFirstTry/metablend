@@ -7,7 +7,7 @@ import { withErrorLog, logError } from '@/lib/log'
 import { withJobLog } from '@/lib/job-log'
 import { runOutlookVerification } from '@/lib/outlook/job'
 import { CACHE_DAYS as NOMINATIM_DAYS } from '@/lib/hike/nominatim'
-import { NOTE_SCOPES, DB_ALARM_MB, DB_PLAN_MB } from '@/lib/health'
+import { NOTE_SCOPES } from '@/lib/health'
 import { purgeShortLived } from '@/lib/retention'
 
 // Meteostat lookups, weight round-trips per city and the outlook's METAR
@@ -190,12 +190,11 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   if (climates.error && climates.error.code !== 'PGRST205') await logError('cleanup.place-climate', climates.error)
 
   // The database's size (supabase/database-size.sql), once a night after the deletes: in the job's summary,
-  // so the growth per day can be read from the job log, and at DB_ALARM_MB or more as the note /api/health
-  // reports for a quarter of an hour (lib/health.js). The function may not exist yet: then there is no size.
+  // so the growth per day can be read from the job log. No alarm from here: that is /api/health/db's, which a
+  // monitor of its own asks. The function may not exist yet: then there is no size.
   const size = await supabase.rpc('database_size')
   const databaseMb = typeof size.data === 'number' ? Math.round(size.data / 1048576) : null
   if (size.error && size.error.code !== 'PGRST202') await logError('cleanup.database-size', size.error)
-  if (databaseMb >= DB_ALARM_MB) await logError('database.size', new Error(`the database holds ${databaseMb} MB of its plan's ${DB_PLAN_MB} MB`), { bytes: size.data })
 
   let validation
   try {

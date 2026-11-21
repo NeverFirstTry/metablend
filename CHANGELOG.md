@@ -5,11 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
-### Added: the database's size is measured every night, with an alarm at 400 MB
+### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
-- The nightly job (05:00 UTC) now reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there. At 400 MB or more it leaves a note in the error log, and `/api/health` reports that note as a problem for a quarter of an hour: the outside monitor sends its mail once a day while the database stays that full, and is free to report anything else the rest of the day.
-- Needs `supabase/database-size.sql` (one small function, not callable by the public roles) on dev and then production. Without it the job runs as before and measures nothing.
+- The nightly job (05:00 UTC) reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there.
+- New address `/api/health/db`: 200 below 400 MB, 503 from 400 MB on and when the size cannot be read. Its answer holds the size in MB, the two limits and the time, nothing else; it is kept a minute per server and never cached outside. A second outside monitor asks it.
+- The main health check `/api/health` does not know the size, on purpose (owner, 20 November): a main check that fails for it spoils the uptime figures and can set off the deploy guard and a rollback.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles); run on dev and production on 20 November.
 - Open-Meteo: no change.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
