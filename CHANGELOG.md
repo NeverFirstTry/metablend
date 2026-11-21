@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Fixed: the nightly scoring compares a reading with the measurement of its own hour
+- Nothing a visitor sees changes at once. The sources' weights now learn from a fair comparison.
+- Every night each source's last stored temperature of a place was scored against the mean of the whole day. On 20 November in Lienz a reading of 4° at 15:00 was 5° off that day's mean of -1° and would have been marked down, though 4.2° was measured at that hour. Now each reading is scored against the measured temperature of the hour it was read, with the thresholds of a same-moment comparison.
+- What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day and the live forecasts use about 170, so a night now scores about 30 places, not 50. The job's summary says how many records it used and how many places it did not reach.
+- Not changed: the job still runs at 06:00 UTC, when yesterday is not over on the American west coast; readings stored there after that hour are not scored.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).

@@ -1,6 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import { readAll } from '@/lib/push/paging'
-import { deltaFromDiff, median } from '@/lib/scoring'
+import { dailyDeltas, dayHours } from '@/lib/daily-score'
 import { applyDeltas, claimDay } from '@/lib/weights'
 import { isAuthorizedJob } from '@/lib/auth'
 import { withErrorLog } from '@/lib/log'
@@ -13,23 +13,25 @@ import { withJobLog } from '@/lib/job-log'
 // Cap cities per run to stay within the Visual Crossing free tier (~1000 records/day)
 const MAX_CITIES = 50
 
-// Actual daily mean temp from Visual Crossing's historical timeline.
-async function fetchActualTemp(lat, lon, date, key) {
-  const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/${date}?unitGroup=metric&key=${key}&include=days&elements=datetime,temp`
+// Visual Crossing counts a day asked with its hours as 24 records, and its free plan has 1,000 a day, of
+// which the live forecasts use about 170 (counted on 2026-11-21). The night's scoring stops before this many,
+// counted from each answer's own queryCost: about 30 places, where the day's mean was one record a place and 50.
+const MAX_RECORDS = 720
+
+// The day's measured temperature hour by hour at a place, on the place's own clock (lib/daily-score.js dayHours)
+async function fetchDay(lat, lon, date, key) {
+  const url = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${lat},${lon}/${date}?unitGroup=metric&key=${key}&include=hours&elements=datetime,temp`
   try {
     const res = await fetch(url, { signal: AbortSignal.timeout(10000) })
-    if (!res.ok) return null
-    const t = (await res.json()).days?.[0]?.temp
-    return typeof t === 'number' ? t : null
+    return res.ok ? dayHours(await res.json()) : null
   } catch {
     return null
   }
 }
 
-// Daily auto-calibration: score yesterday's forecasts against the real weather
-// and re-weight the APIs — same scoring math as the feedback route, but with
-// the 'daily' thresholds since an instantaneous forecast is being compared
-// against a 24-hour mean (exactly like the Meteostat validation).
+// Daily auto-calibration: score yesterday's forecasts against the real weather and re-weight the APIs. A
+// stored forecast is the temperature at the moment someone looked, so it is compared with the measured
+// temperature of that same hour (lib/daily-score.js; until 2026-11-21 with the mean of the whole day).
 export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (request) => {
   if (!isAuthorizedJob(request)) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -66,29 +68,23 @@ export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (requ
   }
 
   const results = []
-  let calibrated = 0
+  let calibrated = 0, records = 0, left = 0
 
-  for (const { city, lat, lon, region } of cities) {
-    const actualTemp = await fetchActualTemp(lat, lon, yesterday, key)
-    if (actualTemp == null) { results.push({ city, skipped: 'no Visual Crossing data' }); continue }
+  for (const [i, { city, lat, lon, region }] of cities.entries()) {
+    // the service's daily allowance: the places not reached tonight are counted, not scored
+    if (records + 24 > MAX_RECORDS) { left = cities.length - i; break }
+    const day = await fetchDay(lat, lon, yesterday, key)
+    if (!day) { results.push({ city, skipped: 'no Visual Crossing data' }); continue }
+    records += day.cost
 
     // latest stored forecast per API for this city
     const latestPerApi = {}
     forecasts.filter(f => f.city === city).forEach(f => { latestPerApi[f.api_id] = f })
     const unique = Object.values(latestPerApi)
 
-    // Median forecast temp across all APIs — used to flag outliers (see below).
-    const medianTemp = median(unique.map(f => f.temp))
-
-    const deltaMap = {}
-    for (const f of unique) {
-      const tempDiff = Math.abs(f.temp - actualTemp)
-      // Outlier penalty: an API more than 5°C off the cross-API median gets a
-      // hard −2 regardless of how it scored against the actual temp.
-      deltaMap[f.api_id] = Math.abs(f.temp - medianTemp) > 5
-        ? -2
-        : deltaFromDiff(tempDiff, 'daily')
-    }
+    // each source's reading against the measurement of its own hour; the outlier rule is in there too
+    const deltaMap = dailyDeltas(unique, day.hours, day.tzoffset)
+    if (!Object.keys(deltaMap).length) { results.push({ city, skipped: 'no measurement at the hours of the readings' }); continue }
 
     const applied = await applyDeltas(region, deltaMap)
     if (!applied) continue
@@ -98,12 +94,11 @@ export const GET = withErrorLog('calibrate', withJobLog('calibrate', async (requ
 
     results.push({
       city,
-      actualTemp,
       apis: applied.map(u => ({ id: u.id, delta: u.deltas[0] })),
     })
     calibrated++
   }
 
 
-  return Response.json({ calibrated, date: yesterday, results })
+  return Response.json({ calibrated, date: yesterday, records, left, results })
 }))
