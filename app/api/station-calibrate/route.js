@@ -11,7 +11,8 @@ import { haversineKm } from '@/lib/geo'
 import { localHourIso } from '@/lib/localtime'
 import { parseSummitMulti } from '@/lib/hike/parse'
 import { OM_MODELS } from '@/lib/outlook/models'
-import { SUMMITS, nearestStation, chooseTruth, summitErrors, stationTemps } from '@/lib/shadow'
+import { SUMMITS, nearestStation, chooseTruth, summitErrors, stationTemps, summitShown } from '@/lib/shadow'
+import { loadOutlookWeights } from '@/lib/outlook/weights'
 import { purgeShortLived } from '@/lib/retention'
 
 // Ground-truth calibration from aviation METAR observations (NOAA Aviation
@@ -111,6 +112,8 @@ async function saveShadow(cities, forecasts, observations, since, { near, temps 
     forecasts.filter(f => f.city === city).forEach(f => { latest[f.api_id] = f })
     rows.push({ city, region, truth: reading.truth, truth_km: reading.km ?? null, actual: reading.actual, shown: await shownConsensus(city, since), errors: rawErrors(Object.values(latest), reading.actual) })
   }
+  // the weights the peak view blends a summit with (one read a run), for the value it showed this hour
+  const summitWeights = SUMMITS.some(s => temps.has(s.station)) ? await loadOutlookWeights('europe') : {}
   await Promise.all(SUMMITS.filter(s => temps.has(s.station)).map(async s => {
     // temperature only, one day: the app's summit request is far bigger than this needs
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${s.lat}&longitude=${s.lon}&elevation=${s.elev}&hourly=temperature_2m&models=${OM_MODELS.map(m => m.model).join(',')}&forecast_days=1&timezone=auto`
@@ -118,8 +121,10 @@ async function saveShadow(cities, forecasts, observations, since, { near, temps 
     const parsed = answer?.ok ? parseSummitMulti(await answer.json().catch(() => null)) : null // one bad body costs one summit, not the hour
     if (!parsed) return
     const actual = temps.get(s.station)
-    const errors = summitErrors(parsed, localHourIso(parsed.utcOffsetSec).slice(0, 13), actual)
-    if (Object.keys(errors).length) rows.push({ city: s.name, region: 'europe', truth: 'summit', truth_km: 0, actual, shown: null, errors })
+    const hour = localHourIso(parsed.utcOffsetSec).slice(0, 13)
+    const errors = summitErrors(parsed, hour, actual)
+    // shown: what the app's peak view displays for this hour (since 2026-11-21; null in older rows)
+    if (Object.keys(errors).length) rows.push({ city: s.name, region: 'europe', truth: 'summit', truth_km: 0, actual, shown: summitShown(parsed, hour, summitWeights), errors })
   }))
   if (!rows.length) return
   const { error } = await supabase.from('station_errors').insert(rows)

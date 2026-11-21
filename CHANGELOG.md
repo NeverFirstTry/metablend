@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Added: the shadow run keeps what the app shows on a summit, and the day's weights
+- Nothing a visitor sees changes. Both are for the weighting report of 5 December.
+- Each hourly summit row of the shadow run now holds the temperature the app's peak view shows for that hour (the same blend, the same weights), so the report can score it. Rows before this deploy have none.
+- The nightly job keeps the weights of the day, one row per region, in a new table, `weights_daily`. Needs `supabase/weights-daily.sql` on dev and then production; without it the job runs as before and keeps nothing.
+- Database: the summit value fills a column that stood empty (5 summits an hour); the weights are about 7 rows and 5 KB a day, about 0.15 MB a month.
+- Open-Meteo: no new request. One more database read per hourly run and one read and one write per night.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
