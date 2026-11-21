@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Added: the database's size is measured every night, and has a health address of its own
+- Nothing a visitor sees changes.
+- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
+- The nightly job (05:00 UTC) reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there.
+- New address `/api/health/db`: 200 below 400 MB, 503 from 400 MB on and when the size cannot be read. Its answer holds the size in MB, the two limits and the time, nothing else; it is kept a minute per server and never cached outside. A second outside monitor asks it.
+- The main health check `/api/health` does not know the size, on purpose (owner, 20 November): a main check that fails for it spoils the uptime figures and can set off the deploy guard and a rollback.
+- Needs `supabase/database-size.sql` (one small function, not callable by the public roles); run on dev and production on 20 November.
+- Open-Meteo: no change.
+
 ### Changed: Visual Crossing's temperature is shown again in the list of sources
 - The Sources panel lists Visual Crossing's temperature, its distance from the blend and its share like every other source, where it said "Value not shown (licence)" since 7 November. Website and app.
 - Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
@@ -122,15 +131,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Open-Meteo: no new request and no new variable. The answer grows by about seven small entries.
 
 ## 2026-11-20
-
-### Added: the database's size is measured every night, and has a health address of its own
-- Nothing a visitor sees changes.
-- The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
-- The nightly job (05:00 UTC) reads the size and writes it into its summary (`databaseMb` in the job log), so the growth per day can be read there.
-- New address `/api/health/db`: 200 below 400 MB, 503 from 400 MB on and when the size cannot be read. Its answer holds the size in MB, the two limits and the time, nothing else; it is kept a minute per server and never cached outside. A second outside monitor asks it.
-- The main health check `/api/health` does not know the size, on purpose (owner, 20 November): a main check that fails for it spoils the uptime figures and can set off the deploy guard and a rollback.
-- Needs `supabase/database-size.sql` (one small function, not callable by the public roles); run on dev and production on 20 November.
-- Open-Meteo: no change.
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
