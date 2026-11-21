@@ -13,10 +13,10 @@ import Notes from './Notes'
 import { Valued, ValueKey } from '../ValueKey'
 
 function Agree({ level, lang }) {
-  if (level == null) return <span className="w-8 shrink-0" />
+  if (level == null) return <span className="w-7 shrink-0" />
   const color = level >= 2 ? 'var(--ok)' : 'var(--warn)'
   return (
-    <span role="img" className="w-8 shrink-0 text-xs tracking-tighter" title={t(lang, `agree${level}`)} aria-label={t(lang, `agree${level}`)}>
+    <span role="img" className="w-7 shrink-0 text-xs tracking-tighter" title={t(lang, `agree${level}`)} aria-label={t(lang, `agree${level}`)}>
       <span style={{ color }}>{'●'.repeat(level)}</span>
       <span className="text-zinc-600">{'○'.repeat(3 - level)}</span>
     </span>
@@ -50,7 +50,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
               >
                 <span className="w-12 sm:w-16 shrink-0">{d.date === todayLocal ? t(lang, 'todayLabel') : formatCalendarDate(d.date, lang, { weekday: 'short' })}</span>
                 <span className="w-6 shrink-0 text-center text-lg" aria-hidden><Glyph emoji={d.icon} fallback="·" /></span>
-                <span className="w-9 shrink-0 text-right text-zinc-500 tabular-nums">{fmt.fmtTemp(d.tempMin)}</span>
+                <span className="w-8 shrink-0 text-right text-zinc-500 tabular-nums">{fmt.fmtTemp(d.tempMin)}</span>
                 <span className="relative flex-1 h-1.5 bg-zinc-800 rounded-full @max-[19rem]:basis-full @max-[19rem]:order-last">
                   <span
                     className="absolute h-1.5 rounded-full"
@@ -61,11 +61,11 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
                     }}
                   />
                 </span>
-                <span className="w-9 shrink-0 tabular-nums">{fmt.fmtTemp(d.tempMax)}</span>
+                <span className="w-8 shrink-0 tabular-nums">{fmt.fmtTemp(d.tempMax)}</span>
                 <span className="w-12 shrink-0 text-right tabular-nums" style={{ color: 'var(--info)' }}>{d.rainPct != null ? <Valued kind="rain">{d.rainPct}%</Valued> : '–'}</span>
                 <Agree level={d.agree} lang={lang} />
                 {/* a day with hours opens: the chevron says so, and turns while it is open */}
-                {dayHours.length ? <ChevronDown size={16} className={`shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden /> : <span className="w-4 shrink-0" />}
+                {dayHours.length ? <ChevronDown size={14} className={`shrink-0 text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden /> : <span className="w-3.5 shrink-0" />}
               </button>
               {d.spread > 4 && (
                 <div className="px-2 pb-2 -mt-1 text-xs" style={{ color: 'var(--warn)' }}>
