@@ -45,6 +45,11 @@ All notable changes to MetaBlend. Format loosely follows
 - Apple asks an app that uses UserDefaults to say why, in a `PrivacyInfo.xcprivacy` file, in the app and in every extension that uses it. The app now declares its own settings (reason `CA92.1`) and the app group it shares with the widgets (`1C8F.1`); the widget extension declares the app group (`1C8F.1`). Neither declares tracking. The app's file names the six data types of the App Privacy form (`store/compliance.md`), linked or not as there.
 - The app's file is added to the App target in the Xcode project; the widgets' file lies in the folder the extension is synchronised with. Written on Windows and not compiled: the first Xcode build is the test, and `docs/launch-checklist.md` says what to look at in Xcode.
 - `lib/privacy-manifest.test.js` (6 tests, 5 of them seen failing before the files existed) holds the two files, the project file and the form's data types together.
+### Changed: the app's first screen shows the product, not a pitch
+- After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
+- "Use my location" is offered once: the location button under the search field steps aside while the card offers the same.
+- A returning app user no longer sees the example forecast and Try a city for a moment before their own place opens: the app marks its returning users before the first frame, as the website does, and they see the small loader instead.
+
 ### Changed: the buttons around the search field say what they do (tester's three points)
 - On a phone the three buttons under the search field carry a word: "Location", "Compare" and "Save" ("Saved" once the place is saved), in all 13 languages. Compare has a new icon, two columns, instead of the swap arrows.
 - Beside the place name only refresh and share remain, each 44 px, a size a thumb hits. Embed left that row: in the app it is gone (a code for another website is of no use there), on the website it is a fold of its own after Sources and Feedback.

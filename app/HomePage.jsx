@@ -7,8 +7,8 @@ import {
   RefreshCw,
   Search, Navigation, Columns2, Star, Share2, Code2,
   AlertTriangle, WifiOff, Loader2,
-  CheckCircle2, Send, Gauge, CloudRain, Layers,
-  Sparkles, ChevronDown, X, Info,
+  CheckCircle2, Send, Gauge, Layers,
+  MountainSnow, ChevronDown, X, Info,
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
@@ -149,57 +149,23 @@ const nameMap = () => { try { return JSON.parse(localStorage.getItem(NAMES_KEY))
 const keepName = (json, lang) => { try { localStorage.setItem(NAMES_KEY, JSON.stringify(rememberName(nameMap(), json.city, json.learnCity, lang))) } catch { /* private mode */ } }
 const TAB_KEY = 'mb_tab'
 
-// ── Welcome / empty state ────────────────────────────────────────────────────
-// Shown before any city is searched, so a first-time visitor sees a real
-// product landing rather than a bare search box.
+// ── The app with no place of its own (UX review 2026-11-20, F1) ─────────────────
+// Right under the search field: places to try and the way to the mountains; the example forecast
+// follows (globals.css shows it in the app too). It was a pitch: a sparkle, a headline and three cards.
 const SAMPLE_CITIES = ['Vienna', 'Berlin', 'London', 'New York', 'Tokyo']
-function WelcomeState({ lang, onPick }) {
-  const features = [
-    { icon: Layers, title: t(lang, 'welcomeF1Title'), sub: t(lang, 'welcomeF1Sub') },
-    { icon: Gauge, title: t(lang, 'welcomeF2Title'), sub: t(lang, 'welcomeF2Sub') },
-    { icon: CloudRain, title: t(lang, 'welcomeF3Title'), sub: t(lang, 'welcomeF3Sub') },
-  ]
+function FirstStart({ lang, peaks, isExample, onPick }) {
   return (
-    <div className="animate-fade-in-up text-center py-2 sm:py-4">
-      <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-emerald-400/10 border border-emerald-400/30 mb-5">
-        <Sparkles className="text-emerald-400" size={28} aria-hidden />
-      </div>
-      <h2 className="text-2xl sm:text-3xl font-bold tracking-tight mb-3 text-balance">
-        {t(lang, 'welcomeTitle')}
-      </h2>
-      <p className="text-zinc-400 text-sm sm:text-base max-w-md mx-auto leading-relaxed mb-8">
-        {t(lang, 'welcomeSub')}
-      </p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8 text-left">
-        {features.map((f, i) => (
-          <div
-            key={f.title}
-            className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 animate-fade-in-up"
-            style={{ animationDelay: `${120 + i * 90}ms` }}
-          >
-            <div className="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-emerald-400/10 text-emerald-400 mb-3">
-              <f.icon size={18} aria-hidden />
-            </div>
-            <div className="font-bold text-sm mb-1">{f.title}</div>
-            <div className="text-zinc-500 text-xs leading-relaxed">{f.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="text-zinc-500 text-xs uppercase tracking-widest mb-3">{t(lang, 'welcomeTry')}</div>
-      <div className="flex gap-2 flex-wrap justify-center">
+    <div className="first-start app-only -mt-4 mb-6 space-y-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
         {SAMPLE_CITIES.map(c => (
-          <button
-            key={c}
-            onClick={() => onPick(c)}
-            className="press bg-zinc-900 border border-zinc-800 rounded-full px-4 py-2 text-xs text-zinc-300 hover:border-emerald-400 hover:text-emerald-400"
-          >
-            {c}
-          </button>
+          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
         ))}
       </div>
-      <p className="text-zinc-500 text-xs mt-6">{t(lang, 'welcomeHint')}</p>
+      <Link href="/hike" className="press inline-flex items-center gap-2 min-h-11 text-sm text-zinc-300 hover:text-emerald-400">
+        <MountainSnow size={16} className="shrink-0" aria-hidden /> {fill(t(lang, 'firstHike'), { n: peaks })}
+      </Link>
+      {isExample && <p className="text-sm text-zinc-400">{t(lang, 'exampleNote')}</p>}
     </div>
   )
 }
@@ -808,7 +774,8 @@ ${url}`)
         {/* First use in the app (no city yet): one clear way to start. Only CSS shows it
             (html[data-first-use], set before first paint), so it's there from the first
             frame; the phone asks for location only when it's tapped, never by itself. */}
-        {!data && !loading && (
+        {/* also over the example forecast: the app with no place of its own shows it (UX review F1) */}
+        {(!data || isExample) && !loading && (
           <div className="first-use-only mb-4">
             <button onClick={handleLocation} disabled={locating}
               className="press w-full text-left rounded-2xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-4 flex items-center gap-4 disabled:opacity-60">
@@ -833,7 +800,8 @@ ${url}`)
             disabled={locating || loading}
             title={t(lang, 'a11yLocate')}
             aria-label={t(lang, 'a11yLocate')}
-            className="press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3"
+            // first-use-hide: steps aside while the card above offers the same (UX review F2)
+            className={`press bg-zinc-800 border border-zinc-700 rounded-lg px-3 flex items-center justify-center gap-1.5 text-xs text-zinc-300 hover:border-emerald-400 disabled:opacity-40 shrink-0 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${(!data || isExample) && !loading ? 'first-use-hide' : ''}`}
           >
             {locating
               ? <Loader2 size={18} className="text-zinc-400 animate-spin-slow shrink-0" aria-hidden />
@@ -900,6 +868,11 @@ ${url}`)
             </button>
           )}
         </div>
+
+        {/* the app with no place of its own: places to try right under the field, then the way to the mountains */}
+        {(!data || isExample) && !loading && !error && !compareMode && (
+          <FirstStart lang={lang} peaks={peaks} isExample={isExample} onPick={c => { setCity(c); loadForecast(c) }} />
+        )}
 
         {/* Favorite city chips */}
         {favorites.length > 0 && !compareMode && (
@@ -1000,13 +973,9 @@ ${url}`)
         {loading && <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} />}
 
 
-        {/* Welcome / empty state — before any city has been searched */}
+        {/* a returning visitor's forecast, on the website and in the app (first paint, until the effect starts it) */}
         {(!data || isExample) && !loading && !error && !compareMode && (
-          <>
-            {/* a returning visitor's forecast (first paint, until the effect starts it) */}
-            <div className="web-only returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
-            <div className="app-only"><WelcomeState lang={lang} onPick={c => { setCity(c); loadForecast(c) }} /></div>
-          </>
+          <div className="returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
         )}
 
         {/* Offline banner */}
