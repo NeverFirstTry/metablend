@@ -3,6 +3,12 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: a tap on a peak or a route answers at once
+- In the app's mountain section, a peak or a route opens the moment it is tapped, with its name on screen while its forecast loads. On a poor line the screen waited for the server first (about 0.7 s; a route's title came after 2 s).
+- A route opened from a peak's list is taken from that list, so its title and map show at once.
+
 ## 2026-11-20
 
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time

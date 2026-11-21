@@ -1,20 +1,20 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Route as RouteIcon, ChevronRight } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { routesApiPath } from '@/lib/hike/params'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { routeLabel, sacGrade } from '@/lib/route/osm'
 import { SectionTitle } from '../ui'
+import { goHike } from '@/lib/hike/nav'
+import { keepRouteList } from '@/lib/route/list-cache'
 
 const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, '0')}`
 
 // Peak page → the marked routes up it (OpenStreetMap). A tap opens the route
 // with this peak's parameters kept, so back returns here.
 export default function RouteList({ peak, lang }) {
-  const router = useRouter()
   const [state, setState] = useState({ routes: null, error: false })
 
   const url = routesApiPath(peak)
@@ -22,14 +22,14 @@ export default function RouteList({ peak, lang }) {
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then(d => { if (!off) setState({ routes: d.routes ?? [], error: false }) }, () => { if (!off) setState({ routes: [], error: true }) })
+      .then(d => { keepRouteList(url, d.routes ?? []); if (!off) setState({ routes: d.routes ?? [], error: false }) }, () => { if (!off) setState({ routes: [], error: true }) })
     return () => { off = true }
   }, [url])
 
   const open = id => {
     const sp = new URLSearchParams(window.location.search)
     sp.set('route', `osm-${id}`)
-    router.push(`/hike?${sp}`)
+    goHike(`/hike?${sp}`) // at once: the route screen takes the route from this list (lib/route/list-cache.js)
   }
 
   return (

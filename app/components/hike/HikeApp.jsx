@@ -17,6 +17,8 @@ import MyRoutes from './MyRoutes'
 import PeakDirectory from './PeakDirectory'
 // in the app's code (downloaded once, cached), not in every visit's page data
 import featured from '@/lib/hike/featured.json'
+// a tap inside the tab changes the address in the browser, no server round trip first (UX review P5)
+import { hikeLinkClick, goHike } from '@/lib/hike/nav'
 
 // The app-only hiking section: search + featured peaks, then one peak's
 // summit forecast. The peak lives in the URL so the phone's back button and
@@ -26,6 +28,10 @@ const TRAIL = []
 const IDS = new Set(featured.map(p => p.id))
 
 function HikeAppInner() {
+  useEffect(() => {
+    document.addEventListener('click', hikeLinkClick, true)
+    return () => document.removeEventListener('click', hikeLinkClick, true)
+  }, [])
   const lang = useLang()
   const unit = useUnit()
   const router = useRouter()
@@ -38,7 +44,7 @@ function HikeAppInner() {
   // the Hiking tab reopens here — whether it's left by the tab bar, back or a link
   useEffect(() => { recordVisit(TRAIL, href); rememberTabUrl('/hike', href) }, [href])
   useEffect(() => () => { TRAIL.length = 0 }, [])
-  const goBack = parent => (backAction(TRAIL, parent) === 'back' ? router.back() : router.replace(parent))
+  const goBack = parent => (backAction(TRAIL, parent) === 'back' ? router.back() : goHike(parent, { replace: true }))
 
   const peak = peakFromParams(sp, featured)
   const routeId = sp.get('route')
