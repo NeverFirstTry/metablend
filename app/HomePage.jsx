@@ -153,13 +153,15 @@ const TAB_KEY = 'mb_tab'
 // Right under the search field: places to try and the way to the mountains; the example forecast
 // follows (globals.css shows it in the app too). It was a pitch: a sparkle, a headline and three cards.
 const SAMPLE_CITIES = ['Vienna', 'Berlin', 'London', 'New York', 'Tokyo']
+// a sample city as the reader names it ("Wien", "Tokio"); it still loads by its English name
+const sampleName = (c, lang) => cityName(c.toLowerCase().replace(' ', '-'), lang, c)
 function FirstStart({ lang, peaks, isExample, onPick }) {
   return (
     <div className="first-start app-only -mt-4 mb-6 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
         {SAMPLE_CITIES.map(c => (
-          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
+          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{sampleName(c, lang)}</button>
         ))}
       </div>
       <Link href="/hike" className="press inline-flex items-center gap-2 min-h-11 text-sm text-zinc-300 hover:text-emerald-400">
@@ -970,7 +972,7 @@ ${url}`)
           <div className="flex flex-wrap items-center gap-2 -mt-3 mb-6">
             <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
             {SAMPLE_CITIES.map(c => (
-              <button key={c} type="button" onClick={() => { setCity(c); loadForecast(c) }} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
+              <button key={c} type="button" onClick={() => { setCity(c); loadForecast(c) }} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{sampleName(c, lang)}</button>
             ))}
           </div>
         )}
