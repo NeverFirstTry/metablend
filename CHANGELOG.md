@@ -56,6 +56,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Added: a first-time hiker sees three peaks with today's summit window
 - In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
 - Only a phone with no saved or recent peak asks for them, and no new Open-Meteo request: they are the forecasts the summit pages already keep. The names show at once, the windows as they arrive.
+### Changed: every button is big enough for a thumb
+- On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
