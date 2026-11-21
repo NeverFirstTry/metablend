@@ -8,7 +8,6 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: a summit page's week fits a phone
 - On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
 
-## 2026-11-20
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
