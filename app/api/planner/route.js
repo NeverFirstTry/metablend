@@ -4,6 +4,7 @@ import { withErrorLog } from '@/lib/log'
 import { clientIp } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { noStore } from '@/lib/no-store'
+import { asker } from '@/lib/last-answer'
 
 // Per-month climate normals (avg temp + rainy days) from ~10 years of ERA5 data.
 // They come from the place's climate table, which is asked from Open-Meteo once a
@@ -21,7 +22,11 @@ export const GET = withErrorLog('planner', async (request) => {
   const geo = await geocodeCity(city)
   if (!geo) return noStore({ error: `"${city}" was not found.` }, 404)
 
-  const months = (await loadClimate(geo.lat, geo.lon))?.months
+  // a place without a table is asked from the archive only within the day's budget for new places
+  // (lib/climate-store.js); beyond it the page says "try again tomorrow" in the reader's language (code later)
+  const note = {}
+  const months = (await loadClimate(geo.lat, geo.lon, { by: asker(request), note }))?.months
+  if (!months && note.refused) return noStore({ error: 'The climate figures for this place are not ready yet. Please try again tomorrow.', code: 'later' }, 503)
   if (!months) return noStore({ error: 'Historical data unavailable' }, 502)
 
   return Response.json({ city: geo.name, country: geo.country, cc: geo.cc ?? null, months }, {

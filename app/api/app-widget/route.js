@@ -1,5 +1,5 @@
 import { withErrorLog } from '@/lib/log'
-import { clientIp, selfBase } from '@/lib/auth'
+import { clientIp, selfBase, ownHeaders } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { hikeApiPath } from '@/lib/hike/params'
 import { parseAppWidgetQuery, weatherPayload, hikePayload } from '@/lib/app-widget'
@@ -17,10 +17,10 @@ const limiter = createRateLimiter({ max: 60, windowMs: 60 * 1000 })
 // server-to-server fetches) — same rule as /api/og/city
 const baseFor = selfBase
 
-async function getJson(url) {
-  const key = process.env.CALIBRATE_SECRET
+// with the server's key and the visitor's address (auth.js ownHeaders)
+async function getJson(url, request) {
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(20000), headers: key ? { 'x-calibrate-key': key } : {} })
+    const r = await fetch(url, { signal: AbortSignal.timeout(20000), headers: ownHeaders(request) })
     const json = r.ok ? await r.json() : null
     return { status: r.status, json: json?.error ? null : json }
   } catch {
@@ -37,19 +37,19 @@ export const GET = withErrorLog('app-widget', async (request) => {
 
   let body
   if (q.kind === 'hike') {
-    const hike = await getJson(`${base}${hikeApiPath(q.peak)}`)
+    const hike = await getJson(`${base}${hikeApiPath(q.peak)}`, request)
     if (!hike.json || hike.json.unavailable) return noStore({ error: 'Summit forecast unavailable' }, 502)
     body = hikePayload({ hike: hike.json, peak: q.peak, date: q.date, lang: q.lang, unit: q.unit })
     if (!body) return noStore({ error: 'No summit forecast for that day' }, 404)
   } else {
     const key = encodeURIComponent(q.city.toLowerCase())
     const [forecast, outlook] = await Promise.all([
-      getJson(`${base}/api/forecast?city=${key}&lang=${q.lang}`),
-      getJson(`${base}/api/outlook?city=${key}&lang=${q.lang}`),
+      getJson(`${base}/api/forecast?city=${key}&lang=${q.lang}`, request),
+      getJson(`${base}/api/outlook?city=${key}&lang=${q.lang}`, request),
     ])
     if (forecast.status === 404 || outlook.status === 404) return noStore({ error: 'City not found' }, 404)
     if (!forecast.json || !outlook.json?.nowLocal) return noStore({ error: 'Forecast unavailable' }, 502)
-    const nc = await getJson(`${base}/api/nowcast?lat=${forecast.json.lat}&lon=${forecast.json.lon}`) // failing: json null, text unchanged
+    const nc = await getJson(`${base}/api/nowcast?lat=${forecast.json.lat}&lon=${forecast.json.lon}`, request) // failing: json null, text unchanged
     body = weatherPayload({ forecast: forecast.json, outlook: outlook.json, lang: q.lang, unit: q.unit, nowcast: nc.json })
   }
   return Response.json(body, { headers: { 'Cache-Control': `public, s-maxage=${TTL}, stale-while-revalidate=${TTL * 2}` } })
