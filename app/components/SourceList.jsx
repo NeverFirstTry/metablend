@@ -56,15 +56,6 @@ export default function SourceList({ data, unit, lang }) {
                 </div>
               </td>
             )
-            if (src.valuesHidden) {
-              return (
-                <tr key={src.apiId}>
-                  <th scope="row" className="font-normal text-left py-2.5 pr-2 sm:pr-3">{name}</th>
-                  <td colSpan={2} className="py-2.5 px-1.5 sm:px-2 text-right text-zinc-400 text-xs"><div className="source-note">{t(lang, 'sourceValuesHidden')}</div></td>
-                  {bar}
-                </tr>
-              )
-            }
             const off = sourceDeviation(src.temp, data.consensus.temp, unit)
             return (
               <tr key={src.apiId}>
