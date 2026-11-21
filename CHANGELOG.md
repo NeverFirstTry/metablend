@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the rain prompt stands where it is seen
+- "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
+
 ### Changed: the week list shows that a day opens
 - The line that explains the agreement dots now stands above the week list instead of under it, and every day that has hours ends in a chevron that turns while the day is open.
 

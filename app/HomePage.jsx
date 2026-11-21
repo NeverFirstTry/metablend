@@ -410,6 +410,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const showT = c => c == null ? '–' : unit === 'F' ? Math.round(cToF(c)) : Math.round(c * 10) / 10
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
+  // the rain prompt stands right under the tab's headline (UX review S4: it stood two screens down)
+  const prompt = <PushPrompt lang={lang} unit={unit} />
   // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
   useSky(outlook ? skyFor({ nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
@@ -1064,16 +1066,15 @@ ${url}`)
               <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
               {outlook ? (
-                tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                  : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                    : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
+                tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
+                  : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
+                    : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
               ) : outlookError ? (
                 <OutlookError lang={lang} onRetry={retryOutlook} />
               ) : (
                 <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
               )}
 
-              <PushPrompt lang={lang} unit={unit} />
             </div>
 
             <div className="home-more space-y-4">

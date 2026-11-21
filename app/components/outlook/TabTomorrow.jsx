@@ -13,7 +13,7 @@ import Notes from './Notes'
 
 // Tomorrow as one whole day: its hours, the best time out, and how it
 // compares with a normal year.
-export default function TabTomorrow({ outlook, unit, lang, fmt }) {
+export default function TabTomorrow({ outlook, unit, lang, fmt, prompt = null }) {
   const todayLocal = outlook.nowLocal.slice(0, 10)
   const date = addDays(todayLocal, 1)
   const hours = outlook.hourly.filter(h => h.t.startsWith(date))
@@ -23,6 +23,7 @@ export default function TabTomorrow({ outlook, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'tomorrow', h, { todayLocal, ...fmt })} tone={headlineTone('tomorrow', h)} />
+      {prompt}
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
           <HourlyChart hours={hours} unit={unit} lang={lang} />
