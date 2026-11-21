@@ -9,7 +9,7 @@
     "region": "europe",
     "consensus": {
       "temp": 5.5,
-      "feelsLike": 4,
+      "feelsLike": 3.8,
       "rainPct": 26,
       "windKmh": 2,
       "confidencePct": 80
@@ -50,7 +50,7 @@
         "apiId": "met-norway",
         "displayName": "MET Norway",
         "temp": 5.1,
-        "feelsLike": 5.1,
+        "feelsLike": null,
         "rainPct": 10,
         "rainIsProb": false,
         "windKmh": 4,
@@ -61,16 +61,16 @@
         "apiId": "visual-crossing",
         "displayName": "Visual Crossing",
         "responseMs": 0,
-        "valuesHidden": true
+        "temp": 3.8
       },
       {
         "apiId": "geosphere",
         "displayName": "GeoSphere Austria",
         "temp": 5.2,
-        "feelsLike": 5.2,
+        "feelsLike": null,
         "rainPct": 0,
         "windKmh": 2,
-        "condition": "Clear",
+        "condition": "Dry",
         "responseMs": 0
       },
       {
@@ -356,7 +356,7 @@
         "temp": 5.2,
         "rain_pct": 0,
         "wind_kmh": 2,
-        "condition": "Clear",
+        "condition": "Dry",
         "region": "europe"
       },
       {
@@ -521,7 +521,7 @@
       "country": "Austria",
       "region": "europe",
       "temp": 5.5,
-      "feels_like": 4,
+      "feels_like": 3.8,
       "rain_pct": 26,
       "wind_kmh": 2,
       "confidence_pct": 80,
