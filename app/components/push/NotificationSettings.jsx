@@ -12,6 +12,7 @@ import { pushApi, permission, enablePush, disablePush, promptState, forgetWhenOf
 import { canOpenSettings, openSettings } from '@/lib/app-settings'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { haptic } from '@/lib/native'
+import { plansStore } from '@/lib/plans-client'
 
 const ALERTS = [['alert_rain', 'notifRain'], ['alert_storm', 'notifStorm'], ['alert_severe', 'notifSevere'], ['alert_heat', 'notifHeat']]
 const HOURS = [5, 6, 7, 8, 9, 10, 11]
@@ -37,6 +38,8 @@ export default function NotificationSettings({ lang, unit }) {
       if (perm !== 'granted') await forgetWhenOff().catch(() => {})
       const r = await pushApi('settings')
       setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [], canOpen: canOpenSettings() })
+      // the Hiking tab and the peaks show the same list (lib/plans-client.js)
+      if (r.status === 200 && Array.isArray(r.json.plans)) plansStore.set(r.json.plans)
     } catch {
       setState({ loading: false, unavailable: true })
     }
@@ -64,6 +67,7 @@ export default function NotificationSettings({ lang, unit }) {
   async function turnOff() {
     if (!(await disablePush().catch(() => false))) { setMsg(t(lang, 'notifError')); return }
     setState(s => ({ ...s, settings: null, plans: [] }))
+    plansStore.set([]) // switching off deletes the plans on the server
     setEditHome(false)
     syncWidgets({ refresh: true })
   }
@@ -86,7 +90,7 @@ export default function NotificationSettings({ lang, unit }) {
   }
 
   async function removePlan(id) {
-    await pushApi(`plans?id=${id}`, { method: 'DELETE' })
+    if (!(await plansStore.cancel(id))) { setMsg(t(lang, 'notifError')); return }
     syncWidgets({ refresh: true })
     setState(s => ({ ...s, plans: s.plans.filter(p => p.id !== id) }))
   }

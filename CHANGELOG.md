@@ -35,6 +35,11 @@ All notable changes to MetaBlend. Format loosely follows
 - A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
 - The planned hikes under More, Notifications no longer start with a mountain emoji.
 - 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
+### Changed: planned hikes show where they are made
+- A peak or route with a planned hike says "Planned for Saturday" above the Plan button, with Cancel plan next to it. The day already planned is not offered again.
+- The Hiking tab lists the planned hikes at the top, each opening its peak. They were only under More, Notifications. In all 13 languages.
+- The list is read once per app start, and only with notifications on; More, Notifications and the peaks show the same list.
+
 ### Changed: the route screen
 - The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
 - A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
