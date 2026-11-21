@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Changed: the app opens on the tab used last
+- A hiker who closed the app on a peak or a route starts the next time on that peak or route, not on a city. Forecast and Hiking count as the tab used last; More does not. A city link still opens its city.
+- The start page stays out of sight on the way there and asks for no forecast; on a slow connection its small loader shows meanwhile.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
@@ -82,10 +86,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Apple asks an app that uses UserDefaults to say why, in a `PrivacyInfo.xcprivacy` file, in the app and in every extension that uses it. The app now declares its own settings (reason `CA92.1`) and the app group it shares with the widgets (`1C8F.1`); the widget extension declares the app group (`1C8F.1`). Neither declares tracking. The app's file names the six data types of the App Privacy form (`store/compliance.md`), linked or not as there.
 - The app's file is added to the App target in the Xcode project; the widgets' file lies in the folder the extension is synchronised with. Written on Windows and not compiled: the first Xcode build is the test, and `docs/launch-checklist.md` says what to look at in Xcode.
 - `lib/privacy-manifest.test.js` (6 tests, 5 of them seen failing before the files existed) holds the two files, the project file and the form's data types together.
-
-### Changed: the app opens on the tab used last
-- A hiker who closed the app on a peak or a route starts the next time on that peak or route, not on a city. Forecast and Hiking count as the tab used last; More does not. A city link still opens its city.
-- The start page stays out of sight on the way there and asks for no forecast; on a slow connection its small loader shows meanwhile.
 
 ### Changed: the app's first screen shows the product, not a pitch
 - After "Continue", the app with no place of its own shows the location card, the search field with "Try a city" right under it, a line to the mountains ("Going up a mountain? Summit weather for 195 peaks") and the example forecast for Vienna, marked as an example. The headline, the sparkle icon and the three feature cards are gone.
