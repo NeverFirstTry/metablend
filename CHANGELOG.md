@@ -29,6 +29,8 @@ All notable changes to MetaBlend. Format loosely follows
 - The maps look like the rest of the app: zoom buttons in the theme's colours, a plain dot for the place instead of the bright blue pin, and on the radar one credit line instead of a credit box over the map. The heatmap's credit drops the optional "Leaflet" prefix. In all 13 languages.
 ### Changed: a summit page's week fits a phone
 - On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
+### Changed: My routes tells routes apart
+- Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
