@@ -10,7 +10,8 @@ import Headline from '../outlook/Headline'
 // is asked here), then per summit day low / high, strongest wind, freezing-level range and the worst storm
 // risk, each day with its window or why it has none, and a line under the card saying which is which.
 // `windows`: /api/hike windows.days; an older answer without it shows the table alone, as before.
-export default function SummitDays({ days, windows, todayLocal, lang, fmt }) {
+// `rain`: the rain chance as a third small line (the website's summit page on a phone, UX review M1).
+export default function SummitDays({ days, windows, todayLocal, lang, fmt, rain = false }) {
   const verdict = windows ? weekVerdict(windows, todayLocal) : null
   const head = verdict && headlineText(lang, verdict, todayLocal)
   return (
@@ -30,6 +31,7 @@ export default function SummitDays({ days, windows, todayLocal, lang, fmt }) {
                   <span className="flex-1 min-w-0 flex flex-col gap-0.5 text-zinc-400 text-xs tabular-nums @max-[19rem]:basis-full @max-[19rem]:order-last @max-[19rem]:flex-row @max-[19rem]:flex-wrap @max-[19rem]:gap-x-3">
                     <span>{d.windMax != null ? <Valued kind="wind">{d.windMax} km/h</Valued> : '–'}</span>
                     <span>{d.freezingMin != null ? <Valued kind="freezing">{d.freezingMin}-{d.freezingMax} m</Valued> : '–'}</span>
+                    {rain && <span>{d.rainPct != null ? <Valued kind="rain">{d.rainPct}%</Valued> : '–'}</span>}
                   </span>
                   <StormBar storm={d.storm} compact lang={lang} className="shrink-0" />
                 </div>
@@ -39,7 +41,7 @@ export default function SummitDays({ days, windows, todayLocal, lang, fmt }) {
             )
           })}
         </div>
-        <ValueKey lang={lang} kinds={['summitWind', 'freezing']} className="mt-3 px-1" />
+        <ValueKey lang={lang} kinds={rain ? ['summitWind', 'rain', 'freezing'] : ['summitWind', 'freezing']} className="mt-3 px-1" />
         <StormLegend lang={lang} className="mt-1.5 px-1" />
       </div>
     </div>

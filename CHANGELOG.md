@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-21
+
+### Changed: a summit page's week fits a phone
+- On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
+
 ## 2026-11-20
 
 ### Added: the peak's Week tab says which day works
