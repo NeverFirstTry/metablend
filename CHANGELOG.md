@@ -7,7 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed: a peak's routes say where they start
 - Each route under a peak shows its start: "Start at 2801 m", or "From Lucknerhaus, 1918 m" where OpenStreetMap names the place. A route without a name reads "Unnamed marked route".
-- One line under the list tells the two grade scales apart: routes on the SAC hiking scale (T1-T6), the peak on the SAC alpine scale (L-ES). In all 13 languages.
+- One line under the list tells the two grade scales apart: routes on the SAC hiking scale (T1-T6), the peak on the SAC alpine scale (L-EX). In all 13 languages.
 
 ## 2026-11-20
 
