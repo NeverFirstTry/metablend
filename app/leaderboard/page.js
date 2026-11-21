@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Map as MapIcon, AlertTriangle } from 'lucide-react'
+import { Map as MapIcon, AlertTriangle } from 'lucide-react'
+import BackLink from '../components/BackLink'
 import { t, tn } from '@/lib/i18n'
 import { sparkLabel } from '@/lib/a11y-text'
 import { sourceName } from '@/lib/sources'
@@ -133,9 +134,7 @@ export default function Leaderboard() {
       <div className="max-w-2xl mx-auto">
 
         <div className="app-only flex items-center justify-between mb-6">
-          <Link href="/" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-            <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-          </Link>
+          <BackLink href="/more">{t(lang, 'more')}</BackLink>
           <Link href="/heatmap" className="text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
             <MapIcon size={15} aria-hidden /> {t(lang, 'lbHeatmap')}
           </Link>
