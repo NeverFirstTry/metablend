@@ -236,6 +236,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [resume] = useState(() => resumeForecast({ deepLink: typeof window === 'undefined' ? null : deepLinkCity(window.location.search) }))
   const router = useRouter()
   const [offline, setOffline] = useState(false)
+  // the place a failed load asked for, with the error text it left: Try again in the box loads it again
+  const [errorRetry, setErrorRetry] = useState(null)
   const [recent, setRecent] = useState([])
   const [favorites, setFavorites] = useState([])
   const [installPrompt, setInstallPrompt] = useState(null)
@@ -527,10 +529,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         // and just try again in a minute rather than the full 15.
         setNextRefreshAt(Date.now() + 60_000)
       } else {
-        // online but the request failed: surface the error, stay "online"; with no place of
-        // their own on screen (a bad shared link), the example stays under the error
+        // the request failed: surface the error with Try again (offline and nothing stored for the place:
+        // say so, UX review Y1); with no place of their own on screen (a bad shared link), the example
+        // stays under the error
+        const text = genuinelyOffline ? t(asLang, 'offlineNoStored') : e.message
         setOffline(false)
-        setError(e.message)
+        setError(text)
+        setErrorRetry({ text, q })
         if (!ownCity.current) showExample()
       }
     } finally {
@@ -952,8 +957,15 @@ ${url}`)
 
         {/* Error */}
         {error && (
-          <div className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex items-center gap-2">
-            <AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}
+          <div role="alert" className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="flex-1 min-w-0 inline-flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</span>
+            {/* the next step, for a forecast that did not load (not for a location error) (UX review Y1) */}
+            {errorRetry?.text === error && (
+              <button type="button" onClick={() => loadForecast(errorRetry.q)} disabled={loading}
+                className="press min-h-11 inline-flex items-center gap-1.5 border border-red-500/40 rounded-lg px-3 text-sm hover:bg-red-500/10 disabled:opacity-60 shrink-0">
+                <RefreshCw size={15} aria-hidden /> {t(lang, 'retry')}
+              </button>
+            )}
           </div>
         )}
 
