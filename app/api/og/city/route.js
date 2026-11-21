@@ -1,4 +1,4 @@
-import { selfBase, clientIp } from '@/lib/auth'
+import { selfBase, clientIp, ownHeaders } from '@/lib/auth'
 import { createRateLimiter } from '@/lib/ratelimit'
 import { ImageResponse } from 'next/og'
 import { t, translateCondition } from '@/lib/i18n'
@@ -34,12 +34,12 @@ const ICONS = {
 }
 const ICON_FOR = { storm: 'rain', rain: 'rain', snow: 'snow', cloudy: 'cloud', night: 'moon' }
 
-async function getJson(url) {
+async function getJson(url, req) {
   // the card's own reads carry the site's key: the forecast's and outlook's limits count visitors, and
-  // every card would otherwise share the one address of this server (the limit above guards them)
-  const key = process.env.CALIBRATE_SECRET
+  // every card would otherwise share the one address of this server (the limit above guards them); and
+  // the address of who asked for the card, which the counts by address then use (auth.js ownHeaders)
   try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(8000), headers: key ? { 'x-calibrate-key': key } : {} })
+    const r = await fetch(url, { signal: AbortSignal.timeout(8000), headers: ownHeaders(req) })
     if (!r.ok) return null
     const j = await r.json()
     return j?.error ? null : j
@@ -54,7 +54,7 @@ export async function GET(req) {
   const key = encodeURIComponent(name.toLowerCase())
   // only cache misses reach this point: the CDN answers a card it has
   const [now, built] = name && !limiter.limited(clientIp(req))
-    ? await Promise.all([getJson(`${baseFor(req)}/api/forecast?city=${key}&lang=${lang}`), getJson(`${baseFor(req)}/api/outlook?city=${key}&lang=${lang}`)])
+    ? await Promise.all([getJson(`${baseFor(req)}/api/forecast?city=${key}&lang=${lang}`, req), getJson(`${baseFor(req)}/api/outlook?city=${key}&lang=${lang}`, req)])
     : [null, null]
   const out = atNow(built) // the outlook's copy can be 2.5 h old: today and this hour, not the build's
 

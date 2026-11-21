@@ -43,7 +43,8 @@ export const GET = withErrorLog('outlook', async (request) => {
 
   const [multi, climate, national, weights, learnName] = await Promise.all([
     fetchOpenMeteoMultiRaw(geo.lat, geo.lon),
-    loadClimate(geo.lat, geo.lon),
+    // who asks: a place without a climate table is asked from the archive only within the day's budget (lib/climate-store.js)
+    loadClimate(geo.lat, geo.lon, { by: asker(request) }),
     fetchNationalRaw(geo.lat, geo.lon),
     loadOutlookWeights(region),
     learnNameOf(geo, lang),

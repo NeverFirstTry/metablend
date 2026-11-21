@@ -24,6 +24,7 @@ import { noStore } from '@/lib/no-store'
 import { blendTtl, freshCopy, FULL_TTL, lostOpenMeteo } from '@/lib/forecast-cache'
 import { keepAnswer, lastAnswer, placeKey, asker } from '@/lib/last-answer'
 import { dailyLimited, failuresSince } from '@/lib/open-meteo'
+import { mayStore } from '@/lib/write-cap'
 
 // Run a source fetcher with timing. `down` means it threw/timed out (vs. just
 // being unavailable, e.g. no API key, which returns null without throwing).
@@ -233,8 +234,11 @@ export const GET = withErrorLog('forecast', async (request) => {
   // 5. Prognosen speichern — tagged with the city's local date, so daily
   // calibration compares them against the right day's actuals. Not for a summit: the hourly, daily and
   // nightly checks would compare it with an airport or a town below it.
+  // An address has a day's count of forecasts whose rows are written (lib/write-cap.js): beyond it the
+  // forecast goes out as always and nothing is written for it.
+  const store = mayStore(asker(request))
   const today = localDateForLon(geo.lon)
-  const { error: fcInsErr } = geo.summit ? {} : await supabase.from('forecasts').insert(
+  const { error: fcInsErr } = geo.summit || !store ? {} : await supabase.from('forecasts').insert(
     results.map(r => ({
       city:      learnCity,
       lat:       geo.lat,
@@ -253,7 +257,7 @@ export const GET = withErrorLog('forecast', async (request) => {
   if (fcInsErr) logError('forecast.insert', fcInsErr, { city: learnCity })
 
   // snapshot the consensus for the RSS feed and the low-confidence webhook
-  {
+  if (store) {
     const { error } = await supabase.from('consensus_history').insert({
       city: learnCity,
       country: geo.country,
