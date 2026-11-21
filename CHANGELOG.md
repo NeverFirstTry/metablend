@@ -7,6 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Changed: every button is big enough for a thumb
 - On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
