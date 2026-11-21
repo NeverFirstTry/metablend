@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, Play, Apple, ExternalLink } from 'lucide-react'
+import { Play, Apple, ExternalLink } from 'lucide-react'
+import BackLink from '../components/BackLink'
 import { t } from '@/lib/i18n'
 import { useLang } from '@/lib/useLang'
 import { TESTERS, channelOpen } from '@/lib/testers'
@@ -29,9 +30,7 @@ export default function TestersContent() {
   const lang = useLang()
   return (
     <main className="max-w-2xl mx-auto w-full px-4 py-8 sm:py-12 space-y-6">
-      <Link href="/" className="app-only text-zinc-500 text-sm hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5">
-        <ArrowLeft size={15} aria-hidden /> {t(lang, 'back')}
-      </Link>
+      <BackLink href="/" className="app-only">{t(lang, 'tabForecast')}</BackLink>
       <div className="space-y-2">
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">{t(lang, 'testersTitle')}</h1>
         <p className="text-zinc-400 text-sm leading-relaxed">{t(lang, 'testersIntro')}</p>
