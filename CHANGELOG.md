@@ -8,6 +8,7 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the notification settings look like settings
 - The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb.
 - Without a home city, the settings show the city search at once with a hint ("Search a city") instead of a dash, "Change" and an empty field. In all 13 languages.
+
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
 - The database's plan holds 500 MB; past that the project is switched to read-only. It stood at 274.7 MB on 30 October and 348 MB on 20 November, and nothing reported it.
