@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Added: the height model's notice in the list of sources on /terms
+- Since 19 November a hiking route's ascent, walking time and height profile are made from the Copernicus height model (GLO-90). Its notice was missing where the public can read it. It now stands in the list of sources on /terms in all 13 languages, in the provider's own words: "produced using Copernicus WorldDEM-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved", followed by what it is used for in the page's language.
+- The wording was read on Copernicus's own page on 21 November and is on file in `docs/source-licences.md`; `docs/how-it-works.md` no longer says that no heights are published.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).

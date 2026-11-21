@@ -18,3 +18,17 @@ What a data provider has confirmed to us in writing about the use of its data. T
   - Author, licence and the note on changes: /terms, "Data sources & attribution", in every language: "ALADIN model forecasts. Author: Czech Hydrometeorological Institute (ČHMÚ), www.chmi.cz. Data: opendata.chmi.cz, received through Open-Meteo. Licence: CC BY 4.0." The licence is linked to creativecommons.org/licenses/by/4.0/, and the sentence after it, in the page's language, says: "MetaBlend blends these data with other sources, so what it shows is changed from the original." The README carries the same line.
   - Where the data are shown: the list of sources names the source "CHMI ALADIN". The credit line under that list, in the website's footer and on the app's More screen names "ČHMÚ (CHMI)" with a link and ends with "Sources and licences", which leads to the list on /terms.
   - The name: the app is called MetaBlend. "ALADIN" appears only as the name of the source, next to CHMI's.
+
+## Copernicus DEM (GLO-90): the notice for data made from it
+
+- **Read:** 21 November 2026, Copernicus Data Space Ecosystem, the collection's own page, section "User Obligations": https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM. The page was read through this project's fetch tool, which hands long passages over in parts; the notice below was put together from two consecutive parts. The two licence documents the page links were not read.
+- **In the page's words:**
+  > "Where the Copernicus data have been adapted or modified, the User shall provide the following notice:"
+
+  > "produced using Copernicus WorldDEM-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved"
+
+  On access:
+  > "The GLO-30 and GLO-90 datasets are available worldwide with a free license."
+- **What we use:** the GLO-90 tiles, read from disk on the owner's computer and never asked from a server at run time: the heights along hiking routes (`scripts/routes/local.mjs`, loaded into production on 19 November 2026) and a check of town positions. Shown to the public: a route's ascent, walking time and height profile, which are made from those heights.
+- **How we meet it:** the notice stands in the list of sources on /terms in all 13 languages, word for word, followed by what it is used for in the page's language (`app/terms/content.jsx`; held by `lib/legal-pages.test.js`). From 19 November until the deploy of this change the heights were shown without it (code audit of 20 November 2026, finding 20).
+- **Not on that page:** a sentence about liability to pass on. If one of the two linked licence documents asks for one, it is still missing here.
