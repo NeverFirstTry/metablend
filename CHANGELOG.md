@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Added: the reel "MetaBlend has a new look" and its stage screenshots (not on the website)
+- Nothing a visitor sees changes.
+- `store/social/reel/` holds two films for Reels and TikTok, English and German (1080 x 1920, 19.9 s, no sound), a cover each, the screenshots of the three stages (the weather sky of early November, solid Slate, today's main) and a page to check them on. `scripts/brand/reel-shots.mjs` takes the screenshots from a local build and refuses any other host. The folder's README says how each part is made again.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
