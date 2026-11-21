@@ -26,8 +26,7 @@ import featured from '@/lib/hike/featured.json'
 const TRAIL = []
 const IDS = new Set(featured.map(p => p.id))
 
-// firstPeaks: three peaks with their stored window, for a phone with no saved or recent peak (the page, H1)
-function HikeAppInner({ firstPeaks = [] }) {
+function HikeAppInner() {
   const lang = useLang()
   const unit = useUnit()
   const router = useRouter()
@@ -55,7 +54,7 @@ function HikeAppInner({ firstPeaks = [] }) {
       <h1 className="text-3xl font-bold tracking-tight inline-flex items-center gap-3">
         <MountainSnow size={28} className="text-emerald-400" aria-hidden /> {t(lang, 'hikeTitle')}
       </h1>
-      <MyPeaks lang={lang} hrefFor={hrefFor} firstPeaks={firstPeaks} />
+      <MyPeaks lang={lang} hrefFor={hrefFor} />
       <PeakSearch lang={lang} hrefFor={hrefFor} onLocate={setPos} />
       <MyRoutes lang={lang} />
       <PeakDirectory peaks={featured} lang={lang} hrefFor={hrefFor} pos={pos} />
@@ -64,10 +63,10 @@ function HikeAppInner({ firstPeaks = [] }) {
   )
 }
 
-export default function HikeApp({ firstPeaks }) {
+export default function HikeApp() {
   return (
     <Suspense fallback={null}>
-      <HikeAppInner firstPeaks={firstPeaks} />
+      <HikeAppInner />
     </Suspense>
   )
 }

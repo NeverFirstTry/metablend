@@ -5,7 +5,10 @@ import Link from 'next/link'
 import { Star, MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
-import { madeAtText } from '@/lib/hike/summit-props'
+import { madeAtText, storedPath } from '@/lib/hike/summit-props'
+import { hikeApiPath } from '@/lib/hike/params'
+import { FIRST_PEAKS, firstPeakRows } from '@/lib/hike/first-peaks'
+import featured from '@/lib/hike/featured.json'
 import { readShelf, isSaved, rowView } from '@/lib/peak-shelf'
 import { SectionTitle } from '../ui'
 
@@ -15,7 +18,7 @@ import { SectionTitle } from '../ui'
 // so the list stands at once when the tab is reopened.
 const KNOWN = new Map()
 
-export default function MyPeaks({ lang, hrefFor, firstPeaks = [] }) {
+export default function MyPeaks({ lang, hrefFor }) {
   // the shelf and the moment it was read (the rows' windows are read for that moment, not during a render)
   const [shelf, setShelf] = useState(() => KNOWN.get('shelf') ?? null)
   // eslint-disable-next-line react-hooks/set-state-in-effect -- the phone's storage, after hydration
@@ -24,7 +27,7 @@ export default function MyPeaks({ lang, hrefFor, firstPeaks = [] }) {
   const recent = shelf.recent.filter(p => !isSaved(shelf, p.id))
   const { now } = shelf
   // nothing kept yet: three well-known peaks with their stored window instead (UX review H1)
-  if (!shelf.saved.length && !recent.length) return <FirstPeaks lang={lang} peaks={firstPeaks} hrefFor={hrefFor} now={now} />
+  if (!shelf.saved.length && !recent.length) return <FirstPeaks lang={lang} hrefFor={hrefFor} now={now} />
   const rows = list => (
     <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
       {list.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
@@ -38,14 +41,26 @@ export default function MyPeaks({ lang, hrefFor, firstPeaks = [] }) {
   )
 }
 
-// a first-time user's three peaks (lib/hike/first-peaks.js), in My peaks' rows
-export function FirstPeaks({ lang, peaks, hrefFor, now }) {
-  if (!peaks?.length) return null
+// a first-time user's three peaks (lib/hike/first-peaks.js): read in the browser, and only here, where the shelf is
+// empty; the stored summit copies the summit pages use (CDN, six hours). The names stand at once, the windows follow.
+function FirstPeaks({ lang, hrefFor, now }) {
+  const [answers, setAnswers] = useState([])
+  useEffect(() => {
+    const ask = new AbortController()
+    Promise.all(FIRST_PEAKS.map(id => fetch(storedPath(hikeApiPath(featured.find(p => p.id === id))), { signal: ask.signal })
+      .then(r => (r.ok ? r.json() : null), () => null))).then(setAnswers, () => {})
+    return () => ask.abort()
+  }, [])
+  return <FirstPeakRows lang={lang} rows={firstPeakRows(featured, answers, now)} hrefFor={hrefFor} now={now} />
+}
+
+export function FirstPeakRows({ lang, rows, hrefFor, now }) {
+  if (!rows?.length) return null
   return (
     <section className="space-y-3">
       <SectionTitle icon={MountainSnow}>{t(lang, 'peaksToStart')}</SectionTitle>
       <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-        {peaks.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
+        {rows.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
       </ul>
     </section>
   )
