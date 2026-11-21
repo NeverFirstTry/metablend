@@ -243,6 +243,9 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
   const [compareMode, setCompareMode] = useState(false)
+  // the search block (field, its buttons, the places): in the app a returning user starts without it and opens it
+  // from the place's name (UX review S6); globals.css hides it before first paint
+  const [searchOpen, setSearchOpen] = useState(false)
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
   const [compareLoading, setCompareLoading] = useState(false)
@@ -373,6 +376,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       ;(rest[Math.min(i, rest.length - 1)] ?? document.querySelector('.home-search input'))?.focus()
     })
   }
+  // the place's name opens or closes the search; opening puts the cursor in the field (UX review S6)
+  function toggleSearch() {
+    const open = !searchOpen
+    setSearchOpen(open)
+    if (open) requestAnimationFrame(() => document.querySelector('.home-search input')?.focus())
+  }
   function forgetAllRecent() {
     setRecent(clearRecent())
     requestAnimationFrame(() => document.querySelector('.home-search input')?.focus())
@@ -485,6 +494,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       if (json.error) throw new Error(json.error)
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
+      if (!silent) setSearchOpen(false) // a place was picked: the start page shows its forecast again (S6)
       if (!silent && json.cityShown && json.cityShown !== q) {
         askedAs.current[json.cityShown] = q
         setCity(c => (c === q || c === typed ? json.cityShown : c))
@@ -768,7 +778,7 @@ ${url}`)
             </button>
           </div>
         )}
-        <p className="app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
+        <p className="home-tagline app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>
         <p className={`web-only text-zinc-400 mt-4 mb-8 max-w-prose`}>{t(lang, 'homeLead')}</p>
@@ -796,6 +806,7 @@ ${url}`)
             and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report).
             There each of the three says what it does in a word (tester, 2026-11-19; UX review S1); beside the field on
             a wide screen compare keeps its word and the other two their icon */}
+        <div id="home-search-block" className={`home-search-block${searchOpen || error || compareMode ? ' open' : ''}`}>
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
@@ -918,6 +929,7 @@ ${url}`)
             </button>
           </div>
         )}
+        </div>
 
         {/* Compare second city */}
         {compareMode && (
@@ -1017,8 +1029,13 @@ ${url}`)
               {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
                   whole), a single over-long name still anywhere */}
               <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
-                {/* the example comes in English from the server: its name in the reader's language */}
-                <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
+                {/* the place's name opens the search to change it (S6); the example comes in English from the server: its
+                    name in the reader's language */}
+                <button type="button" onClick={toggleSearch} aria-expanded={searchOpen} aria-controls="home-search-block" title={t(lang, 'changePlace')}
+                  className="press text-left inline-flex items-baseline gap-2 hover:text-emerald-400">
+                  <span><PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} /></span>
+                  <ChevronDown size={20} className={`app-only shrink-0 text-zinc-500 transition-transform ${searchOpen ? 'rotate-180' : ''}`} aria-hidden />
+                </button>
               </h2>
               <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
                 <button
