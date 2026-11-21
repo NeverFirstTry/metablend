@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-21
 
+### Fixed: "feels like" is no longer pulled towards the air temperature
+- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature. In Austria that was up to seven of the sources.
+- Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
+- When no source has the value, the line shows the air temperature, as before.
+- Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
+- Open-Meteo: no change.
+
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
 - Nothing a visitor sees changes.
 - The per-minute limits of every address of the site counted each IPv6 address singly. An IPv6 line is a block of addresses whose owner can ask from any of them, so those limits meant little to anyone with IPv6. The line is now the key everywhere (the kept answers counted this way since 14 November).
