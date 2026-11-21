@@ -7,7 +7,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Fixed: no server code in the browser's part of a peak
 - Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
-- The two weather-code tables moved to a file without imports (); the server's callers find them where they were.
+- The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
 - A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
 - Open-Meteo: no change.
 
