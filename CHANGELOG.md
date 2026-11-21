@@ -25,6 +25,11 @@ All notable changes to MetaBlend. Format loosely follows
 - In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
 - GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
 - Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
+### Fixed: "feels like" is no longer pulled towards the air temperature
+- On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature.
+- Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
+- When no source has the value, the line shows the air temperature, as before.
+- Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
 - Open-Meteo: no change.
 
 ### Fixed: every limit counts an IPv6 line as one address, and the site's own readers count for their visitor
