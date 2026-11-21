@@ -331,6 +331,8 @@ html[data-returning] .first-start { display: none; }
    search with its buttons and the places (UX review S6); the tagline stays for the first start */
 html[data-app][data-returning] .home-search-block:not(.open) { display: none; }
 html[data-app][data-returning] .home-tagline { display: none; }
+/* the place then follows the logo: the room the tagline and the search gave */
+html[data-app][data-returning] .home-now { margin-top: 1.25rem; }
 html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
 .returning-only { display: none; }
 html[data-returning] .returning-only { display: block; }
