@@ -51,6 +51,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: a tap on a peak or a route answers at once
 - In the app's mountain section, a peak or a route opens the moment it is tapped, with its name on screen while its forecast loads. On a poor line the screen waited for the server first (about 0.7 s; a route's title came after 2 s).
 - A route opened from a peak's list is taken from that list, so its title and map show at once.
+### Changed: the website's header on a phone is one row
+- On a phone the website's header is now the logo and a Menu button. The menu holds the five pages as rows big enough for a thumb, and the unit, theme and language settings. It took three rows before any weather. From laptop width up the header is unchanged. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
