@@ -20,6 +20,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The line that explains the agreement dots now stands above the week list instead of under it, and every day that has hours ends in a chevron that turns while the day is open.
 ### Changed: a summit page built during an outage says so
 - When the weather source did not answer and a summit page was built from the last good forecast, it now says "Showing last known forecast. The weather source is not answering right now." above the summit window, in the look of the start page's offline line. Before, only an older "As of" time told. In all 13 languages.
+### Changed: the More tab is sorted
+- Tools, Help and Legal are three groups instead of one list of eight rows, and each tool says what it is ("Planner: the best months for a trip", "Aviation: METAR and TAF, in English"). Support joins Send feedback under Help.
+- In the app, notifications come right after the language, unit and appearance settings; the app icons come last instead of a screen-tall grid above them.
+- The unit and appearance pickers show the choice in a neutral grey, not in gold. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
