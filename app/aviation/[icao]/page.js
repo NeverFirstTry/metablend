@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { AlertTriangle } from 'lucide-react'
 import BackLink from '../../components/BackLink'
 import { notFound } from 'next/navigation'
 import Footer from '../../components/Footer'
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }) {
   }
 }
 
-const utc = ts => (ts ? new Date(ts * 1000).toISOString().slice(5, 16).replace('T', ' ') + 'Z' : '–')
+const utc = ts => (ts ? new Date(ts * 1000).toISOString().slice(5, 16).replace('T', ' ') + 'Z' : 'not reported')
 
 export default async function AirportPage({ params }) {
   const { icao } = await params
@@ -151,8 +152,8 @@ export default async function AirportPage({ params }) {
         </p>
 
         <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-200 text-xs mb-6 leading-relaxed">
-          <strong>Not for flight planning.</strong> Supplementary information from public NOAA data —
-          always obtain an official preflight briefing. <Link href="/terms#disclaimer" className="underline">Full disclaimer</Link>
+          <strong>Not for flight planning.</strong> Supplementary information from public NOAA data.
+          Always obtain an official preflight briefing. <Link href="/terms#disclaimer" className="underline">Full disclaimer</Link>
         </div>
 
         {alerts.length > 0 && (
@@ -164,12 +165,12 @@ export default async function AirportPage({ params }) {
             }`}
             role="alert"
           >
-            <strong className="tracking-widest uppercase">⚠ Significant weather</strong>
+            <strong className="tracking-widest uppercase inline-flex items-center gap-1.5"><AlertTriangle size={14} aria-hidden /> Significant weather</strong>
             <ul className="mt-1.5 space-y-0.5">
               {alerts.map((a, i) => (
                 <li key={i}>
                   <span className={a.severity === 'severe' ? 'font-bold' : ''}>{a.label}</span>
-                  <span className="opacity-75"> — {a.when}</span>
+                  <span className="opacity-75">, {a.when}</span>
                 </li>
               ))}
             </ul>
@@ -200,7 +201,7 @@ export default async function AirportPage({ params }) {
                     {ceil != null ? `${ceil.toLocaleString('en')} ft`
                       : sky.obscured ? 'Obscured'
                       : sky.unknownBase ? 'Not reported'
-                      : sky.known ? 'No ceiling' : '–'}
+                      : sky.known ? 'No ceiling' : 'not reported'}
                   </div>
                   <div className="text-zinc-500 text-xs mt-1">
                     {sky.obscured ? 'sky obscured, vertical visibility not reported'
@@ -215,7 +216,7 @@ export default async function AirportPage({ params }) {
                     className="text-2xl sm:text-3xl font-bold tabular-nums"
                     style={{ color: visSM != null ? RULES_COLOR[visCategory(visSM)] : '#a1a1aa' }}
                   >
-                    {metar.visib != null ? `${metar.visib} SM` : '–'}
+                    {metar.visib != null ? `${metar.visib} SM` : 'not reported'}
                   </div>
                   {rvr.length > 0 && (
                     <div className="text-zinc-400 text-xs mt-1 tabular-nums">
@@ -226,7 +227,7 @@ export default async function AirportPage({ params }) {
               </div>
               {!rulesKnown && (
                 <p className="text-amber-200/90 text-xs mb-5">
-                  Flight category not determined — {[
+                  Flight category not determined: {[
                     visSM == null && 'visibility not reported',
                     !sky.known && 'no sky data in report',
                     sky.known && sky.unknownBase && 'cloud height not reported',
@@ -236,18 +237,18 @@ export default async function AirportPage({ params }) {
               <dl className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-3 text-sm mb-5">
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Weather</dt>
                   <dd className="font-bold" style={metarSig.length ? { color: metarSig.some(s => s.severity === 'severe') ? 'var(--bad)' : 'var(--warn)' } : undefined}>
-                    {metar.wxString ?? '–'}
+                    {metar.wxString ?? 'none reported'}
                   </dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Wind</dt>
                   <dd className="font-bold tabular-nums">
-                    {typeof metar.wdir === 'number' ? `${String(metar.wdir).padStart(3, '0')}°` : metar.wdir ?? '–'}
+                    {typeof metar.wdir === 'number' ? `${String(metar.wdir).padStart(3, '0')}°` : metar.wdir ?? 'not reported'}
                     {typeof metar.wspd === 'number' ? ` / ${metar.wspd} kt` : ''}
                     {metar.wgst ? ` G${metar.wgst}` : ''}
                   </dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">Temp / Dew</dt>
-                  <dd className="font-bold tabular-nums">{metar.temp ?? '–'}° / {metar.dewp ?? '–'}°C</dd></div>
+                  <dd className="font-bold tabular-nums">{metar.temp != null ? `${metar.temp}°C` : 'not reported'} / {metar.dewp != null ? `${metar.dewp}°C` : 'not reported'}</dd></div>
                 <div><dt className="text-zinc-500 text-xs uppercase tracking-wider">QNH</dt>
-                  <dd className="font-bold tabular-nums">{metar.altim ? `${Math.round(metar.altim)} hPa` : '–'}</dd></div>
+                  <dd className="font-bold tabular-nums">{metar.altim ? `${Math.round(metar.altim)} hPa` : 'not reported'}</dd></div>
               </dl>
               {Array.isArray(metar.clouds) && metar.clouds.length > 0 && (
                 <p className="text-sm text-zinc-400 mb-4">
@@ -259,14 +260,14 @@ export default async function AirportPage({ params }) {
               </code>
             </>
           ) : (
-            <p className="text-zinc-500 text-sm">No METAR available — this field may not report weather.</p>
+            <p className="text-zinc-500 text-sm">No METAR available. This field may not report weather.</p>
           )}
         </section>
 
         {/* Live TAF-vs-METAR divergence: is the forecast holding up right now? */}
         {divergence.length > 0 && (
           <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
-            <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">TAF vs METAR — right now</h2>
+            <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">TAF vs METAR, right now</h2>
             <ul className="space-y-2 text-sm">
               {divergence.map((d, i) => (
                 <li key={i} className="flex flex-wrap gap-x-2 items-baseline">
@@ -288,7 +289,7 @@ export default async function AirportPage({ params }) {
                       <span className="font-bold" style={{ color: RULES_COLOR[d.metar] }}>METAR {d.metar}</span>
                       <span className="text-zinc-500">vs</span>
                       <span className="font-bold" style={{ color: RULES_COLOR[d.taf] }}>TAF {d.taf}</span>
-                      <span className="text-zinc-400">— conditions {d.tafOptimistic ? 'worse' : 'better'} than forecast</span>
+                      <span className="text-zinc-400">conditions {d.tafOptimistic ? 'worse' : 'better'} than forecast</span>
                     </>
                   )}
                 </li>
@@ -330,7 +331,7 @@ export default async function AirportPage({ params }) {
                     <td className="py-2 pr-4 tabular-nums">
                       {Math.abs(e.w.crossKt)} kt {e.w.crossKt === 0 ? '' : e.w.crossKt > 0 ? 'from R' : 'from L'}
                     </td>
-                    <td className="py-2 tabular-nums">{e.len ? `${e.len} ft` : '–'}</td>
+                    <td className="py-2 tabular-nums">{e.len ? `${e.len} ft` : 'not reported'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -344,7 +345,7 @@ export default async function AirportPage({ params }) {
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-3">Runway wind components</h2>
             <p className="text-sm text-zinc-300">
               Wind direction is variable ({typeof metar.wdir === 'string' ? metar.wdir : 'VRB'}) at {metar.wspd} kt
-              {metar.wgst ? `, gusting ${metar.wgst} kt` : ''} — per-runway components cannot be computed.
+              {metar.wgst ? `, gusting ${metar.wgst} kt` : ''}. Per-runway components cannot be computed.
               With no fixed direction, any runway may see the full {metar.wgst ?? metar.wspd} kt as crosswind.
             </p>
           </section>
@@ -364,7 +365,7 @@ export default async function AirportPage({ params }) {
                   {da.densityAltFt.toLocaleString('en')} ft
                 </dd></div>
             </dl>
-            <p className="text-zinc-500 text-xs mt-3">Approximation (standard lapse rate, dry air) — verify with your POH performance charts.</p>
+            <p className="text-zinc-500 text-xs mt-3">Approximation (standard lapse rate, dry air). Verify with your POH performance charts.</p>
           </section>
         )}
 
