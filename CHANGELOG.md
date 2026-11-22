@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: planning a hike after a new app build no longer answers "Unknown device"
+- In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
+- Only a phone whose notifications are on in the app: one switched off in More stays off.
+- No server or error text shows on the plan screen or in the notification settings any more; if something still fails, the translated "That didn't work" message shows, in all 13 languages.
+- Nothing changes on the server: the same registration address, its limits and token checks as before.
+- Open-Meteo: no change.
+
 ### Changed: the app opens on the forecast, not on the search
 - In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
 - The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.

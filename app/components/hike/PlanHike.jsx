@@ -5,7 +5,7 @@ import { BellRing } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, dayWord } from '@/lib/outlook/text'
 import { planDays } from '@/lib/push-days'
-import { enablePush, pushApi, permission } from '@/lib/push-client'
+import { enablePush, pushApiRegistered, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { simplify } from '@/lib/route/geometry'
 import { keepPlanned } from '@/lib/route-store'
@@ -28,18 +28,20 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
   async function plan(date) {
     if ((await permission()) !== 'granted') {
       const r = await enablePush({ lang, unit })
-      if (!r.ok) { setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); return }
+      // the reason (Apple's or Google's error, the server's answer) goes to the console, never onto the screen
+      if (!r.ok) { if (r.detail) console.warn('push', r.detail); setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : t(lang, 'notifError')); return }
     }
     const body = { name: peak.name, lat: peak.lat, lon: peak.lon, elev: peak.elev, date }
     if (route) {
       const pts = simplify(route.points.map(p => ({ lat: p[0], lon: p[1], ele: p[2] })), 150)
       body.route = { id: route.id ?? null, name: route.name.slice(0, 80), pace, roundTrip: !!route.roundTrip, points: pts.map(p => [p.lat, p.lon, p.ele]) }
     }
-    const r = await pushApi('plans', { method: 'POST', body })
+    // a phone the server lost registers again and the plan is sent once more (lib/push-retry.js)
+    const r = await pushApiRegistered('plans', { method: 'POST', body }, { lang, unit })
     if (r.status === 200) { haptic('success'); syncWidgets({ refresh: true }); if (r.json.plan) plansStore.add(r.json.plan) }
     // the alert opens the route by its id: keep it on the phone
     if (r.status === 200 && route?.id) await keepPlanned(route)
-    setMsg(r.status === 200 ? t(lang, 'planSaved') : r.json.error ?? t(lang, 'notifError'))
+    setMsg(r.status === 200 ? t(lang, 'planSaved') : t(lang, 'notifError'))
     setOpen(false)
   }
 
