@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: the weather feedback answers in your language
+- After "Send feedback", the panel said what the server answered in English ("You have already submitted feedback for this city in the last hour.", "Thank you! Weights updated."), in every language. It now shows a translated message for each answer: thanks, the weights updated, already sent this hour, sunny at night, a temperature far off the forecast, a value to check, or not sent. In all 13 languages; the server's answers are unchanged (owner, 22 November).
+
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
 - Only a phone whose notifications are on in the app: one switched off in More stays off.
