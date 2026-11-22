@@ -82,7 +82,8 @@ export default async function CityWeather({ params }) {
 
   return (
     <>
-      <DocTitle k="titleCity" vars={{ city: name }} />
+      {/* the name as the server's title has it (displayName: "Wien"), not the forecast's own ("Vienna") */}
+      <DocTitle k="titleCity" vars={{ city: displayName(city) }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
