@@ -13,6 +13,11 @@ All notable changes to MetaBlend. Format loosely follows
 - Everything else is neutral: selected tabs, chips, toggles and the current tab in the tab bar get a plain highlight; section labels are grey; links are underlined in the text colour; the hiking caution keeps the warning colour with a warning sign. A dry day's headline is no longer green and "no window" no longer blue: without an answer the card is neutral.
 - On a route's map the route itself stays gold, as a map element, now with a thin dark edge so it stands out on light rock and on green forest alike.
 - Confirmations keep the status green: "Thank you" after sending feedback and "Updated just now" after a refresh.
+### Fixed: on Android 14 and older the app runs behind the status bar and the navigation bar, as on iPhone
+- On Android 14 and older (the A52) the status bar was a grey band above the app, and the tab bar sat on a grey navigation bar with its labels pushed down: the page was kept clear of the bars twice, once by the system and once by its own spacing.
+- The app now draws edge to edge on every Android version: the app background (Slate in dark, the light background in light) runs behind both bars, the status bar icons are light on dark and dark on light, and the page and tab bar keep clear of the bars once.
+- Android 15 and newer already drew it this way; nothing changes there. Gesture and 3-button navigation alike.
+- Native app only (a new Android build); the website does not change. Open-Meteo: no change.
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
