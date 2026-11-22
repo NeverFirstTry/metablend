@@ -3,7 +3,7 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-21
+## 2026-11-22
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
@@ -17,30 +17,40 @@ All notable changes to MetaBlend. Format loosely follows
 - The nightly job keeps the weights of the day, one row per region, in a new table, `weights_daily`. Needs `supabase/weights-daily.sql` on dev and then production; without it the job runs as before and keeps nothing.
 - Database: the summit value fills a column that stood empty (5 summits an hour); the weights are about 7 rows and 5 KB a day, about 0.15 MB a month.
 - Open-Meteo: no new request. One more database read per hourly run and one read and one write per night.
+
 ### Fixed: the weather word is never cut off
 - On a narrow phone the weather word beside the big temperature lost its end in French, Spanish, Italian, Polish and Portuguese ("Partiellement nuag..."). A long word now wraps onto a second line.
+
 ### Fixed: two accessibility misses
 - In "How is the weather where you are?" a screen reader now names the Condition and temperature fields; their labels were not tied to them.
 - In the light theme the red of error messages is a little darker, so it reads clearly on its pink box (5.5:1, it was 4.2:1).
+
 ### Changed: the week list shows that a day opens
 - The line that explains the agreement dots now stands above the week list instead of under it, and every day that has hours ends in a chevron that turns while the day is open.
+
 ### Changed: a summit page built during an outage says so
 - When the weather source did not answer and a summit page was built from the last good forecast, it now says "Showing last known forecast. The weather source is not answering right now." above the summit window, in the look of the start page's offline line. Before, only an older "As of" time told. In all 13 languages.
+
 ### Changed: the More tab is sorted
 - Tools, Help and Legal are three groups instead of one list of eight rows, and each tool says what it is ("Planner: the best months for a trip", "Aviation: METAR and TAF, in English"). Support joins Send feedback under Help.
 - In the app, notifications come right after the language, unit and appearance settings; the app icons come last instead of a screen-tall grid above them.
 - The unit and appearance pickers show the choice in a neutral grey, not in gold. In all 13 languages.
+
 ### Changed: the rain radar says when and what
 - The radar picture shows its time on the map ("Radar 00:10") and a legend under it: light, moderate and heavy rain in the radar's own colours.
 - The maps look like the rest of the app: zoom buttons in the theme's colours, a plain dot for the place instead of the bright blue pin, and on the radar one credit line instead of a credit box over the map. The heatmap's credit drops the optional "Leaflet" prefix. In all 13 languages.
+
 ### Changed: a summit page's week fits a phone
 - On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
+
 ### Changed: My routes tells routes apart
 - Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
+
 ### Changed: the last emoji leave the screens
 - A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
 - The planned hikes under More, Notifications no longer start with a mountain emoji.
 - 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
+
 ### Changed: planned hikes show where they are made
 - A peak or route with a planned hike says "Planned for Saturday" above the Plan button, with Cancel plan next to it. The day already planned is not offered again.
 - The Hiking tab lists the planned hikes at the top, each opening its peak. They were only under More, Notifications. In all 13 languages.
@@ -51,29 +61,39 @@ All notable changes to MetaBlend. Format loosely follows
 - A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
 - Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
 - Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
+
 ### Changed: a peak's routes say where they start
 - Each route under a peak shows its start: "Start at 2801 m", or "From Lucknerhaus, 1918 m" where OpenStreetMap names the place. A route without a name reads "Unnamed marked route".
 - One line under the list tells the two grade scales apart: routes on the SAC hiking scale (T1-T6), the peak on the SAC alpine scale (L-EX). In all 13 languages.
+
 ### Changed: a tap on a peak or a route answers at once
 - In the app's mountain section, a peak or a route opens the moment it is tapped, with its name on screen while its forecast loads. On a poor line the screen waited for the server first (about 0.7 s; a route's title came after 2 s).
 - A route opened from a peak's list is taken from that list, so its title and map show at once.
+
 ### Changed: the website's header on a phone is one row
 - On a phone the website's header is now the logo and a Menu button. The menu holds the five pages as rows big enough for a thumb, and the unit, theme and language settings. It took three rows before any weather. From laptop width up the header is unchanged. In all 13 languages.
+
 ### Added: a first-time hiker sees three peaks with today's summit window
 - In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
 - Only a phone with no saved or recent peak asks for them, and no new Open-Meteo request: they are the forecasts the summit pages already keep. The names show at once, the windows as they arrive.
+
 ### Changed: every button is big enough for a thumb
 - On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
+
 ### Changed: the mountain section has one name
 - The app's tab, the website's menu and the section's page title now all say "Mountains" (German "Berge"), the word the footer already used. They said "Hiking" and "Mountain weather". In all 13 languages; the tester page and the notes for App Review name the tab the same way.
 - Kept as they are: "a hike", "Plan a hike" and "Hike alerts" (the activity, not the section), and the search titles of the pages. The device checklist and docs/how-it-works.md name the tab "Mountains" too (owner kept the name, 2026-11-21).
+
 ### Changed: the caption of store screen 3 (owner 2026-11-21)
 - App Store and Google Play, screen 3: "195 peaks, from famous to nearby", German "195 Gipfel, von berühmt bis um die Ecke", the other 11 languages in the same spirit (store/captions.json). "Popular peaks" now stands above "Near you" on that screen, so "nearest first" no longer fits.
 - The pictures follow at the store run of 28 November; the store texts are unchanged.
+
 ### Changed: the store descriptions' mountain block (for the final store text check before 30 November)
 - App Store and Google Play, all 13 languages: the block's heading is the tab's name, "Mountains" (German "Berge"; it said "Mountains and hiking", "Berge und Wandern"), since the owner kept that name on 2026-11-21.
 - The peak line says "from famous to nearby" (German "von berühmt bis um die Ecke"), the words of store screen 3's caption, instead of "the nearest first"; "Popular peaks" now stands above "Near you". It drops "worldwide", which the summit line above it already says.
 - Spanish: "Rutas de senderismo señalizadas", so the Google Play listing still holds the word people search for.
+
+## 2026-11-21
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
@@ -89,26 +109,32 @@ All notable changes to MetaBlend. Format loosely follows
 - Why now: the owner read Visual Crossing's attribution page and its free-plan page on 20 November. The value may be shown when the credit stands near it. It does: "Weather data provided by Visual Crossing Weather", linked, is the credit line right under that list. The passages are on file word for word in `docs/source-licences.md`.
 - What leaves our server of Visual Crossing: that one temperature, in the forecast answer. Its feels-like, rain, wind and condition words do not. The landing page's example names it without a value, since no credit stands beside that example.
 - The line "Value not shown (licence)" leaves all 13 languages.
+
 ### Fixed: after midnight the hike widget shows each day its own summit window
 - A planned hike's widget, read at night from a summit forecast made before midnight, showed "No daylight left today" for the new day and gave the day after it the new day's window, in green. Each window now stays with its own day. A day the stored forecast has no window for shows the day's weather without a verdict until the forecast is renewed (at most about two hours).
 - Server only: the widgets on the phones need no update.
+
 ### Fixed: in the app, a peak's "Today" is the reader's day, not the day the forecast was made
 - When a summit forecast was kept through an outage, or made before midnight and opened after it, the app's peak view called the day before "Today" and showed what was left of that day's window. The summit pages were corrected for this on 17 November; the app's view was not.
 - Today and Tomorrow now go by the day it is at the summit. Each day shows its own window; the Week tab starts at today. After midnight the peak opens on Today with its window, where it opened on the day after.
 - A phone set to a date the forecast does not cover is not believed: the forecast is then shown as it is.
+
 ### Fixed: no server code in the browser's part of a peak
 - Nothing a visitor sees changes. Opening a peak downloaded code the browser never needs: the Open-Meteo gate, the database client and the error log came along with one small helper. Nothing leaked (the browser only ever has the public key and every table is closed to it), but it was weight for every visitor and one wrong grant away from a real problem.
 - The two weather-code tables moved to a file without imports (`lib/weather-codes.js`); the server's callers find them where they were.
 - A new test walks the imports of every client file and fails when one reaches the database client, the error log, the job log or the Open-Meteo gate.
+
 ### Fixed: GeoSphere no longer says "Clear" whenever it is dry
 - In Austria on an overcast or foggy dry day, the main condition no longer gets a "clear" vote from GeoSphere. Its analysis has no cloud value, so a dry hour said nothing about the sky and was still reported as "Clear". It is now "Dry", which is no kind of sky and gives no vote.
 - GeoSphere still counts as a source that reports no rain: the line "n of m sources report rain" and the rain share keep their totals.
 - Golden test: two entries changed by hand, GeoSphere's condition in the answer and in its stored row ("Clear" to "Dry"). The blend, the rain share and every other value are unchanged.
+
 ### Fixed: "feels like" is no longer pulled towards the air temperature
 - On a cold windy day the "feels like" under the temperature was too mild: sources that give no such value were counted with their air temperature.
 - Now only the sources that give a feels-like count, and what they add to or take from their own temperature is put on the blended temperature. One source at -2 that feels like -10 beside one at -2 without the value: the page said -6, it now says -10.
 - When no source has the value, the line shows the air temperature, as before.
 - Golden test, every difference: the blend's feels-like 4 to 3.8 (and the same in its stored row), MET Norway's and GeoSphere's own feels-like from their air temperature to none. The temperature, the order of the sources and every other value are unchanged.
+
 ### Added: the height model's notice in the list of sources on /terms
 - Since 19 November a hiking route's ascent, walking time and height profile are made from the Copernicus height model (GLO-90). Its notice was missing where the public can read it. It now stands in the list of sources on /terms in all 13 languages, in its licence's own words: "produced using Copernicus WorldDEM™-90 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved", followed by what it is used for in the page's language and by the sentence the licence asks to stand with it: "The organisations in charge of the Copernicus programme by law or by delegation do not incur any liability for any use of the Copernicus WorldDEM™-90".
 - The wording was read on 21 November in the licence itself (Licence for the use of the Copernicus WorldDEM™-90, Article 6) and is on file in `docs/source-licences.md`; `docs/how-it-works.md` no longer says that no heights are published.
