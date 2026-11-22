@@ -5,7 +5,7 @@ import { BellRing, CalendarCheck, CalendarPlus } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, dayWord } from '@/lib/outlook/text'
 import { planDays } from '@/lib/push-days'
-import { enablePush, pushApi, permission } from '@/lib/push-client'
+import { enablePush, pushApiRegistered, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { simplify } from '@/lib/route/geometry'
 import { keepPlanned } from '@/lib/route-store'
@@ -36,9 +36,10 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
       const pts = simplify(route.points.map(p => ({ lat: p[0], lon: p[1], ele: p[2] })), 150)
       body.route = { id: route.id ?? null, name: route.name.slice(0, 80), pace, roundTrip: !!route.roundTrip, points: pts.map(p => [p.lat, p.lon, p.ele]) }
     }
-    // with notifications the server keeps the plan and sends its alerts; without them, or off in the app (the
-    // server does not know this phone: 404), the plan stays on the phone, never asking for notifications first
-    const r = (await permission()) === 'granted' ? await pushApi('plans', { method: 'POST', body }) : { status: 404 }
+    // with notifications the server keeps the plan and sends its alerts; a phone the server lost registers again and
+    // the plan is sent once more (lib/push-retry.js, only for a phone that opted in). Without notifications, or still
+    // unknown to the server after that (404: off in the app), the plan stays on the phone, never asking first
+    const r = (await permission()) === 'granted' ? await pushApiRegistered('plans', { method: 'POST', body }, { lang, unit }) : { status: 404 }
     if (r.status === 404) {
       await plansStore.addLocal(body)
       if (route?.id) await keepPlanned(route)
@@ -51,7 +52,7 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
     if (r.status === 200) { haptic('success'); syncWidgets({ refresh: true }); if (r.json.plan) plansStore.add(r.json.plan) }
     // the alert opens the route by its id: keep it on the phone
     if (r.status === 200 && route?.id) await keepPlanned(route)
-    setMsg(r.status === 200 ? t(lang, 'planSaved') : r.json.error ?? t(lang, 'notifError'))
+    setMsg(r.status === 200 ? t(lang, 'planSaved') : t(lang, 'notifError'))
     setOpen(false)
   }
 
@@ -65,7 +66,8 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
   async function turnOnAlerts() {
     setMsg(null)
     const r = await enablePush({ lang, unit })
-    if (!r.ok) { setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); return }
+    // the reason (Apple's or Google's error, the server's answer) goes to the console, never onto the screen
+    if (!r.ok) { if (r.detail) console.warn('push', r.detail); setMsg(r.reason === 'denied' ? t(lang, 'notifBlocked') : t(lang, 'notifError')); return }
     await plansStore.promote()
     syncWidgets({ refresh: true })
     setMsg(t(lang, 'planExplain'))

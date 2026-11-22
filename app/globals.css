@@ -327,6 +327,15 @@ html:is([data-app], [data-returning]) .landing-view { display: none; }
 html[data-app]:not([data-returning]) .home-data.landing-view { display: block; }
 /* a returning app user sees the small loader until the resume, not the example and its "Try a city" */
 html[data-returning] .first-start { display: none; }
+/* the app, a returning user: the start page opens on the place and its forecast, and the place's name opens the
+   search with its buttons and the places (UX review S6); the tagline stays for the first start */
+html[data-app][data-returning] .home-search-block:not(.open) { display: none; }
+html[data-app][data-returning] .home-tagline { display: none; }
+/* the place then follows the logo: the room the tagline and the search gave */
+html[data-app][data-returning] .home-now { margin-top: 1.25rem; }
+/* the chevron beside the place's name says the search folds: there only, from the first paint */
+.home-fold-chevron { display: none; }
+html[data-app][data-returning] .home-fold-chevron { display: inline-block; }
 html:not([data-app], [data-returning]) .landing-hides { display: none !important; }
 .returning-only { display: none; }
 html[data-returning] .returning-only { display: block; }

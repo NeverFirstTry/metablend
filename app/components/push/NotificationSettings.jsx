@@ -55,7 +55,7 @@ export default function NotificationSettings({ lang, unit }) {
 
   async function turnOn() {
     const r = await enablePush({ lang, unit })
-    if (!r.ok) { setMsg(r.reason === 'denied' ? null : `${t(lang, 'notifError')}${r.detail ? ` (${r.detail})` : ''}`); await load(); return }
+    if (!r.ok) { if (r.detail) console.warn('push', r.detail); setMsg(r.reason === 'denied' ? null : t(lang, 'notifError')); await load(); return }
     const { topCity } = await promptState()
     await pushApi('settings', { method: 'PUT', body: { home_name: topCity ?? null, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
     // the hikes planned without notifications go to the server now, so they get their alerts (owner, 2026-11-22)
@@ -88,7 +88,7 @@ export default function NotificationSettings({ lang, unit }) {
 
   async function test() {
     const r = await pushApi('test-send', { method: 'POST' })
-    setMsg(r.status === 200 ? t(lang, 'notifTestSent') : r.json.error ?? t(lang, 'notifError'))
+    setMsg(r.status === 200 ? t(lang, 'notifTestSent') : t(lang, 'notifError'))
   }
 
   async function removePlan(id) {
