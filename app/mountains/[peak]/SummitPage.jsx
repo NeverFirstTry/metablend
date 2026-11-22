@@ -119,7 +119,8 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
 
         {days?.length > 0 && (
           // on a phone the app's Week rows with one legend (they bring their own card); from sm up the table (UX review M1)
-          <section data-keep aria-label={t(lang, 'mtn7Day')} className="mb-6 sm:bg-zinc-900 sm:border sm:border-zinc-800 sm:rounded-2xl sm:p-8">
+          // in a card drawn from the theme's tokens: the sm: classes escape the themes' remaps (dark zinc in light)
+          <section data-keep aria-label={t(lang, 'mtn7Day')} className="mb-6 sm:bg-[var(--glass)] sm:shadow-[var(--lift)] sm:border sm:border-[var(--hairline)] sm:rounded-2xl sm:p-8">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtn7Day')}</h2>
             <div className="sm:hidden"><SummitDays days={days} todayLocal={todayLocal} lang={lang} fmt={{ fmtTemp: fmt }} rain /></div>
             <table role="table" className="hidden sm:table w-full text-sm text-left">

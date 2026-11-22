@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: colours that did not read in the light theme
+- The aviation page's warning boxes keep their red or amber, now on a pale tint with dark text; they were a dark box with pale text on the white page.
+- A saved peak's star button is a light grey pill with dark text, like the other chosen buttons; it was a dark block.
+- On a summit page on a wide screen, the week sits in a white card like the rest of the page; it was a dark card. In the dark theme the card is the same glass as the other cards now.
+- The week's best day and a peak's summit window, the Planner's best months and "Turn on" in the rain alerts prompt read in a deeper gold in the light theme; the gold on its pale tint was too faint. The dark theme does not change.
+- The testers form's focus ring and tick box are dark instead of bright green, and a route row's hover is a light grey instead of a dark one.
+- A new test checks that every colour class and colour token the app uses has a light-theme value that reads (4.5:1 for text, 3:1 for a focus mark), so a colour new to the code cannot ship without one again (owner, 22 November, after Build's fix of the More pickers).
+
 ### Fixed: the weather feedback answers in your language
 - After "Send feedback", the panel said what the server answered in English ("You have already submitted feedback for this city in the last hour.", "Thank you! Weights updated."), in every language. It now shows a translated message for each answer: thanks, the weights updated, already sent this hour, sunny at night, a temperature far off the forecast, a value to check, or not sent. In all 13 languages; the server's answers are unchanged (owner, 22 November).
 
