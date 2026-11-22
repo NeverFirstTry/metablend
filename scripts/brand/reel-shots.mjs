@@ -1,7 +1,7 @@
 // node scripts/brand/reel-shots.mjs <stage> <build folder> [base]: the stage screenshots for the reel "MetaBlend has
 // a new look" (owner 2026-11-21) into store/social/reel/shots/<stage>-<screen>-<lang>.png. The same app screens from
 // three local builds, one at a time: 1-before (48603a1, the last commit whose page wore the weather sky),
-// 2-slate (50bc282, solid Slate before the UX changes of 20 Nov) and 3-now (main). App view, dark, de and en,
+// 2-slate (solid Slate: 37fb3d5, the switch itself, in the rehearsal of 22 Nov; 50bc282 before) and 3-now (main). App view, dark, de and en,
 // 390 x 844 at 3x: the page at 390 x 797 under a drawn status bar that reads 18:41.
 //   For the film, which changes one stage into the next part by part, every screen is also pictured 320 px taller
 //   into shots/film/, and shots/film/regions.json says where its parts are (header, search row, headline, tabs,
@@ -12,6 +12,10 @@
 //   SKY=dawn puts the old weather sky's sunrise on the page (stage 1 only: there the sky followed the hour, and the
 //   pictures are taken in the evening); the film then also gets the same page on Slate (…-on-slate-…), so its
 //   background can change first. ONLY=forecast,peak picks screens. OUT=<folder> writes somewhere else (a rehearsal).
+//   REPLAY=<file>: the same weather in every stage. The first stage run with it records the page's own API answers
+//   there; every later run is given those answers. Run the newest stage first: an older page ignores what it does
+//   not know, a newer page would miss what an older answer lacks. The browser's clock stands still at the moment
+//   of the recording, so nothing that counts time ("refreshes in", "Updated") differs between the stages either.
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -51,6 +55,36 @@ ws.addEventListener('message', e => { const m = JSON.parse(e.data); if (pending.
 const ev = async x => (await send('Runtime.evaluate', { expression: x, awaitPromise: true, returnByValue: true })).result?.result?.value
 const grab = async () => (await send('Page.captureScreenshot', { format: 'png' })).result.data
 const screen = height => send('Emulation.setDeviceMetricsOverride', { width: W, height, deviceScaleFactor: SCALE, mobile: true })
+
+// The recorded API answers (REPLAY), keyed by path and sorted query: GET requests to this build's own /api/.
+const REPLAY = process.env.REPLAY
+const tape = REPLAY && fs.existsSync(REPLAY) ? JSON.parse(fs.readFileSync(REPLAY, 'utf8')) : REPLAY ? { at: Date.now(), answers: {} } : null
+const recording = REPLAY && !fs.existsSync(REPLAY)
+const keyOf = url => {
+  const u = new URL(url)
+  return u.pathname + '?' + [...u.searchParams].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join('&')
+}
+const missed = new Set()
+if (tape) {
+  ws.addEventListener('message', async e => {
+    const m = JSON.parse(e.data)
+    if (m.method !== 'Fetch.requestPaused') return
+    const { requestId, request, responseStatusCode, responseHeaders } = m.params
+    const key = keyOf(request.url)
+    if (request.method !== 'GET') return send('Fetch.continueRequest', { requestId })
+    if (recording) {
+      // the answer as it came from this build's server
+      const { body, base64Encoded } = (await send('Fetch.getResponseBody', { requestId })).result ?? {}
+      if (responseStatusCode === 200 && body != null) tape.answers[key] = { headers: responseHeaders, body: base64Encoded ? body : Buffer.from(body).toString('base64') }
+      return send('Fetch.continueRequest', { requestId })
+    }
+    const answer = tape.answers[key]
+    if (!answer) { missed.add(key); return send('Fetch.continueRequest', { requestId }) }
+    send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: answer.headers, body: answer.body })
+  })
+}
+// the browser's clock, standing still at the recording's moment
+const CLOCK = tape && `(() => { const T = ${tape.at}; const R = Date; class D extends R { constructor(...a) { super(...(a.length ? a : [T])) } static now() { return T } } D.parse = R.parse; D.UTC = R.UTC; globalThis.Date = D })()`
 
 // ready: the page names what was asked for, shows a temperature, and its words stood still for 3 s
 // (digits left out: the old forecast page counts down to its next update every second)
@@ -168,6 +202,11 @@ try {
   await send('Page.enable'); await send('Runtime.enable'); await send('Network.enable')
   await blockAnalytics(ws, send)
   await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
+  if (tape) {
+    await send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK })
+    await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*`, requestStage: recording ? 'Response' : 'Request' }] })
+    console.log(recording ? `  recording the API answers into ${REPLAY}` : `  replaying ${Object.keys(tape.answers).length} API answers from ${REPLAY}`)
+  }
   const { userAgent } = (await send('Browser.getVersion')).result
   await send('Network.setUserAgentOverride', { userAgent: `${userAgent} MetaBlendApp` })
   await screen(H - BAR)
@@ -211,6 +250,9 @@ try {
     }
   }
   await drawBars()
+  if (recording) { fs.writeFileSync(REPLAY, JSON.stringify(tape)); console.log(`  recorded ${Object.keys(tape.answers).length} API answers`) }
+  // an address the recording does not have was asked live: its stage may show other weather there
+  if (missed.size) console.log(`  not in the recording, asked live: ${[...missed].join(', ')}`)
 } finally {
   await close()
 }
