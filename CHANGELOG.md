@@ -7,7 +7,8 @@ All notable changes to MetaBlend. Format loosely follows
 
 ### Added: a first-time hiker sees three peaks with today's summit window
 - In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
-- Only a phone with no saved or recent peak asks for them, and no new Open-Meteo request: they are the forecasts the summit pages already keep. The names show at once, the windows as they arrive.
+- Only a phone with no saved or recent peak asks for them. The names show at once, the windows as they arrive.
+- Open-Meteo: the phone asks the summit forecast's address, whose CDN copy lives an hour (then 30 minutes stale); when that copy is cold the forecast is made again, 5.1 weighted calls a peak, up to about 367 a day per CDN region for the three. (An earlier line here said "no new Open-Meteo request"; that was wrong.)
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.

@@ -42,7 +42,8 @@ export default function MyPeaks({ lang, hrefFor }) {
 }
 
 // a first-time user's three peaks (lib/hike/first-peaks.js): read in the browser, and only here, where the shelf is
-// empty; the stored summit copies the summit pages use (CDN, six hours). The names stand at once, the windows follow.
+// empty. It asks the summit forecast's address, whose CDN copy lives 1 h plus 30 min stale; a cold copy costs 5.1
+// weighted Open-Meteo calls a peak (see lib/hike/first-peaks.js). The names stand at once, the windows follow.
 function FirstPeaks({ lang, hrefFor, now }) {
   const [answers, setAnswers] = useState([])
   useEffect(() => {
