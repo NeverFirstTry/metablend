@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-21
 
 ### Changed: the notification settings look like settings
-- The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb.
+- The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb. "Change" beside the home city is a plain underlined word and the city field's outline turns grey, not the accent colour, when it is in use (owner, 22 November).
 - Without a home city, the settings show the city search at once with a hint ("Search a city") instead of a dash, "Change" and an empty field. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
