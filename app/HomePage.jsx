@@ -13,6 +13,7 @@ import {
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { uniquePlaces, samePlace, placeChips, nextChip } from '@/lib/recent-places'
+import { searchFolds, searchBlockOpen } from '@/lib/home-search'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -194,6 +195,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     setIsExample(true)
     setCity('')
     delete document.documentElement.dataset.returning
+    setFolds(false)
   }
   // left while the first forecast was loading: back straight to its loader
   const [loading, setLoading] = useState(() => !SESSION.data && !!SESSION.pending)
@@ -247,6 +249,10 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   // the search block (field, its buttons, the places): in the app a returning user starts without it and opens it
   // from the place's name (UX review S6); globals.css hides it before first paint
   const [searchOpen, setSearchOpen] = useState(false)
+  // where it folds (app, returning user) the place's name is the button that opens it; read after mount, since the
+  // server cannot know (Review, 2026-11-22: elsewhere a button said collapsed over a search always in view)
+  const [folds, setFolds] = useState(false)
+  const searchShown = searchBlockOpen({ tapped: searchOpen, error, compare: compareMode })
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
   const [compareLoading, setCompareLoading] = useState(false)
@@ -307,6 +313,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         loadForecast(first, { lang: detectedLang, remember })
       } else delete document.documentElement.dataset.returning
     }
+    setFolds(searchFolds(document.documentElement.dataset))
     /* eslint-enable react-hooks/set-state-in-effect */
 
     if ('serviceWorker' in navigator) {
@@ -768,6 +775,9 @@ ${url}`)
     </div>
   )
 
+  // the forecast's title: the example comes in English from the server, so its name in the reader's language
+  const placeTitle = data && <span><PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} /></span>
+
   return (
     <main className="home min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="home-col max-w-3xl mx-auto">
@@ -823,7 +833,7 @@ ${url}`)
             and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report).
             There each of the three says what it does in a word (tester, 2026-11-19; UX review S1); beside the field on
             a wide screen compare keeps its word and the other two their icon */}
-        <div id="home-search-block" className={`home-search-block${searchOpen || error || compareMode ? ' open' : ''}`}>
+        <div id="home-search-block" className={`home-search-block${searchShown ? ' open' : ''}`}>
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
@@ -1044,13 +1054,20 @@ ${url}`)
               {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
                   whole), a single over-long name still anywhere */}
               <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
-                {/* the place's name opens the search to change it (S6); the example comes in English from the server: its
-                    name in the reader's language */}
-                <button type="button" onClick={toggleSearch} aria-expanded={searchOpen} aria-controls="home-search-block" title={t(lang, 'changePlace')}
-                  className="press text-left inline-flex items-baseline gap-2 hover:text-emerald-400">
-                  <span><PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} /></span>
-                  <ChevronDown size={20} className={`app-only shrink-0 text-zinc-500 transition-transform ${searchOpen ? 'rotate-180' : ''}`} aria-hidden />
-                </button>
+                {/* where the search folds (app, returning user) the name is the button that opens it (S6); elsewhere plain
+                    text. The chevron shows from the first paint by the style sheet, so nothing moves when the button comes */}
+                {folds ? (
+                  <button type="button" onClick={toggleSearch} aria-expanded={searchShown} aria-controls="home-search-block"
+                    className="press text-left inline-flex items-baseline gap-2">
+                    {placeTitle}<span className="sr-only">, {t(lang, 'changePlace')}</span>
+                    <ChevronDown size={20} className={`home-fold-chevron shrink-0 text-zinc-500 transition-transform ${searchShown ? 'rotate-180' : ''}`} aria-hidden />
+                  </button>
+                ) : (
+                  <span className="inline-flex items-baseline gap-2">
+                    {placeTitle}
+                    <ChevronDown size={20} className="home-fold-chevron shrink-0 text-zinc-500" aria-hidden />
+                  </span>
+                )}
               </h2>
               <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
                 <button
