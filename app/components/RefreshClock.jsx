@@ -29,7 +29,8 @@ function useNow() {
 // stood; that box pushed everything down, the rain prompt under the tab bar (owner, 2026-11-22)
 export function DataAge({ generatedAt, justUpdated, lang, kept, utcOffsetSec, offline = false }) {
   const ageMin = Math.max(0, Math.floor((useNow() - Date.parse(generatedAt)) / 60000))
-  if (offline) return <div className="text-[0.6875rem] mt-1"><span role="status" className="text-[var(--warn)] inline-flex items-center gap-1"><WifiOff size={12} className="shrink-0" aria-hidden /> {t(lang, 'offlineBanner')}</span></div>
+  // the icon inline in the text line, so the line is as high as the age it stands for (an inline-flex box was 2 px more)
+  if (offline) return <div className="text-[0.6875rem] mt-1"><span role="status" className="text-[var(--warn)]"><WifiOff size={12} className="inline align-[-2px] mr-1" aria-hidden />{t(lang, 'offlineBanner')}</span></div>
   if (kept) return <div className="text-[0.6875rem] mt-1 tabular-nums"><span className="text-zinc-500">{keptAsOf(kept, utcOffsetSec, lang)}</span></div>
   return (
     <div className="text-[0.6875rem] mt-1 tabular-nums">
