@@ -4,25 +4,24 @@ import { useEffect, useState } from 'react'
 import { Palette } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { currentIcon, setIcon } from '@/lib/app-icon'
-import { iconChoices, selectedIcon, switchNeedsWarning } from '@/lib/app-icon-choices'
+import { pickerState, switchNeedsWarning } from '@/lib/app-icon-choices'
 import { syncWidgets } from '@/lib/app-widget-client'
 import { SectionTitle } from './ui'
 
 const label = name => `appIcon${name[0].toUpperCase()}${name.slice(1)}`
 
-// More → App icon. Renders nothing until the phone answers (website, or an
-// app build without the AppIcon plugin or from before 2026-11-10: never).
+// More → App icon. Renders nothing until the phone answers (website, or an app build without the AppIcon plugin:
+// never). A build from before 2026-11-10 gets the icons it was built with (lib/app-icon-choices.js, owner 2026-11-22).
 export default function AppIconPicker({ lang }) {
-  const [state, setState] = useState(null) // { platform, name, choices }
+  const [state, setState] = useState(null) // { platform, name, choices, legacy }
   const [pending, setPending] = useState(null) // Android: the icon waiting for "Switch icon"
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
     let gone = false
     currentIcon().then(r => {
-      if (gone || !r) return
-      const choices = iconChoices(r.platform, r.icons)
-      if (choices.length) setState({ platform: r.platform, name: selectedIcon(r.platform, r.name, r.icons), choices })
+      const s = pickerState(r)
+      if (!gone && s) setState(s)
     })
     return () => { gone = true }
   }, [])
@@ -53,13 +52,15 @@ export default function AppIconPicker({ lang }) {
               <button key={name} type="button" onClick={() => choose(name)} aria-pressed={state.name === name} disabled={busy}
                 className="press flex flex-col items-center gap-1.5 text-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element -- 56-px static previews, nothing to optimise */}
-                <img src={`/app-icons/${name}.png?v=2`} alt="" width="56" height="56" className="rounded-[22%]"
+                <img src={state.legacy ? `/app-icons/legacy/${name}.png?v=1` : `/app-icons/${name}.png?v=2`} alt="" width="56" height="56" className="rounded-[22%]"
                   style={{ outline: on ? '2px solid var(--accent)' : 'none', outlineOffset: 3 }} />
                 <span className="text-center" style={{ color: on ? 'var(--accent)' : 'var(--muted)' }}>{t(lang, label(name))}</span>
               </button>
             )
           })}
         </div>
+        {/* an older iPhone build's Automatic follows light and dark mode, as it said there before 2026-11-10 */}
+        {state.legacy && state.platform === 'ios' && <p className="text-xs text-zinc-500">{t(lang, 'appIconAutoHint')}</p>}
         {pending && (
           <div className="space-y-2">
             <p className="text-xs" style={{ color: 'var(--warn)' }}>{t(lang, 'appIconAndroidWarn')}</p>
