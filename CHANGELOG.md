@@ -12,6 +12,7 @@ All notable changes to MetaBlend. Format loosely follows
 - "Turn on" in the app's rain prompt switches on rain alerts only. Storm, severe weather and heat stay off until you turn them on in the notification settings.
 - The prompt names the place that is open and registers that place, not the one you looked at most.
 - When you are offline, the line under the place's name says "Showing last known forecast. You are offline" in the warning colour; the box above the page is gone, so nothing moves down and the prompt no longer slips under the tab bar (owner, 22 November).
+- In Spanish, Portuguese, Japanese and Korean that line is shorter ("Last known forecast. You are offline", as in the other languages), so it fits one line on a small phone; a summit page's note when the weather source is down opens with the same words.
 
 ### Fixed: colours that did not read in the light theme
 - The aviation page's warning boxes keep their red or amber, now on a pale tint with dark text; they were a dark box with pale text on the white page.
