@@ -1,3 +1,4 @@
+import DocTitle from '../../components/DocTitle'
 import { jsonForScript } from '@/lib/html'
 import { notFound } from 'next/navigation'
 import { CITIES, findCity, slugToQuery } from '@/lib/cities'
@@ -81,6 +82,7 @@ export default async function CityWeather({ params }) {
 
   return (
     <>
+      <DocTitle k="titleCity" vars={{ city: name }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

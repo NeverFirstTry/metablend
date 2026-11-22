@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import TermsContent from './content'
 
 export const metadata = {
@@ -9,5 +10,5 @@ export const metadata = {
 // Metadata must live in a server component; the localized body is client-side
 // (it reads the language cookie the home page writes).
 export default function Terms() {
-  return <TermsContent />
+  return <><DocTitle k="footerTerms" /><TermsContent /></>
 }
