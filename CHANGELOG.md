@@ -5,6 +5,7 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+<<<<<<< HEAD
 ### Fixed: colours that did not read in the light theme
 - The aviation page's warning boxes keep their red or amber, now on a pale tint with dark text; they were a dark box with pale text on the white page.
 - A saved peak's star button is a light grey pill with dark text, like the other chosen buttons; it was a dark block.
@@ -32,6 +33,13 @@ All notable changes to MetaBlend. Format loosely follows
 - Since 20 November the chosen button ("°C", "Light") was dark grey with dark text in the light theme, almost unreadable, on the website and in the app alike.
 - Now it is a light grey pill with the dark text, the light theme's match of the grey pill in dark. Dark theme unchanged.
 - Website and app (the app shows the website): one style rule, no native build. Open-Meteo: no change.
+=======
+### Fixed: notifications show as on only once the server has the phone
+- In the app, the rain prompt's "Turn on" now says "That didn't work" in the reader's language when turning notifications on fails (no push token from Android or Apple, or the server refused), and stays, so it can be tried again. It says "Done" only once the rain alerts and the city are saved too. Before, it went away without a word and never asked again. A refused permission still ends it.
+- The notification settings already showed "on" only with the server's answer; a test now holds that.
+- The device checklist (mobile/README.md): a new worktree or clone needs google-services.json in mobile/android/app/ before an Android build, or push silently does not work (the A52 build of 22 November).
+- Nothing changes on the server. Open-Meteo: no change.
+>>>>>>> fix/notif-on-only-registered
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
