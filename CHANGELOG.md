@@ -5,6 +5,15 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: the app opens on the forecast, not on the search
+- In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
+- The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
+
+### Fixed: the app icon option is back in the app builds from before 10 November, and stands among the settings again
+- TestFlight build 3 (version 1.0) shows its app icon option again: Automatic, Light, Dark and Sky on iPhone (Sky, Light and Dark on Android builds of that time), with their own previews and the hint "Automatic follows light and dark mode." The eleven icons of 10 November had hidden the option for every build made before them, because those builds do not list their icons; now the website offers such a build the icons it was built with. Builds from 10 November on keep all eleven. In all 13 languages.
+- In the app (iPhone and Android), More → App-Symbol stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links. Nothing else changes; the website has no icon option.
+- Review rule: a website change must keep working with the previous app build (owner, 22 November; in the project's review checklist).
+
 ### Fixed: two things a German phone showed
 - The cities to try name themselves in the reader's language ("Wien", "Tokio") instead of always in English, on the first start and under a place that was not found.
 - The sentence about how far the sources agree keeps a range like "0-2°" on one line instead of breaking it at the hyphen.
