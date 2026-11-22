@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Star } from 'lucide-react'
+import { Star, MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
-import { madeAtText } from '@/lib/hike/summit-props'
+import { madeAtText, keptOnlyPath } from '@/lib/hike/summit-props'
+import { hikeApiPath } from '@/lib/hike/params'
+import { FIRST_PEAKS, firstPeakRows } from '@/lib/hike/first-peaks'
+import featured from '@/lib/hike/featured.json'
 import { readShelf, isSaved, rowView } from '@/lib/peak-shelf'
 import { SectionTitle } from '../ui'
 
@@ -22,8 +25,9 @@ export default function MyPeaks({ lang, hrefFor }) {
   useEffect(() => { const s = { ...readShelf(), now: Date.now() }; KNOWN.set('shelf', s); setShelf(s) }, [])
   if (!shelf) return null
   const recent = shelf.recent.filter(p => !isSaved(shelf, p.id))
-  if (!shelf.saved.length && !recent.length) return null
   const { now } = shelf
+  // nothing kept yet: three well-known peaks with their stored window instead (UX review H1)
+  if (!shelf.saved.length && !recent.length) return <FirstPeaks lang={lang} hrefFor={hrefFor} now={now} />
   const rows = list => (
     <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
       {list.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
@@ -37,6 +41,31 @@ export default function MyPeaks({ lang, hrefFor }) {
   )
 }
 
+// a first-time user's three peaks (lib/hike/first-peaks.js): read in the browser, and only here, where the shelf is
+// empty. It asks only the copy the summit pages keep (stored=only: never Open-Meteo; none kept, 404 and the peak is
+// left out). The names stand at once, the windows follow.
+function FirstPeaks({ lang, hrefFor, now }) {
+  const [answers, setAnswers] = useState([])
+  useEffect(() => {
+    const ask = new AbortController()
+    Promise.all(FIRST_PEAKS.map(id => fetch(keptOnlyPath(hikeApiPath(featured.find(p => p.id === id))), { signal: ask.signal })
+      .then(r => (r.ok ? r.json() : null), () => null))).then(setAnswers, () => {})
+    return () => ask.abort()
+  }, [])
+  return <FirstPeakRows lang={lang} rows={firstPeakRows(featured, answers, now)} hrefFor={hrefFor} now={now} />
+}
+
+export function FirstPeakRows({ lang, rows, hrefFor, now }) {
+  if (!rows?.length) return null
+  return (
+    <section className="space-y-3">
+      <SectionTitle icon={MountainSnow}>{t(lang, 'peaksToStart')}</SectionTitle>
+      <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
+        {rows.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
+      </ul>
+    </section>
+  )
+}
 
 function PeakRow({ p, lang, href, now }) {
   const v = rowView(lang, p, now)
