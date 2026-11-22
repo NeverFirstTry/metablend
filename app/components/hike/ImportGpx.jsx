@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { goHike } from '@/lib/hike/nav'
 import { Upload } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { parseGpx } from '@/lib/route/gpx'
@@ -14,7 +14,6 @@ const r5 = v => Math.round(v * 1e5) / 1e5
 // Hiking → Import GPX: the file is read on the phone, simplified and saved to
 // My routes right away (so back and reopening work), then opened.
 export default function ImportGpx({ lang }) {
-  const router = useRouter()
   const [msg, setMsg] = useState(null)
 
   async function pick(e) {
@@ -31,7 +30,7 @@ export default function ImportGpx({ lang }) {
       points: simplify(g.points, 500).map(p => [r5(p.lat), r5(p.lon), p.ele == null ? null : Math.round(p.ele)]),
     }
     await saveRoute(route)
-    router.push(`/hike?route=${route.id}`)
+    goHike(`/hike?route=${route.id}`)
   }
 
   return (

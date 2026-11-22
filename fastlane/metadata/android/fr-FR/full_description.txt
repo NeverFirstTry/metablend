@@ -5,10 +5,10 @@ La prévision
 • À quel point les sources sont d’accord
 • Meilleur moment pour sortir, radar de pluie, UV, qualité de l’air et pollen
 
-Montagne et randonnée
+Montagnes
 • Prévisions au sommet dans le monde entier : vent, isotherme 0 °C, risque d’orage
 • Le créneau favorable pour être au sommet
-• 195 sommets sélectionnés dans le monde avec cotation CAS, les plus proches d’abord
+• 195 sommets sélectionnés avec cotation CAS, des plus célèbres à ceux du coin
 • Itinéraires balisés et import GPX avec une heure de départ conseillée
 
 Alertes et widgets

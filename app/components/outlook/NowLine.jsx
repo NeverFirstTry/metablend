@@ -33,7 +33,8 @@ export default function NowLine({ data, unit, lang, showT, dark = null }) {
           {condition && (
             <span className="flex items-center gap-2 text-lg sm:text-xl font-medium">
               <span aria-hidden><Glyph emoji={conditionIcon(condition, data.lon, dark)} /></span>
-              <span className="truncate">{translateCondition(lang, condition)}</span>
+              {/* a long word wraps rather than lose its end ("Partiellement nuageux" at 320 px) */}
+              <span className="min-w-0">{translateCondition(lang, condition)}</span>
             </span>
           )}
           {c.feelsLike != null && (

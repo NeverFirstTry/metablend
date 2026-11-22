@@ -5,10 +5,10 @@ Die Vorhersage
 • Wie einig sich die Quellen sind
 • Beste Zeit draußen, Regenradar, UV, Luftqualität und Pollen
 
-Berge und Wandern
+Berge
 • Gipfelprognosen weltweit: Wind oben, Nullgradgrenze, Gewitterrisiko
 • Das günstige Zeitfenster am Gipfel
-• 195 ausgewählte Gipfel weltweit mit SAC-Skala, die nächsten zuerst
+• 195 ausgewählte Gipfel mit SAC-Skala, von berühmt bis um die Ecke
 • Markierte Routen und GPX-Import mit vorgeschlagener Startzeit
 
 Hinweise und Widgets

@@ -5,10 +5,10 @@ The forecast
 • How strongly the sources agree
 • Best time out, rain radar, UV, air quality and pollen
 
-Mountains and hiking
+Mountains
 • Summit forecasts worldwide: wind on top, freezing level, storm risk
 • The favourable window to be on the summit
-• 195 featured peaks worldwide with SAC grades, the nearest first
+• 195 featured peaks with SAC grades, from famous to nearby
 • Marked routes and GPX import with a suggested start time
 
 Alerts and widgets

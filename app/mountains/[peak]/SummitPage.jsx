@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
+import { CloudOff } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
 import { windowText } from '@/lib/hike/text'
@@ -15,6 +16,7 @@ import { summitProps, summitDay, summitOn, freshAva, madeAtText, LIVE_HEADER } f
 import StoreBadges from '../../components/hike/StoreBadges'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
+import SummitDays from '../../components/hike/SummitDays'
 
 // One summit in the visitor's language and unit. The server renders it in English for
 // search engines; the URL stays the same in every language.
@@ -95,6 +97,14 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
           <span role="status" className="sr-only">{state === 'stored' ? '' : status[state]}</span>
         </div>
 
+        {/* built from the last good forecast while the source failed (lib/hike/summit-fetch.js): said in the start
+            page's words and look for the last known forecast, not left to an older time (UX review M2) */}
+        {kept && (
+          <p role="status" className="bg-amber-900/30 border border-amber-500/40 rounded-lg p-3 text-amber-300 text-sm mb-6 flex items-center gap-2">
+            <CloudOff size={16} className="shrink-0" aria-hidden /> {t(lang, 'keptBanner')}
+          </p>
+        )}
+
         <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtnWindow')}</h2>
           {today && <p className="text-xl font-bold">{today.title}</p>}
@@ -106,10 +116,11 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
         <AvalancheSection lang={lang} reserve={avaRows} read={avaNow} levels={avaDays} />
 
         {days?.length > 0 && (
-          <section data-keep aria-label={t(lang, 'mtn7Day')} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
+          // on a phone the app's Week rows with one legend (they bring their own card); from sm up the table (UX review M1)
+          <section data-keep aria-label={t(lang, 'mtn7Day')} className="mb-6 sm:bg-zinc-900 sm:border sm:border-zinc-800 sm:rounded-2xl sm:p-8">
             <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtn7Day')}</h2>
-            {/* a phone stacks each day in three columns, with a label above each value (.stack-table) */}
-            <table role="table" className="stack-table w-full text-sm text-left">
+            <div className="sm:hidden"><SummitDays days={days} todayLocal={todayLocal} lang={lang} fmt={{ fmtTemp: fmt }} rain /></div>
+            <table role="table" className="hidden sm:table w-full text-sm text-left">
               <thead role="rowgroup">
                 <tr role="row" className="text-zinc-500 text-xs uppercase tracking-wider">
                   <th role="columnheader" className="py-2 pr-4 font-normal">{t(lang, 'colDay')}</th>
@@ -120,11 +131,11 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
                 {days.map(x => (
                   <tr key={x.date} role="row" className="border-t border-zinc-800">
                     <td role="cell" className="py-2 pr-4 whitespace-nowrap"><Glyph emoji={x.icon} size={16} /> {day(x.date)}</td>
-                    <td role="cell" data-label={columns[0]} className="py-2 pr-4 tabular-nums">{fmt(x.tempMin)} / {fmt(x.tempMax)}</td>
-                    <td role="cell" data-label={columns[1]} className="py-2 pr-4 tabular-nums">{x.windMax != null ? `${x.windMax} km/h` : '–'}</td>
-                    <td role="cell" data-label={columns[2]} className="py-2 pr-4 tabular-nums">{x.rainPct != null ? `${x.rainPct}%` : '–'}</td>
-                    <td role="cell" data-label={columns[3]} className="py-2 pr-4 tabular-nums">{x.freezingMin != null ? `${x.freezingMin}-${x.freezingMax} m` : '–'}</td>
-                    <td role="cell" data-label={columns[4]} className="py-2">{x.storm ? t(lang, `storm${x.storm[0].toUpperCase()}${x.storm.slice(1)}`) : '–'}</td>
+                    <td role="cell" className="py-2 pr-4 tabular-nums">{fmt(x.tempMin)} / {fmt(x.tempMax)}</td>
+                    <td role="cell" className="py-2 pr-4 tabular-nums">{x.windMax != null ? `${x.windMax} km/h` : '–'}</td>
+                    <td role="cell" className="py-2 pr-4 tabular-nums">{x.rainPct != null ? `${x.rainPct}%` : '–'}</td>
+                    <td role="cell" className="py-2 pr-4 tabular-nums">{x.freezingMin != null ? `${x.freezingMin}-${x.freezingMax} m` : '–'}</td>
+                    <td role="cell" className="py-2">{x.storm ? t(lang, `storm${x.storm[0].toUpperCase()}${x.storm.slice(1)}`) : '–'}</td>
                   </tr>
                 ))}
               </tbody>

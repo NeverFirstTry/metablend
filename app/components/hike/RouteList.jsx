@@ -1,20 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { Route as RouteIcon, ChevronRight } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { routesApiPath } from '@/lib/hike/params'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { routeLabel, sacGrade } from '@/lib/route/osm'
+import { routeStart } from '@/lib/route/start'
 import { SectionTitle } from '../ui'
+import { goHike } from '@/lib/hike/nav'
+import { keepRouteList } from '@/lib/route/list-cache'
 
 const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, '0')}`
 
 // Peak page → the marked routes up it (OpenStreetMap). A tap opens the route
 // with this peak's parameters kept, so back returns here.
 export default function RouteList({ peak, lang }) {
-  const router = useRouter()
   const [state, setState] = useState({ routes: null, error: false })
 
   const url = routesApiPath(peak)
@@ -22,14 +23,14 @@ export default function RouteList({ peak, lang }) {
     let off = false
     fetch(url)
       .then(r => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then(d => { if (!off) setState({ routes: d.routes ?? [], error: false }) }, () => { if (!off) setState({ routes: [], error: true }) })
+      .then(d => { keepRouteList(url, d.routes ?? []); if (!off) setState({ routes: d.routes ?? [], error: false }) }, () => { if (!off) setState({ routes: [], error: true }) })
     return () => { off = true }
   }, [url])
 
   const open = id => {
     const sp = new URLSearchParams(window.location.search)
     sp.set('route', `osm-${id}`)
-    router.push(`/hike?${sp}`)
+    goHike(`/hike?${sp}`) // at once: the route screen takes the route from this list (lib/route/list-cache.js)
   }
 
   return (
@@ -43,7 +44,7 @@ export default function RouteList({ peak, lang }) {
         <p className="text-sm text-zinc-500">{t(lang, 'routesNone')}</p>
       ) : (
         <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-          {state.routes.map(r => (
+          {state.routes.map(r => { const start = routeStart(lang, r); return (
             <li key={r.id}>
               <button onClick={() => open(r.id)} className="press-row w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-zinc-800/50">
                 <span className="flex-1 min-w-0">
@@ -52,14 +53,18 @@ export default function RouteList({ peak, lang }) {
                     {/* terrain-model heights: ≈; none: no time at all (it would be a flat-land time, far too short) */}
                     {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · {r.minutes == null ? t(lang, 'routeNoHeightsShort') : `↑≈${r.ascentM} m · ~${duration(r.minutes)}${isMultiDay(r.minutes) ? ` · ${t(lang, 'routeMultiDayShort')}` : isLongDay(r.minutes) ? ` · ${t(lang, 'routeLongDayShort')}` : ''}`}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>
+                  {/* where it starts: a hiker picks a route by it (UX review P2) */}
+                  {start && <span className="block text-xs text-zinc-400">{start}</span>}
                 </span>
                 <ChevronRight size={16} className="text-zinc-500" aria-hidden />
               </button>
             </li>
-          ))}
+          ) })}
         </ul>
       )}
       {state.routes?.some(r => r.minutes != null) && <p className="text-xs text-zinc-500 px-1">{t(lang, 'routeHeightsApprox')}</p>}
+      {/* the peak says SAC WS, the routes T6: two scales (UX review P2) */}
+      {state.routes?.some(r => sacGrade(r.difficulty)) && <p className="text-xs text-zinc-500 px-1">{t(lang, 'routeScaleNote')}</p>}
     </section>
   )
 }

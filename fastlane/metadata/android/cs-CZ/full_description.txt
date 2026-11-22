@@ -5,10 +5,10 @@ Předpověď
 • Jak moc se zdroje shodují
 • Nejlepší čas ven, srážkový radar, UV, kvalita ovzduší a pyl
 
-Hory a turistika
+Hory
 • Předpovědi pro vrcholy po celém světě: vítr nahoře, nulová izoterma, riziko bouřek
 • Příznivé okno na vrcholu
-• 195 vybraných vrcholů světa s obtížností SAC, nejbližší jako první
+• 195 vybraných vrcholů s obtížností SAC, od slavných po ty za rohem
 • Značené trasy a import GPX s navrženým časem startu
 
 Upozornění a widgety

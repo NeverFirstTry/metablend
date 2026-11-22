@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { CloudOff, RotateCcw, Save, Check, Footprints } from 'lucide-react'
+import { CloudOff, RotateCcw, Bookmark, BookmarkCheck, Footprints } from 'lucide-react'
 import BackLink from '../BackLink'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter, dayWord, dayPhrase } from '@/lib/outlook/text'
@@ -11,6 +11,7 @@ import { highestIndex } from '@/lib/route/geometry'
 import { walkStats } from '@/lib/route/heights'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
+import { stageFlag } from '@/lib/route/flag'
 import { SectionTitle } from '../ui'
 import { StormBar, StormLegend } from './SummitStrip'
 import { Valued, ValueKey } from '../ValueKey'
@@ -24,7 +25,8 @@ const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padS
 
 // One route: map, profile, stats, day / pace / start, the suggestion and the
 // stages along the way. route = { id, name, source, roundTrip, points }.
-// children may be a function of { pace } (Plan a hike keeps the chosen pace).
+// children may be a function of { pace, date } (Plan a hike keeps the chosen pace and plans the chosen day).
+// Save and Plan stand beside the title (UX review O4: they came after the whole table).
 export default function RouteView({ route, lang, unit, onBack, backLabel, onSave, saved, children }) {
   const today = localToday()
   const [date, setDate] = useState(today)
@@ -78,6 +80,17 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
         </p>
         {approx && !noHeights && <p className="text-zinc-500 text-xs mt-1">{t(lang, 'routeHeightsApprox')}</p>}
       </div>
+
+      {(onSave || children) && (
+        <div className="flex flex-wrap items-start gap-3">
+          {onSave && (
+            <button onClick={onSave} disabled={saved} className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400 disabled:opacity-70">
+              {saved ? <BookmarkCheck size={16} aria-hidden /> : <Bookmark size={16} aria-hidden />} {t(lang, saved ? 'routeSaved' : 'routeSave')}
+            </button>
+          )}
+          {typeof children === 'function' ? children({ pace, date }) : children}
+        </div>
+      )}
 
       <RouteMap points={points} highIndex={highIdx} />
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-3"><RouteProfile points={points} stages={d?.stages} /></div>
@@ -148,20 +161,24 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
         <section className="space-y-2">
           <SectionTitle>{t(lang, 'routeStages')}</SectionTitle>
           <ol className="@container bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-            {d.stages.map((st, k) => (
-              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm @max-[30rem]:flex-wrap @max-[30rem]:gap-x-2" style={st.blocker ? { background: 'color-mix(in srgb, var(--bad) 12%, transparent)' } : undefined}>
+            {d.stages.map((st, k) => {
+              // a stage past the favourable limit says why, with the icon that matches (UX review O3), on a calm tint
+              const flag = stageFlag(lang, st)
+              return (
+              <li key={st.i} className="flex items-center gap-3 px-4 py-2.5 text-sm @max-[30rem]:flex-wrap @max-[30rem]:gap-x-2" style={flag ? { background: 'color-mix(in srgb, var(--warn) 10%, transparent)' } : undefined}>
                 <span className="w-12 font-semibold tabular-nums @max-[30rem]:w-auto">{st.eta}</span>
                 <span className="flex-1 min-w-0 @max-[30rem]:basis-full @max-[30rem]:order-first">
                   <span className="block truncate @max-[30rem]:whitespace-normal">{label(st, k)}</span>
-                  <span className="block text-xs text-zinc-500">{st.ele != null ? `${st.ele} m` : ''}{st.blocker ? ` · ${t(lang, REASON_KEY[st.blocker])}` : ''}</span>
+                  <span className="block text-xs text-zinc-500">{st.ele != null ? `${st.ele} m` : ''}{flag ? <>{st.ele != null ? ' · ' : ''}<span style={{ color: 'var(--warn)' }}>{flag.text}</span></> : ''}</span>
                 </span>
-                <span aria-hidden><Glyph emoji={st.icon} /></span>
+                <span aria-hidden><Glyph emoji={flag?.icon ?? st.icon} /></span>
                 <span className="w-24 text-right tabular-nums @max-[30rem]:w-auto">{fmt(st.temp)} <span className="text-zinc-500 text-xs">({fmt(st.feels)})</span></span>
                 <span className="w-20 text-right text-xs text-zinc-400 tabular-nums @max-[30rem]:w-auto">{st.wind != null ? <Valued kind="wind">{st.wind} km/h</Valued> : '–'}</span>
                 <span className="w-12 text-right text-xs tabular-nums @max-[30rem]:w-auto" style={{ color: 'var(--info)' }}>{st.rain != null ? <Valued kind="rain">{st.rain}%</Valued> : '–'}</span>
                 <StormBar storm={st.storm} compact lang={lang} className="shrink-0" />
               </li>
-            ))}
+              )
+            })}
           </ol>
           <ValueKey lang={lang} kinds={['wind', 'rain']} className="px-1">
             <span><span className="text-zinc-400">(°)</span> {t(lang, 'feelsLike')}</span>
@@ -169,15 +186,6 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
           <StormLegend lang={lang} className="px-1" />
         </section>
       )}
-
-      <div className="flex flex-wrap items-center gap-3">
-        {onSave && (
-          <button onClick={onSave} disabled={saved} className="press inline-flex items-center gap-1.5 text-sm text-emerald-400 border border-emerald-400/40 rounded-full px-3 py-1.5 hover:bg-emerald-400/10 disabled:opacity-70">
-            {saved ? <Check size={14} aria-hidden /> : <Save size={14} aria-hidden />} {t(lang, saved ? 'routeSaved' : 'routeSave')}
-          </button>
-        )}
-        {typeof children === 'function' ? children({ pace }) : children}
-      </div>
     </div>
   )
 }
