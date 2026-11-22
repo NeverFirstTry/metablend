@@ -18,6 +18,10 @@ All notable changes to MetaBlend. Format loosely follows
 - The app now draws edge to edge on every Android version: the app background (Slate in dark, the light background in light) runs behind both bars, the status bar icons are light on dark and dark on light, and the page and tab bar keep clear of the bars once.
 - Android 15 and newer already drew it this way; nothing changes there. Gesture and 3-button navigation alike.
 - Native app only (a new Android build); the website does not change. Open-Meteo: no change.
+### Fixed: in the light theme the chosen temperature unit and appearance in More are readable again
+- Since 20 November the chosen button ("°C", "Light") was dark grey with dark text in the light theme, almost unreadable, on the website and in the app alike.
+- Now it is a light grey pill with the dark text, the light theme's match of the grey pill in dark. Dark theme unchanged.
+- Website and app (the app shows the website): one style rule, no native build. Open-Meteo: no change.
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
