@@ -4,6 +4,8 @@ import { useState, useId } from 'react'
 import { Send, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { t, getWeatherOptions } from '@/lib/i18n'
 import { isNightAt } from '@/lib/localtime'
+import { fill } from '@/lib/outlook/text'
+import { feedbackResultKey } from '@/lib/feedback-text'
 
 const fToC = f => (f - 32) * 5 / 9
 
@@ -40,15 +42,14 @@ export default function FeedbackPanel({ data, unit, lang, onWeights }) {
           lon: data.lon ?? null,
         }),
       })
-      const json = await res.json()
-      if (res.status === 429 || json.error) {
-        setFbStatus({ ok: false, msg: json.error })
-      } else {
-        setFbStatus({ ok: true, msg: json.message })
-        if (json.weights) onWeights?.(data.city, json.weights)
-      }
+      const json = await res.json().catch(() => ({}))
+      // the message in the reader's language, never the route's English text (owner, 2026-11-22)
+      const key = feedbackResultKey({ status: res.status, json, sunnyAtNight: feedback.cond === 'sunny' && isNightAt(data.lon) })
+      const ok = key === 'fbThanks' || key === 'fbThanksWeights'
+      setFbStatus({ ok, msg: fill(t(lang, key), { cond: t(lang, 'sunny') }) })
+      if (ok && json.weights) onWeights?.(data.city, json.weights)
     } catch {
-      setFbStatus({ ok: false, msg: 'Error sending feedback.' })
+      setFbStatus({ ok: false, msg: t(lang, feedbackResultKey(null)) })
     } finally {
       setFbLoading(false)
     }
