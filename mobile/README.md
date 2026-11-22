@@ -3,7 +3,7 @@
 The native iOS / Android shell around https://metablend.app — see
 `docs/superpowers/specs/2026-09-30-hiking-app-design.md` (phase 3). It loads
 the live site and appends `MetaBlendApp` to its user agent; the site then
-shows the app chrome (bottom tab bar Forecast · Hiking · More, safe areas)
+shows the app chrome (bottom tab bar Forecast · Mountains · More, safe areas)
 and unlocks the app-only hiking section. `www/index.html` is the offline
 screen. Native plugins: App (Android back button), Geolocation ("Near me"),
 Share, Haptics; SystemBars (core) styles the status bar and provides
@@ -26,10 +26,10 @@ store release); only native changes need a new build.
 
 ## Device checklist
 - [ ] The app opens metablend.app with the tab bar at the bottom; nothing sits under the status bar or the gesture bar / home indicator.
-- [ ] Tabs switch between Forecast, Hiking and More; the active tab is green; a tap gives a light haptic tick (phones with haptics).
-- [ ] Hiking shows the full app view (search, popular peaks), not the "lives in the app" teaser.
+- [ ] Tabs switch between Forecast, Mountains and More; the active tab is green; a tap gives a light haptic tick (phones with haptics).
+- [ ] Mountains shows the full app view (search, popular peaks), not the "lives in the app" teaser.
 - [ ] "Near me" asks for location once and then sorts the popular peaks by distance; denying it changes nothing and doesn't crash.
-- [ ] Approximate location only (Android, A52; from the build after 2026-11-11, which no longer declares the precise permission): with location reset in the app's settings, "my location" on the forecast and "Near me" in Hiking ask for the approximate location only (no Precise choice), find the right town, and the app's location settings show no "Use precise location" switch. The emulator gave no position to any build, so this needs the phone.
+- [ ] Approximate location only (Android, A52; from the build after 2026-11-11, which no longer declares the precise permission): with location reset in the app's settings, "my location" on the forecast and "Near me" in Mountains ask for the approximate location only (no Precise choice), find the right town, and the app's location settings show no "Use precise location" switch. The emulator gave no position to any build, so this needs the phone.
 - [ ] Share on the forecast opens the native share sheet.
 - [ ] Android back button goes back; on the first screen it closes the app.
 - [ ] iPhone: a swipe from the left edge goes back; on the first screen it does nothing; dragging the hour strip or a map away from the edge still works.
@@ -116,7 +116,7 @@ a route and the alert tap need the app).
 - [ ] Großglockner → Routes lists "Alter Kalser Weg 712" (there and back); opening it shows the map, the profile and a suggestion or "No favourable start".
 - [ ] Pace Slow / Fast changes the walking time and the suggestion; another day re-checks.
 - [ ] Own start time (15-min steps) moves the stages; "Use the suggestion" goes back.
-- [ ] Hiking → Import GPX with a Komoot / Outdooractive / Strava file opens it and lists it under My routes; a file without elevations still shows a climb.
+- [ ] Mountains → Import GPX with a Komoot / Outdooractive / Strava file opens it and lists it under My routes; a file without elevations still shows a climb.
 - [ ] A broken / huge file shows the message, nothing crashes.
 - [ ] Plan this hike on a route (pace Slow) → the route appears under My routes; More → Notifications lists the plan by the route's name.
 - [ ] The evening before at 18:00 the alert reads "Start by … — summit ~…"; tapping it opens the route.
@@ -134,8 +134,8 @@ So after a deploy that changes the policy, walk this list in the real app
 - [ ] The app opens on the forecast with its numbers; Today, Tomorrow and Week switch.
 - [ ] Today → Rain radar: the map shows streets and place names, and the rain layer loads. (Refused: a grey box, or a map without rain.)
 - [ ] Search box → type "Großglockner" → pick the summit: its forecast opens. A town from the suggestions opens too.
-- [ ] Hiking → Großglockner → Routes → open a route: the topographic map shows with the route's line, and the profile below it. (Refused: grey map tiles.)
-- [ ] Hiking → Import GPX → pick a file: it opens with map and profile and is listed under My routes.
+- [ ] Mountains → Großglockner → Routes → open a route: the topographic map shows with the route's line, and the profile below it. (Refused: grey map tiles.)
+- [ ] Mountains → Import GPX → pick a file: it opens with map and profile and is listed under My routes.
 - [ ] Großglockner → Plan a hike → Tomorrow: it shows under More → Notifications → Hike alerts.
 - [ ] More → Notifications → Turn on (turn it off first if it is on) → the system asks → Allow → "Send a test notification" arrives within seconds; tapping it opens the app.
 - [ ] Forecast → "How is the weather right now?" → send one report: it is accepted. More → Send feedback opens the mail app with the fields filled in.
@@ -193,6 +193,6 @@ New app build needed: Larger Text uses the TextScale plugin, which lives in the 
 
 - [ ] iPhone: Settings → Accessibility → Display & Text Size → Larger Text → largest size: open MetaBlend — text is larger, nothing cut off on the forecast, a peak page and More; change the size while the app is open → it follows.
 - [ ] Android: Settings → Display → Font size → largest: same check — back in the app the text has changed without the page reloading (you stay where you were).
-- [ ] VoiceOver (iPhone: triple-click the side button if set up, or Settings → Accessibility → VoiceOver): search a city and hear the forecast, the chart summary and an hour card as one sentence; open Hiking → a peak → its summit window and a route; plan a hike; change the language in More. Every button says what it does.
+- [ ] VoiceOver (iPhone: triple-click the side button if set up, or Settings → Accessibility → VoiceOver): search a city and hear the forecast, the chart summary and an hour card as one sentence; open Mountains → a peak → its summit window and a route; plan a hike; change the language in More. Every button says what it does.
 - [ ] TalkBack (Android): the same four tasks.
 - [ ] Then App Store Connect → App Accessibility: tick VoiceOver, Larger Text, Dark Interface, Differentiate Without Color Alone, Sufficient Contrast, Reduced Motion (Voice Control if the VoiceOver walk went smoothly).

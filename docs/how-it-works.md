@@ -104,7 +104,7 @@ Both routes answer from **Vercel's CDN** (`s-maxage` 30 min for the outlook,
 15 min for right now, stale-while-revalidate, errors never cached): a city
 viewed by 1 or 1,000 people costs the same upstream calls.
 
-### Hiking engine (for the app)
+### Mountains engine (for the app)
 
 The mountain weather that will be exclusive to the MetaBlend app (see
 `docs/superpowers/specs/2026-09-30-hiking-app-design.md`). `/api/hike`
@@ -130,7 +130,7 @@ badges (`lib/hike/stores.js`). The app is recognised by its user agent
 ### The app (`mobile/`)
 
 A Capacitor 8 shell for Android and iOS that loads metablend.app. Inside it
-the website adds app chrome — a bottom tab bar (Forecast · Hiking · More),
+the website adds app chrome — a bottom tab bar (Forecast · Mountains · More),
 safe areas, `/more` settings — and uses native share, location, haptics and
 the Android back button through `lib/native.js` (plugin code is only
 downloaded inside the app). Website updates reach the app instantly; only
@@ -194,7 +194,7 @@ ICAO-coded fields at build time (`lib/airports.json`).
 Sources without a configured key are simply skipped — the app still works with
 just the keyless ones.
 
-Summits and huts for the Hiking screen come from OpenStreetMap through
+Summits and huts for the Mountains screen come from OpenStreetMap through
 [Nominatim](https://nominatim.org), within its
 [usage policy](https://operations.osmfoundation.org/policies/nominatim/): at
 most one request a second for the whole app — every server instance takes a
