@@ -810,7 +810,7 @@ ${url}`)
                 title={t(lang, 'backToStart')}
                 className="cursor-pointer hover:opacity-80 transition-opacity"
               >
-                Meta<span className="text-emerald-400">Blend</span>
+                Meta<span className="text-[var(--accent)]">Blend</span>
               </button>
             </h1>
           }
@@ -905,7 +905,7 @@ ${url}`)
             aria-label={t(lang, 'compareBtn')}
             aria-pressed={compareMode}
             className={`press px-3 rounded-lg text-xs shrink-0 border inline-flex items-center justify-center gap-1.5 @max-[26rem]:flex-1 @max-[26rem]:px-2 @max-[26rem]:py-3 ${
-              compareMode ? 'bg-emerald-400 text-black border-emerald-400 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-emerald-400'
+              compareMode ? 'bg-zinc-700 text-white border-zinc-500 font-bold' : 'bg-zinc-800 border-zinc-700 text-zinc-300 hover:border-emerald-400'
             }`}
           >
             <Columns2 size={16} className="shrink-0" aria-hidden /> <span className="hidden sm:inline @max-[26rem]:inline">{t(lang, 'compareBtn')}</span>

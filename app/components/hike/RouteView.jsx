@@ -98,13 +98,13 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
       <div className="flex flex-wrap gap-1.5" role="group" aria-label={t(lang, 'planPick')}>
         {days.map(x => (
           <button key={x} onClick={() => { setDate(x); setStart(null) }} aria-pressed={date === x}
-            className={`press rounded-lg px-3 py-1.5 text-sm ${date === x ? 'bg-emerald-400 text-black font-semibold' : 'bg-zinc-800 hover:text-emerald-400'}`}>{word(x)}</button>
+            className={`press rounded-lg px-3 py-1.5 text-sm ${date === x ? 'bg-zinc-700 text-white font-semibold' : 'bg-zinc-800 hover:text-emerald-400'}`}>{word(x)}</button>
         ))}
       </div>
       <div className="flex gap-1 bg-zinc-800/60 rounded-xl p-1 w-fit" role="group" aria-label="Pace">
         {PACES.map(([p, k]) => (
           <button key={p} onClick={() => setPace(p)} aria-pressed={pace === p}
-            className={`press rounded-lg px-3 py-1 text-sm inline-flex items-center gap-1 ${pace === p ? 'bg-zinc-900 text-emerald-400' : 'text-zinc-400'}`}>
+            className={`press rounded-lg px-3 py-1 text-sm inline-flex items-center gap-1 ${pace === p ? 'bg-zinc-700 text-white font-semibold' : 'text-zinc-400'}`}>
             {p === pace && <Footprints size={13} aria-hidden />}{t(lang, k)}
           </button>
         ))}
@@ -130,14 +130,16 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
             <p className="text-lg font-semibold" style={{ color: 'var(--bad)' }}>{fill(t(lang, 'routeNoStart'), { day: dayPhrase(lang, date, today) })}</p>
             {why && <p className="text-sm text-zinc-400">{why}</p>}
             {s.nextDay && (
-              <button onClick={() => { setDate(s.nextDay.date); setStart(null) }} className="press text-sm text-emerald-400 underline underline-offset-4">
+              // no start that day: the next favourable day is the route's answer, its one gold (X3)
+              <button onClick={() => { setDate(s.nextDay.date); setStart(null) }} className="press text-sm text-[var(--accent)] underline underline-offset-4">
                 {fill(t(lang, 'routeNextDay'), { day: word(s.nextDay.date), start: s.nextDay.start })}
               </button>
             )}
           </>
         ) : (
           <>
-            <p className="text-lg font-semibold" style={{ color: 'var(--ok)' }}>
+            {/* the favourable start: the route's answer, its one gold (X3; it was the status green) */}
+            <p className="text-lg font-semibold" style={{ color: 'var(--accent)' }}>
               {fill(t(lang, s.start === s.latest ? 'routeStartAt' : 'routeStartWindow'), { from: s.start, to: s.latest })} · {fill(t(lang, 'routeSummitBack'), { high: s.highAt, finish: s.finish })}
             </p>
             <p className="text-xs text-zinc-500">{t(lang, 'routeSafeNote')}</p>

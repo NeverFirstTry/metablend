@@ -124,7 +124,7 @@ export function PageHeader() {
     <header className="site-header web-only text-white">
       <div className="site-col">
         <SiteHeader
-          logo={<Link href="/" title={t(lang, 'backToStart')} className="site-logo tracking-tight hover:opacity-80 transition-opacity">Meta<span className="text-emerald-400">Blend</span></Link>}
+          logo={<Link href="/" title={t(lang, 'backToStart')} className="site-logo tracking-tight hover:opacity-80 transition-opacity">Meta<span className="text-[var(--accent)]">Blend</span></Link>}
           lang={lang} langPick={langPick} onLang={changeLang} unit={unit} onUnit={changeUnit}
         />
       </div>

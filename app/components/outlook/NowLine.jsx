@@ -28,8 +28,8 @@ export default function NowLine({ data, unit, lang, showT, dark = null }) {
   return (
     <div className="@container">
       <span className="flex items-start gap-4 min-w-0 @max-[18rem]:flex-wrap">
-        {/* whole degrees in the hero — the tenths live in the details */}
-        <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0">
+        {/* whole degrees in the hero — the tenths live in the details; the forecast's answer, its one gold (X3) */}
+        <span className="mb-rise text-7xl sm:text-8xl font-extralight tabular-nums leading-[0.85] tracking-tight shrink-0 text-[var(--accent)]">
           {Math.round(Number(showT(c.temp)))}°
         </span>
         <span className="mb-rise-2 min-w-0 pb-1 space-y-0.5 text-sm">
