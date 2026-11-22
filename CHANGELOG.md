@@ -13,6 +13,12 @@ All notable changes to MetaBlend. Format loosely follows
 - The testers form's focus ring and tick box are dark instead of bright green, and a route row's hover is a light grey instead of a dark one.
 - A new test checks that every colour class and colour token the app uses has a light-theme value that reads (4.5:1 for text, 3:1 for a focus mark), so a colour new to the code cannot ship without one again (owner, 22 November, after Build's fix of the More pickers).
 
+### Fixed: notifications show as on only once the server has the phone
+- In the app, the rain prompt's "Turn on" now says "That didn't work" in the reader's language when turning notifications on fails (no push token from Android or Apple, or the server refused), and stays, so it can be tried again. It says "Done" only once the rain alerts and the city are saved too. Before, it went away without a word and never asked again. A refused permission still ends it.
+- The notification settings already showed "on" only with the server's answer; a test now holds that.
+- The device checklist (mobile/README.md): a new worktree or clone needs google-services.json in mobile/android/app/ before an Android build, or push silently does not work (the A52 build of 22 November).
+- Nothing changes on the server. Open-Meteo: no change.
+
 ### Fixed: the weather feedback answers in your language
 - After "Send feedback", the panel said what the server answered in English ("You have already submitted feedback for this city in the last hour.", "Thank you! Weights updated."), in every language. It now shows a translated message for each answer: thanks, the weights updated, already sent this hour, sunny at night, a temperature far off the forecast, a value to check, or not sent. In all 13 languages; the server's answers are unchanged (owner, 22 November).
 
@@ -32,11 +38,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Since 20 November the chosen button ("°C", "Light") was dark grey with dark text in the light theme, almost unreadable, on the website and in the app alike.
 - Now it is a light grey pill with the dark text, the light theme's match of the grey pill in dark. Dark theme unchanged.
 - Website and app (the app shows the website): one style rule, no native build. Open-Meteo: no change.
-### Fixed: notifications show as on only once the server has the phone
-- In the app, the rain prompt's "Turn on" now says "That didn't work" in the reader's language when turning notifications on fails (no push token from Android or Apple, or the server refused), and stays, so it can be tried again. It says "Done" only once the rain alerts and the city are saved too. Before, it went away without a word and never asked again. A refused permission still ends it.
-- The notification settings already showed "on" only with the server's answer; a test now holds that.
-- The device checklist (mobile/README.md): a new worktree or clone needs google-services.json in mobile/android/app/ before an Android build, or push silently does not work (the A52 build of 22 November).
-- Nothing changes on the server. Open-Meteo: no change.
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
