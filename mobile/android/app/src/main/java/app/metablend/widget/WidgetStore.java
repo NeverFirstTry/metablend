@@ -6,7 +6,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 // What the widgets keep: the app's synced settings, each widget's choices
-// (city, show, style) and its last good payload with the time it arrived.
+// (city, show) and its last good payload with the time it arrived.
 public final class WidgetStore {
     private WidgetStore() {}
 
@@ -57,7 +57,7 @@ public final class WidgetStore {
 
     public static void forget(Context c, int id) {
         SharedPreferences.Editor e = prefs(c).edit();
-        for (String k : new String[] { "city", "show", "style", "payload", "at" }) e.remove(id + "." + k);
+        for (String k : new String[] { "city", "show", "style", "payload", "at" }) e.remove(id + "." + k); // style: set by builds before 2026-11-16
         e.apply();
     }
 }
