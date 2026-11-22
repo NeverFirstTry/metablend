@@ -18,6 +18,8 @@ import { keepAnswer, lastAnswer, keptResponse, placeKey, asker } from '@/lib/las
 // an hour, then 30 minutes more while a new copy is built: at most 90 minutes old, as it was with
 // 30 minutes and an hour (2026-11-10), so what reads it needs no change
 const TTL = 3600, STALE = 1800
+// stored=only reads the database, not Open-Meteo; the kept copy changes when a summit page is built again
+const KEPT_ONLY_TTL = 600
 const limiter = createRateLimiter({ max: 40, windowMs: 60 * 1000 })
 
 export const GET = withErrorLog('hike', async (request) => {
@@ -31,6 +33,14 @@ export const GET = withErrorLog('hike', async (request) => {
   if (!peak) return noStore({ error: 'lat, lon and elev are required' }, 400)
   // only cache misses reach this point — CDN hits never invoke the function
   if (!isInternal(request) && limiter.limited(clientIp(request))) return noStore({ error: 'Too many requests — please slow down.' }, 429)
+
+  // stored=only: the summit pages' kept copy and nothing else, never Open-Meteo (the first-time peaks' shelf,
+  // owner 2026-11-22); none kept: 404, and the shelf leaves the peak out
+  if (sp.get('stored') === 'only') {
+    const kept = await lastAnswer('summit', `${placeKey(peak.lat, peak.lon)},${peak.elev},core`)
+    if (!kept) return noStore({ missing: true }, 404)
+    return Response.json(kept.body, { headers: { 'Cache-Control': `public, s-maxage=${KEPT_ONLY_TTL}` } })
+  }
 
   const region = getRegion(peak.lat, peak.lon)
   const [multi, weights] = await Promise.all([

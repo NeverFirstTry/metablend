@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { Star, MountainSnow } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
-import { madeAtText, storedPath } from '@/lib/hike/summit-props'
+import { madeAtText, keptOnlyPath } from '@/lib/hike/summit-props'
 import { hikeApiPath } from '@/lib/hike/params'
 import { FIRST_PEAKS, firstPeakRows } from '@/lib/hike/first-peaks'
 import featured from '@/lib/hike/featured.json'
@@ -42,13 +42,13 @@ export default function MyPeaks({ lang, hrefFor }) {
 }
 
 // a first-time user's three peaks (lib/hike/first-peaks.js): read in the browser, and only here, where the shelf is
-// empty. It asks the summit forecast's address, whose CDN copy lives 1 h plus 30 min stale; a cold copy costs 5.1
-// weighted Open-Meteo calls a peak (see lib/hike/first-peaks.js). The names stand at once, the windows follow.
+// empty. It asks only the copy the summit pages keep (stored=only: never Open-Meteo; none kept, 404 and the peak is
+// left out). The names stand at once, the windows follow.
 function FirstPeaks({ lang, hrefFor, now }) {
   const [answers, setAnswers] = useState([])
   useEffect(() => {
     const ask = new AbortController()
-    Promise.all(FIRST_PEAKS.map(id => fetch(storedPath(hikeApiPath(featured.find(p => p.id === id))), { signal: ask.signal })
+    Promise.all(FIRST_PEAKS.map(id => fetch(keptOnlyPath(hikeApiPath(featured.find(p => p.id === id))), { signal: ask.signal })
       .then(r => (r.ok ? r.json() : null), () => null))).then(setAnswers, () => {})
     return () => ask.abort()
   }, [])
