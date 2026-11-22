@@ -48,6 +48,9 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: a peak's routes say where they start
 - Each route under a peak shows its start: "Start at 2801 m", or "From Lucknerhaus, 1918 m" where OpenStreetMap names the place. A route without a name reads "Unnamed marked route".
 - One line under the list tells the two grade scales apart: routes on the SAC hiking scale (T1-T6), the peak on the SAC alpine scale (L-EX). In all 13 languages.
+### Changed: a tap on a peak or a route answers at once
+- In the app's mountain section, a peak or a route opens the moment it is tapped, with its name on screen while its forecast loads. On a poor line the screen waited for the server first (about 0.7 s; a route's title came after 2 s).
+- A route opened from a peak's list is taken from that list, so its title and map show at once.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
