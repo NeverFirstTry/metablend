@@ -31,6 +31,10 @@ All notable changes to MetaBlend. Format loosely follows
 - On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
 ### Changed: My routes tells routes apart
 - Each saved route shows a second line under its name with the route screen's own figures: "5.9 km · ↑≈997 m · there and back". They are worked out on the phone, with no request.
+### Changed: the last emoji leave the screens
+- A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
+- The planned hikes under More, Notifications no longer start with a mountain emoji.
+- 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
