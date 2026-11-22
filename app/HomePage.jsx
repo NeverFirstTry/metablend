@@ -118,6 +118,9 @@ function toggleFavorite(city) {
   const list = has
     ? cur.filter(c => c.toLowerCase() !== city.toLowerCase())
     : [city, ...cur].slice(0, 8)
+  return saveFavorites(list)
+}
+function saveFavorites(list) {
   try { localStorage.setItem('mb_favorites', JSON.stringify(list)) } catch {}
   return list
 }
@@ -173,6 +176,7 @@ function FirstStart({ lang, peaks, isExample, onPick }) {
 
 // How often a loaded forecast silently re-fetches itself in the background.
 const AUTO_REFRESH_MS = 15 * 60 * 1000
+const UNDO_MS = 6000 // how long a removed saved place can be brought back
 
 // ── Main component ────────────────────────────────────────────────────────────
 // pageLang: the language of /de, /fr ... (the server renders those in it).
@@ -245,6 +249,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [favorites, setFavorites] = useState([])
   const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
+  // the saved places as they were before the last x on a saved chip, while its Undo shows (owner, 2026-11-22)
+  const [undoSaved, setUndoSaved] = useState(null)
+  useEffect(() => {
+    if (!undoSaved) return
+    const id = setTimeout(() => setUndoSaved(null), UNDO_MS)
+    return () => clearTimeout(id)
+  }, [undoSaved])
   const [compareMode, setCompareMode] = useState(false)
   // the search block (field, its buttons, the places): in the app a returning user starts without it and opens it
   // from the place's name (UX review S6); globals.css hides it before first paint
@@ -390,8 +401,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     focusAfterRemove(i)
   }
   function forgetSaved(c, i) {
+    setUndoSaved(favorites)
     setFavorites(toggleFavorite(c))
     focusAfterRemove(i)
+  }
+  function undoForgetSaved() {
+    setFavorites(saveFavorites(undoSaved))
+    setUndoSaved(null)
   }
   // the place's name opens or closes the search; opening puts the cursor in the field (UX review S6)
   function toggleSearch() {
@@ -946,6 +962,14 @@ ${url}`)
           </div>
         )}
         </div>
+        {/* a saved place just removed: a short toast to bring it back; here in the page, so a keyboard reaches Undo next.
+            After the search block's end, so it stays when the block folds away in the app */}
+        {undoSaved && (
+          <div role="status" aria-live="polite" className="undo-toast app-lift animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-semibold pl-4 pr-1 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-1 w-max max-w-[calc(100vw-2rem)]">
+            <span className="min-w-0 py-2">{t(lang, 'savedRemoved')}</span>
+            <button type="button" onClick={undoForgetSaved} className="press shrink-0 min-h-11 px-3 font-bold underline underline-offset-2">{t(lang, 'undo')}</button>
+          </div>
+        )}
 
         {/* Compare second city */}
         {compareMode && (
