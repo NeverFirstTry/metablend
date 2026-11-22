@@ -141,7 +141,7 @@ export default function NotificationSettings({ lang, unit }) {
               <div className="space-y-1">
                 <input value={query} onChange={e => search(e.target.value)} maxLength={80} autoFocus={editHome}
                   placeholder={t(lang, 'notifHomeSearch')} aria-label={t(lang, 'notifHomeSearch')}
-                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--muted)]" />
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--muted)]!" />
                 {hits.map(h => (
                   <button key={h.id} onClick={() => { save({ home_name: h.name }); setEditHome(false); setQuery(''); setHits([]) }}
                     className="press-row block w-full text-left text-sm px-3 py-1.5 rounded-lg hover:bg-zinc-800">
