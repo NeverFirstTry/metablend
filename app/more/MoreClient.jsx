@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import Link from 'next/link'
 import { Settings, Compass, LifeBuoy, Scale, ChevronRight } from 'lucide-react'
 import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
@@ -21,12 +21,25 @@ import { isNative } from '@/lib/native'
 const TOOLS = [['/leaderboard', 'leaderboard', 'toolLineRankings'], ['/heatmap', 'heatmap', 'toolLineHeatmap'], ['/planner', 'planner', 'toolLinePlanner'], ['/aviation', 'aviation', 'toolLineAviation']]
 const LEGAL = [['/privacy', 'footerPrivacy'], ['/terms', 'footerTerms'], ['/impressum', 'footerImpressum']]
 const label = s => s.replace(/\s*→$/, '')
-
+// the tab's title in the reader's language: the page is static and its metadata says "More", which stayed in every
+// language (owner, 2026-11-22); the layout's template is '%s · MetaBlend' (lib/site-metadata.js)
+export const moreTitle = lang => `${t(lang, 'more')} · MetaBlend`
 
 // The app's "More" tab: settings (the same cookies the home page writes)
 // and the sections that have no tab of their own.
 export default function MoreClient() {
   const lang = useLang()
+  // Next puts its own <title> (the static "More") back once the page has hydrated, after the first effects (measured
+  // 2026-11-22: set at 66 ms, back at 83 ms), so the title is kept while More is open. A layout effect: leaving the page
+  // disconnects in the same commit (pending records dropped), so the next page keeps its own title.
+  useLayoutEffect(() => {
+    const want = moreTitle(lang)
+    const keep = () => { if (document.title !== want) document.title = want }
+    keep()
+    const watch = new MutationObserver(keep)
+    watch.observe(document.head, { subtree: true, childList: true, characterData: true })
+    return () => watch.disconnect()
+  }, [lang])
   const [langPick, setLangPick] = useState(LANG_SYSTEM)
   // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration cookie sync, like useLang
   useEffect(() => { setLangPick(langChoice(getCookie('metablend_lang'))) }, [])

@@ -6,7 +6,7 @@ import { STORES } from '@/lib/hike/stores'
 import {
   RefreshCw,
   Search, Navigation, Columns2, Star, Share2, Code2,
-  AlertTriangle, WifiOff, Loader2,
+  AlertTriangle, Loader2,
   CheckCircle2, Send, Gauge, Layers,
   MountainSnow, ChevronDown, X, Info,
 } from 'lucide-react'
@@ -455,7 +455,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
   // the rain prompt stands right under the tab's headline (UX review S4: it stood two screens down)
-  const prompt = <PushPrompt lang={lang} unit={unit} />
+  // it names and registers the place that is open (the forecast's own name, the one the views are counted under)
+  const prompt = <PushPrompt lang={lang} unit={unit} city={data?.city ?? null} />
   // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
   useSky(outlook ? skyFor({ nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
@@ -1043,12 +1044,7 @@ ${url}`)
           <div className="returning-only"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact /></div>
         )}
 
-        {/* Offline banner */}
-        {offline && data && (
-          <div className="animate-scale-in bg-amber-900/30 border border-amber-500/40 rounded-lg p-3 text-amber-300 text-sm mb-6 flex items-center gap-2">
-            <WifiOff size={16} className="shrink-0" aria-hidden /> {t(lang, 'offlineBanner')}
-          </div>
-        )}
+        {/* offline: said in the line under the place's name (DataAge), not in a box here that pushed the page down */}
 
         {/* Results — "right now" shrinks to one line; the future tabs are the page */}
         {data && !loading && (
@@ -1117,7 +1113,7 @@ ${url}`)
                 </button>
               </div>
               {/* under the name beside the buttons, or under the buttons once they moved under the name */}
-              {generatedAt && <div className={stackActions ? 'mt-1' : 'col-start-1'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} /></div>}
+              {(generatedAt || offline) && <div className={stackActions ? 'mt-1' : 'col-span-2'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} offline={offline} /></div>}
             </div>
 
 
