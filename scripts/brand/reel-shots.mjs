@@ -80,7 +80,18 @@ if (tape) {
     }
     const answer = tape.answers[key]
     if (!answer) { missed.add(key); return send('Fetch.continueRequest', { requestId }) }
-    send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: answer.headers, body: answer.body })
+    // the country's name stays this build's own: newer servers send it in English and the page translates it,
+    // older pages show what their server sends (Österreich in German), so a recorded answer would put Austria there
+    let body = answer.body
+    try {
+      const live = (await send('Fetch.getResponseBody', { requestId })).result
+      const own = JSON.parse(live.base64Encoded ? Buffer.from(live.body, 'base64').toString() : live.body)
+      const recorded = JSON.parse(Buffer.from(answer.body, 'base64').toString())
+      if (typeof own?.country === 'string' && typeof recorded?.country === 'string' && own.country !== recorded.country) {
+        body = Buffer.from(JSON.stringify({ ...recorded, country: own.country })).toString('base64')
+      }
+    } catch { /* not JSON, or no answer of its own: the recorded answer as it is */ }
+    send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: answer.headers, body })
   })
 }
 // the browser's clock, standing still at the recording's moment
@@ -204,7 +215,7 @@ try {
   await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
   if (tape) {
     await send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK })
-    await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*`, requestStage: recording ? 'Response' : 'Request' }] })
+    await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*`, requestStage: 'Response' }] })
     console.log(recording ? `  recording the API answers into ${REPLAY}` : `  replaying ${Object.keys(tape.answers).length} API answers from ${REPLAY}`)
   }
   const { userAgent } = (await send('Browser.getVersion')).result
