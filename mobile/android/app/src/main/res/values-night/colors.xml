@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The app background behind the system bars (app/layout.js themeColor, dark: Slate) -->
+    <color name="app_background">#0f151b</color>
+</resources>

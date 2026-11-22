@@ -25,7 +25,7 @@ store release); only native changes need a new build.
 3. `npx cap open ios` → pick a simulator → Run ▶.
 
 ## Device checklist
-- [ ] The app opens metablend.app with the tab bar at the bottom; nothing sits under the status bar or the gesture bar / home indicator.
+- [ ] The app opens metablend.app with the tab bar at the bottom; nothing sits under the status bar or the gesture bar / home indicator. Android: the app background runs behind the status bar and the navigation bar (no grey band), status bar icons light in dark and dark in light, with gesture and with 3-button navigation; check on an Android 14 phone (the A52), the emulator images here are Android 17, where the system already draws edge to edge.
 - [ ] Tabs switch between Forecast, Mountains and More; the active tab is green; a tap gives a light haptic tick (phones with haptics).
 - [ ] Mountains shows the full app view (search, popular peaks), not the "lives in the app" teaser.
 - [ ] "Near me" asks for location once and then sorts the popular peaks by distance; denying it changes nothing and doesn't crash.
