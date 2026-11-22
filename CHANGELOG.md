@@ -27,6 +27,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the rain radar says when and what
 - The radar picture shows its time on the map ("Radar 00:10") and a legend under it: light, moderate and heavy rain in the radar's own colours.
 - The maps look like the rest of the app: zoom buttons in the theme's colours, a plain dot for the place instead of the bright blue pin, and on the radar one credit line instead of a credit box over the map. The heatmap's credit drops the optional "Leaflet" prefix. In all 13 languages.
+### Changed: a summit page's week fits a phone
+- On a phone the 7-day summit forecast shows the app's compact Week rows with one legend, the rain chance included, instead of a block per day repeating five labels. From tablet width up the table stays.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
