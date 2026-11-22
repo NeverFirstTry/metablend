@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: the More page's title in your language
+- The browser tab of the More page says "Mehr · MetaBlend" in German, and its own word in each of the 13 languages; it said "More · MetaBlend" in every language (owner, 22 November).
+
 ### Changed: the rain alerts prompt asks for what it says
 - "Turn on" in the app's rain prompt switches on rain alerts only. Storm, severe weather and heat stay off until you turn them on in the notification settings.
 - The prompt names the place that is open and registers that place, not the one you looked at most.

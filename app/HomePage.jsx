@@ -1113,7 +1113,7 @@ ${url}`)
                 </button>
               </div>
               {/* under the name beside the buttons, or under the buttons once they moved under the name */}
-              {(generatedAt || offline) && <div className={stackActions ? 'mt-1' : 'col-start-1'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} offline={offline} /></div>}
+              {(generatedAt || offline) && <div className={stackActions ? 'mt-1' : 'col-span-2'}><DataAge generatedAt={generatedAt} justUpdated={justUpdated} lang={lang} kept={outlook?.kept} utcOffsetSec={outlook?.utcOffsetSec} offline={offline} /></div>}
             </div>
 
 
