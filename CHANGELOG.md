@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: the app icon option stands among the settings in More again
+- In the app (iPhone and Android), More → App-Symbol (Mono, Winter, Sky and the others) stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links, where it looked gone (reported from TestFlight). Nothing else changes; the website has no icon option.
+
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
 - A push of a feature, ux or docs branch no longer starts a Vercel build (`vercel.json`, `git.deploymentEnabled` off for every branch prefix this repository has used). Since 21 November those branches stay on the owner's PC anyway; this is the net for a push by mistake. Of this billing cycle's 486 deployments, 324 were builds of such branches.

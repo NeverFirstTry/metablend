@@ -83,8 +83,10 @@ export default function MoreClient() {
           </div>
         </div>
       </section>
-      {/* notifications right after the pickers, the icon grid last (UX review E3: it stood above them, a screen tall) */}
+      {/* notifications right after the pickers (UX review E3: the icon grid stood above them, a screen tall), then the
+          icon grid, still among the settings: below the legal links it read as gone (owner, 2026-11-22, TestFlight) */}
       {native && <NotificationSettings lang={lang} unit={u} />}
+      {native && <AppIconPicker lang={lang} />}
       <section className="space-y-3">
         <SectionTitle icon={Compass}>{t(lang, 'moreTools')}</SectionTitle>
         <ul className={list}>
@@ -113,7 +115,6 @@ export default function MoreClient() {
           ))}
         </ul>
       </section>
-      {native && <AppIconPicker lang={lang} />}
       {/* the footer is hidden in the app, but its data attribution (Open-Meteo CC BY, OpenStreetMap) must stay reachable */}
       <section className="space-y-2 text-xs text-zinc-500 leading-relaxed">
         <p><Credits lang={lang} full /></p>
