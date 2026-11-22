@@ -73,7 +73,7 @@ export default function Tab7d({ outlook, unit, lang, fmt, prompt = null }) {
                   <AlertTriangle size={13} className="app-only inline -mt-0.5 mr-1" aria-hidden />{fill(t(lang, 'hlSplit'), { spread: fmt.fmtSpan(d.spread), when: dayPhrase(lang, d.date, todayLocal) })}
                 </div>
               )}
-              {open && <div className="px-2 pb-4"><HourlyChart hours={dayHours} unit={unit} lang={lang} height={140} /></div>}
+              {open && <div className="px-2 pb-4"><HourlyChart hours={dayHours} unit={unit} lang={lang} height={140} line="var(--muted)" /></div>}
             </div>
           )
         })}

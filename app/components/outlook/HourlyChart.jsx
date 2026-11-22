@@ -9,7 +9,9 @@ import useWidth from './useWidth'
 // Consensus temperature over the hours shown, the sources' spread as a band
 // behind it, and rain chance as bars along the bottom. Colours via CSS
 // variables (style, not SVG attributes) so both themes work.
-export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 170 }) {
+// line: gold where the temperature is the screen's answer (the forecast's Today and Tomorrow), neutral where it is not
+// (a peak, whose answer is its window; a day opened in the week, whose answer is the best day) (X3)
+export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 170, line = 'var(--accent)' }) {
   const [ref, W] = useWidth()
   if (!hours?.length) return null
   const H = height, top = 18, axis = 18, rainH = 28
@@ -36,7 +38,7 @@ export default function HourlyChart({ hours, unit = 'C', lang = 'en', height = 1
         {ticks.filter(tk => tk.hr === 0).map(tk => (
           <line key={`d${tk.h.t}`} x1={x(tk.i)} x2={x(tk.i)} y1={top - 8} y2={bottom} strokeDasharray="2 3" style={{ stroke: 'var(--muted)', strokeOpacity: 0.35 }} />
         ))}
-        <polyline points={mid.map(pt).join(' ')} fill="none" strokeWidth="2" strokeLinejoin="round" style={{ stroke: 'var(--accent)' }} />
+        <polyline points={mid.map(pt).join(' ')} fill="none" strokeWidth="2" strokeLinejoin="round" style={{ stroke: line }} />
         {hours.map((h, i) => h.rainPct >= MIN_RAIN_BAR && (
           <rect key={h.t} x={x(i) - barW / 2} y={bottom - (h.rainPct / 100) * rainH} width={barW} height={(h.rainPct / 100) * rainH}
             style={{ fill: 'var(--info)', fillOpacity: 0.25 + h.rainPct / 250 }} />

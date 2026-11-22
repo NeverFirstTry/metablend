@@ -52,7 +52,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
         <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'lbRightNow')}</h2>
           <div className="flex flex-wrap items-end gap-6">
-            <div className="text-6xl sm:text-7xl font-bold tabular-nums leading-none">{fmt(consensus.temp)}</div>
+            <div className="text-6xl sm:text-7xl font-bold tabular-nums leading-none text-[var(--accent)]">{fmt(consensus.temp)}</div>
             <div className="text-zinc-300 pb-1">
               {condition && <div className="text-lg font-bold">{translateCondition(lang, condition)}</div>}
               <div className="text-sm text-zinc-500">{t(lang, 'feelsLike')} {fmt(consensus.feelsLike)}</div>
@@ -121,10 +121,10 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
           )}
         </section>
 
-        {/* CTA into the interactive app */}
+        {/* CTA into the interactive app: neutral, the page's gold is its answer, the temperature (X3) */}
         <Link
           href={`/?city=${encodeURIComponent(englishName)}`}
-          className="press block text-center bg-emerald-400 text-black font-bold rounded-xl px-6 py-4 text-sm hover:bg-emerald-300 mb-10"
+          className="press block text-center bg-zinc-800 border border-zinc-700 text-white font-bold rounded-xl px-6 py-4 text-sm hover:bg-zinc-700 mb-10"
         >
           {fill(t(lang, 'cityOpen'), { name, n: sourceCount })}
         </Link>

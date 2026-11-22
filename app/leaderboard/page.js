@@ -75,7 +75,8 @@ function RankList({ apis, lang }) {
             <div className="rank-weight">
               <span className="tabular-nums font-semibold">{(api.weight * 100).toFixed(1)}%<span className="sr-only"> {t(lang, 'lbWeight')}</span></span>
               <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
-                <div className="h-full rounded-full" style={{ width: `${((api.weight ?? 0) / most) * 100}%`, background: 'var(--accent)' }} />
+                {/* the page's answer, the source trusted most right now, is its one gold (X3); the others neutral */}
+                <div className="h-full rounded-full" style={{ width: `${((api.weight ?? 0) / most) * 100}%`, background: (api.weight ?? 0) === most ? 'var(--accent)' : 'var(--muted)' }} />
               </div>
             </div>
             <div className="rank-stats">
@@ -155,7 +156,7 @@ export default function Leaderboard() {
               role="tab"
               aria-selected={horizon === id}
               onClick={() => setHorizon(id)}
-              className={`press flex-1 text-xs py-2 rounded-lg transition-colors ${horizon === id ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
+              className={`press flex-1 text-xs py-2 rounded-lg transition-colors ${horizon === id ? 'bg-zinc-700 text-white font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
             >
               {t(lang, key)}
             </button>
@@ -186,7 +187,7 @@ export default function Leaderboard() {
                   onClick={() => setActive(r.region)}
                   className={`press text-xs px-3 py-2 rounded-lg border ${
                     current?.region === r.region
-                      ? 'bg-emerald-400 text-black border-emerald-400 font-bold'
+                      ? 'bg-zinc-700 text-white border-zinc-500 font-bold'
                       : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-emerald-400'
                   }`}
                 >

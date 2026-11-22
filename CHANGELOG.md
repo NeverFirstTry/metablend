@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: gold marks one thing per screen, the answer
+- Gold now marks only each screen's main answer: the consensus temperature (and its line over the day), the week's best day, a peak's summit window, a route's favourable start (or its next favourable day), the source trusted most in Rankings, the best months in the Planner, and on the Mountains tab the first favourable window on a saved peak. A screen without an answer keeps gold for its one main button only. The logo stays gold (UX review X3, owner 20 November).
+- Everything else is neutral: selected tabs, chips, toggles and the current tab in the tab bar get a plain highlight; section labels are grey; links are underlined in the text colour; the hiking caution keeps the warning colour with a warning sign. A dry day's headline is no longer green and "no window" no longer blue: without an answer the card is neutral.
+
 ### Changed: the app opens on the forecast, not on the search
 - In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
 - The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
