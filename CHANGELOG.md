@@ -5,8 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
-### Fixed: the app icon option stands among the settings in More again
-- In the app (iPhone and Android), More → App-Symbol (Mono, Winter, Sky and the others) stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links, where it looked gone (reported from TestFlight). Nothing else changes; the website has no icon option.
+### Fixed: the app icon option is back in the app builds from before 10 November, and stands among the settings again
+- TestFlight build 3 (version 1.0) shows its app icon option again: Automatic, Light, Dark and Sky on iPhone (Sky, Light and Dark on Android builds of that time), with their own previews and the hint "Automatic follows light and dark mode." The eleven icons of 10 November had hidden the option for every build made before them, because those builds do not list their icons; now the website offers such a build the icons it was built with. Builds from 10 November on keep all eleven. In all 13 languages.
+- In the app (iPhone and Android), More → App-Symbol stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links. Nothing else changes; the website has no icon option.
+- Review rule: a website change must keep working with the previous app build (owner, 22 November; in the project's review checklist).
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
