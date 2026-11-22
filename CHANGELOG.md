@@ -35,6 +35,11 @@ All notable changes to MetaBlend. Format loosely follows
 - A weather warning's level shows as one to three drawn triangles beside its word, in the warning strip and the warning card. Phones drew the typed sign as a coloured emoji.
 - The planned hikes under More, Notifications no longer start with a mountain emoji.
 - 18 texts no screen used any more are gone from all 13 languages: the old start page's emoji titles and the welcome texts the first start replaced.
+### Changed: the route screen
+- The map's credit is a line under the map instead of a box over a fifth of it; every name and licence stays, and it names the layer that is shown.
+- A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
+- Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
+- Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
