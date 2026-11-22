@@ -8,6 +8,11 @@ All notable changes to MetaBlend. Format loosely follows
 ### Fixed: the weather feedback answers in your language
 - After "Send feedback", the panel said what the server answered in English ("You have already submitted feedback for this city in the last hour.", "Thank you! Weights updated."), in every language. It now shows a translated message for each answer: thanks, the weights updated, already sent this hour, sunny at night, a temperature far off the forecast, a value to check, or not sent. In all 13 languages; the server's answers are unchanged (owner, 22 November).
 
+### Changed: gold marks one thing per screen, the answer
+- Gold now marks only each screen's main answer: the consensus temperature (and its line over the day), the week's best day, a peak's summit window, a route's favourable start (or its next favourable day), the source trusted most in Rankings, the best months in the Planner, and on the Mountains tab the first favourable window on a saved peak. A screen without an answer keeps gold for its one main button only. The logo stays gold (UX review X3, owner 20 November).
+- Everything else is neutral: selected tabs, chips, toggles and the current tab in the tab bar get a plain highlight; section labels are grey; links are underlined in the text colour; the hiking caution keeps the warning colour with a warning sign. A dry day's headline is no longer green and "no window" no longer blue: without an answer the card is neutral.
+- On a route's map the route itself stays gold, as a map element, now with a thin dark edge so it stands out on light rock and on green forest alike.
+
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
 - Only a phone whose notifications are on in the app: one switched off in More stays off.
@@ -30,10 +35,6 @@ All notable changes to MetaBlend. Format loosely follows
 - The iPhone widgets' background scenery (snow specks, snow band, clouds, the sheen) is silent for VoiceOver; an unlabelled picture would have been read by its file name. Android's scenery was already silent.
 - For checking the spoken labels without an iPhone: debug-only Xcode previews of each widget layout at its iPhone size (the Simulator shows a widget on the home screen as one closed element). Release builds do not contain them.
 - One script makes the native colours, texts, icons and scenery from the spec and its drawings (scripts/brand/widget-native.mjs); a test holds both apps to the same words in all 13 languages, with no dash.
-### Changed: gold marks one thing per screen, the answer
-- Gold now marks only each screen's main answer: the consensus temperature (and its line over the day), the week's best day, a peak's summit window, a route's favourable start (or its next favourable day), the source trusted most in Rankings, the best months in the Planner, and on the Mountains tab the first favourable window on a saved peak. A screen without an answer keeps gold for its one main button only. The logo stays gold (UX review X3, owner 20 November).
-- Everything else is neutral: selected tabs, chips, toggles and the current tab in the tab bar get a plain highlight; section labels are grey; links are underlined in the text colour; the hiking caution keeps the warning colour with a warning sign. A dry day's headline is no longer green and "no window" no longer blue: without an answer the card is neutral.
-- On a route's map the route itself stays gold, as a map element, now with a thin dark edge so it stands out on light rock and on green forest alike.
 
 ### Changed: the app opens on the forecast, not on the search
 - In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
