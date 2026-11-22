@@ -20,7 +20,8 @@ const aqiColor = v => (v == null ? MUTED : v <= 40 ? GREEN : v <= 80 ? YELLOW : 
 const pollenColor = v => (v == null ? MUTED : v < 20 ? GREEN : v < 50 ? YELLOW : RED)
 
 // The rest of today (through the night once it's evening), hour by hour.
-export default function TabToday({ outlook, now, unit, lang, fmt }) {
+// prompt: the rain prompt, right under the headline (UX review S4)
+export default function TabToday({ outlook, now, unit, lang, fmt, prompt = null }) {
   const todayLocal = outlook.nowLocal.slice(0, 10)
   const { hours } = todayHours(outlook.hourly, todayLocal)
   const h = outlook.headlines?.today
@@ -30,6 +31,8 @@ export default function TabToday({ outlook, now, unit, lang, fmt }) {
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'today', h, { todayLocal, ...fmt })} tone={headlineTone('today', h)} />
       {now?.lat != null && now?.lon != null && <WarningsCard lat={now.lat} lon={now.lon} cc={outlook?.cc} lang={lang} todayLocal={todayLocal} />}
+      {/* the official warnings come first, then the rain prompt (owner, 2026-11-22) */}
+      {prompt}
       {now?.lat != null && now?.lon != null && <NowcastCard lat={now.lat} lon={now.lon} lang={lang} />}
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">

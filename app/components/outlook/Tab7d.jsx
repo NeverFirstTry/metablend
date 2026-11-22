@@ -23,7 +23,7 @@ function Agree({ level, lang }) {
   )
 }
 
-export default function Tab7d({ outlook, unit, lang, fmt }) {
+export default function Tab7d({ outlook, unit, lang, fmt, prompt = null }) {
   const [openDay, setOpenDay] = useState(null)
   const todayLocal = outlook.nowLocal.slice(0, 10)
   const h = outlook.headlines?.d7
@@ -34,6 +34,7 @@ export default function Tab7d({ outlook, unit, lang, fmt }) {
   return (
     <div className="space-y-4 animate-fade-in">
       <Headline text={headlineText(lang, 'd7', h, { todayLocal, ...fmt })} tone={headlineTone('d7', h)} />
+      {prompt}
       {/* what the dots mean and that a day opens, above the list where it is read first (UX review T1) */}
       <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       <div className="@container bg-zinc-900 border border-zinc-800 rounded-2xl p-2 sm:p-4">

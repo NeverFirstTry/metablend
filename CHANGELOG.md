@@ -13,6 +13,11 @@ All notable changes to MetaBlend. Format loosely follows
 - Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too. A saved place goes with one tap, and for six seconds a toast "Removed from saved places." offers Undo, which puts it back where it stood (owner, 22 November).
 - After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
 - When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
+### Changed: the rain prompt stands where it is seen
+- "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
+- The close button keeps its 44 px width beside a long place name; at 320 px it shrank to 31 px in German with "Klosterneuburg".
+- On Today it stands below the official weather warnings, which come first (owner, 22 November).
+- "Turn on" is the quiet main button, the surface with a hairline and gold text, in both themes; in the light theme it was a pale gold block, the look of the screen's one answer.
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
