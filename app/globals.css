@@ -501,6 +501,8 @@ p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text
   & .bg-zinc-950 { background-color: rgb(255 255 255 / 0.5); }
   & .bg-zinc-800 { background-color: rgb(20 28 43 / 0.06); }
   & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(20 28 43 / 0.03); }
+  /* the chosen unit and appearance in More: a neutral grey pill, as in dark (the dark grey kept its dark text: unreadable) */
+  & .bg-zinc-700.text-white { background-color: #dfe3e9; }
   & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(20 28 43 / 0.06); }
   & .border-zinc-800, & .border-zinc-800\/70 { border-color: var(--hairline); }
   & .border-zinc-700 { border-color: rgb(20 28 43 / 0.14); }
