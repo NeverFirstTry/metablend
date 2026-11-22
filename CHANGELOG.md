@@ -13,6 +13,9 @@ All notable changes to MetaBlend. Format loosely follows
 - Open-Meteo: no new request. One more database read per hourly run and one read and one write per night.
 ### Fixed: the weather word is never cut off
 - On a narrow phone the weather word beside the big temperature lost its end in French, Spanish, Italian, Polish and Portuguese ("Partiellement nuag..."). A long word now wraps onto a second line.
+### Fixed: two accessibility misses
+- In "How is the weather where you are?" a screen reader now names the Condition and temperature fields; their labels were not tied to them.
+- In the light theme the red of error messages is a little darker, so it reads clearly on its pink box (5.5:1, it was 4.2:1).
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
