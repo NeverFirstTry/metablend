@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import featured from '@/lib/hike/featured.json'
 import { byRegion } from '@/lib/hike/featured-list'
 import MountainList from './MountainList'
@@ -15,5 +16,5 @@ export const metadata = {
 }
 
 export default function MountainIndex() {
-  return <MountainList groups={groups} total={peaks.length} />
+  return <><DocTitle k="titleMountains" vars={{ n: peaks.length }} /><MountainList groups={groups} total={peaks.length} /></>
 }
