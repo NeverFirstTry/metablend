@@ -5,6 +5,11 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: your places take one row, and a search always answers
+- Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too.
+- After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
+- When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
+
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
 - A push of a feature, ux or docs branch no longer starts a Vercel build (`vercel.json`, `git.deploymentEnabled` off for every branch prefix this repository has used). Since 21 November those branches stay on the owner's PC anyway; this is the net for a push by mistake. Of this billing cycle's 486 deployments, 324 were builds of such branches.
@@ -90,11 +95,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Spanish: "Rutas de senderismo señalizadas", so the Google Play listing still holds the word people search for.
 
 ## 2026-11-21
-
-### Changed: your places take one row, and a search always answers
-- Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too.
-- After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
-- When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
