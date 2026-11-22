@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
-import { uniquePlaces, samePlace } from '@/lib/recent-places'
+import { uniquePlaces, samePlace, placeChips, nextChip } from '@/lib/recent-places'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -218,6 +218,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(-1) // the suggestion the arrow keys highlight, -1 none
+  const [noMatch, setNoMatch] = useState(null) // what was typed when the search found nothing (UX review R4)
   const toolbarRef = useRef(null)
   const [stackActions, setStackActions] = useState(false) // refresh, share and embed in a row under a long place name
   // the shared value first: a language or unit just changed on another tab beats this tab's memory
@@ -368,13 +369,22 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     publishPrefs({ unit: u })
   }
 
-  // Recent places: keyboard focus stays in the list, on the next ×, or goes to the search once it's empty
-  function forgetRecent(c, i) {
-    setRecent(removeRecent(c))
+  // Saved and recent places: keyboard focus stays in the row, on the × now at place i, or goes to the search once
+  // the row is empty (i is the chip's place in the whole row, saved chips first)
+  function focusAfterRemove(i) {
     requestAnimationFrame(() => {
       const rest = document.querySelectorAll('[data-recent-remove]')
-      ;(rest[Math.min(i, rest.length - 1)] ?? document.querySelector('.home-search input'))?.focus()
+      const at = nextChip(i, rest.length)
+      ;(at == null ? document.querySelector('.home-search input') : rest[at])?.focus()
     })
+  }
+  function forgetRecent(c, i) {
+    setRecent(removeRecent(c))
+    focusAfterRemove(i)
+  }
+  function forgetSaved(c, i) {
+    setFavorites(toggleFavorite(c))
+    focusAfterRemove(i)
   }
   // the place's name opens or closes the search; opening puts the cursor in the field (UX review S6)
   function toggleSearch() {
@@ -448,6 +458,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
+        setNoMatch(d.results?.length ? null : value)
         setActiveSuggestion(-1)
         setShowSuggestions(true)
       } catch { /* a hiccup while typing: just show nothing */ }
@@ -486,18 +497,20 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q) } : j))),
+        fetch(`/api/forecast?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q), status: r.status } : j))),
         fetch(`/api/outlook?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
       ])
       if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: loadError(asLang, 0, q) }
-      if (json.error) throw new Error(json.error)
+      if (json.error) throw Object.assign(new Error(json.error), { status: json.status })
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
       if (!silent) setSearchOpen(false) // a place was picked: the start page shows its forecast again (S6)
-      if (!silent && json.cityShown && json.cityShown !== q) {
-        askedAs.current[json.cityShown] = q
-        setCity(c => (c === q || c === typed ? json.cityShown : c))
+      // the field takes the name the title shows (UX review R3: "Buôn Ma Thuột" typed, "Buon Ma Thuot" shown)
+      const shownName = hans(json.cityShown ?? json.city)
+      if (!silent && shownName && shownName !== q) {
+        askedAs.current[shownName] = q
+        setCity(c => (c === q || c === typed ? shownName : c))
       }
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
       rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
@@ -547,7 +560,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         const text = genuinelyOffline ? t(asLang, 'offlineNoStored') : e.message
         setOffline(false)
         setError(text)
-        setErrorRetry({ text, q })
+        setErrorRetry({ text, q, notFound: e.status === 404 })
         if (!ownCity.current) showExample()
       }
     } finally {
@@ -732,7 +745,11 @@ ${url}`)
       setShowSuggestions(false); setActiveSuggestion(-1)
     }
   }
-  const suggestionList = suggestOpen && (
+  // nothing matched what is in the field: said in the list, not by a list that vanishes (UX review R4)
+  const noMatchOpen = showSuggestions && !suggestions.length && noMatch != null && noMatch === city
+  const suggestionList = noMatchOpen ? (
+    <div role="status" className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg z-50 px-4 py-3 text-sm text-zinc-400">{t(lang, 'searchNoPlace')}</div>
+  ) : suggestOpen && (
     <div id="home-suggest" role="listbox" aria-label={t(lang, 'placeholder')} className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
       {suggestions.map((s, i) => (
         <div
@@ -887,46 +904,35 @@ ${url}`)
           <FirstStart lang={lang} peaks={peaks} isExample={isExample} onPick={c => { setCity(c); loadForecast(c) }} />
         )}
 
-        {/* Favorite city chips */}
-        {favorites.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap -mt-4 mb-4`}>
-            <span className="text-amber-500/70 text-xs uppercase tracking-wider self-center inline-flex items-center gap-1"><Star size={11} fill="currentColor" aria-hidden /> {t(lang, 'favoritesTitle')}:</span>
-            {favorites.map(c => (
-              <button
-                key={c}
-                onClick={() => { setCity(c); loadForecast(c) }}
-                className="press bg-amber-900/20 border border-amber-500/30 rounded-full px-3 py-1 text-xs text-amber-200 hover:border-amber-400 inline-flex items-center gap-1"
-              >
-                <Star size={11} fill="currentColor" aria-hidden /> {hans(c)}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Recent city chips */}
-        {recent.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
-            <span className="text-zinc-500 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
-            {recent.map((c, i) => (
-              <span key={c} className="recent-chip inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
-                <button onClick={() => { setCity(c); loadForecast(c) }} className="press pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
-                  {hans(c)}
+        {/* saved and recent places: one row that scrolls sideways, saved first (a star), one kind of chip with an x
+            (UX review R2: two rows took 250 px and pushed the forecast down; R5: saved chips were smaller, not removable) */}
+        {(favorites.length > 0 || recent.length > 0) && !compareMode && (
+          <div role="group" aria-label={t(lang, 'placesRow')} className="places-row flex gap-2 overflow-x-auto -mt-4 mb-6 pb-1">
+            {placeChips(favorites, recent).map((c, i) => (
+              <span key={c.city} className="recent-chip shrink-0 inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400 whitespace-nowrap">
+                <button onClick={() => { setCity(c.city); loadForecast(c.city) }} className="press inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
+                  {c.saved && <Star size={11} fill="currentColor" className="shrink-0 text-zinc-400" aria-hidden />}{hans(c.city)}
                 </button>
-                <button
-                  type="button"
-                  data-recent-remove
-                  onClick={() => forgetRecent(c, i)}
-                  aria-label={fill(t(lang, 'recentRemove'), { city: hans(c) })}
-                  title={fill(t(lang, 'recentRemove'), { city: c })}
-                  className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
-                >
-                  <X size={12} aria-hidden />
-                </button>
+                {c.saved ? (
+                  <button type="button" data-recent-remove onClick={() => forgetSaved(c.city, i)}
+                    aria-label={fill(t(lang, 'savedRemove'), { city: hans(c.city) })} title={fill(t(lang, 'savedRemove'), { city: c.city })}
+                    className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
+                    <X size={12} aria-hidden />
+                  </button>
+                ) : (
+                  <button type="button" data-recent-remove onClick={() => forgetRecent(c.city, i)}
+                    aria-label={fill(t(lang, 'recentRemove'), { city: hans(c.city) })} title={fill(t(lang, 'recentRemove'), { city: c.city })}
+                    className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
+                    <X size={12} aria-hidden />
+                  </button>
+                )}
               </span>
             ))}
-            <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="recent-clear press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
-              {t(lang, 'recentClearAll')}
-            </button>
+            {recent.length > 0 && (
+              <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="recent-clear shrink-0 whitespace-nowrap press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
+                {t(lang, 'recentClearAll')}
+              </button>
+            )}
           </div>
         )}
         </div>
@@ -974,12 +980,21 @@ ${url}`)
           <div role="alert" className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="flex-1 min-w-0 inline-flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</span>
             {/* the next step, for a forecast that did not load (not for a location error) (UX review Y1) */}
-            {errorRetry?.text === error && (
+            {errorRetry?.text === error && !errorRetry.notFound && (
               <button type="button" onClick={() => loadForecast(errorRetry.q)} disabled={loading}
                 className="press min-h-11 inline-flex items-center gap-1.5 border border-red-500/40 rounded-lg px-3 text-sm hover:bg-red-500/10 disabled:opacity-60 shrink-0">
                 <RefreshCw size={15} aria-hidden /> {t(lang, 'retry')}
               </button>
             )}
+          </div>
+        )}
+        {/* not found: places to try under the box, so the page is no dead end (UX review R4) */}
+        {error && errorRetry?.text === error && errorRetry?.notFound && (
+          <div className="flex flex-wrap items-center gap-2 -mt-3 mb-6">
+            <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
+            {SAMPLE_CITIES.map(c => (
+              <button key={c} type="button" onClick={() => { setCity(c); loadForecast(c) }} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
+            ))}
           </div>
         )}
 
