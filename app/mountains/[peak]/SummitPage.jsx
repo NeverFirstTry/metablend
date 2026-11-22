@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { CloudOff } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
-import { windowText } from '@/lib/hike/text'
+import { windowText, windowTone } from '@/lib/hike/text'
 import { formatCalendarDate, addDays } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import { readAvalanche } from '@/lib/avalanche/read'
@@ -67,6 +67,8 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
   const fmt = tempFormatter(useUnit())
   // the first window the copy has from the reader's day on stands large, the next one small below it
   const [today, tomorrow] = windows.map(({ date, w }) => windowText(lang, w, { date, todayLocal, stormUnknown }))
+  // the page's one gold: today's window when there is one (X3); "no window" is not an answer
+  const todayGold = !!windows[0] && windowTone(windows[0].w, { stormUnknown }) === 'answer'
   const day = date => (date === todayLocal ? t(lang, 'tabToday') : formatCalendarDate(date, lang, { weekday: 'short', month: 'short', day: 'numeric' }))
   const avaLabel = date => (date === todayLocal ? t(lang, 'avaToday') : todayLocal && date === addDays(todayLocal, 1) ? t(lang, 'avaTomorrow') : formatCalendarDate(date, lang, { weekday: 'short', day: 'numeric' }))
   const avaDays = ava.map(({ date, level }) => [avaLabel(date), level])
@@ -107,7 +109,7 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
 
         <section data-keep className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-emerald-400 text-xs tracking-widest uppercase mb-4">{t(lang, 'mtnWindow')}</h2>
-          {today && <p className="text-xl font-bold">{today.title}</p>}
+          {today && <p className={`text-xl font-bold${todayGold ? ' text-[var(--accent)]' : ''}`}>{today.title}</p>}
           {today?.sub && <p className="text-sm text-zinc-400 mt-1">{today.sub}</p>}
           {tomorrow && <p className="text-sm text-zinc-300 mt-4">{tomorrow.title}{tomorrow.sub ? `: ${tomorrow.sub}` : ''}</p>}
           <p className="text-xs text-zinc-500 mt-4">{t(lang, 'hikeDisclaimer')} <Link href="/terms#disclaimer" className="underline hover:text-emerald-400">{t(lang, 'legalDisclaimerLink')}</Link></p>

@@ -65,7 +65,8 @@ export default function PromoVideo({ lang }) {
         aria-label={t(lang, playing ? 'promoPause' : 'promoPlay')}
         // one place for both states, clear of the film's numbers; colours fixed, since the film is dark in both themes
         className="press absolute right-3 bottom-3 w-12 h-12 rounded-full flex items-center justify-center"
-        style={playing ? { background: 'rgba(15,21,27,0.7)', color: '#f6f8fc' } : { background: 'var(--accent)', color: '#0f151b' }}
+        // play in light ink on the film, not gold: the page's gold is its answer (X3); pause stays dark glass
+        style={playing ? { background: 'rgba(15,21,27,0.7)', color: '#f6f8fc' } : { background: '#f6f8fc', color: '#0f151b' }}
       >
         {playing ? <Pause size={18} aria-hidden /> : <Play size={26} className="translate-x-0.5" aria-hidden />}
       </button>

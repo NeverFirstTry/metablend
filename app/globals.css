@@ -431,19 +431,22 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .text-zinc-400 { color: rgb(232 239 250 / 0.84); }
   & .text-zinc-500 { color: var(--muted); }
   & .text-zinc-600 { color: var(--muted); }
-  /* accent: sunlight instead of the old acid green */
-  & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
-  & .text-emerald-300 { color: var(--accent-strong); }
+  /* the emerald classes, neutral (X3: gold has one job per screen, the main answer, set with var(--accent) where it is;
+     owner 2026-11-20): labels and icons grey, links and buttons in the text colour, borders and tints neutral */
+  & .text-emerald-400, & .text-emerald-400\/80 { color: var(--muted); }
+  & :is(a, button).text-emerald-400 { color: var(--foreground); }
+  & .hover\:text-emerald-400:hover { color: var(--foreground); }
+  & .text-emerald-300 { color: var(--foreground); }
   /* status text in the sky's own (AA) colours rather than the stock palette */
   & .text-red-300, & .text-red-400 { color: var(--bad); }
   & .text-yellow-400, & .text-amber-500\/70 { color: var(--warn); }
   & .text-orange-300, & .text-orange-400, & .text-amber-600 { color: var(--hot); }
   & .text-blue-400 { color: var(--info); }
   & .border-emerald-400, & .hover\:border-emerald-400:hover,
-  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(255 217 138 / 0.7); }
-  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(255 217 138 / 0.35); }
-  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(255 217 138 / 0.1); }
-  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(255 217 138 / 0.16); }
+  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(226 234 247 / 0.6); }
+  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(255 255 255 / 0.2); }
+  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(255 255 255 / 0.06); }
+  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(255 255 255 / 0.1); }
   /* filled shapes that aren't controls (the spread's marker, weight bars, the toast): light with deep ink */
   & .bg-emerald-400 { background-color: #f6f8fc; color: #0e1b36; }
   & .hover\:bg-emerald-300:hover { background-color: #ffffff; }
@@ -452,7 +455,7 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & :is(button, a).bg-emerald-400, & :is(button, a).bg-emerald-400.text-black { background-color: var(--surface-2); color: var(--accent); box-shadow: inset 0 0 0 1px var(--hairline); }
   & :is(button, a).bg-emerald-400 .text-black { color: var(--accent); }
   & :is(button, a).hover\:bg-emerald-300:hover { background-color: var(--surface-3); }
-  & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(255 217 138 / 0.25); }
+  & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(0 0 0 / 0.3); }
   /* headline tones on the sky */
   & .bg-blue-500\/10 { background-color: rgb(169 209 255 / 0.12); }
   & .border-blue-500\/40 { border-color: rgb(169 209 255 / 0.35); }
@@ -460,10 +463,9 @@ body { font-feature-settings: "ss01", "cv11"; letter-spacing: -0.005em; }
   & .bg-zinc-800\/60.border-zinc-700 { background-color: var(--glass); }
   & .osm-dark { filter: invert(1) hue-rotate(185deg) brightness(0.85) contrast(0.95) saturate(0.6); }
 }
-/* A gold link inside running text is underlined, in both themes: against the grey text around it the
-   gold reads 1.76:1 by day and 1.19:1 by night, and no gold reaches 3:1 there and 4.5:1 on the page at
-   once (axe link-in-text-block). */
-p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text-underline-offset: 4px; }
+/* A link in the text colour is underlined, in both themes (X3: links are not gold); rows and buttons drawn as
+   blocks or flex boxes say they open something by their shape */
+a.text-emerald-400:not(.inline-flex, .flex, .block) { text-decoration-line: underline; text-underline-offset: 4px; }
 /* daylight: ink on pale sky, frosted white glass, a deep-sky accent, ink pills.
    :root raises these above the paper remaps of the light-theme block. */
 :root[data-theme="light"] {
@@ -501,6 +503,8 @@ p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text
   & .bg-zinc-950 { background-color: rgb(255 255 255 / 0.5); }
   & .bg-zinc-800 { background-color: rgb(20 28 43 / 0.06); }
   & .bg-zinc-800\/50, & .bg-zinc-800\/60 { background-color: rgb(20 28 43 / 0.03); }
+  /* the chosen unit and appearance in More: a neutral grey pill, as in dark (the dark grey kept its dark text: unreadable) */
+  & .bg-zinc-700.text-white { background-color: #dfe3e9; }
   & .hover\:bg-zinc-800:hover, & .hover\:bg-zinc-800\/40:hover { background-color: rgb(20 28 43 / 0.06); }
   & .border-zinc-800, & .border-zinc-800\/70 { border-color: var(--hairline); }
   & .border-zinc-700 { border-color: rgb(20 28 43 / 0.14); }
@@ -511,8 +515,11 @@ p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text
   & .text-zinc-400 { color: #3f4a5a; }
   & .text-zinc-500 { color: var(--muted); }
   & .text-zinc-600 { color: var(--muted); }
-  & .text-emerald-400, & .text-emerald-400\/80, & .hover\:text-emerald-400:hover { color: var(--accent); }
-  & .text-emerald-300 { color: var(--accent-strong); }
+  /* the emerald classes, neutral (X3, as in the dark block): labels and icons grey, links and buttons in ink */
+  & .text-emerald-400, & .text-emerald-400\/80 { color: var(--muted); }
+  & :is(a, button).text-emerald-400 { color: var(--foreground); }
+  & .hover\:text-emerald-400:hover { color: var(--foreground); }
+  & .text-emerald-300 { color: var(--foreground); }
   /* status text: the deep daylight set, readable straight on the sky */
   & .text-red-300, & .text-red-400 { color: var(--bad); }
   & .text-yellow-400, & .text-amber-200, & .text-amber-200\/90, & .text-amber-300,
@@ -520,13 +527,16 @@ p > a.text-emerald-400:not(.inline-flex) { text-decoration-line: underline; text
   & .text-orange-300, & .text-orange-400, & .text-amber-600 { color: var(--hot); }
   & .text-blue-400 { color: var(--info); }
   & .border-emerald-400, & .hover\:border-emerald-400:hover,
-  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(150 100 0 / 0.6); }
-  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(150 100 0 / 0.28); }
-  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(150 100 0 / 0.07); }
-  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(150 100 0 / 0.12); }
-  & .bg-emerald-400 { background-color: var(--fill); color: var(--on-fill); }
-  & .hover\:bg-emerald-300:hover { background-color: var(--fill-hover); }
-  & .bg-emerald-400.text-black, & .bg-emerald-400 .text-black { color: var(--on-fill); }
+  & .focus\:border-emerald-400:focus, & .focus-within\:border-emerald-400:focus-within { border-color: rgb(20 28 43 / 0.5); }
+  & .border-emerald-400\/30, & .border-emerald-400\/40, & .border-emerald-500\/30 { border-color: rgb(20 28 43 / 0.16); }
+  & .bg-emerald-400\/10, & .hover\:bg-emerald-400\/10:hover { background-color: rgb(20 28 43 / 0.04); }
+  & .bg-emerald-400\/15, & .bg-emerald-400\/20 { background-color: rgb(20 28 43 / 0.07); }
+  /* filled shapes that aren't controls (the spread's marker, weight bars, the toast): ink with white text */
+  & .bg-emerald-400 { background-color: #2b3444; color: #ffffff; }
+  & .bg-emerald-400.text-black, & .bg-emerald-400 .text-black { color: #ffffff; }
+  /* the one main button of a screen without an answer: the pale gold fill (owner's light look, 2026-11-06) */
+  & :is(button, a).bg-emerald-400, & :is(button, a).bg-emerald-400.text-black, & :is(button, a).bg-emerald-400 .text-black { background-color: var(--fill); color: var(--on-fill); }
+  & :is(button, a).hover\:bg-emerald-300:hover { background-color: var(--fill-hover); }
   & .shadow-emerald-400\/20 { --tw-shadow-color: rgb(20 28 43 / 0.14); }
   & .bg-blue-500\/10 { background-color: rgb(29 111 205 / 0.08); }
   & .border-blue-500\/40 { border-color: rgb(29 111 205 / 0.3); }
@@ -660,7 +670,7 @@ html :is(.text-\[0\.6875rem\], .text-\[0\.625rem\], svg text, .leaflet-container
    nothing inside it is a card. Gold is the only accent; the status colours are
    for status. */
 :root { --page-width: 64rem; --reading-width: 46rem; --radius-card: 1rem; --radius-control: 0.5rem; --chart-temp: var(--hot); }
-html:not([data-app]) { --chart-temp: var(--accent); }
+/* the website's temperature bars and labels in the warm colour, as in the app: gold is each screen's answer (X3) */
 .site-col { max-width: var(--page-width); margin-inline: auto; }
 /* Raised by the two :not()s, so the theme remaps above never win over the design layer */
 html:not([data-app]):not(.\#):not(.\#) main {
@@ -685,10 +695,10 @@ html:not([data-app]):not(.\#):not(.\#) main {
   & .home-headline { background: none; border: 0; padding: 0; border-radius: 0; }
   & .home-headline > span:first-child { font-size: 1.5rem; line-height: 2rem; }
   & .home-toolbar button { background: none; }
-  /* tabs as words, the active one underlined in gold; a row too long for a narrow phone (the rankings in French at 320 px) wraps */
+  /* tabs as words, the active one underlined in the text colour (X3: a selected tab is not gold); a row too long for a narrow phone (the rankings in French at 320 px) wraps */
   & [role="tablist"] { background: transparent; border-color: transparent; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; padding: 0; gap: 0.25rem 1.5rem; flex-wrap: wrap; margin-top: 2rem; }
   & [role="tab"] { flex: none; padding: 0.5rem 0; border-radius: 0; font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
-  & [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--accent); }
+  & [role="tab"][aria-selected="true"] { background: none; color: var(--foreground); font-weight: 600; box-shadow: inset 0 -2px 0 var(--foreground); }
   /* quiet motion: the loader without its glow */
   & .mb-loader .glow { display: none; }
   /* charts: temperature in the gold, rain in the rain colour, labels in plain text */
@@ -760,7 +770,7 @@ html:not([data-app]) .home-warning { animation: none; }
 .chart-line { border-top: 1px solid color-mix(in srgb, var(--foreground) 12%, transparent); }
 /* hour strip: each hour a small tile a step off the card (lighter in dark, darker in light); the current hour has a faint gold edge */
 .hour-tile { background: var(--surface-2); }
-.hour-tile[aria-current] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 55%, transparent); }
+.hour-tile[aria-current] { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--foreground) 45%, transparent); }
 .source-bar { background: color-mix(in srgb, var(--foreground) 10%, transparent); min-width: 2rem; }
 @media (max-width: 379px) {
   .source-bar { min-width: 0.75rem; }
@@ -771,13 +781,13 @@ html:not([data-app]) .home-warning { animation: none; }
   .source-note { width: 0; min-width: 100%; }
 }
 .home-bar { background: var(--muted); opacity: 0.6; }
-.home-bar-lead { background: var(--accent); }
+.home-bar-lead { background: var(--foreground); }
 
 /* the maps' zoom buttons and credit in the theme's colours, not Leaflet's white (UX review D1); html first, to
    outweigh Leaflet's own sheet, which loads after this one */
 html .leaflet-container .leaflet-bar { border: 1px solid var(--border); box-shadow: none; }
 html .leaflet-container .leaflet-bar a { background: var(--surface); color: var(--foreground); border-bottom-color: var(--border); }
-html .leaflet-container .leaflet-bar a:hover, html .leaflet-container .leaflet-bar a:focus-visible { background: var(--surface); color: var(--accent); }
+html .leaflet-container .leaflet-bar a:hover, html .leaflet-container .leaflet-bar a:focus-visible { background: var(--surface); color: var(--foreground); }
 html .leaflet-container .leaflet-control-attribution { background: var(--surface); color: var(--muted); }
 html .leaflet-container .leaflet-control-attribution a { color: var(--foreground); }
 /* the place on the rain radar: a plain dot in the text colour, ringed in the page colour */

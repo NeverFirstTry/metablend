@@ -124,3 +124,18 @@ test('the app\'s own texts outside the language packs have no dash: iPhone permi
   }
   assert.deepEqual(found, [])
 })
+
+test('Android draws edge to edge: transparent system bars on every Android version, the app background behind them in both themes', () => {
+  // Android 15+ forces edge to edge; Android 14 and older (the A52) kept grey bars and padded the page twice (owner, 2026-11-22)
+  const activity = read('mobile/android/app/src/main/java/app/metablend/MainActivity.java')
+  assert.match(activity, /EdgeToEdge\.enable\(this, SystemBarStyle\.dark\(Color\.TRANSPARENT\), SystemBarStyle\.dark\(Color\.TRANSPARENT\)\);/)
+  // after super.onCreate: BridgeActivity sets the no-action-bar theme there; earlier, the window is built with the splash theme and shows an action bar
+  assert.ok(activity.indexOf('super.onCreate') < activity.indexOf('EdgeToEdge.enable'))
+  const color = (p, name) => read(p).match(new RegExp(`<color name="${name}">(#[0-9a-fA-F]+)</color>`))?.[1]?.toLowerCase()
+  // source-match-ok: the theme colours are read from the layout's viewport config, a JSX file node cannot import, to compare with the Android resources
+  const layout = read('app/layout.js')
+  const theme = media => layout.match(new RegExp(`prefers-color-scheme: ${media}[)]', color: '(#[0-9a-fA-F]+)'`))[1]
+  assert.equal(color('mobile/android/app/src/main/res/values/colors.xml', 'app_background'), theme('light'))
+  assert.equal(color('mobile/android/app/src/main/res/values-night/colors.xml', 'app_background'), theme('dark'))
+  assert.match(read('mobile/android/app/src/main/res/values/styles.xml'), /name="AppTheme\.NoActionBar"[^]*?<item name="android:windowBackground">@color\/app_background<\/item>[^]*?<\/style>/)
+})

@@ -2,4 +2,6 @@
 <resources>
     <!-- Tint of the push icon and app name in the notification shade (logo gold) -->
     <color name="notification_accent">#CF8F26</color>
+    <!-- The app background behind the system bars (app/layout.js themeColor, light) -->
+    <color name="app_background">#f3f6fb</color>
 </resources>

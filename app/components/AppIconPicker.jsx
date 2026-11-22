@@ -53,8 +53,9 @@ export default function AppIconPicker({ lang }) {
                 className="press flex flex-col items-center gap-1.5 text-xs">
                 {/* eslint-disable-next-line @next/next/no-img-element -- 56-px static previews, nothing to optimise */}
                 <img src={state.legacy ? `/app-icons/legacy/${name}.png?v=1` : `/app-icons/${name}.png?v=2`} alt="" width="56" height="56" className="rounded-[22%]"
-                  style={{ outline: on ? '2px solid var(--accent)' : 'none', outlineOffset: 3 }} />
-                <span className="text-center" style={{ color: on ? 'var(--accent)' : 'var(--muted)' }}>{t(lang, label(name))}</span>
+                  style={{ outline: on ? '2px solid var(--foreground)' : 'none', outlineOffset: 3 }} />
+                {/* the chosen icon in the text colour, not gold: a choice, not an answer (X3, Review 2026-11-22) */}
+                <span className="text-center" style={{ color: on ? 'var(--foreground)' : 'var(--muted)', fontWeight: on ? 600 : undefined }}>{t(lang, label(name))}</span>
               </button>
             )
           })}

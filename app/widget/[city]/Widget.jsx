@@ -57,7 +57,7 @@ export default function Widget() {
   const condition = now ? translateCondition(lang, heroCondition(now) ?? '') : ''
   const href = `${SITE}/?city=${encodeURIComponent(now?.city ?? city)}`
   const sourcesLine = now ? fill(t(lang, 'widgetSources'), { n: countSources(now.sources), agree: now.consensus.confidencePct }) : ''
-  const brand = <span className="font-semibold text-zinc-300 shrink-0">Meta<span className="text-emerald-400">Blend</span></span>
+  const brand = <span className="font-semibold text-zinc-300 shrink-0">Meta<span className="text-[var(--accent)]">Blend</span></span>
 
   if (!done) return <div className="h-screen flex items-center justify-center overflow-hidden"><SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} mini /></div>
   if (!now) return <div className="h-screen flex items-center justify-center p-4 text-center text-sm text-zinc-400">{fill(t(lang, 'widgetError'), { city })}</div>

@@ -28,9 +28,10 @@ export default function MyPeaks({ lang, hrefFor }) {
   const { now } = shelf
   // nothing kept yet: three well-known peaks with their stored window instead (UX review H1)
   if (!shelf.saved.length && !recent.length) return <FirstPeaks lang={lang} hrefFor={hrefFor} now={now} />
+  const first = firstAnswer([...shelf.saved, ...recent], lang, now)
   const rows = list => (
     <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-      {list.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
+      {list.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} answer={p.id === first} />)}
     </ul>
   )
   return (
@@ -57,17 +58,21 @@ function FirstPeaks({ lang, hrefFor, now }) {
 
 export function FirstPeakRows({ lang, rows, hrefFor, now }) {
   if (!rows?.length) return null
+  const first = firstAnswer(rows, lang, now)
   return (
     <section className="space-y-3">
       <SectionTitle icon={MountainSnow}>{t(lang, 'peaksToStart')}</SectionTitle>
       <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-        {rows.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} />)}
+        {rows.map(p => <PeakRow key={p.id} p={p} lang={lang} href={hrefFor(p)} now={now} answer={p.id === first} />)}
       </ul>
     </section>
   )
 }
 
-function PeakRow({ p, lang, href, now }) {
+// the screen's one gold: the first favourable window from the top (X3, UX review H2: the next window on a saved peak)
+const firstAnswer = (list, lang, now) => list.find(p => rowView(lang, p, now)?.tone === 'answer')?.id ?? null
+
+function PeakRow({ p, lang, href, now, answer = false }) {
   const v = rowView(lang, p, now)
   // when the forecast was made, at the summit, as a summit page says it
   const madeAt = v ? new Date(p.seen.at + (p.seen.utcOffsetSec ?? 0) * 1000).toISOString().slice(0, 16) : null
@@ -75,8 +80,8 @@ function PeakRow({ p, lang, href, now }) {
     <li>
       <Link href={href} className="press flex flex-col justify-center min-h-11 px-4 py-2.5 hover:text-emerald-400">
         <span><span className="font-semibold">{p.name}</span> <span className="text-sm text-zinc-500">{p.elevApprox ? '≈' : ''}{p.elev} m</span></span>
-        {/* the accent for a favourable window only, the warning colour without storm data (Fable's review) */}
-        {v && <span className={`text-sm ${v.tone === 'ok' ? 'text-emerald-400' : 'text-zinc-300'}`} style={v.tone === 'warn' ? { color: 'var(--warn)' } : undefined}>{v.title}</span>}
+        {/* gold for the screen's first favourable window only (X3), the warning colour without storm data (Fable's review) */}
+        {v && <span className={`text-sm ${answer ? 'text-[var(--accent)]' : 'text-zinc-300'}`} style={v.tone === 'warn' ? { color: 'var(--warn)' } : undefined}>{v.title}</span>}
         {v?.sub && <span className="text-xs text-zinc-400">{v.sub}</span>}
         {v && <span className="text-xs text-zinc-500">{fill(t(lang, 'mtnAsOf'), { when: madeAtText(madeAt, lang) })}</span>}
       </Link>

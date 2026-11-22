@@ -12,7 +12,7 @@ export default function ProblemScreen({ titleKey, textKey, onRetry = null, logo 
   const lang = useLang()
   return (
     <main className="site-col px-4 pt-16 pb-24">
-      <Link href="/" className={`text-2xl font-bold tracking-tight${logo ? '' : ' app-only'}`}>Meta<span className="text-emerald-400">Blend</span></Link>
+      <Link href="/" className={`text-2xl font-bold tracking-tight${logo ? '' : ' app-only'}`}>Meta<span className="text-[var(--accent)]">Blend</span></Link>
       <h1 className="text-2xl font-semibold tracking-tight mt-12 mb-3">{t(lang, titleKey)}</h1>
       <p className="text-zinc-400 max-w-prose mb-8">{t(lang, textKey)}</p>
       <form action="/" method="get" role="search" className="flex gap-2 max-w-xl">

@@ -58,7 +58,7 @@ function MonthChart({ title, rows, format, barClass, best, lang }) {
           </div>
           <div className="grid grid-cols-12 gap-1 mt-2 text-xs text-center">
             {rows.map(r => (
-              <div key={r.month} className={best.includes(r.month) ? 'text-emerald-400 font-bold' : 'text-zinc-400'}>
+              <div key={r.month} className={best.includes(r.month) ? 'text-white font-bold' : 'text-zinc-400'}>
                 <span className="hidden sm:inline">{monthName(lang, r.month)}</span>
                 <span className="sm:hidden">{monthName(lang, r.month, 'narrow')}</span>
               </div>
@@ -122,7 +122,8 @@ export default function Planner() {
             onClick={() => search()}
             disabled={loading}
             aria-label={t(lang, 'a11ySearch')}
-            className="press bg-emerald-400 text-black font-bold px-5 rounded-lg text-sm hover:bg-emerald-300 disabled:opacity-40 flex items-center justify-center"
+            // the screen's one main button until there is an answer (the best months); then neutral (X3)
+            className={`press ${data ? 'bg-zinc-800 border border-zinc-700 text-white' : 'bg-emerald-400 text-black hover:bg-emerald-300'} font-bold px-5 rounded-lg text-sm disabled:opacity-40 flex items-center justify-center`}
           >
             {loading ? <Loader2 size={18} className="animate-spin-slow" aria-hidden /> : <Search size={18} aria-hidden />}
           </button>
@@ -145,7 +146,8 @@ export default function Planner() {
                 <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5"><CalendarCheck size={13} aria-hidden /> {t(lang, 'plBest')}</div>
                 <div className="flex gap-2 flex-wrap">
                   {best.map(m => (
-                    <span key={m} className="bg-emerald-400/20 text-emerald-300 border border-emerald-400/40 rounded-lg px-3 py-1 text-sm">
+                    // the page's answer, its one gold (X3)
+                    <span key={m} className="bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] rounded-lg px-3 py-1 text-sm">
                       {monthName(lang, m)}
                     </span>
                   ))}
@@ -154,7 +156,7 @@ export default function Planner() {
             )}
 
             <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6 grid gap-10 lg:grid-cols-2 lg:gap-12">
-              <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-[var(--accent)]" best={best} lang={lang} />
+              <MonthChart title={t(lang, 'plAvgTemp')} rows={months.map(m => ({ month: m.month, value: m.avgTemp }))} format={fmtTemp} barClass="bg-[var(--hot)]" best={best} lang={lang} />
               <MonthChart title={t(lang, 'plRainyDays')} rows={months.map(m => ({ month: m.month, value: m.avgRainDays ?? null }))} format={v => String(Math.round(v))} barClass="bg-[var(--info)]" best={best} lang={lang} />
             </div>
           </div>

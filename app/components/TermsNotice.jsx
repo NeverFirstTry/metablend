@@ -68,7 +68,7 @@ export default function TermsNotice({ lang, path }) {
       className="terms-notice fixed inset-0 z-[60] overflow-y-auto outline-none" style={{ background: 'var(--background)' }}>
       <div className="min-h-full max-w-md mx-auto px-6 flex flex-col justify-center gap-5"
         style={{ paddingTop: 'calc(2rem + var(--sa-top))', paddingBottom: 'calc(2rem + var(--sa-bottom))' }}>
-        <p className="text-2xl font-bold tracking-tight">Meta<span className="text-emerald-400">Blend</span></p>
+        <p className="text-2xl font-bold tracking-tight">Meta<span className="text-[var(--accent)]">Blend</span></p>
         <TermsText lang={lang} changed={notice.changed} />
         {/* the imprint has to be reachable at all times (Austria), so also from here, before the More tab is */}
         <p className="text-sm"><Link href="/impressum" className="text-emerald-400 underline underline-offset-4">{t(lang, 'footerImpressum')}</Link></p>

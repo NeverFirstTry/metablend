@@ -13,6 +13,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:background">@null</item>
+        <!-- behind the system bars and before the page paints: the app background (light and night colors.xml) -->
+        <item name="android:windowBackground">@color/app_background</item>
     </style>
 
 

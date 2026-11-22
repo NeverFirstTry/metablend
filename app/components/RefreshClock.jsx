@@ -31,7 +31,7 @@ export function DataAge({ generatedAt, justUpdated, lang, kept, utcOffsetSec }) 
   return (
     <div className="text-[0.6875rem] mt-1 tabular-nums">
       {justUpdated ? (
-        <span className="text-emerald-400 inline-flex items-center gap-1 animate-fade-in">
+        <span className="text-[var(--ok)] inline-flex items-center gap-1 animate-fade-in">
           <CheckCircle2 size={12} aria-hidden /> {t(lang, 'updatedJustNow')}
         </span>
       ) : (

@@ -13,7 +13,7 @@ export default function RangeTabs({ value, onChange, lang }) {
           role="tab"
           aria-selected={value === id}
           onClick={() => { if (id !== value) haptic('selection'); onChange(id) }}
-          className={`press flex-1 text-xs sm:text-sm py-2 rounded-lg transition-colors ${value === id ? 'bg-emerald-400 text-black font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
+          className={`press flex-1 text-xs sm:text-sm py-2 rounded-lg transition-colors ${value === id ? 'bg-zinc-700 text-white font-bold' : 'text-zinc-400 hover:text-emerald-400'}`}
         >
           {t(lang, key)}
         </button>

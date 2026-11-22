@@ -87,7 +87,7 @@ export default function AppChrome() {
             prefetch={href === '/' ? undefined : true}
             onClick={e => leave(e, href)}
             aria-current={activeTab === href ? 'page' : undefined}
-            className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${activeTab === href ? 'text-emerald-400' : 'text-zinc-500'}`}
+            className={`flex flex-col items-center gap-1 py-2 text-[0.6875rem] ${activeTab === href ? 'text-[var(--foreground)] font-semibold' : 'text-zinc-500'}`}
           >
             <Icon size={20} aria-hidden /> {t(lang, key)}
           </Link>
