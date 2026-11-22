@@ -58,6 +58,9 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the mountain section has one name
 - The app's tab, the website's menu and the section's page title now all say "Mountains" (German "Berge"), the word the footer already used. They said "Hiking" and "Mountain weather". In all 13 languages; the tester page and the notes for App Review name the tab the same way.
 - Kept as they are: "a hike", "Plan a hike" and "Hike alerts" (the activity, not the section), and the search titles of the pages. The device checklist and docs/how-it-works.md name the tab "Mountains" too (owner kept the name, 2026-11-21).
+### Changed: the caption of store screen 3 (owner 2026-11-21)
+- App Store and Google Play, screen 3: "195 peaks, from famous to nearby", German "195 Gipfel, von berühmt bis um die Ecke", the other 11 languages in the same spirit (store/captions.json). "Popular peaks" now stands above "Near you" on that screen, so "nearest first" no longer fits.
+- The pictures follow at the store run of 28 November; the store texts are unchanged.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
