@@ -65,8 +65,9 @@ public final class WidgetUpdater {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
         JSONObject s = WidgetStore.settings(c);
         WidgetText tx = new WidgetText(s == null ? Locale.getDefault().getLanguage() : s.optString("lang", "en"));
+        int theme = WidgetRenderer.theme(s);
         if (s == null) {
-            m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("openOnce")));
+            m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("openOnce"), theme));
             return;
         }
         String lang = s.optString("lang", "en"), unit = s.optString("unit", "C"), base = s.optString("base", "https://metablend.app");
@@ -74,7 +75,7 @@ public final class WidgetUpdater {
         if (HIKE.equals(kind)) {
             JSONObject plan = nextPlan(s.optJSONArray("hikes"));
             if (plan == null) {
-                m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("planHike")));
+                m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("planHike"), theme));
                 return;
             }
             r = WidgetApi.get(base, WidgetApi.hikeQuery(plan, lang, unit));
@@ -83,7 +84,7 @@ public final class WidgetUpdater {
             String city = WidgetStore.get(c, id, "city", "");
             if (city.isEmpty()) city = home;
             if (city.isEmpty()) {
-                m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("pickCity")));
+                m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("pickCity"), theme));
                 return;
             }
             r = WidgetApi.get(base, WidgetApi.weatherQuery(city, lang, unit));
@@ -96,14 +97,20 @@ public final class WidgetUpdater {
         }
         JSONObject old = WidgetStore.cached(c, id);
         if (old != null) show(c, id, kind, old, true);
-        else m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("offline")));
+        else m.updateAppWidget(id, WidgetRenderer.message(c, id, tx.get("offline"), theme));
     }
 
     private static void show(Context c, int id, String kind, JSONObject p, boolean stale) {
         WidgetRenderer.Look look = new WidgetRenderer.Look(
-            !"system".equals(WidgetStore.get(c, id, "style", "sky")), stale, WidgetStore.cachedAt(c, id), WidgetStore.get(c, id, "show", "hours"));
+            WidgetRenderer.theme(WidgetStore.settings(c)), stale, WidgetStore.cachedAt(c, id), WidgetStore.get(c, id, "show", "hours"), text(c));
         RemoteViews v = HIKE.equals(kind) ? WidgetRenderer.hike(c, id, p, look) : WidgetRenderer.weather(c, id, p, look);
         AppWidgetManager.getInstance(c).updateAppWidget(id, v);
+    }
+
+    // the widgets' language: the app's, else the phone's
+    static WidgetText text(Context c) {
+        JSONObject s = WidgetStore.settings(c);
+        return new WidgetText(s == null ? Locale.getDefault().getLanguage() : s.optString("lang", "en"));
     }
 
     // the earliest plan dated today or later (the phone's calendar)

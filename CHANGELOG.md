@@ -5,6 +5,29 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: planning a hike after a new app build no longer answers "Unknown device"
+- In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
+- Only a phone whose notifications are on in the app: one switched off in More stays off.
+- No server or error text shows on the plan screen or in the notification settings any more; if something still fails, the translated "That didn't work" message shows, in all 13 languages.
+- Nothing changes on the server: the same registration address, its limits and token checks as before.
+- Open-Meteo: no change.
+
+### Fixed: two texts in the next native build (iPhone and Android)
+- A widget that could not refresh shows when its stored answer was fetched; when that was on an earlier day, it now shows the date too ("Nov 19, 5:27 PM" instead of "5:27 PM"), so an answer from last night does not read as today's after midnight. An answer from today keeps the bare time. On Android the date appears with the next refresh attempt, at most 30 minutes after midnight; the iPhone city widget switches at the hour (code audit, owner 2026-11-20).
+- The German text of the iPhone's location question no longer has a dash: "Wird verwendet, um Berggipfel in deiner Nähe zu finden, nur während du MetaBlend nutzt." A test now keeps dashes out of every app text outside the language packs (iPhone permission texts and widget catalog, Android strings).
+
+### Changed: the home-screen widgets' new look (next native build, iPhone and Android)
+- The widgets follow the phone's appearance: Slate in dark mode with the sun's faint gold sheen, white in light mode. The blue "living sky" and the Style setting (Living sky / System) are gone on both platforms (docs/widgets-spec.md, approved 2026-11-16).
+- The app icon chosen under More gives the widgets its theme when it is Mono, Winter or Sky; every other icon keeps the default. Winter has its snow specks and a snow band, Sky its evening gradient and two clouds.
+- The website's drawn icons replace the emoji (sun, moon, cloud, rain, snow, storm, fog, the peak, wind, rain drop, storm risk), each in its theme colour: gold only on the sun, green only on a favourable window.
+- The hike widget is aligned to the top, and a window carries its words ("Summit window") above it, so its colour is never the only sign. A day with no favourable window shows the sentence alone; a day beyond tomorrow shows no window block.
+- Rain and wind sit in their own row in the medium and large city widgets, read from the new fields of /api/app-widget (feat/widget-data, which must be live before this build ships).
+- Every drawn icon has a spoken label for VoiceOver and TalkBack, in the app's own words in all 13 languages (owner, 2026-11-16): the weather drawing reads as its condition ("Partly cloudy"), the drop and the wind with their values ("Rain 32%", "Wind 3 km/h"), each value once, the storm row as its text ("Storm risk: low"), the peak as "Summit". Under the emoji, screen readers had read the emoji's name. The city widget's drawing stays silent when the line under it says the same words, so the condition is read once ("Lienz, 7°, Partly cloudy"); with a rain nowcast or a later hour's rain in that line it keeps its label (owner, 2026-11-16).
+- Every widget text and the Android settings screen are in all 13 languages (only 5 had them). The offline message loses its dash: "No connection. Tap to open MetaBlend." The Android hike widget no longer opens an empty settings screen.
+- The iPhone widgets' background scenery (snow specks, snow band, clouds, the sheen) is silent for VoiceOver; an unlabelled picture would have been read by its file name. Android's scenery was already silent.
+- For checking the spoken labels without an iPhone: debug-only Xcode previews of each widget layout at its iPhone size (the Simulator shows a widget on the home screen as one closed element). Release builds do not contain them.
+- One script makes the native colours, texts, icons and scenery from the spec and its drawings (scripts/brand/widget-native.mjs); a test holds both apps to the same words in all 13 languages, with no dash.
+
 ### Changed: the app opens on the forecast, not on the search
 - In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
 - The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
