@@ -100,7 +100,7 @@ export default function FeedbackPanel({ data, unit, lang, onWeights }) {
       </button>
       {fbStatus && (
         <div className={`animate-scale-in mt-4 p-3 rounded-lg text-sm flex items-center gap-2 ${fbStatus.ok
-          ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-500/30'
+          ? 'bg-emerald-900/30 text-[var(--ok)] border border-emerald-500/30'
           : 'bg-red-900/30 text-red-400 border border-red-500/30'}`}>
           {fbStatus.ok
             ? <CheckCircle2 size={16} className="shrink-0" aria-hidden />
