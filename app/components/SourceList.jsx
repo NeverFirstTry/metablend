@@ -50,7 +50,8 @@ export default function SourceList({ data, unit, lang }) {
               <td className="py-2.5 pl-2 sm:pl-3">
                 <div className="source-weight flex items-center gap-2">
                   <div className="source-bar flex-1 h-1 rounded-full" aria-hidden>
-                    <div className="h-full rounded-full" style={{ width: `${(weight / most) * 100}%`, background: 'var(--accent)' }} />
+                    {/* neutral: the forecast's gold is its answer, the temperature (X3) */}
+                    <div className="h-full rounded-full" style={{ width: `${(weight / most) * 100}%`, background: 'var(--muted)' }} />
                   </div>
                   <span className="text-xs text-zinc-400 tabular-nums w-[2.5em] text-right">{(weight * 100).toFixed(0)}%</span>
                 </div>
