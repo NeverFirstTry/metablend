@@ -37,7 +37,8 @@ export default function PushPrompt({ lang, unit }) {
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 flex items-center gap-3 animate-fade-in">
       <span className="flex-1 text-sm">{fill(t(lang, 'promptTitle'), { city: show.city })}</span>
-      <button onClick={turnOn} className="press bg-emerald-400 text-black text-sm font-semibold rounded-full px-4 py-1.5 hover:bg-emerald-300">{t(lang, 'promptOn')}</button>
+      {/* the neutral primary button: the theme's surface and hairline with gold text; gold fill is for the screen's answer */}
+      <button onClick={turnOn} className="press shrink-0 bg-[var(--surface-2)] text-[var(--accent)] shadow-[inset_0_0_0_1px_var(--hairline)] text-sm font-semibold rounded-full px-4 py-1.5 hover:bg-[var(--surface-3)]">{t(lang, 'promptOn')}</button>
       <button onClick={async () => { await dismissPrompt(); setShow(null) }} aria-label={t(lang, 'promptNotNow')} className="press size-11 shrink-0 inline-flex items-center justify-center text-zinc-500 hover:text-zinc-300"><X size={16} aria-hidden /></button>
     </div>
   )
