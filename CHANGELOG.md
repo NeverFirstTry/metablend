@@ -18,6 +18,8 @@ All notable changes to MetaBlend. Format loosely follows
 - In the light theme the red of error messages is a little darker, so it reads clearly on its pink box (5.5:1, it was 4.2:1).
 ### Changed: the week list shows that a day opens
 - The line that explains the agreement dots now stands above the week list instead of under it, and every day that has hours ends in a chevron that turns while the day is open.
+### Changed: a summit page built during an outage says so
+- When the weather source did not answer and a summit page was built from the last good forecast, it now says "Showing last known forecast. The weather source is not answering right now." above the summit window, in the look of the start page's offline line. Before, only an older "As of" time told. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
