@@ -41,7 +41,7 @@ Once, for all languages:
 - **Contact:** your name, phone, info@metablend.app
 - **Notes** (paste):
 
-  > MetaBlend needs no account. Everything works without granting permissions: location is optional (it fills in "my location" and the summits near you), notifications are optional (weather alerts and hike reminders you switch on yourself). The Hiking tab is the app's own feature: search any peak (e.g. "Großglockner") to see its summit forecast; "Plan a hike" sets a reminder for a date.
+  > MetaBlend needs no account. Everything works without granting permissions: location is optional (it fills in "my location" and the summits near you), notifications are optional (weather alerts and hike reminders you switch on yourself). The Mountains tab is the app's own feature: search any peak (e.g. "Großglockner") to see its summit forecast; "Plan a hike" sets a reminder for a date.
 
 ## 6. App Accessibility
 - Only after the device checks in `mobile/README.md` → "Accessibility": tick VoiceOver, Larger Text, Dark Interface, Differentiate Without Color Alone, Sufficient Contrast, Reduced Motion.

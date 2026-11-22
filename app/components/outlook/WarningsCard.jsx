@@ -2,10 +2,11 @@
 
 import { useId, useState } from 'react'
 import { TriangleAlert, ChevronDown } from 'lucide-react'
+import LevelMarks from './LevelMarks'
 import { t } from '@/lib/i18n'
 import { fill } from '@/lib/outlook/text'
 import { useWarnings } from '@/lib/warnings/useWarnings'
-import { levelWord, levelHint, levelIcons, typeWord, warningSpan, cardWarnings } from '@/lib/warnings/text'
+import { levelWord, levelHint, typeWord, warningSpan, cardWarnings } from '@/lib/warnings/text'
 import { SectionTitle } from '../ui'
 
 const TONE = { 2: 'var(--warn)', 3: 'var(--hot)', 4: 'var(--bad)' }
@@ -26,7 +27,7 @@ export default function WarningsCard({ lat, lon, cc, lang, todayLocal }) {
           <button onClick={() => setOpen(open === w.id ? null : w.id)} aria-expanded={open === w.id} aria-controls={`${base}-${i}`}
             className="w-full flex items-start gap-3 py-2.5 text-left text-sm" title={t(lang, 'warnShow')}>
             <span className="shrink-0 rounded-full border px-2 py-0.5 text-xs font-semibold" style={{ color: TONE[w.level], borderColor: TONE[w.level] }}>
-              {levelWord(lang, w.level)} <span aria-hidden>{levelIcons(w.level)}</span>
+              {levelWord(lang, w.level)} <LevelMarks level={w.level} />
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-medium">{typeWord(lang, w.type)}</span>

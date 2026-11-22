@@ -5,10 +5,10 @@ Prognoza
 • Jak bardzo zgodne są źródła
 • Najlepsza pora na dwór, radar opadów, UV, jakość powietrza i pyłki
 
-Góry i wędrówki
+Góry
 • Prognozy na szczytach na całym świecie: wiatr na górze, granica zamarzania, ryzyko burzy
 • Korzystne okno na pobyt na szczycie
-• 195 wybranych szczytów na świecie ze skalą SAC, najbliższe najpierw
+• 195 wybranych szczytów ze skalą SAC, od sławnych po te za rogiem
 • Oznakowane trasy i import GPX z proponowaną godziną wyjścia
 
 Ostrzeżenia i widżety
