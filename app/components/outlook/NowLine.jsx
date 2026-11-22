@@ -7,6 +7,9 @@ import { tempFormatter } from '@/lib/outlook/text'
 import { liveSources, spreadSentence, agreeColor } from '@/lib/spread'
 import Glyph from '../Glyph'
 
+// a range ("0-2°") stays on one line: the browser breaks after a hyphen (a German phone at 390 px, 2026-11-21)
+const keepRanges = text => (text ?? '').split(/(\d+-\d+°)/).map((part, i) => (i % 2 ? <span key={i} className="whitespace-nowrap">{part}</span> : part))
+
 export const yesterdayDelta = data => (data.yesterdayTemp != null ? Math.round((data.consensus.temp - data.yesterdayTemp) * 10) / 10 : null)
 
 // "Right now", reduced to one line — the future tabs below are the main event.
@@ -48,7 +51,7 @@ export default function NowLine({ data, unit, lang, showT, dark = null }) {
             </span>
           )}
           {rainingHint && <span className="block" style={{ color: 'var(--info)' }}>{rainingHint}</span>}
-          <span className="block mt-2 max-w-md text-zinc-300">{spreadSentence(lang, data.sources, tempFormatter(unit), c.confidencePct)}</span>
+          <span className="block mt-2 max-w-md text-zinc-300">{keepRanges(spreadSentence(lang, data.sources, tempFormatter(unit), c.confidencePct))}</span>
         </span>
       </span>
     </div>

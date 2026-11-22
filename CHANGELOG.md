@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: two things a German phone showed
+- The cities to try name themselves in the reader's language ("Wien", "Tokio") instead of always in English, on the first start and under a place that was not found.
+- The sentence about how far the sources agree keeps a range like "0-2°" on one line instead of breaking it at the hyphen.
+
 ### Changed: your places take one row, and a search always answers
 - Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too. A saved place goes with one tap, and for six seconds a toast "Removed from saved places." offers Undo, which puts it back where it stood (owner, 22 November).
 - After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
