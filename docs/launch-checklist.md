@@ -106,7 +106,7 @@ The pages load from metablend.app, so a reviewer may ask what the app does that 
 
 - Home-screen widgets (WidgetKit extension `MetaBlendWidgets`): the current forecast with the next hours or days, and a planned-hike widget with its summit window; both configurable, both updated from the app's own feed.
 - Push notifications (APNs): rain starting within the hour, storm risk, official severe-weather warnings, heat, a morning briefing at the chosen hour, and alerts for planned hikes the evening before and the morning of. All opt-in, per alert type.
-- Hiking: summits near the user from the device location, GPX import, routes and planned hikes stored natively on the device, hike alerts.
+- Mountains: summits near the user from the device location, GPX import, routes and planned hikes stored natively on the device, hike alerts.
 - Native share sheet for forecasts; haptics; alternate app icons; Larger Text follows the system font scale; a shortcut into the system notification settings.
 - Deep links from widgets and notifications (`metablend://open?path=…`) and swipe-back navigation.
 - The last forecast is cached on the device, so the app opens offline.

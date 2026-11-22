@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useId } from 'react'
 import { Send, Loader2, CheckCircle2, AlertTriangle } from 'lucide-react'
 import { t, getWeatherOptions } from '@/lib/i18n'
 import { isNightAt } from '@/lib/localtime'
@@ -12,6 +12,8 @@ const fToC = f => (f - 32) * 5 / 9
 // weights at once (a re-fetch would only hit the 15-min CDN copy).
 export default function FeedbackPanel({ data, unit, lang, onWeights }) {
   const [feedback, setFeedback] = useState({ temp: '', cond: '' })
+  // each label names its field for screen readers (UX review Q2: the Condition select was unnamed)
+  const id = useId()
   const [fbStatus, setFbStatus] = useState(null)
   const [fbLoading, setFbLoading] = useState(false)
   // Night by the CITY's clock, not the viewer's — it gates the "sunny" option,
@@ -57,10 +59,11 @@ export default function FeedbackPanel({ data, unit, lang, onWeights }) {
       <p className="text-zinc-500 text-sm mb-6">{t(lang, 'feedbackSub')}</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
         <div>
-          <label className="text-zinc-500 text-xs uppercase tracking-wider block mb-2">
+          <label htmlFor={`${id}-temp`} className="text-zinc-500 text-xs uppercase tracking-wider block mb-2">
             {t(lang, 'tempInputLabel')} (°{unit})
           </label>
           <input
+            id={`${id}-temp`}
             type="number"
             placeholder={unit === 'F' ? 'e.g. 57' : 'e.g. 14'}
             value={feedback.temp}
@@ -69,10 +72,11 @@ export default function FeedbackPanel({ data, unit, lang, onWeights }) {
           />
         </div>
         <div>
-          <label className="text-zinc-500 text-xs uppercase tracking-wider block mb-2">
+          <label htmlFor={`${id}-cond`} className="text-zinc-500 text-xs uppercase tracking-wider block mb-2">
             {t(lang, 'conditionLabel')}
           </label>
           <select
+            id={`${id}-cond`}
             value={feedback.cond}
             onChange={e => setFeedback(f => ({ ...f, cond: e.target.value }))}
             className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-4 py-3 text-sm outline-none focus:border-emerald-400 transition-colors"

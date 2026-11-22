@@ -1,4 +1,26 @@
 {
+  "git": {
+    "deploymentEnabled": {
+      "main": true,
+      "merge/**": true,
+      "ux/**": false,
+      "feat/**": false,
+      "fix/**": false,
+      "docs/**": false,
+      "legal/**": false,
+      "skill/**": false,
+      "store/**": false,
+      "design/**": false,
+      "social/**": false,
+      "chore/**": false,
+      "test/**": false,
+      "ci/**": false,
+      "perf/**": false,
+      "ios/**": false,
+      "safety/**": false,
+      "shadow/**": false
+    }
+  },
   "crons": [
     {
       "path": "/api/cleanup",

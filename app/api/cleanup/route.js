@@ -196,6 +196,18 @@ export const GET = withErrorLog('cleanup', withJobLog('cleanup', async (request)
   const databaseMb = typeof size.data === 'number' ? Math.round(size.data / 1048576) : null
   if (size.error && size.error.code !== 'PGRST202') await logError('cleanup.database-size', size.error)
 
+  // The weights as the forecasts use them, once a day (supabase/weights-daily.sql), for the shadow run's final
+  // report: today's formula could not be replayed because they were not kept. A second run on the same day
+  // changes nothing; the table may not exist yet.
+  const live = await supabase.from('api_weights').select('id, region, weight')
+  if (live.data?.length) {
+    const day = new Date().toISOString().slice(0, 10)
+    const byRegion = new Map()
+    for (const w of live.data) byRegion.set(w.region, { ...byRegion.get(w.region), [w.id]: w.weight })
+    const kept = await supabase.from('weights_daily').upsert([...byRegion].map(([region, weights]) => ({ day, region, weights })), { onConflict: 'day,region', ignoreDuplicates: true })
+    if (kept.error && kept.error.code !== 'PGRST205') await logError('cleanup.weights-daily', kept.error)
+  }
+
   let validation
   try {
     validation = await runMeteostatValidation()

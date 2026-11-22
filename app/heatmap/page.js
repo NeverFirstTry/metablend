@@ -61,6 +61,7 @@ export default function Heatmap() {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; OpenStreetMap contributors',
         }).addTo(mapRef.current)
+        mapRef.current.attributionControl.setPrefix(false) // the OpenStreetMap credit stays; the 'Leaflet' prefix is optional (UX review D1)
       }
 
       // markers live in a clearable group so a language change re-renders
