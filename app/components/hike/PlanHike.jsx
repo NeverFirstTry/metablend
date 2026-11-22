@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { BellRing, CalendarCheck } from 'lucide-react'
+import { BellRing, CalendarCheck, CalendarPlus } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, dayWord } from '@/lib/outlook/text'
 import { planDays } from '@/lib/push-days'
@@ -71,6 +71,9 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
     setMsg(t(lang, 'planExplain'))
   }
 
+  // the buttons' icon: the bell only when a reminder will come (Review, 2026-11-22); with alerts off, a calendar
+  const ButtonMark = alertsOn ? BellRing : CalendarPlus
+
   // one short line while alerts are off: they need notifications, and a way to turn them on (owner, 2026-11-22)
   const alertsLine = !alertsOn && (
     <p className="text-sm text-zinc-400">
@@ -96,14 +99,14 @@ export default function PlanHike({ peak, lang, unit, todayLocal, route = null, p
       {direct ? (
         <button onClick={() => { setMsg(null); plan(direct) }}
           className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
-          <BellRing size={16} aria-hidden /> {fill(t(lang, 'planRouteFor'), { day: dayWord(lang, direct, todayLocal) })}
+          <ButtonMark size={16} aria-hidden /> {fill(t(lang, alertsOn ? 'planRouteFor' : 'planDayFor'), { day: dayWord(lang, direct, todayLocal) })}
         </button>
       ) : (
       // neutral like Save beside it: gold is the screen's answer, the favourable start (owner, 2026-11-20)
       // (the direct button above says what a plan brings below it; this one in its panel, UX review N1)
       <button onClick={() => { setOpen(o => !o); setMsg(null) }} aria-expanded={open}
         className="press min-h-11 inline-flex items-center gap-1.5 text-sm text-zinc-200 border border-zinc-700 bg-zinc-800 rounded-full px-4 hover:border-emerald-400">
-        <BellRing size={16} aria-hidden /> {t(lang, 'planHike')}
+        <ButtonMark size={16} aria-hidden /> {t(lang, 'planHike')}
       </button>
       )}
       {open && (
