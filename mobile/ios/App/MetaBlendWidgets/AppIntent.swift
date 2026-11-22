@@ -2,12 +2,6 @@ import Foundation
 import AppIntents
 import WidgetKit
 
-enum WidgetStyle: String, AppEnum {
-    case sky, system
-    static var typeDisplayRepresentation: TypeDisplayRepresentation { "Style" }
-    static var caseDisplayRepresentations: [WidgetStyle: DisplayRepresentation] { [.sky: "Living sky", .system: "System"] }
-}
-
 enum WidgetShow: String, AppEnum {
     case hours, days
     static var typeDisplayRepresentation: TypeDisplayRepresentation { "Show" }
@@ -45,11 +39,9 @@ struct WeatherConfig: WidgetConfigurationIntent {
     static var description: IntentDescription { IntentDescription("Now, the next hours or the next days for a city.") }
     @Parameter(title: "City") var city: CityEntity?
     @Parameter(title: "Show", default: .hours) var show: WidgetShow
-    @Parameter(title: "Style", default: .sky) var style: WidgetStyle
 }
 
 struct HikeConfig: WidgetConfigurationIntent {
     static var title: LocalizedStringResource { "Next hike" }
     static var description: IntentDescription { IntentDescription("The summit window of your next planned hike.") }
-    @Parameter(title: "Style", default: .sky) var style: WidgetStyle
 }

@@ -260,6 +260,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-20
 
+### Fixed: two texts in the next native build (iPhone and Android)
+- A widget that could not refresh shows when its stored answer was fetched; when that was on an earlier day, it now shows the date too ("Nov 19, 5:27 PM" instead of "5:27 PM"), so an answer from last night does not read as today's after midnight. An answer from today keeps the bare time. On Android the date appears with the next refresh attempt, at most 30 minutes after midnight; the iPhone city widget switches at the hour (code audit, owner 2026-11-20).
+- The German text of the iPhone's location question no longer has a dash: "Wird verwendet, um Berggipfel in deiner Nähe zu finden, nur während du MetaBlend nutzt." A test now keeps dashes out of every app text outside the language packs (iPhone permission texts and widget catalog, Android strings).
+
 ### Fixed: only real phones can be registered for alerts, and the alert run always finishes in time
 - On a real phone nothing changes. When more than ten new phones switch on notifications from one network within an hour, the next one reads "Too many new phones from this network in an hour. Please try again later." and can try again.
 - A push token must have the shape Apple or Google gives it: an iPhone token is hex of 64 to 200 characters, an Android token has FCM's two parts and at most 4,096 characters. Any other text is refused with "Invalid token". All nine phones seen in production since 1 October have these shapes.
@@ -375,6 +379,18 @@ All notable changes to MetaBlend. Format loosely follows
 - Nothing changes for visitors. `.claude/skills/metablend/SKILL.md`: code that needs new SQL waits for the owner's word that it ran on dev and on production; a fault seen on the live site goes to the owner before any diagnosis; several approved branches go out as one deploy; an Open-Meteo request is costed in weighted calls with the plain count beside it; the layout check writes to a file; and a new Tests section (the shared `fetch` fake, what to list before the golden test is rebaselined).
 
 ## 2026-11-16
+
+### Changed: the home-screen widgets' new look (next native build, iPhone and Android)
+- The widgets follow the phone's appearance: Slate in dark mode with the sun's faint gold sheen, white in light mode. The blue "living sky" and the Style setting (Living sky / System) are gone on both platforms (docs/widgets-spec.md, approved 2026-11-16).
+- The app icon chosen under More gives the widgets its theme when it is Mono, Winter or Sky; every other icon keeps the default. Winter has its snow specks and a snow band, Sky its evening gradient and two clouds.
+- The website's drawn icons replace the emoji (sun, moon, cloud, rain, snow, storm, fog, the peak, wind, rain drop, storm risk), each in its theme colour: gold only on the sun, green only on a favourable window.
+- The hike widget is aligned to the top, and a window carries its words ("Summit window") above it, so its colour is never the only sign. A day with no favourable window shows the sentence alone; a day beyond tomorrow shows no window block.
+- Rain and wind sit in their own row in the medium and large city widgets, read from the new fields of /api/app-widget (feat/widget-data, which must be live before this build ships).
+- Every drawn icon has a spoken label for VoiceOver and TalkBack, in the app's own words in all 13 languages (owner, 2026-11-16): the weather drawing reads as its condition ("Partly cloudy"), the drop and the wind with their values ("Rain 32%", "Wind 3 km/h"), each value once, the storm row as its text ("Storm risk: low"), the peak as "Summit". Under the emoji, screen readers had read the emoji's name. The city widget's drawing stays silent when the line under it says the same words, so the condition is read once ("Lienz, 7°, Partly cloudy"); with a rain nowcast or a later hour's rain in that line it keeps its label (owner, 2026-11-16).
+- Every widget text and the Android settings screen are in all 13 languages (only 5 had them). The offline message loses its dash: "No connection. Tap to open MetaBlend." The Android hike widget no longer opens an empty settings screen.
+- The iPhone widgets' background scenery (snow specks, snow band, clouds, the sheen) is silent for VoiceOver; an unlabelled picture would have been read by its file name. Android's scenery was already silent.
+- For checking the spoken labels without an iPhone: debug-only Xcode previews of each widget layout at its iPhone size (the Simulator shows a widget on the home screen as one closed element). Release builds do not contain them.
+- One script makes the native colours, texts, icons and scenery from the spec and its drawings (scripts/brand/widget-native.mjs); a test holds both apps to the same words in all 13 languages, with no dash.
 
 ### Fixed: the outlook's nightly check scores the predictions it left waiting
 - Nothing changes for visitors. Where the nearest airport reports only by day, a day's check never had its 18 reports and ran out unscored, though the next airport in range reports all night: Rome (Urbe with 9 to 12 reports a day, beside Ciampino with 48), Tokyo, Johannesburg, Cloppenburg. Each check now goes to the nearest airport that has what it needs (`scoreCheck` in lib/outlook/verify.js, with a test).

@@ -4,46 +4,55 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.LinearGradient;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.format.DateUtils;
 import android.util.SizeF;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.RemoteViews;
 import app.metablend.R;
 import java.text.DateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-// Payload → RemoteViews. Small, medium (and for the weather, large) layouts:
-// Android 12+ picks between them by size itself, older launchers by the
-// reported width and height.
+// Payload → RemoteViews in the widget's theme (docs/widgets-spec.md). Small, medium (and for the weather, large)
+// layouts: Android 12+ picks between them by size itself, older launchers by the reported width and height.
+// Colours are resources with a dark variant: on Android 12+ they follow the phone's appearance without a new render,
+// before that they are resolved now and catch up at the next update.
 public final class WidgetRenderer {
     private WidgetRenderer() {}
 
-    private static final int WHITE = 0xFFFFFFFF, WHITE_DIM = 0xD9FFFFFF, GOOD_ON_SKY = 0xFFA7F3D0, GOOD = 0xFF059669;
     private static final long DIM_AFTER_MS = 3L * 60 * 60 * 1000;
+    static final int DEFAULT = 0, MONO = 1, WINTER = 2, SKY = 3;
 
     public static final class Look {
-        final boolean sky, stale;
+        final int theme;
+        final boolean stale;
         final long at;
         final String show;
+        final WidgetText tx; // the spoken labels of the drawn icons
 
-        public Look(boolean sky, boolean stale, long at, String show) {
-            this.sky = sky;
+        public Look(int theme, boolean stale, long at, String show, WidgetText tx) {
+            this.tx = tx;
+            this.theme = theme;
             this.stale = stale;
             this.at = at;
             this.show = show;
         }
+    }
+
+    // the theme the app syncs ('default', 'mono', 'winter', 'sky'); anything else is the default
+    static int theme(JSONObject settings) {
+        String t = settings == null ? "" : settings.optString("theme", "");
+        for (int i = 0; i < WidgetText.THEMES.length; i++) if (WidgetText.THEMES[i].equals(t)) return i;
+        return DEFAULT;
     }
 
     static final int SMALL = 0, MEDIUM = 1, LARGE = 2;
@@ -73,9 +82,11 @@ public final class WidgetRenderer {
         return sized(c, id, false, size -> hikeViews(c, id, p, look, size != SMALL));
     }
 
-    public static RemoteViews message(Context c, int id, String text) {
+    public static RemoteViews message(Context c, int id, String text, int theme) {
         RemoteViews v = new RemoteViews(c.getPackageName(), R.layout.widget_message);
+        scenery(v, theme, "");
         v.setTextViewText(R.id.message, text);
+        color(c, v, theme, WidgetText.MUTED, R.id.message);
         v.setOnClickPendingIntent(android.R.id.background, open(c, id, "/"));
         return v;
     }
@@ -83,80 +94,118 @@ public final class WidgetRenderer {
     private static RemoteViews weatherViews(Context c, int id, JSONObject p, Look look, int size) {
         int layout = size == LARGE ? R.layout.widget_weather_large : size == MEDIUM ? R.layout.widget_weather_medium : R.layout.widget_weather_small;
         RemoteViews v = new RemoteViews(c.getPackageName(), layout);
+        int t = look.theme;
         JSONObject now = obj(p, "now"), today = obj(p, "today");
         v.setTextViewText(R.id.city, p.optString("city"));
         v.setTextViewText(R.id.temp, now.optString("temp"));
-        v.setTextViewText(R.id.icon, now.optString("icon"));
+        glyph(c, v, look, now.optString("icon"), R.id.glyph, R.id.glyph2);
         v.setTextViewText(R.id.text, now.optString("text"));
-        v.setTextViewText(R.id.hilo, "↑ " + today.optString("hi") + "   ↓ " + today.optString("lo"));
+        // the drawing stays silent when the line under it says the same words, else it is read twice (owner, 2026-11-16);
+        // a rain nowcast in that line keeps the drawing's label
+        if (sameWords(look, now.optString("icon"), now.optString("text"))) v.setContentDescription(R.id.glyph, "");
+        v.setTextViewText(R.id.hilo, hilo(today));
+        color(c, v, t, WidgetText.INK, R.id.city, R.id.temp);
+        color(c, v, t, WidgetText.MUTED, R.id.text, R.id.hilo, R.id.updated);
         if (size == MEDIUM) {
-            strip(c, v, R.id.strip, p, "days".equals(look.show), look);
+            strip(c, v, R.id.strip, p, "days".equals(look.show), look, 5);
         } else if (size == LARGE) {
-            strip(c, v, R.id.strip, p, false, look);
-            strip(c, v, R.id.strip_days, p, true, look);
+            strip(c, v, R.id.strip, p, false, look, 6);
+            strip(c, v, R.id.strip_days, p, true, look, 5);
         }
-        if (size != SMALL) v.setTextViewText(R.id.detail, now.optString("detail"));
-        int[] dim = size == SMALL ? new int[] { R.id.text, R.id.hilo, R.id.updated } : new int[] { R.id.text, R.id.hilo, R.id.detail, R.id.updated };
-        finish(c, v, id, p, look, now.optString("sky"), new int[] { R.id.city, R.id.temp }, dim);
+        if (size != SMALL) {
+            // rain and wind on their own (servers before 2026-11-16 send only the old combined line: then no row)
+            String rain = now.optString("rain", ""), wind = now.optString("wind", "");
+            boolean row = !rain.isEmpty() && !wind.isEmpty() && !(look.stale && size == MEDIUM); // the medium one shows the time there
+            v.setViewVisibility(R.id.rainwind, row ? View.VISIBLE : View.GONE);
+            v.setTextViewText(R.id.rain, rain);
+            v.setTextViewText(R.id.wind, wind);
+            color(c, v, t, WidgetText.MUTED, R.id.rain, R.id.wind);
+            tint(c, v, t, WidgetText.RAIN, R.id.rain_icon);
+            tint(c, v, t, WidgetText.MUTED, R.id.wind_icon);
+            v.setContentDescription(R.id.rain_icon, look.tx.get("rain") + " " + rain);
+            v.setContentDescription(R.id.wind_icon, look.tx.get("wind") + " " + wind);
+        }
+        finish(c, v, id, p, look, now.optString("sky"));
         return v;
     }
 
-    // a row of cells: the next hours (time, icon, temperature, rain) or days (weekday, icon, high, low)
-    private static void strip(Context c, RemoteViews v, int stripId, JSONObject p, boolean days, Look look) {
+    // a row of cells: the next hours (time, glyph, temperature, rain) or days (weekday, glyph, high, low)
+    private static void strip(Context c, RemoteViews v, int stripId, JSONObject p, boolean days, Look look, int max) {
+        int t = look.theme;
         v.removeAllViews(stripId);
         JSONArray list = p.optJSONArray(days ? "days" : "hours");
-        int n = list == null ? 0 : Math.min(list.length(), days ? 5 : 6);
+        int n = list == null ? 0 : Math.min(list.length(), max);
         for (int i = 0; i < n; i++) {
             JSONObject it = list.optJSONObject(i);
             if (it == null) continue;
             RemoteViews cell = new RemoteViews(c.getPackageName(), R.layout.widget_cell);
             cell.setTextViewText(R.id.cell_top, it.optString(days ? "day" : "t"));
-            cell.setTextViewText(R.id.cell_icon, it.optString("icon"));
+            glyph(c, cell, look, it.optString("icon"), R.id.cell_glyph, R.id.cell_glyph2);
             cell.setTextViewText(R.id.cell_main, it.optString(days ? "hi" : "temp"));
             cell.setTextViewText(R.id.cell_sub, it.optString(days ? "lo" : "rain"));
-            if (look.sky) {
-                tint(cell, WHITE, R.id.cell_main);
-                tint(cell, WHITE_DIM, R.id.cell_top, R.id.cell_sub);
-            }
+            color(c, cell, t, WidgetText.MUTED, R.id.cell_top);
+            color(c, cell, t, WidgetText.INK, R.id.cell_main);
+            color(c, cell, t, days ? WidgetText.MUTED : WidgetText.RAIN, R.id.cell_sub);
+            if (!days) cell.setContentDescription(R.id.cell_sub, look.tx.get("rain") + " " + it.optString("rain")); // "Rain 7%"
             v.addView(stripId, cell);
         }
     }
 
     private static RemoteViews hikeViews(Context c, int id, JSONObject p, Look look, boolean medium) {
         RemoteViews v = new RemoteViews(c.getPackageName(), medium ? R.layout.widget_hike_medium : R.layout.widget_hike_small);
-        v.setTextViewText(R.id.peak, "⛰ " + p.optString("peak"));
+        int t = look.theme;
+        v.setTextViewText(R.id.peak, p.optString("peak"));
         v.setTextViewText(R.id.day, p.optString("day"));
-        v.setTextViewText(R.id.line, p.isNull("line") ? "💨 " + p.optString("wind") : p.optString("line"));
-        v.setTextViewText(R.id.icon, p.optString("icon"));
-        v.setTextViewText(R.id.hilo, "↑ " + p.optString("hi") + "   ↓ " + p.optString("lo"));
-        int[] dim;
-        if (medium) {
-            v.setTextViewText(R.id.wind, "💨 " + p.optString("wind"));
-            v.setTextViewText(R.id.rain, "💧 " + p.optString("rain"));
-            v.setTextViewText(R.id.storm, p.isNull("storm") ? "" : "⚡ " + p.optString("storm"));
-            dim = new int[] { R.id.day, R.id.hilo, R.id.updated, R.id.wind, R.id.rain, R.id.storm };
-        } else {
-            dim = new int[] { R.id.day, R.id.hilo, R.id.updated };
+        color(c, v, t, WidgetText.INK, R.id.peak, R.id.hilo);
+        color(c, v, t, WidgetText.MUTED, R.id.day, R.id.label, R.id.updated);
+        tint(c, v, t, WidgetText.INK, R.id.peak_icon);
+        v.setContentDescription(R.id.peak_icon, look.tx.get("summit"));
+
+        // the window block: a window with its label, a sentence alone, or nothing (the day is beyond tomorrow)
+        boolean hasLine = !p.isNull("line") && !p.optString("line").isEmpty();
+        boolean window = hasLine && !p.isNull("label") && !p.optString("label").isEmpty();
+        v.setViewVisibility(R.id.label, window ? View.VISIBLE : View.GONE);
+        v.setViewVisibility(R.id.line, hasLine ? View.VISIBLE : View.GONE);
+        v.setViewVisibility(R.id.gap, hasLine ? View.GONE : View.VISIBLE);
+        if (window) v.setTextViewText(R.id.label, p.optString("label"));
+        if (hasLine) {
+            v.setTextViewText(R.id.line, p.optString("line"));
+            v.setTextViewTextSize(R.id.line, TypedValue.COMPLEX_UNIT_SP, window ? (medium ? 24 : 22) : 15);
+            v.setInt(R.id.line, "setMaxLines", window ? 1 : 2);
+            boolean good = window && !p.isNull("good") && p.optBoolean("good");
+            color(c, v, t, good ? WidgetText.WINDOW : WidgetText.INK, R.id.line);
         }
-        finish(c, v, id, p, look, p.optString("sky"), new int[] { R.id.peak, R.id.line }, dim);
-        if (!p.isNull("good") && p.optBoolean("good")) v.setTextColor(R.id.line, look.sky ? GOOD_ON_SKY : GOOD);
+        glyph(c, v, look, p.optString("icon"), R.id.glyph, R.id.glyph2);
+        v.setTextViewText(R.id.hilo, hilo(p));
+        if (medium) {
+            v.setTextViewText(R.id.wind, p.optString("wind"));
+            v.setTextViewText(R.id.rain, p.optString("rain"));
+            boolean storm = !p.isNull("storm") && !p.optString("storm").isEmpty();
+            v.setViewVisibility(R.id.storm_row, storm ? View.VISIBLE : View.GONE);
+            if (storm) v.setTextViewText(R.id.storm, p.optString("storm"));
+            color(c, v, t, WidgetText.INK, R.id.wind, R.id.rain, R.id.storm);
+            tint(c, v, t, WidgetText.MUTED, R.id.wind_icon);
+            tint(c, v, t, WidgetText.RAIN, R.id.rain_icon);
+            tint(c, v, t, WidgetText.MUTED, R.id.storm_icon);
+            v.setContentDescription(R.id.wind_icon, look.tx.get("wind") + " " + p.optString("wind"));
+            v.setContentDescription(R.id.rain_icon, look.tx.get("rain") + " " + p.optString("rain"));
+            if (storm) v.setContentDescription(R.id.storm_icon, p.optString("storm")); // "Storm risk: low"
+        }
+        finish(c, v, id, p, look, p.optString("sky"));
         return v;
     }
 
-    // sky or system background, the stale marker, and the tap
-    private static void finish(Context c, RemoteViews v, int id, JSONObject p, Look look, String sky, int[] strong, int[] dim) {
-        JSONObject skies = p.optJSONObject("skies");
-        JSONArray colors = skies == null ? null : skies.optJSONArray(sky);
-        if (look.sky && colors != null) {
-            v.setImageViewBitmap(R.id.sky, gradient(colors));
-            v.setViewVisibility(R.id.sky, View.VISIBLE);
-            tint(v, WHITE, strong);
-            tint(v, WHITE_DIM, dim);
-        } else {
-            v.setViewVisibility(R.id.sky, View.GONE);
-        }
+    // the theme's background and scenery, the time of old data, the dimming, and the tap
+    private static void finish(Context c, RemoteViews v, int id, JSONObject p, Look look, String sky) {
+        scenery(v, look.theme, sky);
         if (look.stale && look.at > 0) {
-            v.setTextViewText(R.id.updated, DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(look.at)));
+            // the day too when the stored answer is not from today (owner, 2026-11-20): after midnight a bare time reads as
+            // today's. shortcut: the text changes at the next refresh attempt (up to 30 minutes after midnight), when an
+            // exact switch is wanted, schedule an update for midnight
+            String when = sameDay(look.at, System.currentTimeMillis(), TimeZone.getDefault())
+                ? DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(look.at))
+                : DateUtils.formatDateTime(c, look.at, DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_MONTH | DateUtils.FORMAT_NO_YEAR | DateUtils.FORMAT_SHOW_TIME);
+            v.setTextViewText(R.id.updated, when);
             v.setViewVisibility(R.id.updated, View.VISIBLE);
         } else {
             v.setViewVisibility(R.id.updated, View.GONE);
@@ -166,22 +215,79 @@ public final class WidgetRenderer {
         v.setOnClickPendingIntent(android.R.id.background, open(c, id, p.optString("path", "/")));
     }
 
-    // a 1-pixel-wide vertical gradient, stretched over the widget
-    private static Bitmap gradient(JSONArray colors) {
-        int n = Math.max(colors.length(), 2);
-        int[] cs = new int[n];
-        for (int i = 0; i < n; i++) {
-            try {
-                cs[i] = Color.parseColor(colors.optString(Math.min(i, colors.length() - 1), "#101d45"));
-            } catch (IllegalArgumentException e) {
-                cs[i] = 0xFF101D45;
-            }
+    // section 3: Default has the sun's sheen (its drawables are empty in light mode), Sky the peach edge and two
+    // clouds, Winter the specks and the snow band, Mono nothing
+    private static void scenery(RemoteViews v, int theme, String sky) {
+        v.setInt(android.R.id.background, "setBackgroundResource", WidgetText.BACKGROUNDS[theme]);
+        int sheen = theme != DEFAULT ? 0 : "dawn".equals(sky) ? R.drawable.w_sheen_dawn : "day".equals(sky) ? R.drawable.w_sheen_day : "dusk".equals(sky) ? R.drawable.w_sheen_dusk : 0;
+        if (sheen != 0) v.setImageViewResource(R.id.sheen, sheen);
+        show(v, sheen != 0, R.id.sheen);
+        show(v, theme == SKY, R.id.peach, R.id.cloud_large, R.id.cloud_small);
+        show(v, theme == WINTER, R.id.specks, R.id.snow);
+    }
+
+    // section 5: the website's drawn icons for the payload's emoji (as app/components/Glyph.jsx); partly cloudy is
+    // two drawings, the sun's rays and the cloud, each in its own colour; the first is read as the condition
+    static void glyph(Context c, RemoteViews v, Look look, String emoji, int a, int b) {
+        int t = look.theme;
+        String e = emoji == null ? "" : emoji.replace("️", "");
+        int[] g = glyphFor(e);
+        show(v, g != null, a);
+        show(v, g != null && g.length == 4, b);
+        if (g == null) return;
+        v.setImageViewResource(a, g[0]);
+        v.setContentDescription(a, look.tx.get(conditionKey(e)));
+        tint(c, v, t, g[1], a);
+        if (g.length == 4) {
+            v.setImageViewResource(b, g[2]);
+            tint(c, v, t, g[3], b);
         }
-        Bitmap b = Bitmap.createBitmap(1, 96, Bitmap.Config.ARGB_8888);
-        Paint paint = new Paint();
-        paint.setShader(new LinearGradient(0, 0, 0, 96, cs, null, Shader.TileMode.CLAMP));
-        new Canvas(b).drawRect(0, 0, 1, 96, paint);
-        return b;
+    }
+
+    static int[] glyphFor(String e) {
+        switch (e) {
+            case "☀": return new int[] { R.drawable.w_ic_sun, WidgetText.SUN };
+            case "🌙": return new int[] { R.drawable.w_ic_moon, WidgetText.MOON };
+            case "☁": return new int[] { R.drawable.w_ic_cloud, WidgetText.CLOUD };
+            case "⛅": case "🌤": case "🌥": return new int[] { R.drawable.w_ic_cloud_sun_rays, WidgetText.SUN, R.drawable.w_ic_cloud_sun_cloud, WidgetText.CLOUD };
+            case "🌦": return new int[] { R.drawable.w_ic_cloud_drizzle, WidgetText.RAIN };
+            case "🌧": return new int[] { R.drawable.w_ic_cloud_rain, WidgetText.RAIN };
+            case "🌨": case "❄": return new int[] { R.drawable.w_ic_cloud_snow, WidgetText.RAIN };
+            case "⛈": case "🌩": return new int[] { R.drawable.w_ic_cloud_lightning, WidgetText.RAIN };
+            case "🌫": return new int[] { R.drawable.w_ic_cloud_fog, WidgetText.CLOUD };
+            default: return null;
+        }
+    }
+
+    // the spoken condition of each drawing (the app's own words, WidgetText)
+    static boolean sameWords(Look look, String emoji, String line) {
+        String key = conditionKey(emoji == null ? "" : emoji.replace("️", ""));
+        return !key.isEmpty() && look.tx.get(key).equals(line);
+    }
+
+    static boolean sameDay(long a, long b, TimeZone tz) {
+        Calendar x = Calendar.getInstance(tz), y = Calendar.getInstance(tz);
+        x.setTimeInMillis(a);
+        y.setTimeInMillis(b);
+        return x.get(Calendar.YEAR) == y.get(Calendar.YEAR) && x.get(Calendar.DAY_OF_YEAR) == y.get(Calendar.DAY_OF_YEAR);
+    }
+
+    static String conditionKey(String e) {
+        switch (e) {
+            case "☀": case "🌙": return "clear";
+            case "☁": return "cloudy";
+            case "⛅": case "🌤": case "🌥": return "partlyCloudy";
+            case "🌦": return "showers";
+            case "🌧": return "rain";
+            case "🌨": case "❄": return "snow";
+            case "⛈": case "🌩": return "thunder";
+            case "🌫": return "fog";
+            default: return "";
+        }
+    }
+
+    private static String hilo(JSONObject o) {
+        return "↑ " + o.optString("hi") + "  ↓ " + o.optString("lo");
     }
 
     static PendingIntent open(Context c, int id, String path) {
@@ -191,8 +297,22 @@ public final class WidgetRenderer {
         return PendingIntent.getActivity(c, id, i, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private static void tint(RemoteViews v, int color, int... ids) {
-        for (int id : ids) v.setTextColor(id, color);
+    private static void color(Context c, RemoteViews v, int theme, int role, int... ids) {
+        int res = WidgetText.COLORS[theme][role];
+        for (int id : ids) {
+            if (Build.VERSION.SDK_INT >= 31) v.setColorStateList(id, "setTextColor", res);
+            else v.setTextColor(id, c.getColor(res));
+        }
+    }
+
+    private static void tint(Context c, RemoteViews v, int theme, int role, int id) {
+        int res = WidgetText.COLORS[theme][role];
+        if (Build.VERSION.SDK_INT >= 31) v.setColorStateList(id, "setImageTintList", res);
+        else v.setInt(id, "setColorFilter", c.getColor(res));
+    }
+
+    private static void show(RemoteViews v, boolean on, int... ids) {
+        for (int id : ids) v.setViewVisibility(id, on ? View.VISIBLE : View.GONE);
     }
 
     private static JSONObject obj(JSONObject p, String key) {

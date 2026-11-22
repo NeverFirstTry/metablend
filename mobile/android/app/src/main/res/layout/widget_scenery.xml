@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Behind the content (docs/widgets-spec.md, section 3): the sun's sheen (Default, dark), the peach edge and clouds
+     (Sky), the specks and the snow band (Winter). Each drawable has its own dark variant; the renderer shows the theme's. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:importantForAccessibility="noHideDescendants">
+
+    <ImageView android:id="@+id/sheen" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:visibility="gone" />
+    <ImageView android:id="@+id/peach" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitXY" android:src="@drawable/w_sky_peach" android:visibility="gone" />
+    <ImageView android:id="@+id/specks" android:layout_width="110dp" android:layout_height="77dp" android:layout_gravity="top|end" android:layout_marginTop="6dp" android:layout_marginEnd="6dp" android:src="@drawable/w_winter_specks" android:visibility="gone" />
+    <ImageView android:id="@+id/snow" android:layout_width="match_parent" android:layout_height="16dp" android:layout_gravity="bottom" android:scaleType="fitXY" android:src="@drawable/w_winter_snow" android:visibility="gone" />
+    <ImageView android:id="@+id/cloud_large" android:layout_width="55.5dp" android:layout_height="45dp" android:layout_gravity="top|end" android:layout_marginTop="-8.75dp" android:layout_marginEnd="4.75dp" android:scaleType="fitXY" android:src="@drawable/w_sky_cloud_large" android:visibility="gone" />
+    <ImageView android:id="@+id/cloud_small" android:layout_width="37dp" android:layout_height="30dp" android:layout_gravity="top|end" android:layout_marginTop="-4.5dp" android:layout_marginEnd="-3.5dp" android:scaleType="fitXY" android:src="@drawable/w_sky_cloud_small" android:visibility="gone" />
+</FrameLayout>
