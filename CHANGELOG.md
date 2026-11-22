@@ -17,6 +17,8 @@ All notable changes to MetaBlend. Format loosely follows
 ### Changed: the rain prompt stands where it is seen
 - "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
 - The close button keeps its 44 px width beside a long place name; at 320 px it shrank to 31 px in German with "Klosterneuburg".
+- On Today it stands below the official weather warnings, which come first (owner, 22 November).
+- "Turn on" is the quiet main button, the surface with a hairline and gold text, in both themes; in the light theme it was a pale gold block, the look of the screen's one answer.
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
