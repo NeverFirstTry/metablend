@@ -95,6 +95,9 @@ All notable changes to MetaBlend. Format loosely follows
 - In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
 - Only a phone with no saved or recent peak asks for them. The names show at once, the windows as they arrive; a peak whose summit page has no kept forecast (none younger than 24 hours) is left out.
 - Open-Meteo: no new request. The phone asks `/api/hike?...&stored=only`, which answers only from the forecast the summit pages keep in the database and never asks Open-Meteo, or 404 when none is kept (owner, 22 November; the plain address would have made a cold copy again, 5.1 weighted calls a peak, as the review found). Its answer is cached 10 minutes.
+### Changed: the notification settings look like settings
+- The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb. "Change" beside the home city is a plain underlined word and the city field's outline turns grey, not the accent colour, when it is in use (owner, 22 November).
+- Without a home city, the settings show the city search at once with a hint ("Search a city") instead of a dash, "Change" and an empty field. In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
