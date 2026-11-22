@@ -1,9 +1,10 @@
 import { ChevronRight } from 'lucide-react'
 
 // answer: the card that carries the screen's answer (a summit window, the week's best day) in gold, the one job gold
-// has there (X3, owner 2026-11-20); without an answer the card is neutral; green is for status words only
+// has there (X3, owner 2026-11-20); without an answer the card is neutral; green is for status words only.
+// Its text is --on-fill: the gold in dark, a deeper amber in light, where the gold on its own tint read 4.1:1
 const TONES = {
-  answer: { box: 'bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border-[color-mix(in_srgb,var(--accent)_40%,transparent)]', color: 'var(--accent)' },
+  answer: { box: 'bg-[color-mix(in_srgb,var(--accent)_10%,transparent)] border-[color-mix(in_srgb,var(--accent)_40%,transparent)]', color: 'var(--on-fill)' },
   rain: { box: 'bg-blue-500/10 border-blue-500/40', color: 'var(--info)' },
   warn: { box: 'bg-amber-400/10 border-amber-400/40', color: 'var(--warn)' },
   neutral: { box: 'bg-zinc-800/60 border-zinc-700', color: 'inherit' },

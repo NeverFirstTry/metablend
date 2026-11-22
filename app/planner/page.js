@@ -146,8 +146,8 @@ export default function Planner() {
                 <div className="text-zinc-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5"><CalendarCheck size={13} aria-hidden /> {t(lang, 'plBest')}</div>
                 <div className="flex gap-2 flex-wrap">
                   {best.map(m => (
-                    // the page's answer, its one gold (X3)
-                    <span key={m} className="bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--accent)] border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] rounded-lg px-3 py-1 text-sm">
+                    // the page's answer, its one gold (X3); its text --on-fill, so it reads on the tint in light too
+                    <span key={m} className="bg-[color-mix(in_srgb,var(--accent)_12%,transparent)] text-[var(--on-fill)] border border-[color-mix(in_srgb,var(--accent)_40%,transparent)] rounded-lg px-3 py-1 text-sm">
                       {monthName(lang, m)}
                     </span>
                   ))}
