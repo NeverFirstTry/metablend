@@ -9,8 +9,9 @@ import { usePlans } from '@/lib/plans-client'
 import { upcoming } from '@/lib/plans'
 import { SectionTitle } from '../ui'
 
-// Hiking tab, at the top: the hikes planned from this phone (UX review N2), each opening its peak, where the plan
-// can be cancelled. Nothing when none, and nothing without notifications (then nothing can be planned).
+// Mountains tab, at the top: the hikes planned from this phone (UX review N2), each opening its peak, where the plan
+// can be cancelled. Nothing when none. With notifications the server's plans, without them the ones kept on the
+// phone (owner, 2026-11-22), both from lib/plans-client.js.
 export default function PlannedHikes({ lang, hrefFor, featured, todayLocal = null }) {
   const today = todayLocal ?? localToday()
   const list = upcoming(usePlans(), today)

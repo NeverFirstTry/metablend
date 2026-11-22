@@ -5,6 +5,10 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: a hike can be planned without notifications
+- In the app, "Plan a hike" works without notifications, for someone who only wants the "Next hike" widget. The plan then stays on the phone (nothing goes to the server) and shows in the Mountains tab and in the widget; the plan screen says in one line that hike alerts need notifications, with "Turn on" beside it (owner, 22 November). Turning them on there moves the phone's plans to the server, so they get their alerts.
+- With notifications on, nothing changes. A plan kept on the phone shows a calendar tick instead of the bell, since no alert comes for it. In all 13 languages.
+
 ### Fixed: two things a German phone showed
 - The cities to try name themselves in the reader's language ("Wien", "Tokio") instead of always in English, on the first start and under a place that was not found.
 - The sentence about how far the sources agree keeps a range like "0-2°" on one line instead of breaking it at the hyphen.
