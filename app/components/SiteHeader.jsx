@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { usePagePath } from '@/lib/page-path'
-import { Sun, Moon, Download } from 'lucide-react'
+import { Sun, Moon, Download, Menu, X } from 'lucide-react'
 import { t, LANGUAGES, LANG_SYSTEM, langChoice, detectLang, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { publishPrefs } from '@/lib/ui-prefs'
@@ -17,7 +17,18 @@ const NAV = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planne
 
 // The website's header: logo, site navigation, unit, theme and language. The forecast
 // page passes its own logo and state; every other page gets PageHeader below.
+// Below lg it is one row, the logo and a Menu button: the links (44 px rows) and the settings open from it as
+// one panel; from lg up they stand in the row (UX review W1: at phone width it took three rows before any weather).
 export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit, onInstall = null }) {
+  const [open, setOpen] = useState(false)
+  const menuButton = useRef(null)
+  // Escape closes the panel and gives the focus back to its button (Fable's review)
+  useEffect(() => {
+    if (!open) return
+    const onKey = e => { if (e.key === 'Escape') { setOpen(false); menuButton.current?.focus() } }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
   const theme = useShownTheme() // the device's setting unless the visitor chose one
   // the button flips what's on screen and keeps that as an explicit choice;
   // More → Appearance → System goes back to following the device
@@ -29,9 +40,14 @@ export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit,
   return (
     <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 mb-1">
       {logo}
+      <button type="button" ref={menuButton} onClick={() => setOpen(o => !o)} aria-expanded={open} aria-controls="site-menu"
+        className="web-only press lg:hidden min-h-11 inline-flex items-center gap-1.5 rounded-lg px-3 text-sm text-zinc-300 hover:text-emerald-400">
+        {open ? <X size={18} aria-hidden /> : <Menu size={18} aria-hidden />}{t(lang, 'siteMenu')}
+      </button>
       {/* in the app these live in the tab bar and the More tab */}
-      <nav aria-label={t(lang, 'homeNavLabel')} className="web-only order-last w-full lg:order-none lg:w-auto flex flex-wrap gap-x-4 gap-y-2 text-sm">
-        {NAV.map(([href, key]) => <Link key={href} href={href} className="text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, key)}</Link>)}
+      <div id="site-menu" className={open ? 'web-only w-full flex flex-col gap-3 pb-2 lg:contents' : 'hidden lg:contents'}>
+      <nav aria-label={t(lang, 'homeNavLabel')} className="web-only lg:order-none flex flex-col lg:flex-row lg:flex-wrap lg:gap-x-4 lg:gap-y-2 text-sm">
+        {NAV.map(([href, key]) => <Link key={href} href={href} onClick={() => setOpen(false)} className="min-h-11 lg:min-h-0 inline-flex items-center text-zinc-400 hover:text-emerald-400 transition-colors">{t(lang, key)}</Link>)}
       </nav>
       <div className="web-only flex items-center gap-2 shrink-0">
         <div className="flex shrink-0">
@@ -70,6 +86,7 @@ export default function SiteHeader({ logo, lang, langPick, onLang, unit, onUnit,
             <Download size={16} aria-hidden />
           </button>
         )}
+      </div>
       </div>
     </div>
   )
