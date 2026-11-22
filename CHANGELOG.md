@@ -5,6 +5,36 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: two things a German phone showed
+- The cities to try name themselves in the reader's language ("Wien", "Tokio") instead of always in English, on the first start and under a place that was not found.
+- The sentence about how far the sources agree keeps a range like "0-2°" on one line instead of breaking it at the hyphen.
+
+### Changed: your places take one row, and a search always answers
+- Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too. A saved place goes with one tap, and for six seconds a toast "Removed from saved places." offers Undo, which puts it back where it stood (owner, 22 November).
+- After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
+- When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
+
+### Changed: the rain prompt stands where it is seen
+- "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
+- The close button keeps its 44 px width beside a long place name; at 320 px it shrank to 31 px in German with "Klosterneuburg".
+- On Today it stands below the official weather warnings, which come first (owner, 22 November).
+- "Turn on" is the quiet main button, the surface with a hairline and gold text, in both themes; in the light theme it was a pale gold block, the look of the screen's one answer.
+
+### Added: a first-time hiker sees three peaks with today's summit window
+- In the app, the Hiking tab of a phone with no saved or recently opened peak shows "Popular peaks": Großglockner, Zugspitze and the Drei Zinnen, each with today's favourable summit window from its summit page's stored forecast. They give way to My peaks once a peak is opened. In all 13 languages.
+- Only a phone with no saved or recent peak asks for them. The names show at once, the windows as they arrive; a peak whose summit page has no kept forecast (none younger than 24 hours) is left out.
+- Open-Meteo: no new request. The phone asks `/api/hike?...&stored=only`, which answers only from the forecast the summit pages keep in the database and never asks Open-Meteo, or 404 when none is kept (owner, 22 November; the plain address would have made a cold copy again, 5.1 weighted calls a peak, as the review found). Its answer is cached 10 minutes.
+
+### Changed: the notification settings look like settings
+- The notification switches are no longer bright green: they take the text colour, as every toggle does now (green is for status), and each row is big enough for a thumb. "Change" beside the home city is a plain underlined word and the city field's outline turns grey, not the accent colour, when it is in use (owner, 22 November).
+- Without a home city, the settings show the city search at once with a hint ("Search a city") instead of a dash, "Change" and an empty field. In all 13 languages.
+
+### Fixed: the nightly scoring compares a reading with the measurement of its own hour
+- Nothing a visitor sees changes at once. The sources' weights now learn from a fair comparison.
+- Every night each source's last stored temperature of a place was scored against the mean of the whole day. On 20 November in Lienz a reading of 4° at 15:00 was 5° off that day's mean of -1° and would have been marked down, though 4.2° was measured at that hour. Now each reading is scored against the measured temperature of the hour it was read, with the thresholds of a same-moment comparison.
+- What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day for the live forecasts and this run together, and a live forecast costs 1 (measured). The forecasts come first: the night takes what the forecasts of the last 24 hours leave, less a reserve of 150, and never more than 720. In the week to 21 November the forecasts asked between 199 and 447 times on a full day, so a night scores between 16 and 27 places, where it scored 50. The job's summary says its budget, the forecasts it counted, the records it used and how many places it did not reach.
+- Not changed: the job still runs at 06:00 UTC, when yesterday is not over on the American west coast; readings stored there after that hour are not scored.
+
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
 - A push of a feature, ux or docs branch no longer starts a Vercel build (`vercel.json`, `git.deploymentEnabled` off for every branch prefix this repository has used). Since 21 November those branches stay on the owner's PC anyway; this is the net for a push by mistake. Of this billing cycle's 486 deployments, 324 were builds of such branches.

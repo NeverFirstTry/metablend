@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
-import { uniquePlaces, samePlace } from '@/lib/recent-places'
+import { uniquePlaces, samePlace, placeChips, nextChip } from '@/lib/recent-places'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -117,6 +117,9 @@ function toggleFavorite(city) {
   const list = has
     ? cur.filter(c => c.toLowerCase() !== city.toLowerCase())
     : [city, ...cur].slice(0, 8)
+  return saveFavorites(list)
+}
+function saveFavorites(list) {
   try { localStorage.setItem('mb_favorites', JSON.stringify(list)) } catch {}
   return list
 }
@@ -153,13 +156,15 @@ const TAB_KEY = 'mb_tab'
 // Right under the search field: places to try and the way to the mountains; the example forecast
 // follows (globals.css shows it in the app too). It was a pitch: a sparkle, a headline and three cards.
 const SAMPLE_CITIES = ['Vienna', 'Berlin', 'London', 'New York', 'Tokyo']
+// a sample city as the reader names it ("Wien", "Tokio"); it still loads by its English name
+const sampleName = (c, lang) => cityName(c.toLowerCase().replace(' ', '-'), lang, c)
 function FirstStart({ lang, peaks, isExample, onPick }) {
   return (
     <div className="first-start app-only -mt-4 mb-6 space-y-3">
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
         {SAMPLE_CITIES.map(c => (
-          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{c}</button>
+          <button key={c} type="button" onClick={() => onPick(c)} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{sampleName(c, lang)}</button>
         ))}
       </div>
       <Link href="/hike" className="press inline-flex items-center gap-2 min-h-11 text-sm text-zinc-300 hover:text-emerald-400">
@@ -172,6 +177,7 @@ function FirstStart({ lang, peaks, isExample, onPick }) {
 
 // How often a loaded forecast silently re-fetches itself in the background.
 const AUTO_REFRESH_MS = 15 * 60 * 1000
+const UNDO_MS = 6000 // how long a removed saved place can be brought back
 
 // ── Main component ────────────────────────────────────────────────────────────
 // pageLang: the language of /de, /fr ... (the server renders those in it).
@@ -218,6 +224,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [suggestions, setSuggestions] = useState([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [activeSuggestion, setActiveSuggestion] = useState(-1) // the suggestion the arrow keys highlight, -1 none
+  const [noMatch, setNoMatch] = useState(null) // what was typed when the search found nothing (UX review R4)
   const toolbarRef = useRef(null)
   const [stackActions, setStackActions] = useState(false) // refresh, share and embed in a row under a long place name
   // the shared value first: a language or unit just changed on another tab beats this tab's memory
@@ -242,6 +249,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [favorites, setFavorites] = useState([])
   const [installPrompt, setInstallPrompt] = useState(null)
   const [toast, setToast] = useState(null)
+  // the saved places as they were before the last x on a saved chip, while its Undo shows (owner, 2026-11-22)
+  const [undoSaved, setUndoSaved] = useState(null)
+  useEffect(() => {
+    if (!undoSaved) return
+    const id = setTimeout(() => setUndoSaved(null), UNDO_MS)
+    return () => clearTimeout(id)
+  }, [undoSaved])
   const [compareMode, setCompareMode] = useState(false)
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
@@ -365,13 +379,27 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     publishPrefs({ unit: u })
   }
 
-  // Recent places: keyboard focus stays in the list, on the next ×, or goes to the search once it's empty
-  function forgetRecent(c, i) {
-    setRecent(removeRecent(c))
+  // Saved and recent places: keyboard focus stays in the row, on the × now at place i, or goes to the search once
+  // the row is empty (i is the chip's place in the whole row, saved chips first)
+  function focusAfterRemove(i) {
     requestAnimationFrame(() => {
       const rest = document.querySelectorAll('[data-recent-remove]')
-      ;(rest[Math.min(i, rest.length - 1)] ?? document.querySelector('.home-search input'))?.focus()
+      const at = nextChip(i, rest.length)
+      ;(at == null ? document.querySelector('.home-search input') : rest[at])?.focus()
     })
+  }
+  function forgetRecent(c, i) {
+    setRecent(removeRecent(c))
+    focusAfterRemove(i)
+  }
+  function forgetSaved(c, i) {
+    setUndoSaved(favorites)
+    setFavorites(toggleFavorite(c))
+    focusAfterRemove(i)
+  }
+  function undoForgetSaved() {
+    setFavorites(saveFavorites(undoSaved))
+    setUndoSaved(null)
   }
   function forgetAllRecent() {
     setRecent(clearRecent())
@@ -410,6 +438,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const showT = c => c == null ? '–' : unit === 'F' ? Math.round(cToF(c)) : Math.round(c * 10) / 10
   // formatters the outlook tabs and headlines share
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
+  // the rain prompt stands right under the tab's headline (UX review S4: it stood two screens down)
+  const prompt = <PushPrompt lang={lang} unit={unit} />
   // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
   useSky(outlook ? skyFor({ nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
@@ -437,6 +467,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         const d = await res.json()
         if (seq !== suggestSeq.current) return
         setSuggestions(d.results ?? [])
+        setNoMatch(d.results?.length ? null : value)
         setActiveSuggestion(-1)
         setShowSuggestions(true)
       } catch { /* a hiccup while typing: just show nothing */ }
@@ -475,17 +506,19 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     try {
       // "right now" and the outlook in parallel; each part fails on its own
       const [nowRes, outRes] = await Promise.allSettled([
-        fetch(`/api/forecast?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q) } : j))),
+        fetch(`/api/forecast?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json().then(j => (j.error ? { error: loadError(asLang, r.status, q), status: r.status } : j))),
         fetch(`/api/outlook?city=${cityKey(ask)}&lang=${asLang}${nearQuery(near)}`).then(r => r.json()),
       ])
       if (!isLatestLoad(load)) return // a newer load (another city, or this tab left and opened again) wins
       const json = nowRes.status === 'fulfilled' ? nowRes.value : { error: loadError(asLang, 0, q) }
-      if (json.error) throw new Error(json.error)
+      if (json.error) throw Object.assign(new Error(json.error), { status: json.status })
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
-      if (!silent && json.cityShown && json.cityShown !== q) {
-        askedAs.current[json.cityShown] = q
-        setCity(c => (c === q || c === typed ? json.cityShown : c))
+      // the field takes the name the title shows (UX review R3: "Buôn Ma Thuột" typed, "Buon Ma Thuot" shown)
+      const shownName = hans(json.cityShown ?? json.city)
+      if (!silent && shownName && shownName !== q) {
+        askedAs.current[shownName] = q
+        setCity(c => (c === q || c === typed ? shownName : c))
       }
       // kept even if the tab was left meanwhile (the effect below no longer runs then)
       rememberForecast({ city: json.city ?? q, data: json, outlook: out ?? (silent ? SESSION.outlook : null), nextRefreshAt: Date.now() + AUTO_REFRESH_MS, pending: null })
@@ -535,7 +568,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         const text = genuinelyOffline ? t(asLang, 'offlineNoStored') : e.message
         setOffline(false)
         setError(text)
-        setErrorRetry({ text, q })
+        setErrorRetry({ text, q, notFound: e.status === 404 })
         if (!ownCity.current) showExample()
       }
     } finally {
@@ -720,7 +753,11 @@ ${url}`)
       setShowSuggestions(false); setActiveSuggestion(-1)
     }
   }
-  const suggestionList = suggestOpen && (
+  // nothing matched what is in the field: said in the list, not by a list that vanishes (UX review R4)
+  const noMatchOpen = showSuggestions && !suggestions.length && noMatch != null && noMatch === city
+  const suggestionList = noMatchOpen ? (
+    <div role="status" className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg z-50 px-4 py-3 text-sm text-zinc-400">{t(lang, 'searchNoPlace')}</div>
+  ) : suggestOpen && (
     <div id="home-suggest" role="listbox" aria-label={t(lang, 'placeholder')} className="mb-overlay absolute top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-700 rounded-lg overflow-hidden z-50">
       {suggestions.map((s, i) => (
         <div
@@ -874,46 +911,42 @@ ${url}`)
           <FirstStart lang={lang} peaks={peaks} isExample={isExample} onPick={c => { setCity(c); loadForecast(c) }} />
         )}
 
-        {/* Favorite city chips */}
-        {favorites.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap -mt-4 mb-4`}>
-            <span className="text-amber-500/70 text-xs uppercase tracking-wider self-center inline-flex items-center gap-1"><Star size={11} fill="currentColor" aria-hidden /> {t(lang, 'favoritesTitle')}:</span>
-            {favorites.map(c => (
-              <button
-                key={c}
-                onClick={() => { setCity(c); loadForecast(c) }}
-                className="press bg-amber-900/20 border border-amber-500/30 rounded-full px-3 py-1 text-xs text-amber-200 hover:border-amber-400 inline-flex items-center gap-1"
-              >
-                <Star size={11} fill="currentColor" aria-hidden /> {hans(c)}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Recent city chips */}
-        {recent.length > 0 && !compareMode && (
-          <div className={`flex gap-2 flex-wrap mb-6 ${favorites.length ? '' : '-mt-4'}`}>
-            <span className="text-zinc-500 text-xs uppercase tracking-wider self-center">{t(lang, 'recentTitle')}:</span>
-            {recent.map((c, i) => (
-              <span key={c} className="recent-chip inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400">
-                <button onClick={() => { setCity(c); loadForecast(c) }} className="press pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
-                  {hans(c)}
+        {/* saved and recent places: one row that scrolls sideways, saved first (a star), one kind of chip with an x
+            (UX review R2: two rows took 250 px and pushed the forecast down; R5: saved chips were smaller, not removable) */}
+        {(favorites.length > 0 || recent.length > 0) && !compareMode && (
+          <div role="group" aria-label={t(lang, 'placesRow')} className="places-row flex gap-2 overflow-x-auto -mt-4 mb-6 pb-1">
+            {placeChips(favorites, recent).map((c, i) => (
+              <span key={c.city} className="recent-chip shrink-0 inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400 whitespace-nowrap">
+                <button onClick={() => { setCity(c.city); loadForecast(c.city) }} className="press inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
+                  {c.saved && <Star size={11} fill="currentColor" className="shrink-0 text-zinc-400" aria-hidden />}{hans(c.city)}
                 </button>
-                <button
-                  type="button"
-                  data-recent-remove
-                  onClick={() => forgetRecent(c, i)}
-                  aria-label={fill(t(lang, 'recentRemove'), { city: hans(c) })}
-                  title={fill(t(lang, 'recentRemove'), { city: c })}
-                  className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400"
-                >
-                  <X size={12} aria-hidden />
-                </button>
+                {c.saved ? (
+                  <button type="button" data-recent-remove onClick={() => forgetSaved(c.city, i)}
+                    aria-label={fill(t(lang, 'savedRemove'), { city: hans(c.city) })} title={fill(t(lang, 'savedRemove'), { city: c.city })}
+                    className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
+                    <X size={12} aria-hidden />
+                  </button>
+                ) : (
+                  <button type="button" data-recent-remove onClick={() => forgetRecent(c.city, i)}
+                    aria-label={fill(t(lang, 'recentRemove'), { city: hans(c.city) })} title={fill(t(lang, 'recentRemove'), { city: c.city })}
+                    className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
+                    <X size={12} aria-hidden />
+                  </button>
+                )}
               </span>
             ))}
-            <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="recent-clear press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
-              {t(lang, 'recentClearAll')}
-            </button>
+            {recent.length > 0 && (
+              <button type="button" onClick={forgetAllRecent} aria-label={t(lang, 'recentClearAllLabel')} className="recent-clear shrink-0 whitespace-nowrap press text-xs text-zinc-500 hover:text-emerald-400 hover:underline underline-offset-2 px-1 py-1.5">
+                {t(lang, 'recentClearAll')}
+              </button>
+            )}
+          </div>
+        )}
+        {/* a saved place just removed: a short toast to bring it back; here in the page, so a keyboard reaches Undo next */}
+        {undoSaved && (
+          <div role="status" aria-live="polite" className="undo-toast app-lift animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-semibold pl-4 pr-1 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-1 w-max max-w-[calc(100vw-2rem)]">
+            <span className="min-w-0 py-2">{t(lang, 'savedRemoved')}</span>
+            <button type="button" onClick={undoForgetSaved} className="press shrink-0 min-h-11 px-3 font-bold underline underline-offset-2">{t(lang, 'undo')}</button>
           </div>
         )}
 
@@ -960,12 +993,21 @@ ${url}`)
           <div role="alert" className="animate-scale-in bg-red-900/30 border border-red-500/30 rounded-lg p-4 text-red-400 text-sm mb-6 flex flex-wrap items-center gap-x-3 gap-y-2">
             <span className="flex-1 min-w-0 inline-flex items-center gap-2"><AlertTriangle size={16} className="shrink-0" aria-hidden /> {error}</span>
             {/* the next step, for a forecast that did not load (not for a location error) (UX review Y1) */}
-            {errorRetry?.text === error && (
+            {errorRetry?.text === error && !errorRetry.notFound && (
               <button type="button" onClick={() => loadForecast(errorRetry.q)} disabled={loading}
                 className="press min-h-11 inline-flex items-center gap-1.5 border border-red-500/40 rounded-lg px-3 text-sm hover:bg-red-500/10 disabled:opacity-60 shrink-0">
                 <RefreshCw size={15} aria-hidden /> {t(lang, 'retry')}
               </button>
             )}
+          </div>
+        )}
+        {/* not found: places to try under the box, so the page is no dead end (UX review R4) */}
+        {error && errorRetry?.text === error && errorRetry?.notFound && (
+          <div className="flex flex-wrap items-center gap-2 -mt-3 mb-6">
+            <span className="text-xs text-zinc-500 uppercase tracking-wider mr-1">{t(lang, 'welcomeTry')}</span>
+            {SAMPLE_CITIES.map(c => (
+              <button key={c} type="button" onClick={() => { setCity(c); loadForecast(c) }} className="press min-h-11 bg-zinc-900 border border-zinc-800 rounded-full px-4 text-sm text-zinc-300 hover:border-emerald-400 hover:text-emerald-400">{sampleName(c, lang)}</button>
+            ))}
           </div>
         )}
 
@@ -1064,16 +1106,15 @@ ${url}`)
               <RangeTabs value={tab} onChange={changeTab} lang={lang} />
 
               {outlook ? (
-                tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                  : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} />
-                    : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} />
+                tab === 'tomorrow' ? <TabTomorrow outlook={outlook} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
+                  : tab === 'd7' ? <Tab7d outlook={outlook} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
+                    : <TabToday outlook={outlook} now={data} unit={unit} lang={lang} fmt={fmt} prompt={prompt} />
               ) : outlookError ? (
                 <OutlookError lang={lang} onRetry={retryOutlook} />
               ) : (
                 <SkyLoader lang={lang} title={t(lang, 'loadingForecast')} names={[]} compact />
               )}
 
-              <PushPrompt lang={lang} unit={unit} />
             </div>
 
             <div className="home-more space-y-4">
