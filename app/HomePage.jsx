@@ -1079,18 +1079,20 @@ ${url}`)
                   whole), a single over-long name still anywhere */}
               <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
                 {/* where the search folds (app, returning user) the name is the button that opens it (S6); elsewhere plain
-                    text. The chevron shows from the first paint by the style sheet, so nothing moves when the button comes */}
+                    text. The chevron shows from the first paint by the style sheet, so nothing moves when the button comes.
+                    No flex box around the name: a long one ("Klosterneuburg," at 320 px) breaks in the heading as before,
+                    and the heading's line count moves the buttons under it */}
                 {folds ? (
                   <button type="button" onClick={toggleSearch} aria-expanded={searchShown} aria-controls="home-search-block"
-                    className="press text-left inline-flex items-baseline gap-2">
+                    className="press block w-full text-left">
                     {placeTitle}<span className="sr-only">, {t(lang, 'changePlace')}</span>
-                    <ChevronDown size={20} className={`home-fold-chevron shrink-0 text-zinc-500 transition-transform ${searchShown ? 'rotate-180' : ''}`} aria-hidden />
+                    <ChevronDown size={20} className={`home-fold-chevron ml-2 text-zinc-500 transition-transform ${searchShown ? 'rotate-180' : ''}`} aria-hidden />
                   </button>
                 ) : (
-                  <span className="inline-flex items-baseline gap-2">
+                  <>
                     {placeTitle}
-                    <ChevronDown size={20} className="home-fold-chevron shrink-0 text-zinc-500" aria-hidden />
-                  </span>
+                    <ChevronDown size={20} className="home-fold-chevron ml-2 text-zinc-500" aria-hidden />
+                  </>
                 )}
               </h2>
               <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
