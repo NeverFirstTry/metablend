@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: the app opens on the forecast, not on the search
+- In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
+- The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
+
+### Fixed: the app icon option stands among the settings in More again
+- In the app (iPhone and Android), More → App-Symbol (Mono, Winter, Sky and the others) stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links, where it looked gone (reported from TestFlight). Nothing else changes; the website has no icon option.
+
 ### Fixed: two things a German phone showed
 - The cities to try name themselves in the reader's language ("Wien", "Tokio") instead of always in English, on the first start and under a place that was not found.
 - The sentence about how far the sources agree keeps a range like "0-2°" on one line instead of breaking it at the hyphen.
@@ -13,10 +20,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Saved and recent places stand in one row that scrolls sideways, saved first with a star, instead of two rows that pushed the forecast down. A saved place is as big as a recent one and has its own × to remove it. After an ×, keyboard focus moves to the × now in that place, or to the search field when the row is empty, for saved places too. A saved place goes with one tap, and for six seconds a toast "Removed from saved places." offers Undo, which puts it back where it stood (owner, 22 November).
 - After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
 - When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
-
-### Changed: the app opens on the forecast, not on the search
-- In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
-- The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
 
 ### Changed: the rain prompt stands where it is seen
 - "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
@@ -38,8 +41,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Every night each source's last stored temperature of a place was scored against the mean of the whole day. On 20 November in Lienz a reading of 4° at 15:00 was 5° off that day's mean of -1° and would have been marked down, though 4.2° was measured at that hour. Now each reading is scored against the measured temperature of the hour it was read, with the thresholds of a same-moment comparison.
 - What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day for the live forecasts and this run together, and a live forecast costs 1 (measured). The forecasts come first: the night takes what the forecasts of the last 24 hours leave, less a reserve of 150, and never more than 720. In the week to 21 November the forecasts asked between 199 and 447 times on a full day, so a night scores between 16 and 27 places, where it scored 50. The job's summary says its budget, the forecasts it counted, the records it used and how many places it did not reach.
 - Not changed: the job still runs at 06:00 UTC, when yesterday is not over on the American west coast; readings stored there after that hour are not scored.
-### Fixed: the app icon option stands among the settings in More again
-- In the app (iPhone and Android), More → App-Symbol (Mono, Winter, Sky and the others) stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links, where it looked gone (reported from TestFlight). Nothing else changes; the website has no icon option.
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
