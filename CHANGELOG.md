@@ -38,6 +38,8 @@ All notable changes to MetaBlend. Format loosely follows
 - Every night each source's last stored temperature of a place was scored against the mean of the whole day. On 20 November in Lienz a reading of 4° at 15:00 was 5° off that day's mean of -1° and would have been marked down, though 4.2° was measured at that hour. Now each reading is scored against the measured temperature of the hour it was read, with the thresholds of a same-moment comparison.
 - What it costs: Visual Crossing counts a day asked with its hours as 24 records, not 1 (seen in its own answer). Its free plan has 1,000 a day for the live forecasts and this run together, and a live forecast costs 1 (measured). The forecasts come first: the night takes what the forecasts of the last 24 hours leave, less a reserve of 150, and never more than 720. In the week to 21 November the forecasts asked between 199 and 447 times on a full day, so a night scores between 16 and 27 places, where it scored 50. The job's summary says its budget, the forecasts it counted, the records it used and how many places it did not reach.
 - Not changed: the job still runs at 06:00 UTC, when yesterday is not over on the American west coast; readings stored there after that hour are not scored.
+### Fixed: the app icon option stands among the settings in More again
+- In the app (iPhone and Android), More → App-Symbol (Mono, Winter, Sky and the others) stands right after the notification settings again. Since the deploy of 22 November it stood at the very end, below the legal links, where it looked gone (reported from TestFlight). Nothing else changes; the website has no icon option.
 
 ### Changed: only main and merge branches are built at Vercel
 - Nothing a visitor sees changes.
