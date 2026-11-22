@@ -53,6 +53,8 @@ All notable changes to MetaBlend. Format loosely follows
 - A route opened from a peak's list is taken from that list, so its title and map show at once.
 ### Changed: the website's header on a phone is one row
 - On a phone the website's header is now the logo and a Menu button. The menu holds the five pages as rows big enough for a thumb, and the unit, theme and language settings. It took three rows before any weather. From laptop width up the header is unchanged. In all 13 languages.
+### Changed: every button is big enough for a thumb
+- On a touch screen every button, tab, picker and chip is now at least 44 px high, as the Recent chips already were: the range tabs, the pace and day choices on a route, the pickers under More, Live with all models on the summit pages, the summit chips on the mountain list and the map's zoom buttons among them. Small text links in running text stay as they are.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
