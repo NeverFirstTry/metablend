@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
-import { uniquePlaces, samePlace, placeChips } from '@/lib/recent-places'
+import { uniquePlaces, samePlace, placeChips, nextChip } from '@/lib/recent-places'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -366,13 +366,22 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     publishPrefs({ unit: u })
   }
 
-  // Recent places: keyboard focus stays in the list, on the next ×, or goes to the search once it's empty
-  function forgetRecent(c, i) {
-    setRecent(removeRecent(c))
+  // Saved and recent places: keyboard focus stays in the row, on the × now at place i, or goes to the search once
+  // the row is empty (i is the chip's place in the whole row, saved chips first)
+  function focusAfterRemove(i) {
     requestAnimationFrame(() => {
       const rest = document.querySelectorAll('[data-recent-remove]')
-      ;(rest[Math.min(i, rest.length - 1)] ?? document.querySelector('.home-search input'))?.focus()
+      const at = nextChip(i, rest.length)
+      ;(at == null ? document.querySelector('.home-search input') : rest[at])?.focus()
     })
+  }
+  function forgetRecent(c, i) {
+    setRecent(removeRecent(c))
+    focusAfterRemove(i)
+  }
+  function forgetSaved(c, i) {
+    setFavorites(toggleFavorite(c))
+    focusAfterRemove(i)
   }
   function forgetAllRecent() {
     setRecent(clearRecent())
@@ -886,19 +895,19 @@ ${url}`)
             (UX review R2: two rows took 250 px and pushed the forecast down; R5: saved chips were smaller, not removable) */}
         {(favorites.length > 0 || recent.length > 0) && !compareMode && (
           <div role="group" aria-label={t(lang, 'placesRow')} className="places-row flex gap-2 overflow-x-auto -mt-4 mb-6 pb-1">
-            {placeChips(favorites, recent).map(c => (
+            {placeChips(favorites, recent).map((c, i) => (
               <span key={c.city} className="recent-chip shrink-0 inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full text-xs text-zinc-300 hover:border-emerald-400 whitespace-nowrap">
                 <button onClick={() => { setCity(c.city); loadForecast(c.city) }} className="press inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-l-full hover:text-emerald-400">
                   {c.saved && <Star size={11} fill="currentColor" className="shrink-0 text-zinc-400" aria-hidden />}{hans(c.city)}
                 </button>
                 {c.saved ? (
-                  <button type="button" data-recent-remove onClick={() => setFavorites(toggleFavorite(c.city))}
+                  <button type="button" data-recent-remove onClick={() => forgetSaved(c.city, i)}
                     aria-label={fill(t(lang, 'savedRemove'), { city: hans(c.city) })} title={fill(t(lang, 'savedRemove'), { city: c.city })}
                     className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
                     <X size={12} aria-hidden />
                   </button>
                 ) : (
-                  <button type="button" data-recent-remove onClick={() => forgetRecent(c.city, recent.indexOf(c.city))}
+                  <button type="button" data-recent-remove onClick={() => forgetRecent(c.city, i)}
                     aria-label={fill(t(lang, 'recentRemove'), { city: hans(c.city) })} title={fill(t(lang, 'recentRemove'), { city: c.city })}
                     className="recent-x press inline-flex items-center justify-center w-7 h-7 -my-1 mr-0.5 rounded-full text-zinc-500 hover:text-emerald-400">
                     <X size={12} aria-hidden />
