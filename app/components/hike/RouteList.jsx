@@ -7,6 +7,7 @@ import { t } from '@/lib/i18n'
 import { routesApiPath } from '@/lib/hike/params'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { routeLabel, sacGrade } from '@/lib/route/osm'
+import { routeStart } from '@/lib/route/start'
 import { SectionTitle } from '../ui'
 
 const duration = m => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, '0')}`
@@ -43,7 +44,7 @@ export default function RouteList({ peak, lang }) {
         <p className="text-sm text-zinc-500">{t(lang, 'routesNone')}</p>
       ) : (
         <ul className="bg-zinc-900 border border-zinc-800 rounded-2xl divide-y divide-zinc-800">
-          {state.routes.map(r => (
+          {state.routes.map(r => { const start = routeStart(lang, r); return (
             <li key={r.id}>
               <button onClick={() => open(r.id)} className="press-row w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-zinc-800/50">
                 <span className="flex-1 min-w-0">
@@ -52,14 +53,18 @@ export default function RouteList({ peak, lang }) {
                     {/* terrain-model heights: ≈; none: no time at all (it would be a flat-land time, far too short) */}
                     {[sacGrade(r.difficulty), `${r.distanceKm} km`].filter(Boolean).join(' · ')} · {r.minutes == null ? t(lang, 'routeNoHeightsShort') : `↑≈${r.ascentM} m · ~${duration(r.minutes)}${isMultiDay(r.minutes) ? ` · ${t(lang, 'routeMultiDayShort')}` : isLongDay(r.minutes) ? ` · ${t(lang, 'routeLongDayShort')}` : ''}`}{r.roundTrip ? ` · ${t(lang, 'routeRoundTrip')}` : ''}
                   </span>
+                  {/* where it starts: a hiker picks a route by it (UX review P2) */}
+                  {start && <span className="block text-xs text-zinc-400">{start}</span>}
                 </span>
                 <ChevronRight size={16} className="text-zinc-500" aria-hidden />
               </button>
             </li>
-          ))}
+          ) })}
         </ul>
       )}
       {state.routes?.some(r => r.minutes != null) && <p className="text-xs text-zinc-500 px-1">{t(lang, 'routeHeightsApprox')}</p>}
+      {/* the peak says SAC WS, the routes T6: two scales (UX review P2) */}
+      {state.routes?.some(r => sacGrade(r.difficulty)) && <p className="text-xs text-zinc-500 px-1">{t(lang, 'routeScaleNote')}</p>}
     </section>
   )
 }

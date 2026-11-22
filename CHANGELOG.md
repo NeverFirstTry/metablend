@@ -45,6 +45,9 @@ All notable changes to MetaBlend. Format loosely follows
 - A stage past the favourable limit says why ("rain possible, 30%") and shows the rain icon when rain is the reason, on a calmer tint.
 - Save and Plan stand beside the route's title instead of after the whole table, 44 px each, Save as a bookmark. Plan is neutral like Save, on the route and on the peak: gold stays with the favourable start.
 - Plan names the day already picked on the route ("Remind me for Sunday") instead of asking "Which day?" again; for today, which cannot be planned, the usual day choice stays. In all 13 languages. Under that button stands what a plan brings, until the plan is made.
+### Changed: a peak's routes say where they start
+- Each route under a peak shows its start: "Start at 2801 m", or "From Lucknerhaus, 1918 m" where OpenStreetMap names the place. A route without a name reads "Unnamed marked route".
+- One line under the list tells the two grade scales apart: routes on the SAC hiking scale (T1-T6), the peak on the SAC alpine scale (L-EX). In all 13 languages.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
