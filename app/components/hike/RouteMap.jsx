@@ -33,7 +33,10 @@ export default function RouteMap({ points, highIndex }) {
       })
       topo.addTo(m)
       const ll = points.map(p => [p[0], p[1]])
-      const line = L.polyline(ll, { color: '#ffd98a', weight: 4, opacity: 0.95 }).addTo(m)
+      // the route stays gold, a map element and an allowed exception to the one-gold rule (owner, 2026-11-22; blue
+      // would read as water); a thin dark casing under it, 1.5 px each side, so it reads on light rock and green forest
+      L.polyline(ll, { color: '#0f1b33', weight: 7, opacity: 0.85, lineCap: 'round', lineJoin: 'round', interactive: false }).addTo(m)
+      const line = L.polyline(ll, { color: '#ffd98a', weight: 4, opacity: 0.95, lineCap: 'round', lineJoin: 'round' }).addTo(m)
       const dot = (at, fill) => L.circleMarker(at, { radius: 6, color: '#0f1b33', weight: 2, fillColor: fill, fillOpacity: 1 }).addTo(m)
       dot(ll[0], '#8eecc4')
       dot(ll.at(-1), '#ff9a9a')
