@@ -5,10 +5,10 @@ Napoved
 • Kako zelo se viri strinjajo
 • Najboljši čas za ven, radar padavin, UV, kakovost zraka in cvetni prah
 
-Gore in pohodništvo
+Gore
 • Napovedi za vrhove po vsem svetu: veter, ničta izoterma, nevarnost neviht
 • Ugodno okno za vrh
-• 195 izbranih vrhov po svetu s težavnostjo SAC, najbližji najprej
+• 195 izbranih vrhov s težavnostjo SAC, od slavnih do tistih za vogalom
 • Označene poti in uvoz GPX s predlaganim časom odhoda
 
 Opozorila in pripomočki
