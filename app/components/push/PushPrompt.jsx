@@ -30,7 +30,10 @@ export default function PushPrompt({ lang, unit }) {
     const outcome = turnOnOutcome(await enablePush({ lang, unit }))
     if (outcome === 'denied') { await dismissPrompt(); setShow(null); return }
     if (outcome === 'error') { setShow(s => ({ ...s, failed: true })); return }
-    await pushApi('settings', { method: 'PUT', body: { home_name: show.city, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+    // a new phone's row has rain alerts off and no home city: "done" only once they are saved too (Review, 2026-11-22);
+    // otherwise the same failed state, and a second tap registers again and saves again
+    const saved = await pushApi('settings', { method: 'PUT', body: { home_name: show.city, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+    if (saved.status !== 200) { setShow(s => ({ ...s, failed: true })); return }
     syncWidgets({ refresh: true })
     setShow('done')
   }

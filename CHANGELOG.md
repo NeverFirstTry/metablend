@@ -6,7 +6,7 @@ All notable changes to MetaBlend. Format loosely follows
 ## 2026-11-22
 
 ### Fixed: notifications show as on only once the server has the phone
-- In the app, the rain prompt's "Turn on" now says "That didn't work" in the reader's language when turning notifications on fails (no push token from Android or Apple, or the server refused), and stays, so it can be tried again. Before, it went away without a word and never asked again. A refused permission still ends it.
+- In the app, the rain prompt's "Turn on" now says "That didn't work" in the reader's language when turning notifications on fails (no push token from Android or Apple, or the server refused), and stays, so it can be tried again. It says "Done" only once the rain alerts and the city are saved too. Before, it went away without a word and never asked again. A refused permission still ends it.
 - The notification settings already showed "on" only with the server's answer; a test now holds that.
 - The device checklist (mobile/README.md): a new worktree or clone needs google-services.json in mobile/android/app/ before an Android build, or push silently does not work (the A52 build of 22 November).
 - Nothing changes on the server. Open-Meteo: no change.
