@@ -14,6 +14,10 @@ All notable changes to MetaBlend. Format loosely follows
 - After a search the field shows the place as the title names it ("Buon Ma Thuot" when "Buôn Ma Thuột" was typed).
 - When nothing matches, the suggestions say "No place found. Check the spelling or try a town nearby." instead of vanishing, and a place that was not found offers cities to try under the message. In all 13 languages.
 
+### Changed: the app opens on the forecast, not on the search
+- In the app, a returning user's start page opens at the place and its forecast: the search field, its three buttons and the saved and recent places open with a tap on the place's name ("Vienna, Austria" with a small arrow) and close again once a place is picked. An error or the compare mode keeps them open. The tagline under the logo shows on the first start only. The website keeps its search in view. In all 13 languages.
+- The place's name is a button only where the search folds away (the app, a returning user); there a screen reader hears "Vienna, Austria, Change place" and whether the search is open, also when an error or compare keeps it open. On the website and at a first start the name stays plain text, as before.
+
 ### Changed: the rain prompt stands where it is seen
 - "Get a heads-up before rain in Vienna?" now appears right under the headline card of the tab on screen instead of two screens down between the rain radar and the sources. Its close button is 44 px and a screen reader calls it "Not now" instead of "×". In all 13 languages.
 - The close button keeps its 44 px width beside a long place name; at 320 px it shrank to 31 px in German with "Klosterneuburg".

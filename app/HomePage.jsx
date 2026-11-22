@@ -13,6 +13,7 @@ import {
 import { t, detectLang, preferredLang, langChoice, LANG_SYSTEM, translateCondition, loadLanguage } from '@/lib/i18n'
 import { getCookie, setCookie, clearCookie } from '@/lib/prefs'
 import { uniquePlaces, samePlace, placeChips, nextChip } from '@/lib/recent-places'
+import { searchFolds, searchBlockOpen } from '@/lib/home-search'
 import { countSources } from '@/lib/sources'
 import { nativeShare, isNative, nativePosition } from '@/lib/native'
 import { askName, nearParam, placeAt, rememberName, withNear } from '@/lib/geo'
@@ -200,6 +201,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     setIsExample(true)
     setCity('')
     delete document.documentElement.dataset.returning
+    setFolds(false)
   }
   // left while the first forecast was loading: back straight to its loader
   const [loading, setLoading] = useState(() => !SESSION.data && !!SESSION.pending)
@@ -257,6 +259,13 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     return () => clearTimeout(id)
   }, [undoSaved])
   const [compareMode, setCompareMode] = useState(false)
+  // the search block (field, its buttons, the places): in the app a returning user starts without it and opens it
+  // from the place's name (UX review S6); globals.css hides it before first paint
+  const [searchOpen, setSearchOpen] = useState(false)
+  // where it folds (app, returning user) the place's name is the button that opens it; read after mount, since the
+  // server cannot know (Review, 2026-11-22: elsewhere a button said collapsed over a search always in view)
+  const [folds, setFolds] = useState(false)
+  const searchShown = searchBlockOpen({ tapped: searchOpen, error, compare: compareMode })
   const [compareCity, setCompareCity] = useState('')
   const [compareData, setCompareData] = useState(null)
   const [compareLoading, setCompareLoading] = useState(false)
@@ -317,6 +326,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
         loadForecast(first, { lang: detectedLang, remember })
       } else delete document.documentElement.dataset.returning
     }
+    setFolds(searchFolds(document.documentElement.dataset))
     /* eslint-enable react-hooks/set-state-in-effect */
 
     if ('serviceWorker' in navigator) {
@@ -400,6 +410,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   function undoForgetSaved() {
     setFavorites(saveFavorites(undoSaved))
     setUndoSaved(null)
+  }
+  // the place's name opens or closes the search; opening puts the cursor in the field (UX review S6)
+  function toggleSearch() {
+    const open = !searchOpen
+    setSearchOpen(open)
+    if (open) requestAnimationFrame(() => document.querySelector('.home-search input')?.focus())
   }
   function forgetAllRecent() {
     setRecent(clearRecent())
@@ -514,6 +530,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
       if (json.error) throw Object.assign(new Error(json.error), { status: json.status })
       const out = outRes.status === 'fulfilled' && !outRes.value?.error ? outRes.value : null
       setData(json)
+      if (!silent) setSearchOpen(false) // a place was picked: the start page shows its forecast again (S6)
       // the field takes the name the title shows (UX review R3: "Buôn Ma Thuột" typed, "Buon Ma Thuot" shown)
       const shownName = hans(json.cityShown ?? json.city)
       if (!silent && shownName && shownName !== q) {
@@ -776,6 +793,9 @@ ${url}`)
     </div>
   )
 
+  // the forecast's title: the example comes in English from the server, so its name in the reader's language
+  const placeTitle = data && <span><PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} /></span>
+
   return (
     <main className="home min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <div className="home-col max-w-3xl mx-auto">
@@ -803,7 +823,7 @@ ${url}`)
             </button>
           </div>
         )}
-        <p className="app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
+        <p className="home-tagline app-only text-zinc-500 text-sm mb-4 tracking-widest uppercase">
           {t(lang, 'tagline')}
         </p>
         <p className={`web-only text-zinc-400 mt-4 mb-8 max-w-prose`}>{t(lang, 'homeLead')}</p>
@@ -831,6 +851,7 @@ ${url}`)
             and favourite sit under it, so a long place name fits (owner 2026-11-14, option 1 of the tester's report).
             There each of the three says what it does in a word (tester, 2026-11-19; UX review S1); beside the field on
             a wide screen compare keeps its word and the other two their icon */}
+        <div id="home-search-block" className={`home-search-block${searchShown ? ' open' : ''}`}>
         <div className={`home-search @container relative flex flex-wrap gap-2 mb-8`}>
           <button
             onClick={handleLocation}
@@ -942,7 +963,9 @@ ${url}`)
             )}
           </div>
         )}
-        {/* a saved place just removed: a short toast to bring it back; here in the page, so a keyboard reaches Undo next */}
+        </div>
+        {/* a saved place just removed: a short toast to bring it back; here in the page, so a keyboard reaches Undo next.
+            After the search block's end, so it stays when the block folds away in the app */}
         {undoSaved && (
           <div role="status" aria-live="polite" className="undo-toast app-lift animate-scale-in fixed bottom-6 left-1/2 -translate-x-1/2 bg-emerald-400 text-black text-sm font-semibold pl-4 pr-1 rounded-lg shadow-lg shadow-emerald-400/20 z-[60] inline-flex items-center gap-1 w-max max-w-[calc(100vw-2rem)]">
             <span className="min-w-0 py-2">{t(lang, 'savedRemoved')}</span>
@@ -1057,8 +1080,22 @@ ${url}`)
               {/* a long name wraps inside its own box (de, cs, ja on a phone), between words only (オーストリア stays
                   whole), a single over-long name still anywhere */}
               <h2 className="mb-rise min-w-0 text-3xl sm:text-4xl font-semibold tracking-tight [word-break:keep-all] [overflow-wrap:break-word]">
-                {/* the example comes in English from the server: its name in the reader's language */}
-                <PlaceName city={isExample ? cityName('vienna', lang, data.city) : hans(data.cityShown ?? data.city)} cc={data.cc ?? (isExample ? 'AT' : null)} country={data.country} lang={lang} />
+                {/* where the search folds (app, returning user) the name is the button that opens it (S6); elsewhere plain
+                    text. The chevron shows from the first paint by the style sheet, so nothing moves when the button comes.
+                    No flex box around the name: a long one ("Klosterneuburg," at 320 px) breaks in the heading as before,
+                    and the heading's line count moves the buttons under it */}
+                {folds ? (
+                  <button type="button" onClick={toggleSearch} aria-expanded={searchShown} aria-controls="home-search-block"
+                    className="press block w-full text-left">
+                    {placeTitle}<span className="sr-only">, {t(lang, 'changePlace')}</span>
+                    <ChevronDown size={20} className={`home-fold-chevron ml-2 text-zinc-500 transition-transform ${searchShown ? 'rotate-180' : ''}`} aria-hidden />
+                  </button>
+                ) : (
+                  <>
+                    {placeTitle}
+                    <ChevronDown size={20} className="home-fold-chevron ml-2 text-zinc-500" aria-hidden />
+                  </>
+                )}
               </h2>
               <div className={`home-actions flex items-center gap-2 ${stackActions ? 'mt-2' : 'h-11'}`}>
                 <button
