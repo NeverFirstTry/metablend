@@ -7,7 +7,7 @@ import { fill } from '@/lib/outlook/text'
 import { isNative } from '@/lib/native'
 import { enablePush, pushApi, promptState, dismissPrompt, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
-import { shouldPrompt } from '@/lib/push-ui'
+import { shouldPrompt, turnOnOutcome } from '@/lib/push-ui'
 
 // "Get a heads-up before rain in Vienna?" — app only, from the 3rd forecast
 // view, never again once dismissed or once notifications are on.
@@ -24,21 +24,25 @@ export default function PushPrompt({ lang, unit }) {
   if (!show) return null
   if (show === 'done') return <p className="text-sm text-zinc-400 animate-fade-in" role="status">{t(lang, 'promptDone')}</p>
 
+  // "done" only once the server took the phone; a refused permission ends the prompt for good, a failure (no push
+  // token, the server refused) says so in the reader's language and the prompt stays (owner, 2026-11-22)
   async function turnOn() {
-    const r = await enablePush({ lang, unit })
-    if (r.ok) {
-      await pushApi('settings', { method: 'PUT', body: { home_name: show.city, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
-      syncWidgets({ refresh: true })
-      setShow('done')
-    } else {
-      await dismissPrompt(); setShow(null)
-    }
+    const outcome = turnOnOutcome(await enablePush({ lang, unit }))
+    if (outcome === 'denied') { await dismissPrompt(); setShow(null); return }
+    if (outcome === 'error') { setShow(s => ({ ...s, failed: true })); return }
+    // a new phone's row has rain alerts off and no home city: "done" only once they are saved too (Review, 2026-11-22);
+    // otherwise the same failed state, and a second tap registers again and saves again
+    const saved = await pushApi('settings', { method: 'PUT', body: { home_name: show.city, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+    if (saved.status !== 200) { setShow(s => ({ ...s, failed: true })); return }
+    syncWidgets({ refresh: true })
+    setShow('done')
   }
   return (
     <div className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-3 flex items-center gap-3 animate-fade-in">
-      <span className="flex-1 text-sm">{fill(t(lang, 'promptTitle'), { city: show.city })}</span>
-      {/* the neutral primary button: the theme's surface and hairline with gold text; gold fill is for the screen's answer */}
-      <button onClick={turnOn} className="press shrink-0 bg-[var(--surface-2)] text-[var(--accent)] shadow-[inset_0_0_0_1px_var(--hairline)] text-sm font-semibold rounded-full px-4 py-1.5 hover:bg-[var(--surface-3)]">{t(lang, 'promptOn')}</button>
+      <span className="flex-1 text-sm">{fill(t(lang, 'promptTitle'), { city: show.city })}{show.failed && <span className="block text-xs text-zinc-400 mt-1" role="status">{t(lang, 'notifError')}</span>}</span>
+      {/* the neutral primary button: the theme's surface and hairline with gold text (--on-fill: deeper in light, to read
+          on the surface); gold fill is for the screen's answer */}
+      <button onClick={turnOn} className="press shrink-0 bg-[var(--surface-2)] text-[var(--on-fill)] shadow-[inset_0_0_0_1px_var(--hairline)] text-sm font-semibold rounded-full px-4 py-1.5 hover:bg-[var(--surface-3)]">{t(lang, 'promptOn')}</button>
       <button onClick={async () => { await dismissPrompt(); setShow(null) }} aria-label={t(lang, 'promptNotNow')} className="press size-11 shrink-0 inline-flex items-center justify-center text-zinc-500 hover:text-zinc-300"><X size={16} aria-hidden /></button>
     </div>
   )

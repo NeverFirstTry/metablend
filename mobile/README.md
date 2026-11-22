@@ -35,6 +35,7 @@ store release); only native changes need a new build.
 - [ ] iPhone: a swipe from the left edge goes back; on the first screen it does nothing; dragging the hour strip or a map away from the edge still works.
 - [ ] More: switching °C/°F, dark/light and the language applies everywhere.
 - [ ] Airplane mode at launch shows the "No connection" screen; Retry loads the app once online.
+- [ ] Before an Android build in a new worktree or clone: copy `google-services.json` into `mobile/android/app/` (it is not in git). Without it the build succeeds but push silently does not work: Android gives no push token, "Turn on" fails and nothing reaches the server (the A52 build of 2026-11-22). The Gradle log then says "google-services.json not found".
 
 ## Push notifications
 
