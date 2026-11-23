@@ -1,21 +1,27 @@
 // node scripts/brand/reel-shots.mjs <stage> <build folder> [base]: the stage screenshots for the reel "MetaBlend has
 // a new look" (owner 2026-11-21) into store/social/reel/shots/<stage>-<screen>-<lang>.png. The same app screens from
-// three local builds, one at a time: 1-before (48603a1, the last commit whose page wore the weather sky),
-// 2-slate (solid Slate: 37fb3d5, the switch itself, in the rehearsal of 22 Nov; 50bc282 before) and 3-now (main). App view, dark, de and en,
-// 390 x 844 at 3x: the page at 390 x 797 under a drawn status bar that reads 18:41.
+// three stages: 1-before (48603a1, the last commit whose page wore the weather sky), 2-slate (37fb3d5, the switch to
+// solid Slate) and 3-now (production as it is, or a local build of main). App view, dark, de and en, 390 x 844 at
+// 3x: the page at 390 x 797 under a drawn status bar that reads 18:41. Vienna and its own summit, Schneeberg.
 //   For the film, which changes one stage into the next part by part, every screen is also pictured 320 px taller
 //   into shots/film/, and shots/film/regions.json says where its parts are (header, search row, headline, tabs,
 //   first card, the rest, tab bar): the parts are read from the page, since every stage lays them out differently.
 //   In the build folder: npx next build, then SELF_BASE=http://localhost:3261 npx next start -p 3261
-//   Local builds only: any other host than localhost is refused, and so is a server that answers from another build
-//   than the folder's (a server left over from an earlier stage would otherwise be pictured under the new name).
+//   Local builds, refused when the server answers from another build than the folder's (a server left over from an
+//   earlier stage would otherwise be pictured under the new name). The one other host is production
+//   (https://metablend.app, build folder "-"), for stage 3 only and only with REPLAY (below): its answers are asked
+//   once, by the pages a reader would open, while it records; a later run is given the recording like the older
+//   stages, which ask nothing at all (owner 2026-11-23: "Use cities that are already cached, like the Wien example,
+//   so the captures don't add Open-Meteo load").
 //   SKY=dawn puts the old weather sky's sunrise on the page (stage 1 only: there the sky followed the hour, and the
 //   pictures are taken in the evening); the film then also gets the same page on Slate (…-on-slate-…), so its
 //   background can change first. ONLY=forecast,peak picks screens. OUT=<folder> writes somewhere else (a rehearsal).
 //   REPLAY=<file>: the same weather in every stage. The first stage run with it records the page's own API answers
-//   there; every later run is given those answers. Run the newest stage first: an older page ignores what it does
-//   not know, a newer page would miss what an older answer lacks. The browser's clock stands still at the moment
-//   of the recording, so nothing that counts time ("refreshes in", "Updated") differs between the stages either.
+//   there, with what production's CDN answered from its copy; every later run is given those answers and nothing
+//   else: an address the recording lacks fails in the page and is named at the end, it is never asked live. Run the
+//   newest stage first: an older page ignores what it does not know, a newer page would miss what an older answer
+//   lacks. The browser's clock stands still at the moment of the recording, so nothing that counts time
+//   ("refreshes in", "Updated") differs between the stages either.
 import path from 'node:path'
 import fs from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -28,21 +34,28 @@ const OUT = process.env.OUT ?? path.join(ROOT, 'store/social/reel/shots')
 const FILM = path.join(OUT, 'film')
 const [stage, buildDir, BASE = 'http://localhost:3261'] = process.argv.slice(2)
 if (!/^[123]-(before|slate|now)$/.test(stage ?? '') || !buildDir) { console.error('usage: node scripts/brand/reel-shots.mjs <1-before|2-slate|3-now> <build folder> [base]'); process.exit(2) }
-if (!/^http:\/\/localhost:\d+$/.test(BASE)) { console.error(`not a local build: ${BASE}`); process.exit(2) }
+const PROD = BASE === 'https://metablend.app'
+if (PROD ? stage !== '3-now' || !process.env.REPLAY : !/^http:\/\/localhost:\d+$/.test(BASE)) {
+  console.error(`${BASE}: only a local build, or production for stage 3 with REPLAY`); process.exit(2)
+}
 const EDGE = process.env.EDGE ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
 const ONLY = process.env.ONLY?.split(',')
 const SKY = process.env.SKY
 const W = 390, H = 844, BAR = 47, SCALE = 3
 const MORE = 320 // the film's pictures show this much more of the page, so a part that grows never uncovers an empty strip
 const SLATE = '#0f151b'
-const PLACE = 'Lienz'
-// outside the featured list a peak opens by coordinates, as its link in Near you does (as in scripts/store-shots.mjs)
-const PEAK = `lat=46.824&lon=12.693&elev=2057&name=Hochstein&cc=AT`
+// Vienna: in English the address of the landing page's own example (city=vienna&lang=en), in German the name German
+// readers type; its summit Schneeberg, a featured peak (opened by its id) in all three stages
+const PLACE = { en: 'Vienna', de: 'Wien' }
+const PEAK = { query: 'peak=schneeberg', name: 'Schneeberg' }
 
-const buildId = fs.readFileSync(path.join(buildDir, '.next/BUILD_ID'), 'utf8').trim()
-const home = await fetch(`${BASE}/?app=1`).then(r => r.text())
-if (!home.includes(buildId)) { console.error(`${BASE} does not answer from the build in ${buildDir} (${buildId})`); process.exit(2) }
-console.log(`${stage}: build ${buildId} at ${BASE}`)
+if (PROD) console.log(`${stage}: production at ${BASE}`)
+else {
+  const buildId = fs.readFileSync(path.join(buildDir, '.next/BUILD_ID'), 'utf8').trim()
+  const home = await fetch(`${BASE}/?app=1`).then(r => r.text())
+  if (!home.includes(buildId)) { console.error(`${BASE} does not answer from the build in ${buildDir} (${buildId})`); process.exit(2) }
+  console.log(`${stage}: build ${buildId} at ${BASE}`)
+}
 
 fs.mkdirSync(FILM, { recursive: true })
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -56,15 +69,20 @@ const ev = async x => (await send('Runtime.evaluate', { expression: x, awaitProm
 const grab = async () => (await send('Page.captureScreenshot', { format: 'png' })).result.data
 const screen = height => send('Emulation.setDeviceMetricsOverride', { width: W, height, deviceScaleFactor: SCALE, mobile: true })
 
-// The recorded API answers (REPLAY), keyed by path and sorted query: GET requests to this build's own /api/.
+// The recorded API answers (REPLAY), keyed by path and sorted query, values in lower case (pages of different ages
+// spell a typed city differently): GET requests to the stage's own /api/.
 const REPLAY = process.env.REPLAY
 const tape = REPLAY && fs.existsSync(REPLAY) ? JSON.parse(fs.readFileSync(REPLAY, 'utf8')) : REPLAY ? { at: Date.now(), answers: {} } : null
 const recording = REPLAY && !fs.existsSync(REPLAY)
 const keyOf = url => {
   const u = new URL(url)
-  return u.pathname + '?' + [...u.searchParams].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v}`).join('&')
+  return u.pathname + '?' + [...u.searchParams].sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}=${v.toLowerCase()}`).join('&')
 }
-const missed = new Set()
+// the country's name as an older page had it: newer servers send it in English and the page names it from cc in the
+// reader's language, older pages show what their server sent, which was already in that language (Österreich)
+const ownCountry = (answer, lang) => (lang && answer?.cc && typeof answer.country === 'string'
+  ? { ...answer, country: new Intl.DisplayNames([lang], { type: 'region' }).of(answer.cc) } : answer)
+const missed = new Set(), cdn = []
 if (tape) {
   ws.addEventListener('message', async e => {
     const m = JSON.parse(e.data)
@@ -73,25 +91,24 @@ if (tape) {
     const key = keyOf(request.url)
     if (request.method !== 'GET') return send('Fetch.continueRequest', { requestId })
     if (recording) {
-      // the answer as it came from this build's server
+      // the answer as it came from the stage's server, and whether production's CDN had it (HIT) or asked for it
       const { body, base64Encoded } = (await send('Fetch.getResponseBody', { requestId })).result ?? {}
       if (responseStatusCode === 200 && body != null) tape.answers[key] = { headers: responseHeaders, body: base64Encoded ? body : Buffer.from(body).toString('base64') }
+      const h = Object.fromEntries((responseHeaders ?? []).map(({ name, value }) => [name.toLowerCase(), value]))
+      cdn.push(`${responseStatusCode} ${h['x-vercel-cache'] ?? 'no CDN'}${h.age ? `, age ${h.age} s` : ''}  ${key}`)
       return send('Fetch.continueRequest', { requestId })
     }
+    // nothing is asked live: an address the recording lacks fails in the page
     const answer = tape.answers[key]
-    if (!answer) { missed.add(key); return send('Fetch.continueRequest', { requestId }) }
-    // the country's name stays this build's own: newer servers send it in English and the page translates it,
-    // older pages show what their server sends (Österreich in German), so a recorded answer would put Austria there
+    if (!answer) { missed.add(key); return send('Fetch.failRequest', { requestId, errorReason: 'Failed' }) }
     let body = answer.body
     try {
-      const live = (await send('Fetch.getResponseBody', { requestId })).result
-      const own = JSON.parse(live.base64Encoded ? Buffer.from(live.body, 'base64').toString() : live.body)
-      const recorded = JSON.parse(Buffer.from(answer.body, 'base64').toString())
-      if (typeof own?.country === 'string' && typeof recorded?.country === 'string' && own.country !== recorded.country) {
-        body = Buffer.from(JSON.stringify({ ...recorded, country: own.country })).toString('base64')
-      }
-    } catch { /* not JSON, or no answer of its own: the recorded answer as it is */ }
-    send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: answer.headers, body })
+      const own = ownCountry(JSON.parse(Buffer.from(body, 'base64').toString()), new URL(request.url).searchParams.get('lang'))
+      body = Buffer.from(JSON.stringify(own)).toString('base64')
+    } catch { /* not JSON: the recorded answer as it is */ }
+    // the body is given decoded: the recorded encoding and length would no longer fit it
+    const headers = answer.headers.filter(({ name }) => !/^(content-encoding|content-length|transfer-encoding)$/i.test(name))
+    send('Fetch.fulfillRequest', { requestId, responseCode: 200, responseHeaders: headers, body })
   })
 }
 // the browser's clock, standing still at the recording's moment
@@ -137,17 +154,25 @@ const PARTS = word => `(() => {
   const input = [...document.querySelectorAll('input')].find(i => r(i).height > 20 && r(i).top < r(box).top)
   let row = input
   while (row?.parentElement && r(row.parentElement).height <= r(input).height + 24) row = row.parentElement
-  const name = [...document.querySelectorAll('h1,h2,h3,p,div,span')].find(e => e.textContent.trim().startsWith(${JSON.stringify(word)}) && parseFloat(getComputedStyle(e).fontSize) >= 24 && r(e).height > 0 && r(e).height < 120)
+  const big = (text, el) => el.textContent.trim().startsWith(text) && parseFloat(getComputedStyle(el).fontSize) >= 24 && r(el).height > 0 && r(el).height < 120
+  const name = [...document.querySelectorAll('h1,h2,h3,p,div,span')].find(e => big(${JSON.stringify(word)}, e))
   let head = name
   while (head?.parentElement && r(head.parentElement).height <= r(name).height + 70) head = head.parentElement
-  return { vh, bar: r(bar).top, tabs: r(box).top, tabsEnd, block: [r(block).top, r(block).bottom], search: row ? r(row).top : null, headline: head ? r(head).top : null }
+  // the wordmark's row (with the old Beta badge): the same in every stage, whatever follows it
+  let mark = [...document.querySelectorAll('h1,div,span,a')].find(e => big('MetaBlend', e) && r(e).top < 200)
+  while (mark?.parentElement && r(mark.parentElement).height <= r(mark).height + 4) mark = mark.parentElement
+  return { vh, bar: r(bar).top, tabs: r(box).top, tabsEnd, block: [r(block).top, r(block).bottom], search: row ? r(row).top : null, headline: head ? r(head).top : null, mark: mark ? r(mark).bottom : null }
 })()`
 // the parts as rows of the film's picture (status bar included), top to bottom without a gap
 const regions = (kind, p) => {
   if (!p || p.error) throw new Error(`${kind}: ${p?.error ?? 'the page gave no parts'}`)
   const y = v => Math.round(v) + BAR, total = p.vh + BAR, under = y(p.tabsEnd) + 10, card = y(p.block[1]) + 10
+  // forecast: the header ends under the wordmark's row, which every stage shows alike, so it stands still in the
+  // film; "search" is what follows down to the place's name: the tagline and the search row, or (production since
+  // 23 Nov, the place itself opens the search) only space. It keeps its name for the film's close-up.
+  if (kind === 'forecast' && (p.mark == null || p.headline == null)) throw new Error(`forecast: no ${p.mark == null ? 'wordmark' : 'place name'} found`)
   const cuts = kind === 'forecast'
-    ? [['header', 0], ['search', y(p.search) - 8], ['headline', y(p.headline) - 10], ['tabs', y(p.tabs) - 10], ['card', under], ['rest', card], ['bar', y(p.bar)]]
+    ? [['header', 0], ['search', Math.min(y(p.mark) + 4, y(p.headline) - 10)], ['headline', y(p.headline) - 10], ['tabs', y(p.tabs) - 10], ['card', under], ['rest', card], ['bar', y(p.bar)]]
     // the Week tab's first card is the best day's line where there is one; a first block as tall as the list is the list
     : kind === 'peak-week'
       ? [['header', 0], ['tabs', y(p.tabs) - 10], ['best', under], ['rest', p.block[1] - p.block[0] < 190 ? card : under], ['bar', y(p.bar)]]
@@ -176,7 +201,7 @@ const DRAW = `(async () => { const img = document.querySelector('img'); await im
 // and a page that is still needed for its next tab must not be replaced.
 const pages = [], where = {}
 // kind: which parts the film's picture has (forecast, peak-tomorrow, peak-week); none: no picture for the film
-const save = async (name, kind = null) => {
+const save = async (name, kind = null, word = '') => {
   // the cookie notice (the old versions show it in the app too) is answered, as a reader would have
   await ev(`([...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'OK')?.click(), true)`)
   if (SKY) await ev(`(document.documentElement.dataset.sky = ${JSON.stringify(SKY)}, true)`)
@@ -184,7 +209,7 @@ const save = async (name, kind = null) => {
   pages.push([path.join(OUT, `${stage}-${name}.png`), H, await grab()])
   if (!kind) return
   await screen(H - BAR + MORE); await sleep(800)
-  where[`${stage}-${name}`] = regions(kind, await ev(PARTS(kind === 'forecast' ? PLACE : 'Hochstein')))
+  where[`${stage}-${name}`] = regions(kind, await ev(PARTS(word)))
   pages.push([path.join(FILM, `${stage}-${name}.png`), H + MORE, await grab()])
   if (SKY) {
     // the same page on Slate: the old sky's three colours set to it, then given back
@@ -215,7 +240,7 @@ try {
   await send('Page.addScriptToEvaluateOnNewDocument', { source: TERMS_CAPTURE_SCRIPT })
   if (tape) {
     await send('Page.addScriptToEvaluateOnNewDocument', { source: CLOCK })
-    await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*`, requestStage: 'Response' }] })
+    await send('Fetch.enable', { patterns: [{ urlPattern: `${BASE}/api/*`, requestStage: recording ? 'Response' : 'Request' }] })
     console.log(recording ? `  recording the API answers into ${REPLAY}` : `  replaying ${Object.keys(tape.answers).length} API answers from ${REPLAY}`)
   }
   const { userAgent } = (await send('Browser.getVersion')).result
@@ -230,17 +255,17 @@ try {
   const want = name => !ONLY || ONLY.includes(name)
   for (const lang of ['en', 'de']) {
     if (want('forecast')) {
-      await open(lang, `/?city=${encodeURIComponent(PLACE)}&app=1`)
-      if (!(await settled(PLACE))) throw new Error(`${lang}: the forecast for ${PLACE} did not load`)
+      await open(lang, `/?city=${encodeURIComponent(PLACE[lang])}&app=1`)
+      if (!(await settled(PLACE[lang]))) throw new Error(`${lang}: the forecast for ${PLACE[lang]} did not load`)
       // the search field stays empty, as on the store screenshots
       await ev(`(() => { const i = document.querySelector('.home-search input, input[type=search], input[type=text]'); if (i) { Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(i, ''); i.dispatchEvent(new Event('input', { bubbles: true })); i.blur() } return true })()`)
       await sleep(1500)
       console.log(`  ${lang} forecast: ${(await ev('document.body.innerText')).replace(/\s+/g, ' ').slice(0, 260)}`)
-      await save(`forecast-${lang}`, 'forecast')
+      await save(`forecast-${lang}`, 'forecast', PLACE[lang])
     }
     if (want('peak')) {
-      await open(lang, `/hike?${PEAK}&app=1`)
-      if (!(await settled('Hochstein'))) throw new Error(`${lang}: the peak did not load`)
+      await open(lang, `/hike?${PEAK.query}&app=1`)
+      if (!(await settled(PEAK.name))) throw new Error(`${lang}: the peak did not load`)
       await sleep(2500)
       // Tomorrow and Week by their own tabs: which tab the page opens on depends on the hour (in the evening
       // Today has no start left), and every stage has to show the same one
@@ -249,7 +274,7 @@ try {
       for (const [i, name] of [[1, 'tomorrow'], [2, 'week']]) {
         await ev(`([...document.querySelectorAll('[role=tab]')][${i}].click(), true)`); await sleep(2500)
         console.log(`  ${lang} peak, tab "${tabs[i]}": ${(await ev('document.body.innerText')).replace(/\s+/g, ' ').slice(0, 200)}`)
-        await save(`peak-${name}-${lang}`, `peak-${name}`)
+        await save(`peak-${name}-${lang}`, `peak-${name}`, PEAK.name)
       }
     }
     // the first screen of a phone that has never opened the app (stage 3's own change)
@@ -261,9 +286,12 @@ try {
     }
   }
   await drawBars()
-  if (recording) { fs.writeFileSync(REPLAY, JSON.stringify(tape)); console.log(`  recorded ${Object.keys(tape.answers).length} API answers`) }
-  // an address the recording does not have was asked live: its stage may show other weather there
-  if (missed.size) console.log(`  not in the recording, asked live: ${[...missed].join(', ')}`)
+  if (recording) {
+    fs.writeFileSync(REPLAY, JSON.stringify(tape))
+    console.log(`  recorded ${Object.keys(tape.answers).length} API answers; the server's answers (status, CDN, address):\n    ${cdn.join('\n    ')}`)
+  }
+  // an address the recording does not have failed in the page: that part of its pictures is wrong
+  if (missed.size) console.log(`  NOT IN THE RECORDING, failed in the page (nothing asked live): ${[...missed].join(', ')}`)
 } finally {
   await close()
 }

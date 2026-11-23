@@ -31,6 +31,8 @@ figcaption strong { color: var(--text); font-weight: 600; }
 label { display: inline-flex; gap: 0.5rem; align-items: center; min-height: 44px; cursor: pointer; }
 input { accent-color: var(--gold); width: 1.1rem; height: 1.1rem; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.sheets { display: grid; gap: 1.5rem; }
+.sheets img { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--surface); }
 .covers { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 12rem)); gap: 1.5rem; }
 .covers img, .shots img { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--surface); }
 .shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem 1rem; max-width: 44rem; }
@@ -39,62 +41,90 @@ dl { margin: 0; display: grid; grid-template-columns: max-content minmax(0, 1fr)
 dt { color: var(--muted); }
 dd { margin: 0; }
 code { font: 0.875rem/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
+section > .lede + .films, section > .lede + .sheets { margin-top: 1rem; }
+section > ul { margin-top: 1rem; }
 </style>
 <main>
   <header>
     <h1>Meta<b>Blend</b> has a new look</h1>
-    <p class="lede">Two reels to check, English and German. 1080 × 1920, 30 frames a second, 19.9 seconds, H.264, no sound. Nothing is posted.</p>
+    <p class="lede">Two reels, English and German, and a Reduce Motion version of each. 1080 × 1920, 60 frames a second, 24 seconds, H.264, no sound. Pictured on 23 November 2026, the newest stage from production as it is. Nothing is posted.</p>
   </header>
 
   <section>
     <h2>The films</h2>
-    <div class="films" id="films">
+    <p class="lede">The title alone, then the phone rises in. Before to Slate: only the background. Slate to Now: only what changed. Two close-ups held 2.5 s, the summit page on its Now stage only, the end card held 2 s.</p>
+    <div class="films">
       <figure>
         <div class="frame"><video controls playsinline preload="metadata" poster="metablend-new-look-en-cover.png" src="metablend-new-look-en.mp4"></video></div>
-        <figcaption><strong>English</strong> · metablend-new-look-en.mp4 · 1.9 MB</figcaption>
+        <figcaption><strong>English</strong> · metablend-new-look-en.mp4</figcaption>
       </figure>
       <figure>
         <div class="frame"><video controls playsinline preload="metadata" poster="metablend-new-look-de-cover.png" src="metablend-new-look-de.mp4"></video></div>
-        <figcaption><strong>Deutsch</strong> · metablend-new-look-de.mp4 · 1.9 MB</figcaption>
+        <figcaption><strong>Deutsch</strong> · metablend-new-look-de.mp4</figcaption>
       </figure>
     </div>
     <div class="row">
-      <label for="zones"><input type="checkbox" id="zones"> Show what Reels and TikTok cover</label>
+      <label for="zones"><input type="checkbox" id="zones" data-zones> Show what Reels and TikTok cover</label>
     </div>
-    <p class="lede">Red marks the top strip, the bottom fifth and the right edge. All text sits outside it; the lower end of the phone runs under it on purpose.</p>
+    <p class="lede">Red marks the top strip, the bottom fifth and the right edge. All text and both close-ups sit outside it; the lower end of the phone runs under it on purpose.</p>
+  </section>
+
+  <section>
+    <h2>Reduce Motion</h2>
+    <p class="lede">The same film with every change as one plain fade and no camera moves.</p>
+    <div class="films">
+      <figure>
+        <div class="frame"><video controls playsinline preload="metadata" poster="metablend-new-look-en-cover.png" src="metablend-new-look-en-reduced-motion.mp4"></video></div>
+        <figcaption><strong>English</strong> · metablend-new-look-en-reduced-motion.mp4</figcaption>
+      </figure>
+      <figure>
+        <div class="frame"><video controls playsinline preload="metadata" poster="metablend-new-look-de-cover.png" src="metablend-new-look-de-reduced-motion.mp4"></video></div>
+        <figcaption><strong>Deutsch</strong> · metablend-new-look-de-reduced-motion.mp4</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section>
+    <h2>Contact sheets</h2>
+    <p class="lede">Sixteen frames of each film, taken from the rendered file, with their time and moment.</p>
+    <div class="sheets">
+      <figure><img src="contact-sheet-en.png" alt="Sixteen frames of the English film, from the title to the end card" loading="lazy"><figcaption>contact-sheet-en.png</figcaption></figure>
+      <figure><img src="contact-sheet-de.png" alt="Sixteen frames of the German film, from the title to the end card" loading="lazy"><figcaption>contact-sheet-de.png</figcaption></figure>
+    </div>
   </section>
 
   <section>
     <h2>What to check</h2>
     <ul>
-      <li>The wording, in both languages: the title, the three stage names, the three close-up lines and the end card.</li>
-      <li>The order: the forecast in three stages, the summit page in three stages, then the first start, the search field and the week.</li>
+      <li>The first close-up is new. Production's forecast no longer has the row of labelled buttons; the place's name opens Change place. The line reads "Tap the place to change it" and "Zum Wechseln auf den Ort tippen".</li>
+      <li>The second close-up is unchanged: "Best day at a glance", "Bester Tag auf einen Blick".</li>
+      <li>The place is Vienna and the summit Schneeberg (Klosterwappen), both from production's answers of 00:38. Before and Slate show the same weather.</li>
       <li>The end card stays for two seconds: metablend.app, the free line, December for iOS and Android.</li>
-      <li>The cover is the frame at one second, the title over the new look.</li>
+      <li>The cover is the frame at one second, the title alone.</li>
     </ul>
   </section>
 
   <section>
     <h2>Covers</h2>
     <div class="covers">
-      <figure><img src="metablend-new-look-en-cover.png" alt="English cover: MetaBlend has a new look, over the forecast for Lienz" loading="lazy"><figcaption>metablend-new-look-en-cover.png</figcaption></figure>
-      <figure><img src="metablend-new-look-de-cover.png" alt="German cover: MetaBlend hat einen neuen Look, over the forecast for Lienz" loading="lazy"><figcaption>metablend-new-look-de-cover.png</figcaption></figure>
+      <figure><img src="metablend-new-look-en-cover.png" alt="English cover: MetaBlend has a new look" loading="lazy"><figcaption>metablend-new-look-en-cover.png</figcaption></figure>
+      <figure><img src="metablend-new-look-de-cover.png" alt="German cover: MetaBlend hat einen neuen Look" loading="lazy"><figcaption>metablend-new-look-de-cover.png</figcaption></figure>
     </div>
   </section>
 
   <section>
     <h2>Stage screenshots</h2>
-    <p class="lede">The raw pictures in <code>shots/</code>, 1170 × 2532, for the carousel. Left to right: Before, Slate, Now.</p>
+    <p class="lede">The raw pictures in <code>shots/</code>, 1170 × 2532, for the carousel. Left to right: Before, Slate, Now. The older pages had no best day line on the Week tab.</p>
     <div class="row" role="radiogroup" aria-label="Language of the screenshots">
       <label for="lang-en"><input type="radio" name="lang" id="lang-en" value="en" checked> English</label>
       <label for="lang-de"><input type="radio" name="lang" id="lang-de" value="de"> Deutsch</label>
     </div>
     <div class="shots" id="shots">
-      <h3>The forecast, Lienz</h3>
+      <h3>The forecast, Vienna</h3>
       <img src="shots/1-before-forecast-en.png" data-shot="1-before-forecast" alt="Before: the forecast" loading="lazy">
       <img src="shots/2-slate-forecast-en.png" data-shot="2-slate-forecast" alt="Slate: the forecast" loading="lazy">
       <img src="shots/3-now-forecast-en.png" data-shot="3-now-forecast" alt="Now: the forecast" loading="lazy">
-      <h3>The summit page, Hochstein, Tomorrow</h3>
+      <h3>The summit page, Schneeberg, Tomorrow</h3>
       <img src="shots/1-before-peak-tomorrow-en.png" data-shot="1-before-peak-tomorrow" alt="Before: the summit page, Tomorrow" loading="lazy">
       <img src="shots/2-slate-peak-tomorrow-en.png" data-shot="2-slate-peak-tomorrow" alt="Slate: the summit page, Tomorrow" loading="lazy">
       <img src="shots/3-now-peak-tomorrow-en.png" data-shot="3-now-peak-tomorrow" alt="Now: the summit page, Tomorrow" loading="lazy">
@@ -110,18 +140,18 @@ code { font: 0.875rem/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace; ov
   <section>
     <h2>How the pictures were made</h2>
     <dl>
-      <dt>Before</dt><dd>Commit <code>48603a1</code> of 7 November, the last one whose page wore the weather sky. Its sunrise sky is switched on: the sky followed the hour, and the pictures were taken at night.</dd>
-      <dt>Slate</dt><dd>Commit <code>50bc282</code> of 17 November, solid Slate before the changes of 20 November.</dd>
-      <dt>Now</dt><dd>Main, commit <code>967e434</code> of 21 November.</dd>
-      <dt>All three</dt><dd>Local builds on the dev database, one at a time, app view, dark, German and English, 21 November 2026 between 21:44 and 21:57. The status bar with 18:41 is drawn on.</dd>
+      <dt>Now</dt><dd>Production as it is, after the tenth deploy (main <code>09bd252a</code>), on 23 November 2026 at 00:38. Its answers were recorded.</dd>
+      <dt>Slate</dt><dd>Commit <code>37fb3d5</code> of 7 November, the switch to solid Slate, as a local build.</dd>
+      <dt>Before</dt><dd>Commit <code>48603a1</code> of 7 November, the last one whose page wore the weather sky, as a local build. Its sunrise sky is switched on: the sky followed the hour.</dd>
+      <dt>The same weather</dt><dd>Slate and Before were given production's recorded answers and asked nothing themselves; the browser's clock stood still at the recording. App view, dark, German and English. The status bar with 18:41 is drawn on.</dd>
       <dt>Again</dt><dd><code>scripts/brand/reel-shots.mjs</code> in MetaBlend, <code>scripts/render-new-look.mjs</code> in the Remotion project my-video. The README beside this page has the commands.</dd>
     </dl>
   </section>
 </main>
 <script>
-  const shots = document.getElementById('shots'), films = document.getElementById('films')
+  const shots = document.getElementById('shots')
   const show = lang => shots.querySelectorAll('img').forEach(img => { img.src = `shots/${img.dataset.shot}-${lang}.png` })
   document.querySelectorAll('input[name=lang]').forEach(radio => radio.addEventListener('change', () => show(radio.value)))
-  document.getElementById('zones').addEventListener('change', e => films.classList.toggle('zones', e.target.checked))
+  document.querySelectorAll('input[data-zones]').forEach(box => box.addEventListener('change', () => box.closest('section').querySelectorAll('.films').forEach(f => f.classList.toggle('zones', box.checked))))
   show(document.querySelector('input[name=lang]:checked').value)
 </script>

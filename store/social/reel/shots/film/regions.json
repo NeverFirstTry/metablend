@@ -1,0 +1,602 @@
+{
+ "3-now-forecast-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 109
+   },
+   {
+    "name": "headline",
+    "y0": 109,
+    "y1": 383
+   },
+   {
+    "name": "tabs",
+    "y0": 383,
+    "y1": 449
+   },
+   {
+    "name": "card",
+    "y0": 449,
+    "y1": 552
+   },
+   {
+    "name": "rest",
+    "y0": 552,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "3-now-peak-tomorrow-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 269
+   },
+   {
+    "name": "tabs",
+    "y0": 269,
+    "y1": 335
+   },
+   {
+    "name": "card",
+    "y0": 335,
+    "y1": 466
+   },
+   {
+    "name": "rest",
+    "y0": 466,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "3-now-peak-week-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 269
+   },
+   {
+    "name": "tabs",
+    "y0": 269,
+    "y1": 335
+   },
+   {
+    "name": "best",
+    "y0": 335,
+    "y1": 440
+   },
+   {
+    "name": "rest",
+    "y0": 440,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "3-now-forecast-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 109
+   },
+   {
+    "name": "headline",
+    "y0": 109,
+    "y1": 403
+   },
+   {
+    "name": "tabs",
+    "y0": 403,
+    "y1": 469
+   },
+   {
+    "name": "card",
+    "y0": 469,
+    "y1": 572
+   },
+   {
+    "name": "rest",
+    "y0": 572,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "3-now-peak-tomorrow-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 269
+   },
+   {
+    "name": "tabs",
+    "y0": 269,
+    "y1": 335
+   },
+   {
+    "name": "card",
+    "y0": 335,
+    "y1": 439
+   },
+   {
+    "name": "rest",
+    "y0": 439,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "3-now-peak-week-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 269
+   },
+   {
+    "name": "tabs",
+    "y0": 269,
+    "y1": 335
+   },
+   {
+    "name": "best",
+    "y0": 335,
+    "y1": 440
+   },
+   {
+    "name": "rest",
+    "y0": 440,
+    "y1": 1104
+   },
+   {
+    "name": "bar",
+    "y0": 1104,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-forecast-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 207
+   },
+   {
+    "name": "headline",
+    "y0": 207,
+    "y1": 396
+   },
+   {
+    "name": "tabs",
+    "y0": 396,
+    "y1": 458
+   },
+   {
+    "name": "card",
+    "y0": 458,
+    "y1": 562
+   },
+   {
+    "name": "rest",
+    "y0": 562,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-peak-tomorrow-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 217
+   },
+   {
+    "name": "tabs",
+    "y0": 217,
+    "y1": 279
+   },
+   {
+    "name": "card",
+    "y0": 279,
+    "y1": 410
+   },
+   {
+    "name": "rest",
+    "y0": 410,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-peak-week-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 217
+   },
+   {
+    "name": "tabs",
+    "y0": 217,
+    "y1": 279
+   },
+   {
+    "name": "best",
+    "y0": 279,
+    "y1": 279
+   },
+   {
+    "name": "rest",
+    "y0": 279,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-forecast-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 207
+   },
+   {
+    "name": "headline",
+    "y0": 207,
+    "y1": 396
+   },
+   {
+    "name": "tabs",
+    "y0": 396,
+    "y1": 458
+   },
+   {
+    "name": "card",
+    "y0": 458,
+    "y1": 562
+   },
+   {
+    "name": "rest",
+    "y0": 562,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-peak-tomorrow-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 233
+   },
+   {
+    "name": "tabs",
+    "y0": 233,
+    "y1": 295
+   },
+   {
+    "name": "card",
+    "y0": 295,
+    "y1": 399
+   },
+   {
+    "name": "rest",
+    "y0": 399,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "2-slate-peak-week-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 233
+   },
+   {
+    "name": "tabs",
+    "y0": 233,
+    "y1": 295
+   },
+   {
+    "name": "best",
+    "y0": 295,
+    "y1": 295
+   },
+   {
+    "name": "rest",
+    "y0": 295,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-forecast-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 207
+   },
+   {
+    "name": "headline",
+    "y0": 207,
+    "y1": 396
+   },
+   {
+    "name": "tabs",
+    "y0": 396,
+    "y1": 458
+   },
+   {
+    "name": "card",
+    "y0": 458,
+    "y1": 562
+   },
+   {
+    "name": "rest",
+    "y0": 562,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-peak-tomorrow-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 217
+   },
+   {
+    "name": "tabs",
+    "y0": 217,
+    "y1": 279
+   },
+   {
+    "name": "card",
+    "y0": 279,
+    "y1": 410
+   },
+   {
+    "name": "rest",
+    "y0": 410,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-peak-week-en": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 217
+   },
+   {
+    "name": "tabs",
+    "y0": 217,
+    "y1": 279
+   },
+   {
+    "name": "best",
+    "y0": 279,
+    "y1": 279
+   },
+   {
+    "name": "rest",
+    "y0": 279,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-forecast-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 103
+   },
+   {
+    "name": "search",
+    "y0": 103,
+    "y1": 207
+   },
+   {
+    "name": "headline",
+    "y0": 207,
+    "y1": 396
+   },
+   {
+    "name": "tabs",
+    "y0": 396,
+    "y1": 458
+   },
+   {
+    "name": "card",
+    "y0": 458,
+    "y1": 562
+   },
+   {
+    "name": "rest",
+    "y0": 562,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-peak-tomorrow-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 233
+   },
+   {
+    "name": "tabs",
+    "y0": 233,
+    "y1": 295
+   },
+   {
+    "name": "card",
+    "y0": 295,
+    "y1": 399
+   },
+   {
+    "name": "rest",
+    "y0": 399,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ },
+ "1-before-peak-week-de": {
+  "height": 1164,
+  "parts": [
+   {
+    "name": "header",
+    "y0": 0,
+    "y1": 233
+   },
+   {
+    "name": "tabs",
+    "y0": 233,
+    "y1": 295
+   },
+   {
+    "name": "best",
+    "y0": 295,
+    "y1": 295
+   },
+   {
+    "name": "rest",
+    "y0": 295,
+    "y1": 1107
+   },
+   {
+    "name": "bar",
+    "y0": 1107,
+    "y1": 1164
+   }
+  ]
+ }
+}
