@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Changed: the privacy notice says what the app keeps on the phone, and names the widgets
+- /privacy, German first and in all 12 translations, gains three passages; nothing is removed or reworded.
+- What stays on your device: in the app, the phone remembers which of the two sections, Forecast or Mountains, was used last and which peak or route was open there, so the app starts there next time (for the app opening on the last tab).
+- Notifications (app), at the end: a hike planned while notifications are off stays only on the phone, in the app's storage (the peak's name, coordinates and height, the day, and for a route a simplified copy of at most 150 points with its name and the chosen pace); we do not store it and it brings no alerts; the app deletes it after its day or when it is cancelled and keeps at most 30; turned-on notifications move these plans to our server (for planning without notifications).
+- Third-party services, our own server: a widget on the home screen fetches its forecast from our server at regular intervals and names the language, the unit and the place it shows (the weather widget the city's name; the Next hike widget the peak's name, coordinates and height and the day), also for a plan kept only on the phone. The widgets have done this since they exist; the notice had not named them.
+- Store forms (store/compliance.md): no answer changes; planned hikes are declared, and nothing new is collected.
+- Open-Meteo: no change.
+
 ### Fixed: the More page's title in your language
 - The browser tab of the More page says "Mehr · MetaBlend" in German, and its own word in each of the 13 languages; it said "More · MetaBlend" in every language (owner, 22 November).
 
