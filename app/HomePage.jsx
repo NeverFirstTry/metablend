@@ -310,10 +310,12 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
     // per-city SEO pages and the RSS feed links).
     // Inside the app the Forecast tab reloads the page, so it brings back the
     // last city looked at.
+    // a cold start of the app that goes on to the Hiking tab (lib/app-tabs.js): no forecast is asked for
+    const leaving = !!document.documentElement.dataset.resumeTab
     if (resume.restore) {
       // the last screen is already showing (state initializers); refresh it quietly when due
       if (resume.refresh) loadForecast(SESSION.city, { silent: true, lang: detectedLang })
-    } else {
+    } else if (!leaving) {
       // which place, and whether it goes into Recent (lib/app-client.js, tested there)
       const { city: first, remember } = firstLoad({
         search: window.location.search,
