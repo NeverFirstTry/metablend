@@ -5,6 +5,13 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: a city page has one address
+- A city link with trailing or repeated hyphens, like `/weather/wien---`, was a page of its own: the hyphens became spaces in the city's name, and the page named itself as its canonical address. Such an address now moves permanently (308) to the one address, `/weather/wien`. The same for capital letters and spaces: `/weather/Wien` and `/weather/new%20york` move to `/weather/wien` and `/weather/new-york`.
+- An address with nothing in it (`/weather/---`) or one that cannot be read answers "not found".
+- The move happens before a forecast is asked for, so such addresses no longer cost a forecast build.
+- Summit and airport pages were checked: they take only an exact id or code and answer "not found" for a stray hyphen, so nothing changes there.
+- Open-Meteo: no new request; fewer for addresses that now move.
+
 ### Fixed: the More page's title in your language
 - The browser tab of the More page says "Mehr · MetaBlend" in German, and its own word in each of the 13 languages; it said "More · MetaBlend" in every language (owner, 22 November).
 

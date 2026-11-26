@@ -1,6 +1,6 @@
 import { jsonForScript } from '@/lib/html'
-import { notFound } from 'next/navigation'
-import { CITIES, findCity, slugToQuery } from '@/lib/cities'
+import { notFound, permanentRedirect } from 'next/navigation'
+import { CITIES, findCity, slugToQuery, canonicalCitySlug } from '@/lib/cities'
 import { heroCondition } from '@/lib/conditions'
 import { blendShares } from '@/lib/consensus'
 import { readForecast } from '@/lib/weather-page'
@@ -52,8 +52,13 @@ async function getOutlook(slug) {
   }
 }
 
+// the page's one address in the form a link carries it
+const addressOf = slug => `/weather/${encodeURIComponent(slug)}`
+
 export async function generateMetadata({ params }) {
-  const { city } = await params
+  const given = (await params).city
+  // named by its one address, whatever spelling was asked (the page itself moves there)
+  const city = encodeURIComponent(canonicalCitySlug(given) ?? given)
   const name = displayName(city)
   return {
     title: `${name} Weather: Consensus of Up to 20 Weather Sources`,
@@ -66,6 +71,11 @@ export async function generateMetadata({ params }) {
 
 export default async function CityWeather({ params }) {
   const { city } = await params
+  // one address per city: wien---, Wien or new--york move for good to wien and new-york, before any forecast is
+  // asked for; compared as text, so the percent form of the same address is not another spelling
+  const one = canonicalCitySlug(city)
+  if (!one) notFound()
+  if (one !== decodeURIComponent(city)) permanentRedirect(addressOf(one))
   const [data, outlook] = await Promise.all([getForecast(city), getOutlook(city)])
   if (data === 'unknown') notFound()
   const name = data.city ?? displayName(city)
