@@ -1,3 +1,4 @@
+import DocTitle from '../../components/DocTitle'
 import Link from 'next/link'
 import { AlertTriangle } from 'lucide-react'
 import BackLink from '../../components/BackLink'
@@ -111,6 +112,7 @@ export default async function AirportPage({ params }) {
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
+      <DocTitle k="titleAirport" vars={{ code: icao.toUpperCase(), name: ap.name }} />
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <BackLink href="/aviation" className="app-only">Aviation</BackLink>

@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import TestersContent from './TestersContent'
 
 export const metadata = {
@@ -9,5 +10,5 @@ export const metadata = {
 // Metadata in a server component; the localized body is client-side (it
 // reads the language cookie), like /privacy.
 export default function Testers() {
-  return <TestersContent />
+  return <><DocTitle k="testersTitle" /><TestersContent /></>
 }

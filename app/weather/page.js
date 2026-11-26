@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import { CITIES } from '@/lib/cities'
 import CityList from './CityList'
 
@@ -12,5 +13,5 @@ export const metadata = {
 }
 
 export default function CityIndex() {
-  return <CityList cities={CITIES.map(({ slug, name }) => ({ slug, name }))} />
+  return <><DocTitle k="titleCities" /><CityList cities={CITIES.map(({ slug, name }) => ({ slug, name }))} /></>
 }

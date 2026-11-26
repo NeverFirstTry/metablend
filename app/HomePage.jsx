@@ -53,6 +53,7 @@ import OfficialBadges from './components/OfficialBadges'
 import { DataAge } from './components/RefreshClock'
 import EmbedPanel from './components/EmbedPanel'
 import PushPrompt from './components/push/PushPrompt'
+import { useDocTitle, readerTitle, homeTitle } from '@/lib/doc-title'
 import { cityShareUrl, shareText } from '@/lib/share'
 import { heroCondition } from '@/lib/conditions'
 
@@ -231,6 +232,7 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const [stackActions, setStackActions] = useState(false) // refresh, share and embed in a row under a long place name
   // the shared value first: a language or unit just changed on another tab beats this tab's memory
   const [lang, setLang] = useState(() => knownLang() ?? SESSION.lang ?? pageLang ?? 'en')
+  useDocTitle(readerTitle(lang, homeTitle(lang))) // the tab's title in the reader's language (lib/doc-title.js)
   const hans = useHans(lang) // names the browser got from the geocoder, in simplified Chinese (lib/useHans.js)
   // The search box shows a loaded place as the reader reads it (the forecast's cityShown: simplified Chinese);
   // a search for that text asks by the name the place goes by (city), the one that finds it again
@@ -458,7 +460,8 @@ export default function Home({ pageLang = null, example = null, peaks = 0 }) {
   const fmt = useMemo(() => ({ fmtTemp: tempFormatter(unit), fmtDelta: deltaFormatter(unit), fmtSpan: spanFormatter(unit) }), [unit])
   // the rain prompt stands right under the tab's headline (UX review S4: it stood two screens down)
   // it names and registers the place that is open (the forecast's own name, the one the views are counted under)
-  const prompt = <PushPrompt lang={lang} unit={unit} city={data?.city ?? null} />
+  // and waits while the warnings card lists an official warning there (the card's own place, one shared answer)
+  const prompt = <PushPrompt lang={lang} unit={unit} city={data?.city ?? null} lat={data?.lat} lon={data?.lon} cc={outlook?.cc} />
   // the sun at the city right now: dark mode glows faintly where it is (lib/useSky.js)
   useSky(outlook ? skyFor({ nowLocal: outlook.nowLocal, sun: outlook.sun }) : null)
   // screen readers pick the voice from it, and hyphens: auto the dictionary
