@@ -5,6 +5,14 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-22
 
+### Fixed: a summit below freezing gets snow, not rain
+- A summit's Week rows said "Rain from 08:00" at -12° on the Schneeberg (2076 m, freezing level 380 to 760 m). Precipitation now says what falls at that height: below freezing "snow", from freezing to 2° above it "rain and snow" (German "Schnee", "Schneeregen"), warmer "rain" as before. In all 13 languages.
+- Where it shows: the peak's Today, Tomorrow and Week, the summit pages, My peaks, the alerts for a planned hike, and on a route the stage's flag ("snow possible, 60%"), its "why not" line and its alert.
+- The hour's and the day's weather icon on a summit: a model's rain is drawn as snow where the summit is below freezing. A model's weather code is for its own grid height, in the mountains often the valley's.
+- How it decides: the blended temperature at the summit, or at the stage's height on a route (`lib/hike/physics.js` precipKind). An answer made before this change reads as it did.
+- Not changed: the precipitation chance is still labelled "Rain" in the tables and value keys, at any temperature.
+- Open-Meteo: no change.
+
 ### Fixed: the More page's title in your language
 - The browser tab of the More page says "Mehr · MetaBlend" in German, and its own word in each of the 13 languages; it said "More · MetaBlend" in every language (owner, 22 November).
 
