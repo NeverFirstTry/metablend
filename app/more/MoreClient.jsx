@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useLayoutEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDocTitle, readerTitle } from '@/lib/doc-title'
 import Link from 'next/link'
 import { Settings, Compass, LifeBuoy, Scale, ChevronRight } from 'lucide-react'
 import { t, LANGUAGES, langChoice, LANG_SYSTEM } from '@/lib/i18n'
@@ -29,17 +30,8 @@ export const moreTitle = lang => `${t(lang, 'more')} · MetaBlend`
 // and the sections that have no tab of their own.
 export default function MoreClient() {
   const lang = useLang()
-  // Next puts its own <title> (the static "More") back once the page has hydrated, after the first effects (measured
-  // 2026-11-22: set at 66 ms, back at 83 ms), so the title is kept while More is open. A layout effect: leaving the page
-  // disconnects in the same commit (pending records dropped), so the next page keeps its own title.
-  useLayoutEffect(() => {
-    const want = moreTitle(lang)
-    const keep = () => { if (document.title !== want) document.title = want }
-    keep()
-    const watch = new MutationObserver(keep)
-    watch.observe(document.head, { subtree: true, childList: true, characterData: true })
-    return () => watch.disconnect()
-  }, [lang])
+  // kept while More is open, against Next putting its static "More" back (lib/doc-title.js); English keeps the server's
+  useDocTitle(readerTitle(lang, moreTitle(lang)))
   const [langPick, setLangPick] = useState(LANG_SYSTEM)
   // eslint-disable-next-line react-hooks/set-state-in-effect -- post-hydration cookie sync, like useLang
   useEffect(() => { setLangPick(langChoice(getCookie('metablend_lang'))) }, [])

@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import { LANGUAGES } from '@/lib/i18n'
 import { IMPRESSUM, OPERATOR, EMAIL } from './content'
 import { VisibleLang, BackLink, LangFooter } from './LangChrome'
@@ -47,6 +48,7 @@ export default function Impressum() {
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
       <VisibleLang />
+      <DocTitle k="footerImpressum" />
       <noscript><style>{'[data-legal]{display:block!important;margin-bottom:3rem}'}</style></noscript>
       <div className="max-w-2xl mx-auto">
         <BackLink />

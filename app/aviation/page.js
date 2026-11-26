@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import Link from 'next/link'
 import BackLink from '../components/BackLink'
 import Footer from '../components/Footer'
@@ -51,6 +52,7 @@ export default async function AviationHub() {
 
   return (
     <main className="min-h-screen bg-[#0e0e12] text-white font-mono p-4 sm:p-8 overflow-x-hidden">
+      <DocTitle k="titleAviation" />
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <BackLink href="/more" className="app-only">More</BackLink>

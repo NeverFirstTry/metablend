@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-26
 
+### Fixed: every page's browser title in your language
+- The browser tab of Rankings, the Heatmap, the Planner, Aviation and its airport pages, Cities and each city, Mountains and each summit, Privacy, Terms, Legal notice, Press, Support, the testers page and the start page says its title in your language, in all 13 languages; they said it in English whatever your language (owner, 22 November). In English, and for search engines, the titles stay as they were.
+
+### Changed: the rain alerts prompt waits while an official warning is shown
+- When the official warnings list a warning for the place, the app's rain prompt waits for a visit without one: the warning comes first, and below it the prompt sat at the edge of the tab bar (owner, 22 November).
+
 ### Changed: the privacy notice says what the app keeps on the phone, and names the widgets
 - /privacy, German first and in all 12 translations, gains three passages; nothing is removed or reworded.
 - What stays on your device: in the app, the phone remembers which of the two sections, Forecast or Mountains, was used last and which peak or route was open there, so the app starts there next time (for the app opening on the last tab).

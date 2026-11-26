@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 // Metadata for the client page (server layouts own SEO tags in the App Router).
 export const metadata = {
   title: 'Weather API Leaderboard: Which Forecast Is Most Accurate?',
@@ -8,5 +9,5 @@ export const metadata = {
 }
 
 export default function LeaderboardLayout({ children }) {
-  return children
+  return <>{children}<DocTitle k="titleLeaderboard" /></>
 }

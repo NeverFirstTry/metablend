@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 // Metadata for the client page (server layouts own SEO tags in the App Router).
 export const metadata = {
   title: 'Forecast Accuracy Heatmap',
@@ -8,5 +9,5 @@ export const metadata = {
 }
 
 export default function HeatmapLayout({ children }) {
-  return children
+  return <>{children}<DocTitle k="titleHeatmap" /></>
 }
