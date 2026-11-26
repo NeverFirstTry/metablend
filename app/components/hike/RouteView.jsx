@@ -11,6 +11,7 @@ import { highestIndex } from '@/lib/route/geometry'
 import { walkStats } from '@/lib/route/heights'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
+import { reasonKey } from '@/lib/hike/text'
 import { stageFlag } from '@/lib/route/flag'
 import { SectionTitle } from '../ui'
 import { StormBar, StormLegend } from './SummitStrip'
@@ -67,7 +68,7 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
   const days = Array.from({ length: 7 }, (_, k) => addDays(today, k))
   const word = date2 => { const w = dayWord(lang, date2, today); return w.charAt(0).toLocaleUpperCase(lang) + w.slice(1) }
   const s = d?.suggestion
-  const why = s?.none && s.firstBad ? fill(t(lang, 'routeWhyNot'), { reason: t(lang, REASON_KEY[s.reason]), eta: s.firstBad.eta, km: d.stages[s.firstBad.i]?.km ?? '–' }) : s?.none ? t(lang, REASON_KEY[s.reason]) : null
+  const why = s?.none && s.firstBad ? fill(t(lang, 'routeWhyNot'), { reason: t(lang, reasonKey(s.reason, s.firstBad.precip, REASON_KEY)), eta: s.firstBad.eta, km: d.stages[s.firstBad.i]?.km ?? '–' }) : s?.none ? t(lang, REASON_KEY[s.reason]) : null
   const label = (st, k) => (k === 0 ? t(lang, 'routeStartLabel') : k === d.stages.length - 1 ? t(lang, 'routeFinishLabel') : st.high ? t(lang, 'routeHigh') : `km ${st.km}`)
 
   return (

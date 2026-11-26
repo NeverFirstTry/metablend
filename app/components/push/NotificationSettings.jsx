@@ -38,8 +38,8 @@ export default function NotificationSettings({ lang, unit }) {
       if (perm !== 'granted') await forgetWhenOff().catch(() => {})
       const r = await pushApi('settings')
       setState({ loading: false, perm, settings: r.status === 200 ? r.json.settings : null, plans: r.json.plans ?? [], canOpen: canOpenSettings() })
-      // the Hiking tab and the peaks show the same list (lib/plans-client.js)
-      if (r.status === 200 && Array.isArray(r.json.plans)) plansStore.set(r.json.plans)
+      // the Mountains tab and the peaks show the same list (lib/plans-client.js); the plans kept on the phone stay
+      if (r.status === 200 && Array.isArray(r.json.plans)) plansStore.setServer(r.json.plans, true)
     } catch {
       setState({ loading: false, unavailable: true })
     }
@@ -58,6 +58,8 @@ export default function NotificationSettings({ lang, unit }) {
     if (!r.ok) { if (r.detail) console.warn('push', r.detail); setMsg(r.reason === 'denied' ? null : t(lang, 'notifError')); await load(); return }
     const { topCity } = await promptState()
     await pushApi('settings', { method: 'PUT', body: { home_name: topCity ?? null, alert_rain: true, alert_storm: true, alert_severe: true, alert_heat: true, lang, unit } })
+    // the hikes planned without notifications go to the server now, so they get their alerts (owner, 2026-11-22)
+    await plansStore.promote()
     syncWidgets({ refresh: true })
     await load()
     if (!topCity) setEditHome(true) // no city viewed yet: pick one, or the alerts have nowhere to look
@@ -67,7 +69,7 @@ export default function NotificationSettings({ lang, unit }) {
   async function turnOff() {
     if (!(await disablePush().catch(() => false))) { setMsg(t(lang, 'notifError')); return }
     setState(s => ({ ...s, settings: null, plans: [] }))
-    plansStore.set([]) // switching off deletes the plans on the server
+    plansStore.setServer([], false) // switching off deletes the plans on the server; the phone's own stay
     setEditHome(false)
     syncWidgets({ refresh: true })
   }
