@@ -7,14 +7,17 @@ import { fill } from '@/lib/outlook/text'
 import { isNative } from '@/lib/native'
 import { enablePush, pushApi, promptState, dismissPrompt, permission } from '@/lib/push-client'
 import { syncWidgets } from '@/lib/app-widget-client'
-import { shouldPrompt, turnOnOutcome, promptSettings } from '@/lib/push-ui'
+import { shouldPrompt, turnOnOutcome, promptSettings, promptWaits } from '@/lib/push-ui'
+import { useWarnings } from '@/lib/warnings/useWarnings'
 
 // "Get a heads-up before rain in Vienna?" — app only, from the 3rd forecast
 // view, never again once dismissed or once notifications are on.
 // city: the place open on the page; the prompt names it and Turn on registers it (owner, 2026-11-22: it named and
 // registered the most viewed city, whatever was open). The most viewed one only stands in when none is given.
-export default function PushPrompt({ lang, unit, city = null }) {
+// lat, lon, cc: the place as the warnings card gets it, so both read one shared answer (lib/push-ui.js promptWaits)
+export default function PushPrompt({ lang, unit, city = null, lat = null, lon = null, cc = null }) {
   const [show, setShow] = useState(null) // null | { city } | 'done'
+  const warned = useWarnings(lat, lon, lang, cc)
   useEffect(() => {
     if (!isNative()) return
     let off = false
@@ -25,6 +28,7 @@ export default function PushPrompt({ lang, unit, city = null }) {
   }, [])
   if (!show) return null
   if (show === 'done') return <p className="text-sm text-zinc-400 animate-fade-in" role="status">{t(lang, 'promptDone')}</p>
+  if (promptWaits(lat != null, warned)) return null
   const place = city || show.city
 
   // "done" only once the server took the phone; a refused permission ends the prompt for good, a failure (no push

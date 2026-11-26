@@ -1,3 +1,4 @@
+import DocTitle from '../../components/DocTitle'
 import { notFound } from 'next/navigation'
 import featured from '@/lib/hike/featured.json'
 import { hikeApiPath } from '@/lib/hike/params'
@@ -60,6 +61,7 @@ export default async function MountainWeather({ params }) {
 
   return (
     <>
+      <DocTitle k="titleSummit" vars={{ peak: peak.name, elev: peak.elev }} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{

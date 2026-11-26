@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import fs from 'node:fs'
 import path from 'node:path'
 import { PRESS_KIT } from '@/lib/press'
@@ -13,5 +14,5 @@ export const metadata = {
 // (it reads the language cookie), like /support. Static: no render per visit.
 export default function Press() {
   const kitBytes = fs.statSync(path.join(process.cwd(), 'public', PRESS_KIT)).size
-  return <PressContent kitBytes={kitBytes} />
+  return <><DocTitle k="footerPress" /><PressContent kitBytes={kitBytes} /></>
 }

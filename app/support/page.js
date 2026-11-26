@@ -1,3 +1,4 @@
+import DocTitle from '../components/DocTitle'
 import SupportContent from './SupportContent'
 
 export const metadata = {
@@ -9,5 +10,5 @@ export const metadata = {
 // Metadata in a server component; the localized body is client-side (it
 // reads the language cookie), like /testers and /privacy. Static: no render per visit.
 export default function Support() {
-  return <SupportContent />
+  return <><DocTitle k="footerSupport" /><SupportContent /></>
 }
