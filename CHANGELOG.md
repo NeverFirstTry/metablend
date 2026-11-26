@@ -55,6 +55,10 @@ All notable changes to MetaBlend. Format loosely follows
 - Since 20 November the chosen button ("°C", "Light") was dark grey with dark text in the light theme, almost unreadable, on the website and in the app alike.
 - Now it is a light grey pill with the dark text, the light theme's match of the grey pill in dark. Dark theme unchanged.
 - Website and app (the app shows the website): one style rule, no native build. Open-Meteo: no change.
+### Changed: a hike can be planned without notifications
+- In the app, "Plan a hike" works without notifications, for someone who only wants the "Next hike" widget. The plan then stays on the phone (nothing goes to the server) and shows in the Mountains tab and in the widget; the plan screen says in one line that hike alerts need notifications, with "Turn on" beside it (owner, 22 November). Turning them on, there or in More, moves the phone's plans to the server, so they get their alerts.
+- A plan kept on the phone is deleted after its day, like the server's; switching notifications off in More leaves the phone's own plans in place.
+- With notifications on, nothing changes. A plan kept on the phone shows a calendar tick instead of the bell, since no alert comes for it; with alerts off the buttons say "Plan for Saturday" with a calendar instead of "Remind me for Saturday" with the bell. In all 13 languages.
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
