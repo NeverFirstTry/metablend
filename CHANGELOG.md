@@ -3,7 +3,7 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-22
+## 2026-11-26
 
 ### Changed: the privacy notice says what the app keeps on the phone, and names the widgets
 - /privacy, German first and in all 12 translations, gains three passages; nothing is removed or reworded.
@@ -11,6 +11,7 @@ All notable changes to MetaBlend. Format loosely follows
 - Notifications (app), at the end: a hike planned while notifications are off stays only on the phone, in the app's storage (the peak's name, coordinates and height, the day, and for a route a simplified copy of at most 150 points with its name and the chosen pace); we do not store it and it brings no alerts; the app deletes it after its day or when it is cancelled and keeps at most 30; turned-on notifications move these plans to our server (for planning without notifications).
 - Third-party services, our own server: a widget on the home screen fetches its forecast from our server at regular intervals and names the language, the unit and the place it shows (the weather widget the city's name; the Next hike widget the peak's name, coordinates and height and the day), also for a plan kept only on the phone. The widgets have done this since they exist; the notice had not named them.
 - Store forms (store/compliance.md): no answer changes; planned hikes are declared, and nothing new is collected.
+
 ### Fixed: a summit below freezing gets snow, not rain
 - A summit's Week rows said "Rain from 08:00" at -12° on the Schneeberg (2076 m, freezing level 380 to 760 m). Precipitation now says what falls at that height: below freezing "snow", from freezing to 2° above it "rain and snow" (German "Schnee", "Schneeregen"), warmer "rain" as before. In all 13 languages.
 - Where it shows: the peak's Today, Tomorrow and Week, the summit pages, My peaks, the alerts for a planned hike, and on a route the stage's flag ("snow possible, 60%"), its "why not" line and its alert.
@@ -18,12 +19,24 @@ All notable changes to MetaBlend. Format loosely follows
 - How it decides: the blended temperature at the summit, or at the stage's height on a route (`lib/hike/physics.js` precipKind). An answer made before this change reads as it did.
 - Not changed: the precipitation chance is still labelled "Rain" in the tables and value keys, at any temperature.
 - Open-Meteo: no change.
+
 ### Fixed: a city page has one address
 - A city link with trailing or repeated hyphens, like `/weather/wien---`, was a page of its own: the hyphens became spaces in the city's name, and the page named itself as its canonical address. Such an address now moves permanently (308) to the one address, `/weather/wien`. The same for capital letters and spaces: `/weather/Wien` and `/weather/new%20york` move to `/weather/wien` and `/weather/new-york`.
 - An address with nothing in it (`/weather/---`) or one that cannot be read answers "not found".
 - The move happens before a forecast is asked for, so such addresses no longer cost a forecast build.
 - Summit and airport pages were checked: they take only an exact id or code and answer "not found" for a stray hyphen, so nothing changes there.
 - Open-Meteo: no new request; fewer for addresses that now move.
+
+### Changed: a hike can be planned without notifications
+- In the app, "Plan a hike" works without notifications, for someone who only wants the "Next hike" widget. The plan then stays on the phone (nothing goes to the server) and shows in the Mountains tab and in the widget; the plan screen says in one line that hike alerts need notifications, with "Turn on" beside it (owner, 22 November). Turning them on, there or in More, moves the phone's plans to the server, so they get their alerts.
+- A plan kept on the phone is deleted after its day, like the server's; switching notifications off in More leaves the phone's own plans in place.
+- With notifications on, nothing changes. A plan kept on the phone shows a calendar tick instead of the bell, since no alert comes for it; with alerts off the buttons say "Plan for Saturday" with a calendar instead of "Remind me for Saturday" with the bell. In all 13 languages.
+
+### Changed: the app opens on the tab used last
+- A hiker who closed the app on a peak or a route starts the next time on that peak or route, not on a city. Forecast and Hiking count as the tab used last; More does not. A city link still opens its city.
+- The start page stays out of sight on the way there and asks for no forecast; on a slow connection its small loader shows meanwhile.
+
+## 2026-11-22
 
 ### Fixed: the More page's title in your language
 - The browser tab of the More page says "Mehr · MetaBlend" in German, and its own word in each of the 13 languages; it said "More · MetaBlend" in every language (owner, 22 November).
@@ -67,10 +80,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Since 20 November the chosen button ("°C", "Light") was dark grey with dark text in the light theme, almost unreadable, on the website and in the app alike.
 - Now it is a light grey pill with the dark text, the light theme's match of the grey pill in dark. Dark theme unchanged.
 - Website and app (the app shows the website): one style rule, no native build. Open-Meteo: no change.
-### Changed: a hike can be planned without notifications
-- In the app, "Plan a hike" works without notifications, for someone who only wants the "Next hike" widget. The plan then stays on the phone (nothing goes to the server) and shows in the Mountains tab and in the widget; the plan screen says in one line that hike alerts need notifications, with "Turn on" beside it (owner, 22 November). Turning them on, there or in More, moves the phone's plans to the server, so they get their alerts.
-- A plan kept on the phone is deleted after its day, like the server's; switching notifications off in More leaves the phone's own plans in place.
-- With notifications on, nothing changes. A plan kept on the phone shows a calendar tick instead of the bell, since no alert comes for it; with alerts off the buttons say "Plan for Saturday" with a calendar instead of "Remind me for Saturday" with the bell. In all 13 languages.
 
 ### Fixed: planning a hike after a new app build no longer answers "Unknown device"
 - In the app, "Plan a hike" on a phone whose notifications are on answered "Unknown device", in English whatever the language, when the server no longer knew the phone: after a new app build replaced the old one (Apple then refuses the old token and the server lets the phone go), or after the app lost its key. The phone now registers again by itself and the plan goes through, as turning notifications off and on did by hand.
@@ -219,10 +228,6 @@ All notable changes to MetaBlend. Format loosely follows
 - Spanish: "Rutas de senderismo señalizadas", so the Google Play listing still holds the word people search for.
 
 ## 2026-11-21
-
-### Changed: the app opens on the tab used last
-- A hiker who closed the app on a peak or a route starts the next time on that peak or route, not on a city. Forecast and Hiking count as the tab used last; More does not. A city link still opens its city.
-- The start page stays out of sight on the way there and asks for no forecast; on a slow connection its small loader shows meanwhile.
 
 ### Added: the database's size is measured every night, and has a health address of its own
 - Nothing a visitor sees changes.
