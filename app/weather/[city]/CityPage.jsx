@@ -7,6 +7,7 @@ import { formatCalendarDate } from '@/lib/localtime'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
 import { cityName, countryName } from '@/lib/city-names'
+import { kindAt, dayKind, chanceLabelKey, precipWord } from '@/lib/precip'
 import Footer from '../../components/Footer'
 import Glyph from '../../components/Glyph'
 
@@ -59,7 +60,7 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
             </div>
           </div>
           <dl className="flex flex-wrap gap-x-8 gap-y-2 mt-6 text-sm">
-            <div><dt className={dt}>{t(lang, 'rainChanceLabel')}</dt><dd className="font-bold tabular-nums">{consensus.rainPct != null ? `${consensus.rainPct}%` : '–'}</dd></div>
+            <div><dt className={dt}>{t(lang, chanceLabelKey([kindAt(consensus.temp)]))}</dt><dd className="font-bold tabular-nums">{consensus.rainPct != null ? `${consensus.rainPct}%` : '–'}</dd></div>
             <div><dt className={dt}>{t(lang, 'windLabel')}</dt><dd className="font-bold tabular-nums">{consensus.windKmh} km/h</dd></div>
             <div><dt className={dt}>{t(lang, 'cityAgreement')}</dt><dd className="font-bold tabular-nums">{consensus.confidencePct}%</dd></div>
             {outlook?.sun?.sunrise && (
@@ -85,7 +86,8 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
                   <th className="py-2 pr-3 sm:pr-4 font-normal">{t(lang, 'colDay')}</th>
                   <th className="py-2 pr-3 sm:pr-4 font-normal"><span className="sr-only sm:not-sr-only">{t(lang, 'conditionLabel')}</span></th>
                   <th className="py-2 pr-3 sm:pr-4 font-normal whitespace-nowrap">{t(lang, 'highLowLabel')}</th>
-                  <th className="py-2 pr-3 sm:pr-4 font-normal">{t(lang, 'colRain')}</th>
+                  {/* on a phone every row says its own word ("60% snow"), and the heading's one long word ("Niederschlag") would make the table wider than its card */}
+                  <th className="py-2 pr-3 sm:pr-4 font-normal"><span className="sr-only sm:not-sr-only">{t(lang, 'colPrecip')}</span></th>
                   <th className="py-2 font-normal">{t(lang, 'windLabel')}</th>
                 </tr>
               </thead>
@@ -95,7 +97,8 @@ export default function CityPage({ slug, name: englishName, country, consensus, 
                     <td className="py-2 pr-3 sm:pr-4 whitespace-nowrap">{weekday(d.date)}</td>
                     <td className="py-2 pr-3 sm:pr-4"><Glyph emoji={d.icon} size={16} /> <span className="sr-only sm:not-sr-only">{d.condition ? translateCondition(lang, d.condition) : ''}</span></td>
                     <td className="py-2 pr-3 sm:pr-4 tabular-nums whitespace-nowrap">{fmt(d.tempMax)} / {fmt(d.tempMin)}</td>
-                    <td className="py-2 pr-3 sm:pr-4 tabular-nums">{d.rainPct != null ? `${d.rainPct}%` : '–'}</td>
+                    {/* the word under the number on a phone, small as on the summit list, so the column stays as narrow as it was; beside it from sm up */}
+                    <td className="py-2 pr-3 sm:pr-4 tabular-nums">{d.rainPct != null ? <>{d.rainPct}%{' '}<span className="block text-xs sm:inline sm:text-sm">{precipWord(lang, dayKind(d))}</span></> : '–'}</td>
                     <td className="py-2 tabular-nums whitespace-nowrap">{d.windKmh != null ? `${d.windKmh} km/h` : '–'}</td>
                   </tr>
                 ))}
