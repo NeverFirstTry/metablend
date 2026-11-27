@@ -5,6 +5,16 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-27
 
+### Fixed: the forecast says snow when it will snow
+- The headline, the two-hour card and the rain alert said "rain" for any precipitation. They now say what falls: "Snow likely 14:00-16:00 today" ("Schnee wahrscheinlich heute 14:00-16:00"), "Snow from ~13:30 · light", and the alert's title "Snow in Lienz" or "Rain and snow in Lienz" ("Schnee in Lienz", "Schneeregen in Lienz"). The morning briefing and the widget's line follow.
+- What falls is read from the forecast's hours: a snow code of the sources is snow, freezing rain is rain, everything else goes by the temperature (below 0° snow, 0° to under 2° rain and snow, warmer rain). An event over several hours takes the kind that carries most of their chance.
+- The two-hour card's own data is an amount of precipitation and cannot tell snow from rain; it takes the kind from the forecast hours its wet quarters fall in. Where there are none it says "Precipitation" ("Niederschlag").
+- The alert is the same switch as before and is sent at the same moments: snow and mixed precipitation always counted, only the wording was rain.
+- Rain reads as before, in every language. The new sentences are in all 13 languages; in Chinese the card's intensity words no longer name rain.
+- The switch and the prompt that turns it on say what it sends: "Rain or snow soon" ("Bald Regen oder Schnee") and "Get a heads-up before rain or snow in …?" ("Vor Regen oder Schnee in … Bescheid bekommen?").
+- Not changed: "sources report rain now" beside the current temperature, the prompt's answer ("You'll hear from us before rain"), "No rain data".
+- Open-Meteo: no change.
+
 ### Fixed: no precipitation chance is called rain below freezing
 - Every place that names a precipitation chance now goes by the temperature it stands beside, with the summit pages' rule: below 0° snow, 0° to under 2° rain and snow, warmer rain.
 - The hour strips (a city's and a summit's), the week list and a route's stages have no room for a word in each cell, so the legend under them names the drop by what is shown: "Chance of rain" when every value is mild, "Chance of snow" ("Schneewahrscheinlichkeit") when every value is below freezing, otherwise "Chance of precipitation" ("Niederschlagswahrscheinlichkeit").

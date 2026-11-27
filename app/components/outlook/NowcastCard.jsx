@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { CloudRain } from 'lucide-react'
 import { t } from '@/lib/i18n'
-import { summarize, upcoming, intensity } from '@/lib/nowcast'
+import { summarize, upcoming, intensity, nowcastKind } from '@/lib/nowcast'
 import { nowcastSentence } from '@/lib/nowcast-text'
 import { keptAsOf } from '@/lib/kept-text'
 import { SectionTitle } from '../ui'
@@ -13,7 +13,9 @@ const OPACITY = { light: 0.45, moderate: 0.75, heavy: 1 }
 // Rain in the next 2 hours: a card with one sentence and eight quarter-hour
 // bars when rain is coming; a slim line when it stays dry. Fetches
 // /api/nowcast for the city and again every 5 minutes; hidden when it fails.
-export default function NowcastCard({ lat, lon, lang }) {
+// `hours`: the city's forecast hours. The nowcast is an amount and cannot tell snow from rain; the hours its wet
+// quarters fall in can (lib/nowcast.js nowcastKind). Without them the sentence says the neutral word.
+export default function NowcastCard({ lat, lon, lang, hours = null }) {
   const [state, setState] = useState({ nc: null, now: 0 })
   useEffect(() => {
     let off = false
@@ -28,6 +30,7 @@ export default function NowcastCard({ lat, lon, lang }) {
   const s = state.nc ? summarize(state.nc, state.now) : null
   if (!s) return null
   const steps = upcoming(state.nc, state.now)
+  const kind = nowcastKind(state.nc, state.now, hours)
   const max = Math.max(1, ...steps.map(x => x.mm ?? 0))
   // the place's last good answer from before an outage says when it was made (lib/last-answer.js)
   const asOf = state.nc.kept ? keptAsOf(state.nc.kept, state.nc.utcOffsetSec, lang) : null
@@ -36,14 +39,14 @@ export default function NowcastCard({ lat, lon, lang }) {
     return (
       <p className="flex items-center gap-2 px-1 text-sm text-zinc-400" aria-label={t(lang, 'ncTitle')}>
         <CloudRain size={15} className="shrink-0 text-zinc-500" aria-hidden />
-        <span>{nowcastSentence(lang, s)}{state.nc.precision === 'rough' ? ` · ${t(lang, 'ncRough')}` : ''}{asOf ? ` · ${asOf}` : ''}</span>
+        <span>{nowcastSentence(lang, s, kind)}{state.nc.precision === 'rough' ? ` · ${t(lang, 'ncRough')}` : ''}{asOf ? ` · ${asOf}` : ''}</span>
       </p>
     )
   }
   return (
     <section className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 space-y-3" aria-label={t(lang, 'ncTitle')}>
       <SectionTitle icon={CloudRain}>{t(lang, 'ncTitle')}</SectionTitle>
-      <p className="text-base font-semibold">{nowcastSentence(lang, s)}</p>
+      <p className="text-base font-semibold">{nowcastSentence(lang, s, kind)}</p>
       <div className="flex items-end gap-1.5 h-12" aria-hidden>
         {steps.map(x => (
           <div key={x.t} className="flex-1 rounded-sm" style={{

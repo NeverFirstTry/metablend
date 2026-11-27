@@ -33,7 +33,7 @@ export default function TabToday({ outlook, now, unit, lang, fmt, prompt = null 
       {now?.lat != null && now?.lon != null && <WarningsCard lat={now.lat} lon={now.lon} cc={outlook?.cc} lang={lang} todayLocal={todayLocal} />}
       {/* the official warnings come first, then the rain prompt (owner, 2026-11-22) */}
       {prompt}
-      {now?.lat != null && now?.lon != null && <NowcastCard lat={now.lat} lon={now.lon} lang={lang} />}
+      {now?.lat != null && now?.lon != null && <NowcastCard lat={now.lat} lon={now.lon} lang={lang} hours={outlook.hourly} />}
       {hours.length > 0 && (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-6">
           <HourlyChart hours={hours} unit={unit} lang={lang} />
