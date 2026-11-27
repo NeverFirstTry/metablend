@@ -3,6 +3,7 @@
 import { t } from '@/lib/i18n'
 import { summitHourLabel, stormSegments } from '@/lib/a11y-text'
 import { isDark, nightIcon } from '@/lib/sky'
+import { kindAt, chanceLabelKey } from '@/lib/precip'
 import ScrollStrip from '../ScrollStrip'
 import Glyph from '../Glyph'
 import { Valued, ValueKey } from '../ValueKey'
@@ -46,7 +47,7 @@ export default function SummitStrip({ hours, fmtTemp, sun, lang }) {
           ))}
         </div>
       </ScrollStrip>
-      <ValueKey lang={lang} kinds={['summitWind', 'freezing', 'rain']} className="mt-3" />
+      <ValueKey lang={lang} kinds={['summitWind', 'freezing', 'rain']} rainLabel={chanceLabelKey(hours.filter(h => h.rainPct != null).map(h => kindAt(h.temp)))} className="mt-3" />
     </>
   )
 }

@@ -29,6 +29,7 @@ import { skyFor, isDark } from '@/lib/sky'
 import { useSky } from '@/lib/useSky'
 import { tempFormatter, deltaFormatter, spanFormatter, fill } from '@/lib/outlook/text'
 import { atNow } from '@/lib/outlook/at-now'
+import { kindAt, shortChanceLabelKey } from '@/lib/precip'
 import { TermsBar } from './components/TermsNotice'
 import Footer from './components/Footer'
 import SiteHeader from './components/SiteHeader'
@@ -1008,7 +1009,7 @@ ${url}`)
                 <div className="text-emerald-400 text-xs uppercase tracking-wider mb-2 truncate">{d.city}</div>
                 <div className="text-4xl font-bold mb-3">{isAppView() ? showT(d.consensus.temp) : Math.round(showT(d.consensus.temp))}°{unit}</div>
                 <div className="space-y-1 text-sm">
-                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'rainLabel')}</span><span>{d.consensus.rainPct != null ? `${d.consensus.rainPct}%` : '–'}</span></div>
+                  <div className="flex justify-between"><span className="text-zinc-500">{t(lang, shortChanceLabelKey(kindAt(d.consensus.temp)))}</span><span>{d.consensus.rainPct != null ? `${d.consensus.rainPct}%` : '–'}</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'windLabel')}</span><span>{d.consensus.windKmh} km/h</span></div>
                   <div className="flex justify-between"><span className="text-zinc-500">{t(lang, 'consensusLabel')}</span><span>{d.consensus.confidencePct}%</span></div>
                 </div>

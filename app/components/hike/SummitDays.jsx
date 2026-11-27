@@ -1,7 +1,7 @@
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { weekVerdict, headlineText, rowText } from '@/lib/hike/week'
-import { precipChance } from '@/lib/hike/text'
+import { precipChance } from '@/lib/precip'
 import { StormBar, StormLegend } from './SummitStrip'
 import { Valued, ValueKey } from '../ValueKey'
 import Glyph from '../Glyph'

@@ -12,6 +12,7 @@ import { walkStats } from '@/lib/route/heights'
 import { isMultiDay, isLongDay } from '@/lib/route/timing'
 import { REASON_KEY } from '@/lib/route/reasons'
 import { reasonKey } from '@/lib/hike/text'
+import { kindAt, chanceLabelKey } from '@/lib/precip'
 import { stageFlag } from '@/lib/route/flag'
 import { SectionTitle } from '../ui'
 import { StormBar, StormLegend } from './SummitStrip'
@@ -183,7 +184,7 @@ export default function RouteView({ route, lang, unit, onBack, backLabel, onSave
               )
             })}
           </ol>
-          <ValueKey lang={lang} kinds={['wind', 'rain']} className="px-1">
+          <ValueKey lang={lang} kinds={['wind', 'rain']} rainLabel={chanceLabelKey(d.stages.filter(st => st.rain != null).map(st => kindAt(st.temp)))} className="px-1">
             <span><span className="text-zinc-400">(°)</span> {t(lang, 'feelsLike')}</span>
           </ValueKey>
           <StormLegend lang={lang} className="px-1" />
