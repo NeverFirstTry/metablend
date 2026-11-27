@@ -12,8 +12,13 @@ import { THEME_COOKIE, applyTheme } from '@/lib/theme'
 import { useShownTheme } from '@/lib/useTheme'
 import { useLang } from '@/lib/useLang'
 import { useUnit } from '@/lib/useUnit'
+import { STORES } from '@/lib/hike/stores'
 
-const NAV = [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/hike', 'hiking'], ['/aviation', 'aviation']]
+// the testers page last, until the app is in both stores: the same check as the start page's bottom link (owner,
+// 2026-11-27: it stood only at the bottom of the start page and beside the store badges on hiking)
+export const siteNav = stores => [['/leaderboard', 'leaderboard'], ['/heatmap', 'heatmap'], ['/planner', 'planner'], ['/hike', 'hiking'], ['/aviation', 'aviation'],
+  ...(stores.ios && stores.android ? [] : [['/testers', 'testersBecome']])]
+const NAV = siteNav(STORES)
 
 // The website's header: logo, site navigation, unit, theme and language. The forecast
 // page passes its own logo and state; every other page gets PageHeader below.

@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-27
 
+### Added: "Become a tester" in the website's header
+- The website's header names the testers page after Aviation ("Tester werden" in German, in all 13 languages), in the menu on a small screen, until the app is in both stores; it stood only at the bottom of the start page and beside the store badges on hiking (owner, 27 November).
+
 ### Fixed: a summit page's precipitation chance says what falls
 - The summit pages' 7-day forecast headed its precipitation chance "Rain" (German "Regen") at any temperature, beside a day of -6° whose window says "snow from 09:00". Each day now says what falls: "100% snow", "98% rain and snow", "56% rain" (German "100% Schnee", "98% Schneeregen", "56% Regen"), by the summit's temperature in the hours that carry most of that day's chance: below 0° snow, 0° to under 2° rain and snow, warmer rain. (Not the one hour with the highest chance: a day that snows from morning on would read "rain" after a mild hour past midnight.) In all 13 languages, with the words the rows already use.
 - On a wide screen the table's column is headed "Precipitation" ("Niederschlag"); one heading cannot say three things, so the word stands in each row. The heading is a word of its own (`colPrecip`): the existing "Precipitation" label heads an amount in mm and says so in Japanese and Korean. The table was measured at 640 px, the narrowest width that shows it, with the longest word in every row in all 13 languages.
