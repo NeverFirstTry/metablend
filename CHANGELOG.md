@@ -5,6 +5,12 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-27
 
+### Fixed: "sources report rain now" says what they report
+- The line beside the current temperature counted every source that reports precipitation, snow included, and called it rain: "6 of 14 sources report rain now" at -9°. It now says "… report snow now" ("… melden gerade Schnee"), "… rain and snow now" or "… rain now", by what those sources say and the temperature beside the line, with the rule of a forecast hour: below 0° snow, 0° to under 2° rain and snow unless they say snow, warmer rain; freezing rain is rain.
+- Where the page cannot tell (the sources that report are not among those it is given) the line says "precipitation" ("Niederschlag").
+- Three new sentences in all 13 languages. When the line shows, and its two numbers, are unchanged.
+- Open-Meteo: no change.
+
 ### Fixed: the forecast says snow when it will snow
 - The headline, the two-hour card and the rain alert said "rain" for any precipitation. They now say what falls: "Snow likely 14:00-16:00 today" ("Schnee wahrscheinlich heute 14:00-16:00"), "Snow from ~13:30 · light", and the alert's title "Snow in Lienz" or "Rain and snow in Lienz" ("Schnee in Lienz", "Schneeregen in Lienz"). The morning briefing and the widget's line follow.
 - What falls is read from the forecast's hours, by the temperature (below 0° snow, 0° to under 2° rain and snow, warmer rain) and the sources' weather code: freezing rain is rain, and a snow code makes it snow up to under 2°. From 2° on the temperature decides, since a source's code is for its own grid height. An event over several hours takes the kind that carries most of their chance.
