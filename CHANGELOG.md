@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-27
+
+### Added: "Become a tester" in the website's header
+- The website's header names the testers page after Aviation ("Tester werden" in German, in all 13 languages), in the menu on a small screen, until the app is in both stores; it stood only at the bottom of the start page and beside the store badges on hiking (owner, 27 November).
+
 ## 2026-11-26
 
 ### Fixed: every page's browser title in your language
