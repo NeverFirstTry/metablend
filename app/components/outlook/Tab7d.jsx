@@ -5,6 +5,7 @@ import { Thermometer, CloudRain, AlertTriangle, ChevronDown } from 'lucide-react
 import { t } from '@/lib/i18n'
 import { formatCalendarDate } from '@/lib/localtime'
 import { headlineText, headlineTone, dayPhrase, fill } from '@/lib/outlook/text'
+import { dayKind, chanceLabelKey } from '@/lib/precip'
 import { MetricCard, TileGrid } from '../ui'
 import Glyph from '../Glyph'
 import Headline from './Headline'
@@ -33,10 +34,10 @@ export default function Tab7d({ outlook, unit, lang, fmt, prompt = null }) {
   const lo = Math.min(...days.map(d => d.tempMin)), hi = Math.max(...days.map(d => d.tempMax)), span = hi - lo || 1
   return (
     <div className="space-y-4 animate-fade-in">
-      <Headline text={headlineText(lang, 'd7', h, { todayLocal, ...fmt })} tone={headlineTone('d7', h)} />
+      <Headline text={headlineText(lang, 'd7', h, { todayLocal, ...fmt, precip: dayKind(days.find(d => d.date === h?.date)) })} tone={headlineTone('d7', h)} />
       {prompt}
       {/* what the dots mean and that a day opens, above the list where it is read first (UX review T1) */}
-      <ValueKey lang={lang} kinds={['rain']}><span>{t(lang, 'agreeHint')}</span></ValueKey>
+      <ValueKey lang={lang} kinds={['rain']} rainLabel={chanceLabelKey(days.filter(d => d.rainPct != null).map(dayKind))}><span>{t(lang, 'agreeHint')}</span></ValueKey>
       <div className="@container bg-zinc-900 border border-zinc-800 rounded-2xl p-2 sm:p-4">
         {days.map(d => {
           const open = openDay === d.date

@@ -5,6 +5,16 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-27
 
+### Fixed: no precipitation chance is called rain below freezing
+- Every place that names a precipitation chance now goes by the temperature it stands beside, with the summit pages' rule: below 0° snow, 0° to under 2° rain and snow, warmer rain.
+- The hour strips (a city's and a summit's), the week list and a route's stages have no room for a word in each cell, so the legend under them names the drop by what is shown: "Chance of rain" when every value is mild, "Chance of snow" ("Schneewahrscheinlichkeit") when every value is below freezing, otherwise "Chance of precipitation" ("Niederschlagswahrscheinlichkeit").
+- The city pages: the value beside the temperature is named the same way, the table's column is headed "Precipitation" ("Niederschlag"), and each day says its word ("60% snow"), by the mean of the day's low and high. A day without temperatures shows its chance alone.
+- The week's best day says what falls ("-3°, 20% snow"); the compare cards say "Precipitation" where it is not rain.
+- Screen readers hear the same: an hour reads "14:00, -6°, 80% snow", and a chart's summary says "precipitation chance" unless every hour with a chance is mild.
+- New texts in all 13 languages (the snow and the neutral name of the chance, the chart sentence, the best day's line); two texts with no reader left are removed.
+- Not changed: sentences about rain as an event (the forecast's headlines, the rain alert, the two-hour rain card). They come from the weather sources' own codes or from radar, not from a chance beside a temperature.
+- Open-Meteo: no change.
+
 ### Added: "Become a tester" in the website's header
 - The website's header names the testers page after Aviation ("Tester werden" in German, in all 13 languages), in the menu on a small screen, until the app is in both stores; it stood only at the bottom of the start page and beside the store badges on hiking (owner, 27 November).
 
