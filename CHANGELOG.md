@@ -3,7 +3,7 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-26
+## 2026-11-27
 
 ### Fixed: a summit page's precipitation chance says what falls
 - The summit pages' 7-day forecast headed its precipitation chance "Rain" (German "Regen") at any temperature, beside a day of -6° whose window says "snow from 09:00". Each day now says what falls: "100% snow", "98% rain and snow", "56% rain" (German "100% Schnee", "98% Schneeregen", "56% Regen"), by the summit's temperature in the hours that carry most of that day's chance: below 0° snow, 0° to under 2° rain and snow, warmer rain. (Not the one hour with the highest chance: a day that snows from morning on would read "rain" after a mild hour past midnight.) In all 13 languages, with the words the rows already use.
@@ -12,6 +12,8 @@ All notable changes to MetaBlend. Format loosely follows
 - A day whose forecast does not say what falls (an answer kept from before this change, shown while the weather source is out) shows its chance alone, "56%", never "rain".
 - Not changed: the hour strip and a route's stages still name their drop "Chance of rain" in the legend under them.
 - Open-Meteo: no change.
+
+## 2026-11-26
 
 ### Fixed: every page's browser title in your language
 - The browser tab of Rankings, the Heatmap, the Planner, Aviation and its airport pages, Cities and each city, Mountains and each summit, Privacy, Terms, Legal notice, Press, Support, the testers page and the start page says its title in your language, in all 13 languages; they said it in English whatever your language (owner, 22 November). In English, and for search engines, the titles stay as they were.
