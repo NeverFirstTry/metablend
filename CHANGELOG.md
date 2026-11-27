@@ -11,7 +11,8 @@ All notable changes to MetaBlend. Format loosely follows
 - The two-hour card's own data is an amount of precipitation and cannot tell snow from rain; it takes the kind from the forecast hours its wet quarters fall in. Where there are none it says "Precipitation" ("Niederschlag").
 - The alert is the same switch as before and is sent at the same moments: snow and mixed precipitation always counted, only the wording was rain.
 - Rain reads as before, in every language. The new sentences are in all 13 languages; in Chinese the card's intensity words no longer name rain.
-- Not changed: "sources report rain now" beside the current temperature, the switch's name ("Rain soon"), the prompt ("Get a heads-up before rain"), "No rain data".
+- The switch and the prompt that turns it on say what it sends: "Rain or snow soon" ("Bald Regen oder Schnee") and "Get a heads-up before rain or snow in …?" ("Vor Regen oder Schnee in … Bescheid bekommen?").
+- Not changed: "sources report rain now" beside the current temperature, the prompt's answer ("You'll hear from us before rain"), "No rain data".
 - Open-Meteo: no change.
 
 ### Fixed: no precipitation chance is called rain below freezing
