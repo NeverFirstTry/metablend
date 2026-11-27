@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { CloudOff } from 'lucide-react'
 import { t } from '@/lib/i18n'
 import { fill, tempFormatter } from '@/lib/outlook/text'
-import { windowText, windowTone, precipWord } from '@/lib/hike/text'
+import { windowText, windowTone, precipChance } from '@/lib/hike/text'
 import { formatCalendarDate, addDays } from '@/lib/localtime'
 import { AVA_COLORS } from '@/lib/avalanche/avalanche'
 import { readAvalanche } from '@/lib/avalanche/read'
@@ -136,7 +136,7 @@ export default function SummitPage({ peak, avaRows = 0, nearby, fullList, ...sto
                     <td role="cell" className="py-2 pr-4 whitespace-nowrap"><Glyph emoji={x.icon} size={16} /> {day(x.date)}</td>
                     <td role="cell" className="py-2 pr-4 tabular-nums">{fmt(x.tempMin)} / {fmt(x.tempMax)}</td>
                     <td role="cell" className="py-2 pr-4 tabular-nums">{x.windMax != null ? `${x.windMax} km/h` : '–'}</td>
-                    <td role="cell" className="py-2 pr-4 tabular-nums">{x.rainPct != null ? `${x.rainPct}% ${precipWord(lang, x.precip)}` : '–'}</td>
+                    <td role="cell" className="py-2 pr-4 tabular-nums">{x.rainPct != null ? precipChance(lang, x.rainPct, x.precip) : '–'}</td>
                     <td role="cell" className="py-2 pr-4 tabular-nums">{x.freezingMin != null ? `${x.freezingMin}-${x.freezingMax} m` : '–'}</td>
                     <td role="cell" className="py-2">{x.storm ? t(lang, `storm${x.storm[0].toUpperCase()}${x.storm.slice(1)}`) : '–'}</td>
                   </tr>
