@@ -5,8 +5,6 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-27
 
-### Added: "Become a tester" in the website's header
-- The website's header names the testers page after Aviation ("Tester werden" in German, in all 13 languages), in the menu on a small screen, until the app is in both stores; it stood only at the bottom of the start page and beside the store badges on hiking (owner, 27 November).
 ### Fixed: no precipitation chance is called rain below freezing
 - Every place that names a precipitation chance now goes by the temperature it stands beside, with the summit pages' rule: below 0° snow, 0° to under 2° rain and snow, warmer rain.
 - The hour strips (a city's and a summit's), the week list and a route's stages have no room for a word in each cell, so the legend under them names the drop by what is shown: "Chance of rain" when every value is mild, "Chance of snow" ("Schneewahrscheinlichkeit") when every value is below freezing, otherwise "Chance of precipitation" ("Niederschlagswahrscheinlichkeit").
@@ -16,6 +14,9 @@ All notable changes to MetaBlend. Format loosely follows
 - New texts in all 13 languages (the snow and the neutral name of the chance, the chart sentence, the best day's line); two texts with no reader left are removed.
 - Not changed: sentences about rain as an event (the forecast's headlines, the rain alert, the two-hour rain card). They come from the weather sources' own codes or from radar, not from a chance beside a temperature.
 - Open-Meteo: no change.
+
+### Added: "Become a tester" in the website's header
+- The website's header names the testers page after Aviation ("Tester werden" in German, in all 13 languages), in the menu on a small screen, until the app is in both stores; it stood only at the bottom of the start page and beside the store badges on hiking (owner, 27 November).
 
 ### Fixed: a summit page's precipitation chance says what falls
 - The summit pages' 7-day forecast headed its precipitation chance "Rain" (German "Regen") at any temperature, beside a day of -6° whose window says "snow from 09:00". Each day now says what falls: "100% snow", "98% rain and snow", "56% rain" (German "100% Schnee", "98% Schneeregen", "56% Regen"), by the summit's temperature in the hours that carry most of that day's chance: below 0° snow, 0° to under 2° rain and snow, warmer rain. (Not the one hour with the highest chance: a day that snows from morning on would read "rain" after a mild hour past midnight.) In all 13 languages, with the words the rows already use.
