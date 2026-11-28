@@ -1,6 +1,6 @@
 'use client'
 
-import { showRainNow } from '@/lib/forecast-hints'
+import { showRainNow, rainNowKey } from '@/lib/forecast-hints'
 import { t, translateCondition } from '@/lib/i18n'
 import { conditionIcon, heroCondition } from '@/lib/conditions'
 import { tempFormatter } from '@/lib/outlook/text'
@@ -21,7 +21,7 @@ export default function NowLine({ data, unit, lang, showT, dark = null }) {
   const condition = heroCondition(data)
   const agreeTint = agreeColor(c.confidencePct)
   const rainingHint = showRainNow(data.rainingNow)
-    ? t(lang, 'rainNowHint').replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
+    ? t(lang, rainNowKey(data)).replace('{n}', data.rainingNow.count).replace('{total}', data.rainingNow.total)
     : null
   // the hero: the temperature as a big light numeral, straight on the page
   // (large text: the details drop below the numeral)
