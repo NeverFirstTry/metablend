@@ -3,7 +3,7 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
-## 2026-11-27
+## 2026-11-28
 
 ### Fixed: "sources report rain now" says what they report, and the snow rule goes by the degrees shown
 - The line beside the current temperature counted every source that reports precipitation, snow included, and called it rain: "6 of 14 sources report rain now" at -9°. It now quotes the sources: "… report snow now" ("… melden gerade Schnee") when most of them say snow, "… rain and snow now" when most say sleet, "… rain now" when most say rain or drizzle, at any temperature.
@@ -13,6 +13,8 @@ All notable changes to MetaBlend. Format loosely follows
 - Three new sentences for the line in all 13 languages. When the line shows, and its two numbers, are unchanged.
 - /api/hike and /api/outlook keep their fields. A kind can differ from before where a temperature lies within half a degree of 0° or 2°.
 - Open-Meteo: no change.
+
+## 2026-11-27
 
 ### Fixed: the forecast says snow when it will snow
 - The headline, the two-hour card and the rain alert said "rain" for any precipitation. They now say what falls: "Snow likely 14:00-16:00 today" ("Schnee wahrscheinlich heute 14:00-16:00"), "Snow from ~13:30 · light", and the alert's title "Snow in Lienz" or "Rain and snow in Lienz" ("Schnee in Lienz", "Schneeregen in Lienz"). The morning briefing and the widget's line follow.
