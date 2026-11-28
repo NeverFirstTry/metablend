@@ -3,6 +3,17 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-28
+
+### Fixed: "sources report rain now" says what they report, and the snow rule goes by the degrees shown
+- The line beside the current temperature counted every source that reports precipitation, snow included, and called it rain: "6 of 14 sources report rain now" at -9°. It now quotes the sources: "… report snow now" ("… melden gerade Schnee") when most of them say snow, "… rain and snow now" when most say sleet, "… rain now" when most say rain or drizzle, at any temperature.
+- Where no source names a kind (showers, hail, thunder, or the sources that report are not among those the page is given), or as many say snow as say rain, the temperature beside the line decides. "Precipitation" ("Niederschlag") only when there is no temperature either.
+- Wherever a precipitation chance, a headline, the two-hour card, the rain alert or a summit window says snow, rain and snow, or rain by the temperature, the rule now goes by the whole degrees the screen shows: "-1°" or colder is snow, "0°" and "1°" rain and snow, "2°" or warmer rain. Before, -0.4° read "0°" and said snow. A day that shows only its low and its high takes the middle of those two numbers.
+- The rain prompt answers "Done. You'll hear from us before rain or snow." ("Erledigt. Du hörst von uns, bevor es regnet oder schneit."), and the settings' summary line starts "Rain or snow soon, …" ("Bald Regen oder Schnee, …"), in all 13 languages.
+- Three new sentences for the line in all 13 languages. When the line shows, and its two numbers, are unchanged.
+- /api/hike and /api/outlook keep their fields. A kind can differ from before where a temperature lies within half a degree of 0° or 2°.
+- Open-Meteo: no change.
+
 ## 2026-11-27
 
 ### Fixed: the forecast says snow when it will snow
