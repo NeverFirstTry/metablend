@@ -5,6 +5,9 @@ All notable changes to MetaBlend. Format loosely follows
 
 ## 2026-11-28
 
+### Changed: the "Wetter" app icon
+- The "Wetter" choice among the app icons is a wide, flat white cloud with a large gold sun rising behind it, on Slate, with room around it; the old one's cloud nearly touched the edges, its sun was squeezed into the corner and its small letters clashed with the sun's gold. On iPhone with its dark and tinted looks, on Android with its two layers. It reaches phones with the next app build (owner, 28 November).
+
 ### Fixed: "sources report rain now" says what they report, and the snow rule goes by the degrees shown
 - The line beside the current temperature counted every source that reports precipitation, snow included, and called it rain: "6 of 14 sources report rain now" at -9°. It now quotes the sources: "… report snow now" ("… melden gerade Schnee") when most of them say snow, "… rain and snow now" when most say sleet, "… rain now" when most say rain or drizzle, at any temperature.
 - Where no source names a kind (showers, hail, thunder, or the sources that report are not among those the page is given), or as many say snow as say rain, the temperature beside the line decides. "Precipitation" ("Niederschlag") only when there is no temperature either.
