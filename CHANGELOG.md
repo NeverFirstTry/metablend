@@ -3,6 +3,11 @@
 All notable changes to MetaBlend. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Dates are UTC.
 
+## 2026-11-28
+
+### Changed: the "Wetter" app icon
+- The "Wetter" choice among the app icons is a wide, flat white cloud with a large gold sun rising behind it, on Slate, with room around it; the old one's cloud nearly touched the edges, its sun was squeezed into the corner and its small letters clashed with the sun's gold. On iPhone with its dark and tinted looks, on Android with its two layers. It reaches phones with the next app build (owner, 28 November).
+
 ## 2026-11-27
 
 ### Fixed: the forecast says snow when it will snow
